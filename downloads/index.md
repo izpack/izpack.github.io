@@ -4,13 +4,13 @@ title: "Download IzPack"
 ---
 
 <div class="page-header">
-  <h1>Downloads</h1>
+  <h1>Get IzPack</h1>
 </div>
 
-The current stable is release is **IzPack 4.3.5**.
+## Direct installer download
 
-<span class="label label-inverse">Feedback wanted!</span>
-We have beta releases for the upcoming **IzPack 5.0**. We need you to test!
+The current stable is release is **IzPack 4.3.5**.
+We have beta releases for the upcoming **IzPack 5.0**.
 
 * [Download the installer for IzPack 5.0.0-beta10](http://get.izpack.org/izpack/5.0.0-beta10)
 * [Download the installer for IzPack 4.3.5](http://get.izpack.org/izpack/4.3.5)
