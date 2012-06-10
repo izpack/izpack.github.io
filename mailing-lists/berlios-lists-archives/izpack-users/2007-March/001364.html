@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] install pack based on complex conditions	(repost)
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20install%20pack%20based%20on%20complex%20conditions%09%28repost%29&In-Reply-To=1173687070.5554.10.camel%40wkspc-dre">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001363.html">
+   <LINK REL="Next"  HREF="001365.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] install pack based on complex conditions	(repost)</H1>
+    <B>E.othman</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20install%20pack%20based%20on%20complex%20conditions%09%28repost%29&In-Reply-To=1173687070.5554.10.camel%40wkspc-dre"
+       TITLE="[izpack-users] install pack based on complex conditions	(repost)">othmanelmoulat at menara.ma
+       </A><BR>
+    <I>Mon Mar 12 09:25:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001363.html">[izpack-users] install pack based on complex conditions	(repost)
+</A></li>
+        <LI>Next message: <A HREF="001365.html">[izpack-users] install pack based on complex conditions	(repost)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1364">[ date ]</a>
+              <a href="thread.html#1364">[ thread ]</a>
+              <a href="subject.html#1364">[ subject ]</a>
+              <a href="author.html#1364">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>many thanks Denis i appreciate a lot your help and will try your solution.
+I would appreciate also the second solution you promised to propose for 
+this feature:)
+
+also Dennis, i wanted to ask if using a processpanel is the best way to 
+automate openoffice exe installer?
+well i did that and this is working how ever i have an issue that i need 
+to solve:
+
+if user doesn't have oo and choose to install it then i'm launching the 
+oo_instller.exe from izpack process panel .how ever in this way i loose 
+all control on the other installation wizard of oo installer ..so i 
+wonder how i would know the path the user selected to install oo. (i 
+need to save this path in a properties file)
+well if the oo_installer.exe sets some environment variable holding oo 
+home folder then i can write a small java class to get this variable 
+.but the question : does the oo installer sets some variable of that kind ?
+otherwise i don't see how we can know the target oo path .
+what u think ? do you have an idea ?
+
+
+Dennis Reil wrote:
+&gt;<i> Hi,
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> 1.display a UserInputPanel  asking user if he /she wants to install a 
+</I>&gt;&gt;<i> pack or not (I'm thinking to use check boxes for this: yes and no)
+</I>&gt;&gt;<i> 2. if user decides not to install the pack (checks no); i should ask him 
+</I>&gt;&gt;<i> for the path where this pack is currently installed . then i should 
+</I>&gt;&gt;<i> validate this path (not empty) if path is empty the installation should 
+</I>&gt;&gt;<i> fail (be canceled).if path is correct i should save this path to a 
+</I>&gt;&gt;<i> .properties file.
+</I>&gt;&gt;<i> 3.if user checks yes (decides to install pack ) then i should display a 
+</I>&gt;&gt;<i> ProcessPanel
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> There're two possibilities to solve this problem.
+</I>&gt;<i> 1. a) Use a PackSelectionPanel
+</I>&gt;<i>    b) define a packselectioncondition like this: 
+</I>&gt;<i>        &lt;condition type=&quot;packselection&quot; id=&quot;pack1selected&quot;&gt;
+</I>&gt;<i>             &lt;packid&gt;pack1&lt;/packid&gt;
+</I>&gt;<i>        &lt;/condition&gt;
+</I>&gt;<i>       and the negated one: (in the current trunk, this is optional)
+</I>&gt;<i>        &lt;condition type=&quot;not&quot; id=&quot;notpack1selected&quot;&gt;
+</I>&gt;<i>              &lt;condition type=&quot;ref&quot; refid=&quot;pack1selected&quot;/&gt;
+</I>&gt;<i>        &lt;/condition&gt;
+</I>&gt;<i>       Note, that there has to be a pack in install.xml with id pack1
+</I>&gt;<i>    c) Use a panelcondition like the following to show the user input
+</I>&gt;<i> panel:
+</I>&gt;<i>       &lt;panelcondition panelid=&quot;pack1pathselection&quot;
+</I>&gt;<i> conditionid=&quot;notpack1selected&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>       with the current trunk, you can also write:
+</I>&gt;<i>       &lt;panelcondition panelid=&quot;pack1pathselection&quot; conditionid=&quot;!
+</I>&gt;<i> pack1selected&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i> Regards,
+</I>&gt;<i>    Dennis
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> I'm new to izpack and need to implement this feature urgently : it would 
+</I>&gt;&gt;<i> be nice if some one helps me write the xml configuration files to 
+</I>&gt;&gt;<i> implement this feature.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> your help is greatly appreciated.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> thanks.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> othman
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> No virus found in this outgoing message
+</I>&gt;&gt;<i> Checked by PC Tools AntiVirus (3.1.0.10 - 9.065.007).
+</I>&gt;&gt;<i> <A HREF="http://www.pctools.com/anti-virus/">http://www.pctools.com/anti-virus/</A>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>     
+</I>
+No virus found in this outgoing message
+Checked by PC Tools AntiVirus (3.1.0.10 - 9.066.001).
+<A HREF="http://www.pctools.com/anti-virus/">http://www.pctools.com/anti-virus/</A>
+
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070312/19b9f064/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070312/19b9f064/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001363.html">[izpack-users] install pack based on complex conditions	(repost)
+</A></li>
+	<LI>Next message: <A HREF="001365.html">[izpack-users] install pack based on complex conditions	(repost)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1364">[ date ]</a>
+              <a href="thread.html#1364">[ thread ]</a>
+              <a href="subject.html#1364">[ subject ]</a>
+              <a href="author.html#1364">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

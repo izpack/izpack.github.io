@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Flagging empty variables
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Flagging%20empty%20variables&In-Reply-To=870c8dd20603151219u466508cexd2dbb37e723a2d77%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000374.html">
+   <LINK REL="Next"  HREF="000375.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Flagging empty variables</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Flagging%20empty%20variables&In-Reply-To=870c8dd20603151219u466508cexd2dbb37e723a2d77%40mail.gmail.com"
+       TITLE="[izpack-users] Flagging empty variables">bartzkau at gmx.net
+       </A><BR>
+    <I>Thu Mar 16 18:46:21 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000374.html">[izpack-users] Flagging empty variables
+</A></li>
+        <LI>Next message: <A HREF="000375.html">[izpack-users] How to use Password field in the UserInputPanel?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#377">[ date ]</a>
+              <a href="thread.html#377">[ thread ]</a>
+              <a href="subject.html#377">[ subject ]</a>
+              <a href="author.html#377">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Laurent,
+
+Am 15.03.2006, 21:19 Uhr, schrieb Laurent Duperval &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">lduperval at gmail.com</A>&gt;:
+
+&gt;<i> HI,
+</I>&gt;<i>
+</I>&gt;<i> Is there a way to warn a user that she/he has left a value empty on a
+</I>&gt;<i> screen? We've had a couple of instances where an installation was
+</I>&gt;<i> completed without entering a value everywhere and that causes issues
+</I>&gt;<i> in our application.
+</I>
+good pratice is to verify all input. At UserInputPanel there are
+validators (I do not know more...).
+If you use custom panels, it is in your hand. All panels can have the  
+method
+isValidated which will be called after the installer has pushed &lt;next&gt;  
+button.
+There you have to do your validation.
+E.g. see the JDKPathPanel. It presents an &quot;ask question box&quot; if e.g. the
+version of the given JDK is not OK.
+
+&gt;<i>
+</I>&gt;<i> Can I have a popup appear or can I display empty values in ALL CAPS
+</I>&gt;<i> AND RED in the summary screen?
+</I>&gt;<i>
+</I>Good idea. At implementation not thought about it, but simple possible.
+The SummaryPanel uses HTML. Therefore surround the return value with
+a color tag like
+     public String getSummaryBody()
+     {
+         return (&quot;&lt;font color=\&quot;#ff0000\&quot;&gt;&quot; + myContents + &quot;&lt;/font&gt;&quot;);
+     }
+and it will be placed with red color.
+
+&gt;<i> On a similar note: we need to be able to display on the summary page
+</I>&gt;<i> whether a password entered was empty or not, without displaying the
+</I>&gt;<i> actual password. Is this feasible?
+</I>
+That's depends on the panel which consume the password. The summary panel
+calls the method getSummaryBody() of all panels. The String which will be
+returned by this method will be placed in the panel. If a MyPasswordPanel
+returns ***** this will be written in the summary panel.
+
+&gt;<i>
+</I>&gt;<i> Thanks,
+</I>&gt;<i>
+</I>&gt;<i> L
+</I>
+Cheers
+
+Klaus
+
+&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+
+
+-- 
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000374.html">[izpack-users] Flagging empty variables
+</A></li>
+	<LI>Next message: <A HREF="000375.html">[izpack-users] How to use Password field in the UserInputPanel?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#377">[ date ]</a>
+              <a href="thread.html#377">[ thread ]</a>
+              <a href="subject.html#377">[ subject ]</a>
+              <a href="author.html#377">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

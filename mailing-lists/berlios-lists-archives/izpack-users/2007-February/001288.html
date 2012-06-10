@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Starting a Microsoft installer from IzPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Starting%20a%20Microsoft%20installer%20from%20IzPack&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001287.html">
+   <LINK REL="Next"  HREF="001289.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Starting a Microsoft installer from IzPack</H1>
+    <B>Gernot Stenz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Starting%20a%20Microsoft%20installer%20from%20IzPack&In-Reply-To="
+       TITLE="[izpack-users] Starting a Microsoft installer from IzPack">stenzg at in.tum.de
+       </A><BR>
+    <I>Tue Feb  6 13:28:27 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001287.html">[izpack-users] Silent Uninstall
+</A></li>
+        <LI>Next message: <A HREF="001289.html">[izpack-users] I18N packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1288">[ date ]</a>
+              <a href="thread.html#1288">[ thread ]</a>
+              <a href="subject.html#1288">[ subject ]</a>
+              <a href="author.html#1288">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Hello,
+
+currently I have a serious problem with IzPack. I am writing an installer that
+is supposed to call another, platform-dependent installer (one containing
+the Tortoise SVN Client).
+
+Currently I am organising it this way:
+
+ &lt;executable os=&quot;windows&quot; targetfile=&quot;$INSTALL_PATH/Tortoise/install-tortoise.bat&quot; stage=&quot;postinstall&quot; keep=&quot;true&quot;&gt;
+      &lt;arg value=&quot;$INSTALL_PATH/Tortoise/TortoiseSVN-1.4.3.8645-win32-svn-1.4.3.msi&quot; /&gt;
+ &lt;/executable&gt;
+
+where install-tortoise.bat is a small batch file that looks like this:
+
+start /wait msiexec /i %1
+
+The argument is necessary as I cannot execute the MSI script on its own and
+somehow the path of the installer script has to be passed to the batch file.
+
+The construction as a whole might work. When I replace the '%1' in the batch
+file by the MSI-script-name with a proper path, all will perform nicely.
+
+But the argument passing from the IzPack installer to the batch file does not
+seem to work. I also tried this:
+ &lt;arg&gt;$INSTALL_PATH/Tortoise/TortoiseSVN-1.4.3.8645-win32-svn-1.4.3.msi&lt;/arg&gt;
+but it did not help either.
+
+Did anybody get this to work?
+
+TIA Gernot
+
+BTW, the 'executable' tags of a pack are evaluated in reverse order.
+
+-- 
+    __o  Gernot Stenz  e-mail:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">stenzg at informatik.tu-muenchen.de</A>        /\
+   -\&lt;,          WWW:  <A HREF="http://www4.in.tum.de/~stenzg">http://www4.in.tum.de/~stenzg</A>               /\/--\
+_(_)/(_)_London - Paris: 3547 km__________________________________/      \
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001287.html">[izpack-users] Silent Uninstall
+</A></li>
+	<LI>Next message: <A HREF="001289.html">[izpack-users] I18N packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1288">[ date ]</a>
+              <a href="thread.html#1288">[ thread ]</a>
+              <a href="subject.html#1288">[ subject ]</a>
+              <a href="author.html#1288">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

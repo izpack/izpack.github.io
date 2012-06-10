@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] panelcondition ?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20panelcondition%20%3F&In-Reply-To=45F1A9FB.1030401%40menara.ma">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001356.html">
+   <LINK REL="Next"  HREF="001359.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] panelcondition ?</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20panelcondition%20%3F&In-Reply-To=45F1A9FB.1030401%40menara.ma"
+       TITLE="[izpack-users] panelcondition ?">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Mon Mar 12 09:01:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001356.html">[izpack-users] panelcondition ?
+</A></li>
+        <LI>Next message: <A HREF="001359.html">[izpack-users] Multiple Path Panel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1362">[ date ]</a>
+              <a href="thread.html#1362">[ thread ]</a>
+              <a href="subject.html#1362">[ subject ]</a>
+              <a href="author.html#1362">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+I think, the problem is the $ in the conditions.xml:
+&gt;<i>&lt;condition type=&quot;variable&quot; id=&quot;showmypathpanel&quot;&gt;
+</I>&gt;<i>         &lt;name&gt;$radioSelection&lt;/name&gt;
+</I>&gt;<i>         &lt;value&gt;yes&lt;/value&gt;
+</I>&gt;<i>     &lt;/condition&gt;
+</I>
+You just have to give the plain variable name there.
+
+Regards,
+  Dennis
+
+
+&gt;<i> in a userinputpanel i defined 2 panels with id path.panel1 and path.panel2
+</I>&gt;<i> like this:
+</I>&gt;<i> &lt;userInput&gt;
+</I>&gt;<i>    &lt;panel order=&quot;0&quot; id=&quot;path.panel1&quot; &gt;
+</I>&gt;<i> &lt;field type=&quot;staticText&quot; align=&quot;left&quot;
+</I>&gt;<i> txt=&quot;Do you want to install OpenOffice.org ?&quot;
+</I>&gt;<i> id=&quot;staticText.text&quot;/&gt;
+</I>&gt;<i>  &lt;field type=&quot;divider&quot; align=&quot;center&quot;/&gt;
+</I>&gt;<i>  &lt;field type=&quot;divider&quot; align=&quot;center&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i>  &lt;field type=&quot;radio&quot; variable=&quot;radioSelection&quot;&gt;
+</I>&gt;<i> &lt;description align=&quot;left&quot;
+</I>&gt;<i> id=&quot;description.radio&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i> &lt;spec&gt;
+</I>&gt;<i> &lt;choice txt=&quot;no&quot; id=&quot;radio.label.1&quot; value=&quot;no&quot; /&gt;
+</I>&gt;<i> &lt;choice txt=&quot;yes&quot; id=&quot;radio.label.2&quot; value=&quot;yes&quot;
+</I>&gt;<i>  /&gt;
+</I>&gt;<i> &lt;/spec&gt;
+</I>&gt;<i> &lt;/field&gt;
+</I>&gt;<i>  
+</I>&gt;<i>     &lt;/panel&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;panel order=&quot;1&quot; id=&quot;path.panel2&quot; &gt;
+</I>&gt;<i>  &lt;field type=&quot;divider&quot; align=&quot;center&quot;/&gt;
+</I>&gt;<i>        &lt;field type=&quot;search&quot; &gt;
+</I>&gt;<i>  
+</I>&gt;<i> &lt;spec txt=&quot;Path to OpenOffice root folder  :&quot;
+</I>&gt;<i> type=&quot;directory&quot; result=&quot;directory&quot;&gt;
+</I>&gt;<i> &lt;/spec&gt;
+</I>&gt;<i> &lt;/field&gt;
+</I>&gt;<i>  
+</I>&gt;<i>     &lt;/panel&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>  
+</I>&gt;<i> &lt;/userInput&gt;
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i> i defined a resource in install.xml &lt;res id=&quot;conditions.xml&quot; 
+</I>&gt;<i> src=&quot;conditions.xml&quot; /&gt;
+</I>&gt;<i> 
+</I>&gt;<i> the file conditions.xml is :
+</I>&gt;<i> 
+</I>&gt;<i> &lt;?xml version=&quot;1.0&quot; ?&gt;
+</I>&gt;<i> &lt;conditions&gt;
+</I>&gt;<i>     &lt;condition type=&quot;variable&quot; id=&quot;showmypathpanel&quot;&gt;
+</I>&gt;<i>         &lt;name&gt;$radioSelection&lt;/name&gt;
+</I>&gt;<i>         &lt;value&gt;yes&lt;/value&gt;
+</I>&gt;<i>     &lt;/condition&gt;
+</I>&gt;<i>     &lt;panelcondition conditionid=&quot;showmypathpanel&quot;
+</I>&gt;<i> panelid=&quot;path.panel2&quot; /&gt;     
+</I>&gt;<i> &lt;/condition&gt;
+</I>&gt;<i> 
+</I>&gt;<i> and finally in install.xml i did this :
+</I>&gt;<i> &lt;panels&gt;
+</I>&gt;<i>       &lt;panel classname=&quot;UserInputPanel&quot; id=&quot;path.panel1&quot; /&gt;
+</I>&gt;<i>       &lt;panel classname=&quot;UserInputPanel&quot; id=&quot;path.panel2&quot; /&gt;       
+</I>&gt;<i>         &lt;panel classname=&quot;ProcessPanel&quot;/&gt;  
+</I>&gt;<i>      &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+</I>&gt;<i>     &lt;/panels&gt;
+</I>&gt;<i> 
+</I>&gt;<i> the problem : whether i select yes or no radio buttons i always get the 
+</I>&gt;<i> process panel i never get the path.panel2 ...
+</I>&gt;<i> am i doing something wrong ?
+</I>&gt;<i> please help!
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> No virus found in this outgoing message
+</I>&gt;<i> Checked by PC Tools AntiVirus (3.1.0.10 - 9.065.007).
+</I>&gt;<i> <A HREF="http://www.pctools.com/anti-virus/">http://www.pctools.com/anti-virus/</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>-- 
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001356.html">[izpack-users] panelcondition ?
+</A></li>
+	<LI>Next message: <A HREF="001359.html">[izpack-users] Multiple Path Panel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1362">[ date ]</a>
+              <a href="thread.html#1362">[ thread ]</a>
+              <a href="subject.html#1362">[ subject ]</a>
+              <a href="author.html#1362">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

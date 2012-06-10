@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1719 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1719%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000463.html">
+   <LINK REL="Next"  HREF="000465.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1719 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1719%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1719 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Wed Jan 24 11:05:59 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000463.html">[izpack-changes] r1718 - in izpack-src/branches/3.10: .	src/dist-files
+</A></li>
+        <LI>Next message: <A HREF="000465.html">[izpack-changes] r1720 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#464">[ date ]</a>
+              <a href="thread.html#464">[ thread ]</a>
+              <a href="subject.html#464">[ subject ]</a>
+              <a href="author.html#464">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-24 11:05:54 +0100 (Wed, 24 Jan 2007)
+New Revision: 1719
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+Selection in combo-fields dynamically adapted
+
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2007-01-20 18:21:13 UTC (rev 1718)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2007-01-24 10:05:54 UTC (rev 1719)
+@@ -292,7 +292,7 @@
+     private static final String UNSELECTEDPACKS = &quot;createForUnselectedPack&quot;; // new
+ 
+     protected static final String ATTRIBUTE_CONDITIONID_NAME = &quot;conditionid&quot;;
+-    
++
+     protected static final String VARIABLE_NODE = &quot;variable&quot;;
+ 
+     protected static final String ATTRIBUTE_VARIABLE_NAME = &quot;name&quot;;
+@@ -425,7 +425,7 @@
+ 
+         // refresh variables specified in spec
+         updateVariables();
+-        
++
+         // ----------------------------------------------------
+         // process all field nodes. Each field node is analyzed
+         // for its type, then an appropriate memeber function
+@@ -509,7 +509,7 @@
+                 continue;
+             }
+             String value = idata.getVariable((String) element[POS_VARIABLE]);
+-            
++
+             if (RADIO_FIELD.equals(element[POS_TYPE]))
+             {
+                 // we have a radio field, which should be updated
+@@ -557,7 +557,7 @@
+                 if (value == null)
+                 {
+                     value = rulef.getText();
+-                }               
++                }
+             }
+             // overwrite entry;
+             uiElements.set(i, element);
+@@ -592,8 +592,8 @@
+     /*--------------------------------------------------------------------------*/
+     public void panelActivate()
+     {
+-        this.init();        
+-                
++        this.init();
++
+         if (spec == null)
+         {
+             // TODO: translate
+@@ -601,7 +601,7 @@
+                     &quot;The specification for the user input panel could not be found. Please contact the packager.&quot;);
+             parentFrame.skipPanel();
+         }
+-        //  update UI with current values of associated variables
++        // update UI with current values of associated variables
+         updateUIElements();
+         Vector forPacks = spec.getChildrenNamed(SELECTEDPACKS);
+         Vector forUnselectedPacks = spec.getChildrenNamed(UNSELECTEDPACKS);
+@@ -624,12 +624,12 @@
+         // }
+ 
+         buildUI();
+-        //need a validation, else ui is scrambled
++        // need a validation, else ui is scrambled
+         validate();
+         if (packsDefined)
+         {
+             parentFrame.lockPrevButton();
+-        }        
++        }
+     }
+ 
+     /*--------------------------------------------------------------------------*/
+@@ -1228,21 +1228,21 @@
+      * This is a complete example of a valid XML specification
+      * 
+      * &lt;pre&gt;
+-     *  
+      *   
+      *    
+-     *     &amp;lt;field type=&amp;quot;combo&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
+-     *       &amp;lt;description text=&amp;quot;Description for the combo box&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
+-     *       &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;choice 1&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 1&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;choice 2&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 2&amp;quot; set=&amp;quot;true&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;choice 3&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 3&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;choice 4&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 4&amp;quot;/&amp;gt;
+-     *       &amp;lt;/spec&amp;gt;
+-     *     &amp;lt;/field&amp;gt;
+      *     
++     *      &amp;lt;field type=&amp;quot;combo&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
++     *        &amp;lt;description text=&amp;quot;Description for the combo box&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
++     *        &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;choice 1&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 1&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;choice 2&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 2&amp;quot; set=&amp;quot;true&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;choice 3&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 3&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;choice 4&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 4&amp;quot;/&amp;gt;
++     *        &amp;lt;/spec&amp;gt;
++     *      &amp;lt;/field&amp;gt;
++     *      
++     *     
+      *    
+-     *   
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the combo box.
+@@ -1258,6 +1258,7 @@
+         JComboBox field = new JComboBox();
+         JLabel label;
+ 
++        boolean userinput = false; // is there already user input?
+         // ----------------------------------------------------
+         // extract the specification details
+         // ----------------------------------------------------
+@@ -1268,7 +1269,13 @@
+             Vector choices = element.getChildrenNamed(COMBO_CHOICE);
+ 
+             if (choices == null) { return; }
+-
++            // get current value of associated variable
++            String currentvariablevalue = idata.getVariable(variable);
++            if (currentvariablevalue != null)
++            {
++                // there seems to be user input
++                userinput = true;
++            }
+             for (int i = 0; i &lt; choices.size(); i++)
+             {
+                 String processorClass = ((XMLElement) choices.elementAt(i))
+@@ -1313,21 +1320,37 @@
+                 }
+                 else
+                 {
+-                    listItem = new TextValuePair(getText((XMLElement) choices.elementAt(i)),
+-                            ((XMLElement) choices.elementAt(i)).getAttribute(COMBO_VALUE));
++                    String value = ((XMLElement) choices.elementAt(i)).getAttribute(COMBO_VALUE);
++                    listItem = new TextValuePair(getText((XMLElement) choices.elementAt(i)), value);
+                     field.addItem(listItem);
+-                    String set = ((XMLElement) choices.elementAt(i)).getAttribute(SET);
+-                    if (set != null)
++                    if (userinput)
++                    {         
++                        // is the current value identical to the value associated with this element
++                        if ((value != null) &amp;&amp; (value.length() &gt; 0)
++                                &amp;&amp; (currentvariablevalue.equals(value)))
++                        {
++                            // select it
++                            field.setSelectedIndex(i);
++                        }               
++                        // else do nothing
++                    }
++                    else
+                     {
+-                        if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++                        // there is no user input
++                        String set = ((XMLElement) choices.elementAt(i)).getAttribute(SET);
++                        if (set != null)
+                         {
+-                            VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+-                            set = vs.substitute(set, null);
++                            if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++                            {
++                                VariableSubstitutor vs = new VariableSubstitutor(idata
++                                        .getVariables());
++                                set = vs.substitute(set, null);
++                            }
++                            if (set.equals(TRUE))
++                            {
++                                field.setSelectedIndex(i);
++                            }
+                         }
+-                        if (set.equals(TRUE))
+-                        {
+-                            field.setSelectedIndex(i);
+-                        }
+                     }
+                 }
+ 
+@@ -1402,22 +1425,22 @@
+      * This is a complete example of a valid XML specification
+      * 
+      * &lt;pre&gt;
+-     *  
+      *   
+      *    
+-     *     &amp;lt;field type=&amp;quot;radio&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
+-     *       &amp;lt;description text=&amp;quot;Description for the radio buttons&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
+-     *       &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;radio 1&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;radio 2&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot; set=&amp;quot;true&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;radio 3&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;radio 4&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
+-     *         &amp;lt;choice text=&amp;quot;radio 5&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
+-     *       &amp;lt;/spec&amp;gt;
+-     *     &amp;lt;/field&amp;gt;
+      *     
++     *      &amp;lt;field type=&amp;quot;radio&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
++     *        &amp;lt;description text=&amp;quot;Description for the radio buttons&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
++     *        &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;radio 1&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;radio 2&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot; set=&amp;quot;true&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;radio 3&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;radio 4&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
++     *          &amp;lt;choice text=&amp;quot;radio 5&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
++     *        &amp;lt;/spec&amp;gt;
++     *      &amp;lt;/field&amp;gt;
++     *      
++     *     
+      *    
+-     *   
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the radio button
+@@ -1531,21 +1554,21 @@
+      * This is a complete example of a valid XML specification
+      * 
+      * &lt;pre&gt;
+-     *  
+      *   
+      *    
+-     *     &amp;lt;field type=&amp;quot;password&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
+-     *       &amp;lt;description align=&amp;quot;left&amp;quot; txt=&amp;quot;Please enter your password&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
+-     *       &amp;lt;spec&amp;gt;
+-     *         &amp;lt;pwd txt=&amp;quot;Password&amp;quot; id=&amp;quot;key for the label&amp;quot; size=&amp;quot;10&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
+-     *         &amp;lt;pwd txt=&amp;quot;Retype password&amp;quot; id=&amp;quot;another key for the label&amp;quot; size=&amp;quot;10&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
+-     *       &amp;lt;/spec&amp;gt;
+-     *       &amp;lt;validator class=&amp;quot;com.izforge.sample.PWDValidator&amp;quot; txt=&amp;quot;Both versions of the password must match&amp;quot; id=&amp;quot;key for the error text&amp;quot;/&amp;gt;
+-     *       &amp;lt;processor class=&amp;quot;com.izforge.sample.PWDEncryptor&amp;quot;/&amp;gt;
+-     *     &amp;lt;/field&amp;gt;
+      *     
++     *      &amp;lt;field type=&amp;quot;password&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
++     *        &amp;lt;description align=&amp;quot;left&amp;quot; txt=&amp;quot;Please enter your password&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
++     *        &amp;lt;spec&amp;gt;
++     *          &amp;lt;pwd txt=&amp;quot;Password&amp;quot; id=&amp;quot;key for the label&amp;quot; size=&amp;quot;10&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
++     *          &amp;lt;pwd txt=&amp;quot;Retype password&amp;quot; id=&amp;quot;another key for the label&amp;quot; size=&amp;quot;10&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
++     *        &amp;lt;/spec&amp;gt;
++     *        &amp;lt;validator class=&amp;quot;com.izforge.sample.PWDValidator&amp;quot; txt=&amp;quot;Both versions of the password must match&amp;quot; id=&amp;quot;key for the error text&amp;quot;/&amp;gt;
++     *        &amp;lt;processor class=&amp;quot;com.izforge.sample.PWDEncryptor&amp;quot;/&amp;gt;
++     *      &amp;lt;/field&amp;gt;
++     *      
++     *     
+      *    
+-     *   
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the set of password
+@@ -1814,19 +1837,19 @@
+      * This is a complete example of a valid XML specification
+      * 
+      * &lt;pre&gt;
+-     *  
+      *   
+      *    
+-     *     &amp;lt;field type=&amp;quot;search&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
+-     *       &amp;lt;description text=&amp;quot;Description for the search field&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
+-     *       &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot; filename=&amp;quot;the_file_to_search&amp;quot; result=&amp;quot;directory&amp;quot; /&amp;gt; &amp;lt;!-- values for result: directory, file --&amp;gt;
+-     *         &amp;lt;choice dir=&amp;quot;directory1&amp;quot; set=&amp;quot;true&amp;quot; /&amp;gt; &amp;lt;!-- default value --&amp;gt;
+-     *         &amp;lt;choice dir=&amp;quot;dir2&amp;quot; /&amp;gt;
+-     *       &amp;lt;/spec&amp;gt;
+-     *     &amp;lt;/field&amp;gt;
+      *     
++     *      &amp;lt;field type=&amp;quot;search&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
++     *        &amp;lt;description text=&amp;quot;Description for the search field&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
++     *        &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot; filename=&amp;quot;the_file_to_search&amp;quot; result=&amp;quot;directory&amp;quot; /&amp;gt; &amp;lt;!-- values for result: directory, file --&amp;gt;
++     *          &amp;lt;choice dir=&amp;quot;directory1&amp;quot; set=&amp;quot;true&amp;quot; /&amp;gt; &amp;lt;!-- default value --&amp;gt;
++     *          &amp;lt;choice dir=&amp;quot;dir2&amp;quot; /&amp;gt;
++     *        &amp;lt;/spec&amp;gt;
++     *      &amp;lt;/field&amp;gt;
++     *      
++     *     
+      *    
+-     *   
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the search field
+@@ -2164,20 +2187,20 @@
+                 }
+ 
+                 javax.swing.JTextPane label = new javax.swing.JTextPane();
+-                
++
+                 // Not editable, but still selectable.
+                 label.setEditable(false);
+-                
++
+                 // If html tags are present enable html rendering, otherwise the JTextPane
+                 // looks exactly like MultiLineLabel.
+-                if(description.startsWith(&quot;&lt;html&gt;&quot;) &amp;&amp; description.endsWith(&quot;&lt;/html&gt;&quot;))
+-                    label.setContentType(&quot;text/html&quot;);               
++                if (description.startsWith(&quot;&lt;html&gt;&quot;) &amp;&amp; description.endsWith(&quot;&lt;/html&gt;&quot;))
++                    label.setContentType(&quot;text/html&quot;);
+                 label.setText(description);
+-                
++
+                 // Background color and font to match the label's.
+                 label.setBackground(javax.swing.UIManager.getColor(&quot;label.backgroud&quot;));
+                 label.setMargin(new java.awt.Insets(3, 0, 3, 0));
+-                    
++
+                 uiElements.add(new Object[] { null, DESCRIPTION, null, constraints, label,
+                         forPacks, forOs});
+             }
+@@ -2921,7 +2944,7 @@
+         }
+ 
+     } // private class SearchFile
+-    
++
+     protected void updateVariables()
+     {
+         /**
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000463.html">[izpack-changes] r1718 - in izpack-src/branches/3.10: .	src/dist-files
+</A></li>
+	<LI>Next message: <A HREF="000465.html">[izpack-changes] r1720 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#464">[ date ]</a>
+              <a href="thread.html#464">[ thread ]</a>
+              <a href="subject.html#464">[ subject ]</a>
+              <a href="author.html#464">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1689 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r179 - in izpack-frontend/trunk/src: izpack/frontend/controller/filters izpack/frontend/model/shortcut izpack/frontend/view/components izpack/frontend/view/renderers izpack/frontend/view/stages/configure/panels/shortcut izpack/frontend/view/win32 native res/i18n utils
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r179%20-%20in%20izpack-frontend/trunk/src%3A%20izpack/frontend/controller/filters%20izpack/frontend/model/shortcut%20izpack/frontend/view/components%20izpack/frontend/view/renderers%20izpack/frontend/view/stages/configure/panels/shortcut%20izpack/frontend/view/win32%20native%20res/i18n%20utils&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000079.html">
+   <LINK REL="Next"  HREF="000081.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r179 - in izpack-frontend/trunk/src: izpack/frontend/controller/filters izpack/frontend/model/shortcut izpack/frontend/view/components izpack/frontend/view/renderers izpack/frontend/view/stages/configure/panels/shortcut izpack/frontend/view/win32 native res/i18n utils</H1>
+    <B>gumbo at BerliOS</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r179%20-%20in%20izpack-frontend/trunk/src%3A%20izpack/frontend/controller/filters%20izpack/frontend/model/shortcut%20izpack/frontend/view/components%20izpack/frontend/view/renderers%20izpack/frontend/view/stages/configure/panels/shortcut%20izpack/frontend/view/win32%20native%20res/i18n%20utils&In-Reply-To="
+       TITLE="[izpack-changes] r179 - in izpack-frontend/trunk/src: izpack/frontend/controller/filters izpack/frontend/model/shortcut izpack/frontend/view/components izpack/frontend/view/renderers izpack/frontend/view/stages/configure/panels/shortcut izpack/frontend/view/win32 native res/i18n utils">gumbo at berlios.de
+       </A><BR>
+    <I>Sat Jan  7 08:54:22 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000079.html">[izpack-changes] izpack-src/src build.xml,1.126.2.3,1.126.2.4
+</A></li>
+        <LI>Next message: <A HREF="000081.html">[izpack-changes] [Bug #6059] Wrong Installation Path for Windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#80">[ date ]</a>
+              <a href="thread.html#80">[ thread ]</a>
+              <a href="subject.html#80">[ subject ]</a>
+              <a href="author.html#80">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gumbo
+Date: 2006-01-07 08:54:21 +0100 (Sat, 07 Jan 2006)
+New Revision: 179
+
+Added:
+   izpack-frontend/trunk/src/izpack/frontend/controller/filters/IcoLibFilter.java
+   izpack-frontend/trunk/src/izpack/frontend/view/renderers/IconRenderer.java
+   izpack-frontend/trunk/src/izpack/frontend/view/win32/IconChooser.java
+   izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIconException.java
+   izpack-frontend/trunk/src/native/IconFileLoader.cpp
+   izpack-frontend/trunk/src/native/IconFileLoader.h
+   izpack-frontend/trunk/src/native/IconFileStructs.h
+Modified:
+   izpack-frontend/trunk/src/izpack/frontend/model/shortcut/Shortcut.java
+   izpack-frontend/trunk/src/izpack/frontend/view/components/JFileChooserIconPreview.java
+   izpack-frontend/trunk/src/izpack/frontend/view/renderers/LabelRenderer.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/shortcut/ShortcutView.java
+   izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIconAccessor.java
+   izpack-frontend/trunk/src/native/ErrorCheck.cpp
+   izpack-frontend/trunk/src/native/Icon.h
+   izpack-frontend/trunk/src/native/IconLoader.vcproj
+   izpack-frontend/trunk/src/native/IconSet.cpp
+   izpack-frontend/trunk/src/native/IconSet.h
+   izpack-frontend/trunk/src/native/JNIInterface.cpp
+   izpack-frontend/trunk/src/native/izpack_frontend_view_win32_NativeIconAccessor.h
+   izpack-frontend/trunk/src/res/i18n/LangResources_en.properties
+   izpack-frontend/trunk/src/utils/UI.java
+Log:
+Integrated icon loader into the shortcut dialog
+
+Added: izpack-frontend/trunk/src/izpack/frontend/controller/filters/IcoLibFilter.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/controller/filters/IcoLibFilter.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/controller/filters/IcoLibFilter.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -0,0 +1,56 @@
++/*
++ * Created on Jan 5, 2006
++ * 
++ * $Id: DLLFilter.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : DLLFilter.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package izpack.frontend.controller.filters;
++
++import izpack.frontend.view.IzPackFrame;
++
++import java.io.File;
++
++import javax.swing.filechooser.FileFilter;
++
++public class IcoLibFilter extends FileFilter
++{
++
++    /* (non-Javadoc)
++     * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
++     */
++    public boolean accept(File f)
++    {
++        String name = f.getName().toLowerCase();        
++        
++        return f.isDirectory() || 
++            name.endsWith(&quot;dll&quot;) ||
++            name.endsWith(&quot;exe&quot;) ||
++            name.endsWith(&quot;ico&quot;);
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.filechooser.FileFilter#getDescription()
++     */
++    public String getDescription()
++    {
++        return IzPackFrame.getInstance().langResources().getText(&quot;UI.FileFilters.IcoLib.Desc&quot;);
++    }
++
++}
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/model/shortcut/Shortcut.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/model/shortcut/Shortcut.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/model/shortcut/Shortcut.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -31,7 +31,7 @@
+         Document doc;
+         try
+         {
+-            doc = XML.createDocument(&quot;unix_shortcutSpec.xml&quot;);
++            doc = XML.createDocument(&quot;shortcutSpec.xml&quot;);
+             
+             initFromXML(doc.getElementsByTagName(&quot;shortcut&quot;).item(0));
+         }
+@@ -75,6 +75,17 @@
+         
+         iconFile = getOptionalAttribute(attributes, &quot;iconFile&quot;);
+         
++        try
++        {
++            iconIndex = Integer.parseInt(getOptionalAttribute(attributes, &quot;iconIndex&quot;));
++        }
++        catch (NumberFormatException nfe)
++        {
++            //Catch so the program doesn't crash for a bad input file
++            //TODO maybe tell user
++            iconIndex = 0;
++        }
++        
+         String initialStateStr = getOptionalAttribute(attributes, &quot;initialState&quot;);
+         for (INITIAL_STATE state : INITIAL_STATE.values())
+         {
+@@ -137,7 +148,8 @@
+     private String description;
+ 
+     // Main functionality on Windows
+-    private String iconFile;
++    private String  iconFile;
++    private int     iconIndex;
+     private INITIAL_STATE initialState;
+     private boolean programGroup;
+     private boolean desktop;
+@@ -355,4 +367,16 @@
+         
+         firePropertyChange(&quot;modelledOS&quot;, null, modelledOS);
+     }
++
++    public int getIconIndex()
++    {
++        return iconIndex;
++    }
++
++    public void setIconIndex(int iconIndex)
++    {
++        this.iconIndex = iconIndex;
++        
++        firePropertyChange(&quot;iconIndex&quot;, null, iconIndex);
++    }
+ }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/components/JFileChooserIconPreview.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/components/JFileChooserIconPreview.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/view/components/JFileChooserIconPreview.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -14,6 +14,10 @@
+ 
+ package izpack.frontend.view.components;
+ 
++import izpack.frontend.view.renderers.IconRenderer;
++import izpack.frontend.view.win32.NativeIconAccessor;
++import izpack.frontend.view.win32.NativeIconException;
++
+ import java.awt.BorderLayout;
+ import java.awt.Color;
+ import java.awt.Dimension;
+@@ -26,30 +30,44 @@
+ 
+ import javax.imageio.ImageIO;
+ import javax.swing.BorderFactory;
++import javax.swing.DefaultListModel;
+ import javax.swing.Icon;
+ import javax.swing.ImageIcon;
++import javax.swing.JComponent;
+ import javax.swing.JFileChooser;
+ import javax.swing.JLabel;
++import javax.swing.JList;
+ import javax.swing.JPanel;
++import javax.swing.JScrollPane;
++import javax.swing.SwingConstants;
+ 
+ public class JFileChooserIconPreview extends JPanel implements
+                 PropertyChangeListener
+ {
+-    private JLabel label;
+-    private int maxImgWidth;
++    private JComponent iconDisplay = new JPanel();
++    private int maxImgWidth = 64;
+ 
+     public JFileChooserIconPreview()
+-    {
++    {        
++        JLabel label;
++        
+         setLayout(new BorderLayout(5, 5));
+         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+-        add(new JLabel(&quot;Preview:&quot;), BorderLayout.NORTH);
+-        label = new JLabel();
+-        label.setBackground(Color.WHITE);
+-        label.setOpaque(true);
+-        label.setPreferredSize(new Dimension(72, 72));
++        add(label = new JLabel(&quot;Preview:&quot;), BorderLayout.NORTH);
++        
++        label.setHorizontalAlignment(SwingConstants.CENTER);
++        
++        add(iconDisplay, BorderLayout.CENTER);
++    }
++
++    private void configurePreview(JComponent preview)
++    {
++        preview.setBackground(Color.WHITE);
++        preview.setOpaque(true);
++        //preview.setPreferredSize(new Dimension(72, 144));        
++        preview.setBorder(BorderFactory.createEtchedBorder());
++        
+         maxImgWidth = 64;
+-        label.setBorder(BorderFactory.createEtchedBorder());
+-        add(label, BorderLayout.CENTER);
+     }
+ 
+     public void propertyChange(PropertyChangeEvent evt)
+@@ -61,36 +79,113 @@
+             File newFile = (File) evt.getNewValue();
+             if (newFile != null)
+             {
+-                String path = newFile.getAbsolutePath();
+-
+-                // TODO other icon types here
+-                if (path.endsWith(&quot;.ico&quot;) || path.endsWith(&quot;.png&quot;))
++                String filename = newFile.getAbsolutePath().toLowerCase();
++                
++                String internalFmtNames[] = ImageIO.getReaderFormatNames();
++                
++                for (String fmt : internalFmtNames)
+                 {
+-                    try
++                    //If the internal Java stuff can read our image
++                    if (filename.endsWith(fmt))
+                     {
+-                        BufferedImage img = ImageIO.read(newFile);
+-                        float width = img.getWidth();
+-                        float height = img.getHeight();
+-                        float scale = height / width;
+-                        width = maxImgWidth;
+-                        height = (width * scale); // height should be scaled
+-                                                    // from new width
+-                        icon = new ImageIcon(img.getScaledInstance(Math.max(1,
+-                                        (int) width),
+-                                        Math.max(1, (int) height),
+-                                        Image.SCALE_SMOOTH));
++                        iconDisplay.removeAll();
++                        iconDisplay.add(previewJavaIcon(newFile));
+                     }
+-                    catch (IOException e)
+-                    {
+-                        // couldn't read image.
+-                    }
+                 }
++                
++                //If the file is a set of Windows Icons
++                if (filename.endsWith(&quot;dll&quot;) || filename.endsWith(&quot;exe&quot;) || filename.endsWith(&quot;ico&quot;))
++                {
++                    iconDisplay.removeAll();
++                    iconDisplay.add(previewWindowsIcon(filename));
++                }
++                
++                configurePreview((JComponent) iconDisplay.getComponent(0));
+             }
+-
+-            label.setIcon(icon);
++         
++            this.validate();
++            this.invalidate();
+             this.repaint();
+-
+         }
+     }
+ 
++    private JComponent previewJavaIcon(File file)    
++    {
++        
++                try
++                {
++                    BufferedImage img = ImageIO.read(file);
++                    
++                    //TODO only scale when oversized
++                    float width = img.getWidth();
++                    float height = img.getHeight();
++                    float scale = height / width;
++                    width = maxImgWidth;
++                    height = (width * scale); // height should be scaled
++                                                // from new width
++                    Icon icon = new ImageIcon(img.getScaledInstance(Math.max(1,
++                                    (int) width),
++                                    Math.max(1, (int) height),
++                                    Image.SCALE_FAST));
++                    
++                    JLabel label = new JLabel(icon);
++                    
++                    return label;
++                }
++                catch (IOException e)
++                {
++                    // couldn't read image.
++                }
++        
++        return new JLabel(&quot;&quot;);
++    }
++    
++    public JComponent previewWindowsIcon(String filename)
++    {
++        try
++        {
++            NativeIconAccessor ni = new NativeIconAccessor(filename);
++        
++            int numIcons = ni.getNumIcons() &gt; 25 ? 25 : ni.getNumIcons(); 
++            
++            JScrollPane scroller = new JScrollPane();
++            JList displayer = new JList();
++            
++            scroller.setViewportView(displayer);
++            scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
++            scroller.setPreferredSize(new Dimension(92, 174));
++            
++            displayer.setCellRenderer(new IconRenderer());
++            displayer.setModel(new DefaultListModel());
++            
++            DefaultListModel model = (DefaultListModel) displayer.getModel();            
++            
++            for (int i = 0; i &lt; numIcons; i++)
++            {   
++                BufferedImage icon = ni.getIcon(i);               
++                                
++                //Scale if the image is more than maxImgWidth pixels wide
++                if (icon.getWidth() &gt; maxImgWidth)
++                {
++                    float ratio = ( (float) maxImgWidth ) / icon.getWidth();
++                    int height = (int) (icon.getHeight() * ratio);                    
++                    
++                    model.addElement(new ImageIcon(
++                                    icon.getScaledInstance(maxImgWidth, height, BufferedImage.SCALE_FAST)
++                                    ));
++                }
++                else                
++                    model.addElement(new ImageIcon(icon));            
++            }
++            
++            ni.destroy();
++            
++            return scroller;
++        }
++        catch (NativeIconException nie)
++        {
++            //No icons in the file
++            return new JLabel(&quot;&lt;html&gt;No icons&lt;br&gt;in file&quot;);
++        }
++    }    
+ }
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/renderers/IconRenderer.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/renderers/IconRenderer.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/view/renderers/IconRenderer.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -0,0 +1,52 @@
++package izpack.frontend.view.renderers;
++import java.awt.Component;
++
++import javax.swing.DefaultListCellRenderer;
++import javax.swing.Icon;
++import javax.swing.JLabel;
++import javax.swing.JList;
++import javax.swing.border.Border;
++import javax.swing.border.SoftBevelBorder;
++/*
++ * Created on Nov 18, 2004
++ * 
++ * $Id: LabelRenderer.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : LabelRenderer.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++
++/**
++ * @author Andy Gombos
++ */
++public class IconRenderer extends DefaultListCellRenderer
++{
++
++    /* (non-Javadoc)
++     * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
++     */    
++    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
++    {
++        Icon icon = (Icon) value;
++        
++        return new JLabel(icon);
++    }
++
++    Border unselected = new SoftBevelBorder(SoftBevelBorder.RAISED);
++    Border selected = new SoftBevelBorder(SoftBevelBorder.LOWERED);
++}
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/renderers/LabelRenderer.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/renderers/LabelRenderer.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/view/renderers/LabelRenderer.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -2,6 +2,7 @@
+ import java.awt.Component;
+ 
+ import javax.swing.DefaultListCellRenderer;
++import javax.swing.Icon;
+ import javax.swing.JComponent;
+ import javax.swing.JList;
+ import javax.swing.border.Border;
+@@ -40,7 +41,7 @@
+      * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
+      */    
+     public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+-    {
++    {                
+         JComponent c = (JComponent) value;
+         if (isSelected)
+             c.setBorder(selected);
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/shortcut/ShortcutView.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/shortcut/ShortcutView.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/shortcut/ShortcutView.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -23,9 +23,11 @@
+ 
+ package izpack.frontend.view.stages.configure.panels.shortcut;
+ 
++import izpack.frontend.controller.filters.IcoLibFilter;
+ import izpack.frontend.controller.filters.IconFilter;
+ import izpack.frontend.model.shortcut.Shortcut;
+ import izpack.frontend.view.components.JFileChooserIconPreview;
++import izpack.frontend.view.win32.IconChooser;
+ 
+ import java.awt.CardLayout;
+ import java.awt.event.ActionEvent;
+@@ -43,17 +45,15 @@
+ import javax.swing.JTextArea;
+ import javax.swing.JTextField;
+ import javax.swing.SwingConstants;
++import javax.swing.filechooser.FileFilter;
+ 
+ import utils.UI;
+ 
+-import com.jgoodies.binding.adapter.BasicComponentFactory;
+ import com.jgoodies.binding.adapter.Bindings;
+ import com.jgoodies.binding.beans.BeanAdapter;
+-import com.jgoodies.binding.beans.PropertyAdapter;
+ import com.jgoodies.binding.beans.PropertyConnector;
+ import com.jgoodies.binding.list.SelectionInList;
+ import com.jgoodies.forms.builder.DefaultFormBuilder;
+-import com.jgoodies.forms.debug.FormDebugPanel;
+ import com.jgoodies.forms.factories.DefaultComponentFactory;
+ import com.jgoodies.forms.layout.FormLayout;
+ 
+@@ -242,21 +242,48 @@
+             // TODO Make code not a copy-and-paste from the javalobby article
+             public void actionPerformed(ActionEvent e)
+             {
+-                JFileChooser chooser = new JFileChooser();                
++                JFileChooser chooser = new JFileChooser();     
++                FileFilter iconFilter = new IcoLibFilter();
++                
+                 JFileChooserIconPreview previewPane = new JFileChooserIconPreview();
+                 chooser.setAccessory(previewPane);                
+                 chooser.addPropertyChangeListener(previewPane);
+                 
+-                chooser.setFileFilter(new IconFilter());
++                chooser.addChoosableFileFilter(iconFilter);
++                chooser.addChoosableFileFilter(new IconFilter());               
+                     
+                 if (chooser.showDialog(UI.getApplicationFrame(), &quot;Load icon&quot;) == JFileChooser.APPROVE_OPTION)
+                 {
+-                    iconPreviewer = new ImageIcon(chooser.getSelectedFile()
++                    //If this is an icon inside a Windows resource, display the chooser
++                    if ( iconFilter.accept(chooser.getSelectedFile()) )
++                    {
++                        IconChooser icoChooser = new IconChooser(chooser.getSelectedFile()
++                                        .getAbsolutePath());
++                        icoChooser.setVisible(true);
++                        
++                        int iconIndex = icoChooser.getSelectedIconIndex();
++                        
++                        
++                        //-1 means cancel was pressed
++                        if (iconIndex != -1)
++                        {
++                            model.setIconIndex(iconIndex);
++                        }
++                        
++                        iconPreviewer = new ImageIcon(icoChooser.getIconImage());                        
++                    }
++                    else
++                    {
++                        //Just a normal image
++                        iconPreviewer = new ImageIcon(chooser.getSelectedFile()
+                                     .getAbsolutePath());
++                    }
++                    
++                    //Add the icon to the preview
++                    iconPreview.setIcon(iconPreviewer);
++                    
+                     icon.setText(chooser.getSelectedFile().getAbsolutePath());
+ 
+-                    iconPreview.setIcon(iconPreviewer);
+-
+                     validate();
+                 }
+             }
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/win32/IconChooser.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/win32/IconChooser.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/view/win32/IconChooser.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -0,0 +1,244 @@
++/*
++ * Created on Jan 5, 2006 $Id: IconChooser.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos File : IconChooser.java Description : TODO Add
++ * description Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A> Licensed under the Apache
++ * License, Version 2.0 (the &quot;License&quot;); you may not use this file except in
++ * compliance with the License. You may obtain a copy of the License at
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A> Unless required by applicable law
++ * or agreed to in writing, software distributed under the License is
++ * distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++ * KIND, either express or implied. See the License for the specific language
++ * governing permissions and limitations under the License.
++ */
++
++package izpack.frontend.view.win32;
++
++import java.awt.BorderLayout;
++import java.awt.Component;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++import java.awt.event.MouseEvent;
++import java.awt.image.BufferedImage;
++import java.util.EventObject;
++
++import javax.swing.Box;
++import javax.swing.BoxLayout;
++import javax.swing.DefaultListSelectionModel;
++import javax.swing.ImageIcon;
++import javax.swing.JButton;
++import javax.swing.JDialog;
++import javax.swing.JLabel;
++import javax.swing.JPanel;
++import javax.swing.JScrollPane;
++import javax.swing.JTable;
++import javax.swing.event.CellEditorListener;
++import javax.swing.table.DefaultTableCellRenderer;
++import javax.swing.table.TableCellEditor;
++
++import utils.UI;
++
++public class IconChooser extends JDialog
++{
++    public IconChooser(String filename)
++    {
++        try
++        {
++            ni = new NativeIconAccessor(filename);
++        }
++        catch (NativeIconException nie)
++        {
++            UI.showError(nie.getMessage(), &quot;Error loading icons&quot;);
++
++            return;
++        }
++
++        //Confiugure the table        
++        JTable table = new JTable((int) Math.ceil(ni.getNumIcons() / 4.0), 4);
++
++        table.setDefaultRenderer(Object.class, new Renderer());
++        table.setDefaultEditor(Object.class, new SelectingEditor(this));
++
++        table.setShowGrid(false);
++        table.setTableHeader(null);
++        table.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
++        table.setCellSelectionEnabled(true);
++
++        //Add the icons to the table
++        int numIcon = 0;
++
++        for (int y = 0; y &lt; table.getRowCount(); y++)
++        {
++            int maxIconHeight = 0;
++
++            for (int x = 0; x &lt; 4; x++)
++            {
++                if (numIcon &lt; ni.getNumIcons())
++                {
++                    Data d = new Data();
++                    d.image = ni.getIcon(numIcon);
++                    d.index = numIcon;
++
++                    table.getModel().setValueAt(d, y, x);
++
++                    if (d.image.getHeight() &gt; maxIconHeight)
++                        maxIconHeight = d.image.getHeight();
++
++                    numIcon++;
++                }
++            }
++
++            table.setRowHeight(y, maxIconHeight + rendererAddHeight);
++        }
++
++        //Try to free up all our intermediate objects
++        Runtime.getRuntime().gc();
++
++        JScrollPane scroll = new JScrollPane(table);
++
++        setLayout(new BorderLayout());
++        getContentPane().add(scroll, BorderLayout.CENTER);
++
++        //Add the information label and the cancel button
++        JPanel infoPanel = new JPanel();
++        JButton cancel;
++        
++        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.X_AXIS));
++
++        infoPanel.add(Box.createHorizontalGlue());
++        infoPanel.add(new JLabel(&quot;Double click to select an icon&quot;));
++        infoPanel.add(Box.createHorizontalGlue());
++        infoPanel.add(cancel = new JButton(&quot;Cancel&quot;));
++
++        cancel.addActionListener(new ActionListener()
++        {
++            public void actionPerformed(ActionEvent e)
++            {
++                selectedIconIndex = -1;
++                dispose();
++            }
++        });
++        
++        getContentPane().add(infoPanel, BorderLayout.SOUTH);
++
++        setModal(true);
++        pack();
++    }
++    
++    public int getSelectedIconIndex()
++    {
++        return selectedIconIndex;
++    }
++    
++    public BufferedImage getIconImage()
++    {
++        return ni.getIcon(selectedIconIndex);
++    }
++
++    public class Renderer extends DefaultTableCellRenderer
++    {
++        @Override
++        public Component getTableCellRendererComponent(JTable table,
++                        Object value, boolean isSelected, boolean hasFocus,
++                        int row, int column)
++        {
++            if (value != null)
++            {
++                Data data = (Data) value;
++
++                JPanel panel = new JPanel();
++                JLabel label = new JLabel(new ImageIcon(data.image));
++
++                panel.setLayout(new BorderLayout());
++                panel.setSize(data.image.getWidth(), data.image.getHeight()
++                                + rendererAddHeight);
++
++                if (isSelected)
++                    panel.setBackground(table.getSelectionBackground());
++                else
++                    panel.setBackground(table.getBackground());
++
++                panel.add(label);
++
++                return panel;
++            }
++            else
++                return new JLabel(&quot;&quot;);
++        }
++    }
++
++    /**
++     * Uses the editing framework to provide a double-click selection behavior
++     * 
++     * @author Andy Gombos
++     */
++    public class SelectingEditor implements TableCellEditor
++    {
++        public SelectingEditor(JDialog dialog)
++        {
++            this.dialog = dialog;
++        }
++
++        public Object getCellEditorValue()
++        {
++            // TODO Auto-generated method stub
++            return null;
++        }
++
++        public boolean isCellEditable(EventObject anEvent)
++        {
++            if (anEvent instanceof MouseEvent)
++            {
++                return ((MouseEvent) anEvent).getClickCount() &gt;= 2;
++            }
++            else
++            {
++                return false;
++            }
++        }
++
++        public boolean shouldSelectCell(EventObject anEvent)
++        {
++            return true;
++        }
++
++        public boolean stopCellEditing()
++        {
++            return true;
++        }
++
++        public void cancelCellEditing()
++        {
++        }
++
++        public void addCellEditorListener(CellEditorListener l)
++        {
++        }
++
++        public void removeCellEditorListener(CellEditorListener l)
++        {
++        }
++
++        public Component getTableCellEditorComponent(JTable table,
++                        Object value, boolean isSelected, int row, int column)
++        {
++            //Don't edit, store the cell and close the dialog
++
++            selectedIconIndex = ((Data) value).index;
++            dialog.dispose();
++
++            return new JPanel();
++        }
++
++        private JDialog dialog;
++    }
++
++    public class Data
++    {
++        BufferedImage image;
++        int index;
++    }
++
++    private NativeIconAccessor ni = null;
++    private int rendererAddHeight = 6;
++    private int selectedIconIndex;
++}
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIconAccessor.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIconAccessor.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIconAccessor.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -1,6 +1,7 @@
+ package izpack.frontend.view.win32;
+ 
+ import java.awt.image.BufferedImage;
++import java.io.File;
+ import java.nio.ByteBuffer;
+ import java.util.ArrayList;
+ 
+@@ -29,34 +30,52 @@
+ 
+ public class NativeIconAccessor
+ {   
+-    public NativeIconAccessor(String filename)
++    public NativeIconAccessor(String filename) throws NativeIconException
+     {
+-        boolean successful = initializeIconSet(filename);
++        if (! new File(filename).exists())
++        {
++            throw new NativeIconException(&quot;Specified file \&quot;&quot; + filename + &quot;\&quot; does not exist&quot; );
++        }
+         
++        initializeIconSet(filename);
++        
+         NativeIcon ni = getNativeBuffers();
+         iconBuf = ni.icon;
+         maskBuf = ni.mask;
+         
++        //Calculate the size of the buffers.  a UINT is 4 bytes, and icons 
++        bufWidth = ni.width;
++        bufHeight = ni.height;
++        
+         instances.add(this);
+     }
+     
+-    public BufferedImage getIcon(int index)
++    public BufferedImage getIcon(int index) throws NativeIconException
+     {
+-        getNativeIcon(index);
++        //Check for invalid indexes
++        if (index &gt; getNumIcons())
++            throw new NativeIconException(&quot;Icon index is greater than the number of icons in the file&quot;);
+         
++        int dimensions[] = getNativeIcon(index);
++        
+         iconBuf.clear();
+         maskBuf.clear();
+         
+         // Copy buffer to BufferedImage BufferedImage bi = new
+-        BufferedImage bi = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
++        BufferedImage bi = new BufferedImage(dimensions[0], dimensions[1], BufferedImage.TYPE_INT_ARGB);
+         
+-        for (int y = 31; y &gt;= 0; y--)
++        for (int y = bufHeight - 1; y &gt;= 0 ; y--)
+         {
+-            for (int x = 0; x &lt; 32; x++)
+-            {
++            for (int x = 0; x &lt; bufWidth; x++)
++            {                
+                 int colorVal = createARGB(iconBuf.getInt(), maskBuf.getInt());
+                 
+-                bi.setRGB(x, y, colorVal);
++                //If the value isn't in the image, don't draw it
++                //VERY inefficient
++                if (x &lt; dimensions[0] &amp;&amp; y &lt; dimensions[1])
++                {                    
++                    bi.setRGB(x, y, colorVal);
++                }
+             }
+         }
+         
+@@ -95,16 +114,24 @@
+         }
+     }
+     
+-    private native boolean initializeIconSet(String filename);
++    public void destroy()
++    {
++        destroyIconSet();
++        instances.remove(this);
++    }
++    
++    private native void initializeIconSet(String filename) throws NativeIconException;
+     private native NativeIcon getNativeBuffers();    
+     public native int getNumIcons();
+     private native void destroyIconSet();
+     
+-    private native void getNativeIcon(int index);
++    private native int[] getNativeIcon(int index) throws NativeIconException;
+     
+     private ByteBuffer iconBuf;
+     private ByteBuffer maskBuf;
+     
++    private int bufWidth, bufHeight;
++    
+     static
+     {        
+         System.loadLibrary(&quot;IconLoader&quot;);
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIconException.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIconException.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIconException.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -0,0 +1,45 @@
++/*
++ * Created on Jan 5, 2006
++ * 
++ * $Id: NativeIconException.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : NativeIconException.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package izpack.frontend.view.win32;
++
++/**
++ * Thrown when something occurs in the native code that causes the icons to fail in reading
++ * 
++ * A runtime exception because it may be advantageous to have the automatic error subsystem handle 
++ * everything in some cases
++ * 
++ * @author Andy Gombos
++ */
++public class NativeIconException extends RuntimeException
++{
++    public NativeIconException()
++    {
++        super();
++    }
++    
++    public NativeIconException(String message)
++    {
++        super(message);
++    }
++}
+
+Modified: izpack-frontend/trunk/src/native/ErrorCheck.cpp
+===================================================================
+--- izpack-frontend/trunk/src/native/ErrorCheck.cpp	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/ErrorCheck.cpp	2006-01-07 07:54:21 UTC (rev 179)
+@@ -1,12 +1,34 @@
+ #include &quot;ErrorCheck.h&quot;
+ 
+ //Make sure the result != 0, if not, throw an exception so there's no messy ifs
+-//Use error code
++
+ void checkResult(BOOL result, char *errorMessage)
+ {
+ 	if (!result)
+ 	{
+-		cout &lt;&lt; errorMessage &lt;&lt; &quot; Code: &quot; &lt;&lt; GetLastError() &lt;&lt; endl;
+-		throw string(errorMessage);
++		LPVOID msgBuf;
++		FormatMessage( 
++			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
++			FORMAT_MESSAGE_FROM_SYSTEM | 
++			FORMAT_MESSAGE_IGNORE_INSERTS,
++			NULL,
++			GetLastError(),
++			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
++			(LPTSTR) &amp;msgBuf,
++			0,
++			NULL 
++		);
++
++		if (errorMessage == NULL)
++			errorMessage = &amp;&quot;&quot;;
++
++		string userErrorMessage(errorMessage);
++		string sysErrorMessage((LPTSTR) msgBuf);
++
++		LocalFree(msgBuf);
++
++		string message(userErrorMessage + &quot;: &quot; + sysErrorMessage);
++		
++		throw message;
+ 	}
+ }
+
+Modified: izpack-frontend/trunk/src/native/Icon.h
+===================================================================
+--- izpack-frontend/trunk/src/native/Icon.h	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/Icon.h	2006-01-07 07:54:21 UTC (rev 179)
+@@ -5,7 +5,7 @@
+ class Icon
+ {
+ public:
+-	Icon(HICON tIcon);
++	Icon(HICON tIcon);	
+ 
+ 	HICON getIcon() { return icon; }
+ 	int getWidth() { return width; }
+
+Added: izpack-frontend/trunk/src/native/IconFileLoader.cpp
+===================================================================
+--- izpack-frontend/trunk/src/native/IconFileLoader.cpp	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/IconFileLoader.cpp	2006-01-07 07:54:21 UTC (rev 179)
+@@ -0,0 +1,81 @@
++#include &quot;iconfileloader.h&quot;
++#include &quot;IconFileStructs.h&quot;
++#include &quot;ErrorCheck.h&quot;
++
++#include &lt;vector&gt;
++
++IconFileLoader::IconFileLoader(const char *filename)
++:	icons()
++{
++	iconFile = CreateFile(filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
++
++	checkResult(iconFile != INVALID_HANDLE_VALUE, &quot;File does not exist&quot;);
++
++	ICONDIR iconDirectory;
++	DWORD bytesRead = 0;
++
++	
++
++	//Read reserved word
++	BOOL result = ReadFile(iconFile, &amp;iconDirectory.idReserved, sizeof(WORD), &amp;bytesRead, NULL);
++	checkResult(result, &quot;Unable to read header from file&quot;);
++
++	//Read resource type
++	result = ReadFile(iconFile, &amp;iconDirectory.idType, sizeof(WORD), &amp;bytesRead, NULL);
++	checkResult(result, &quot;Unable to read header from file&quot;);
++
++	if (iconDirectory.idType != 1)
++		throw string(&quot;Not an icon file&quot;);
++
++	//Read number of icons in file
++	result = ReadFile(iconFile, &amp;iconDirectory.idCount, sizeof(WORD), &amp;bytesRead, NULL);
++	checkResult(result, &quot;Unable to read header from file&quot;);
++
++	numIcons = iconDirectory.idCount;
++
++	//Read each icon entry	
++	for (int i = 0; i &lt; iconDirectory.idCount; i++)
++	{
++		ICONDIRENTRY icon;
++
++		result = ReadFile(iconFile, &amp;icon, sizeof(ICONDIRENTRY), &amp;bytesRead, NULL);
++
++		checkResult(result, &quot;Unable to read icon directory from file&quot;);
++
++		icons.push_back(icon);
++	}
++}
++
++IconFileLoader::~IconFileLoader(void)
++{
++	CloseHandle(iconFile);
++}
++
++int IconFileLoader::getNumIcons()
++{
++	return numIcons;
++}
++
++HICON IconFileLoader::getIcon(int index)
++{
++	return createIconFromFile(icons[index]);
++}
++
++HICON IconFileLoader::createIconFromFile(ICONDIRENTRY icon)
++{	
++	DWORD bytesRead;
++	
++	byte *iconImage = new byte[icon.dwBytesInRes];
++
++	SetFilePointer(iconFile, icon.dwImageOffset, NULL, FILE_BEGIN);
++
++	BOOL result = ReadFile(iconFile, iconImage, icon.dwBytesInRes, &amp;bytesRead, NULL);
++	checkResult(result, &quot;Unable to load icon data&quot;);
++
++	HICON iconHandle = CreateIconFromResourceEx(iconImage, icon.dwBytesInRes, TRUE, 0x00030000, icon.bWidth, icon.bHeight, LR_DEFAULTCOLOR);	
++	checkResult(iconHandle != NULL, &quot;Failed to create icon from data&quot;);
++
++	delete iconImage;
++
++	return iconHandle;
++}
+\ No newline at end of file
+
+Added: izpack-frontend/trunk/src/native/IconFileLoader.h
+===================================================================
+--- izpack-frontend/trunk/src/native/IconFileLoader.h	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/IconFileLoader.h	2006-01-07 07:54:21 UTC (rev 179)
+@@ -0,0 +1,31 @@
++#pragma once
++#include &lt;windows.h&gt;
++#include &lt;string&gt;
++
++#include &lt;fstream&gt;
++#include &lt;iostream&gt;
++
++#include &lt;vector&gt;
++
++#include &quot;IconFileStructs.h&quot;
++
++using namespace std;
++
++class IconFileLoader
++{
++public:
++	IconFileLoader(const char *filename);
++	~IconFileLoader(void);	
++
++	int getNumIcons();
++	
++	HICON getIcon(int index);
++	
++private:
++	vector&lt;ICONDIRENTRY&gt; icons;
++	HANDLE iconFile;
++
++	int numIcons;
++
++	HICON createIconFromFile(ICONDIRENTRY icon);
++};
+
+Added: izpack-frontend/trunk/src/native/IconFileStructs.h
+===================================================================
+--- izpack-frontend/trunk/src/native/IconFileStructs.h	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/IconFileStructs.h	2006-01-07 07:54:21 UTC (rev 179)
+@@ -0,0 +1,30 @@
++#pragma once
++#include &lt;windows.h&gt;
++
++typedef struct
++{
++    BYTE        bWidth;          // Width, in pixels, of the image
++    BYTE        bHeight;         // Height, in pixels, of the image
++    BYTE        bColorCount;     // Number of colors in image (0 if &gt;=8bpp)
++    BYTE        bReserved;       // Reserved ( must be 0)
++    WORD        wPlanes;         // Color Planes
++    WORD        wBitCount;       // Bits per pixel
++    DWORD       dwBytesInRes;    // How many bytes in this resource?
++    DWORD       dwImageOffset;   // Where in the file is this image?
++} ICONDIRENTRY, *LPICONDIRENTRY;
++
++typedef struct
++{
++    WORD           idReserved;   // Reserved (must be 0)
++    WORD           idType;       // Resource Type (1 for icons)
++    WORD           idCount;      // How many images?
++    ICONDIRENTRY   idEntries[1]; // An entry for each image (idCount of 'em)
++} ICONDIR, *LPICONDIR;
++
++typedef struct
++{
++   BITMAPINFOHEADER   icHeader;      // DIB header
++   RGBQUAD         icColors[1];   // Color table
++   BYTE            icXOR[1];      // DIB bits for XOR mask
++   BYTE            icAND[1];      // DIB bits for AND mask
++} ICONIMAGE, *LPICONIMAGE;
+
+Modified: izpack-frontend/trunk/src/native/IconLoader.vcproj
+===================================================================
+--- izpack-frontend/trunk/src/native/IconLoader.vcproj	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/IconLoader.vcproj	2006-01-07 07:54:21 UTC (rev 179)
+@@ -56,28 +56,31 @@
+ 			Name=&quot;Release|Win32&quot;
+ 			OutputDirectory=&quot;Release&quot;
+ 			IntermediateDirectory=&quot;Release&quot;
+-			ConfigurationType=&quot;1&quot;
+-			CharacterSet=&quot;2&quot;&gt;
++			ConfigurationType=&quot;2&quot;
++			CharacterSet=&quot;2&quot;
++			WholeProgramOptimization=&quot;TRUE&quot;&gt;
+ 			&lt;Tool
+ 				Name=&quot;VCCLCompilerTool&quot;
+ 				Optimization=&quot;2&quot;
+ 				InlineFunctionExpansion=&quot;1&quot;
+ 				OmitFramePointers=&quot;TRUE&quot;
++				AdditionalIncludeDirectories=&quot;H:\jdk1.5\include\win32;H:\jdk1.5\include\&quot;
+ 				PreprocessorDefinitions=&quot;WIN32;NDEBUG;_CONSOLE&quot;
+ 				StringPooling=&quot;TRUE&quot;
+ 				RuntimeLibrary=&quot;4&quot;
+ 				EnableFunctionLevelLinking=&quot;TRUE&quot;
+ 				UsePrecompiledHeader=&quot;0&quot;
+-				WarningLevel=&quot;3&quot;
++				WarningLevel=&quot;4&quot;
+ 				Detect64BitPortabilityProblems=&quot;TRUE&quot;
+-				DebugInformationFormat=&quot;3&quot;/&gt;
++				DebugInformationFormat=&quot;0&quot;/&gt;
+ 			&lt;Tool
+ 				Name=&quot;VCCustomBuildTool&quot;/&gt;
+ 			&lt;Tool
+ 				Name=&quot;VCLinkerTool&quot;
+-				OutputFile=&quot;$(OutDir)/IconLoader.exe&quot;
++				OutputFile=&quot;H:/eclipse/workspace/izpackfrontend/$(ProjectName).dll&quot;
+ 				LinkIncremental=&quot;1&quot;
+-				GenerateDebugInformation=&quot;TRUE&quot;
++				IgnoreAllDefaultLibraries=&quot;FALSE&quot;
++				GenerateDebugInformation=&quot;FALSE&quot;
+ 				SubSystem=&quot;1&quot;
+ 				OptimizeReferences=&quot;2&quot;
+ 				EnableCOMDATFolding=&quot;2&quot;
+@@ -104,12 +107,20 @@
+ 			ConfigurationType=&quot;2&quot;&gt;
+ 			&lt;Tool
+ 				Name=&quot;VCCLCompilerTool&quot;
+-				AdditionalIncludeDirectories=&quot;H:\jdk1.5\include\win32;H:\jdk1.5\include\&quot;/&gt;
++				OptimizeForProcessor=&quot;0&quot;
++				AdditionalIncludeDirectories=&quot;H:\jdk1.5\include\win32;H:\jdk1.5\include\&quot;
++				EnableFunctionLevelLinking=&quot;TRUE&quot;
++				WarningLevel=&quot;4&quot;
++				DebugInformationFormat=&quot;3&quot;/&gt;
+ 			&lt;Tool
+ 				Name=&quot;VCCustomBuildTool&quot;/&gt;
+ 			&lt;Tool
+ 				Name=&quot;VCLinkerTool&quot;
+-				OutputFile=&quot;H:/eclipse/workspace/izpackfrontend/$(ProjectName).dll&quot;/&gt;
++				OutputFile=&quot;H:/eclipse/workspace/izpackfrontend/$(ProjectName).dll&quot;
++				GenerateDebugInformation=&quot;TRUE&quot;
++				GenerateMapFile=&quot;TRUE&quot;
++				MapExports=&quot;TRUE&quot;
++				MapLines=&quot;TRUE&quot;/&gt;
+ 			&lt;Tool
+ 				Name=&quot;VCMIDLTool&quot;/&gt;
+ 			&lt;Tool
+@@ -137,6 +148,9 @@
+ 				RelativePath=&quot;Icon.cpp&quot;&gt;
+ 			&lt;/File&gt;
+ 			&lt;File
++				RelativePath=&quot;IconFileLoader.cpp&quot;&gt;
++			&lt;/File&gt;
++			&lt;File
+ 				RelativePath=&quot;IconSet.cpp&quot;&gt;
+ 			&lt;/File&gt;
+ 			&lt;File
+@@ -144,6 +158,12 @@
+ 			&lt;/File&gt;
+ 			&lt;File
+ 				RelativePath=&quot;starter.cpp&quot;&gt;
++				&lt;FileConfiguration
++					Name=&quot;Release|Win32&quot;
++					ExcludedFromBuild=&quot;TRUE&quot;&gt;
++					&lt;Tool
++						Name=&quot;VCCLCompilerTool&quot;/&gt;
++				&lt;/FileConfiguration&gt;
+ 			&lt;/File&gt;
+ 		&lt;/Filter&gt;
+ 		&lt;Filter
+@@ -156,6 +176,12 @@
+ 				RelativePath=&quot;Icon.h&quot;&gt;
+ 			&lt;/File&gt;
+ 			&lt;File
++				RelativePath=&quot;IconFileLoader.h&quot;&gt;
++			&lt;/File&gt;
++			&lt;File
++				RelativePath=&quot;IconFileStructs.h&quot;&gt;
++			&lt;/File&gt;
++			&lt;File
+ 				RelativePath=&quot;IconSet.h&quot;&gt;
+ 			&lt;/File&gt;
+ 			&lt;File
+
+Modified: izpack-frontend/trunk/src/native/IconSet.cpp
+===================================================================
+--- izpack-frontend/trunk/src/native/IconSet.cpp	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/IconSet.cpp	2006-01-07 07:54:21 UTC (rev 179)
+@@ -2,43 +2,101 @@
+ #include &lt;iostream&gt;
+ #include &lt;vector&gt;
+ #include &lt;fstream&gt;
+-#include &quot;3dshade.h&quot;
+ 
++#include &quot;IconFileLoader.h&quot;
++
++#include &lt;string.h&gt;
++
+ using namespace std;
+ 
+ //Load icons into *icons from the filename file, or throw an exception if there's an error
+-IconSet::IconSet(string filename)
++IconSet::IconSet(const char *filename)
+ {
+-	numIcons = ExtractIconEx(filename.c_str(), -1, NULL, NULL, 1);
++	if (filename == NULL)
++		throw string(&quot;Filename is invalid&quot;);
++	
++	char *lowerFilename = strlwr( strdup(filename) );
+ 
++	//If not a .ICO file
++	if (strstr(lowerFilename, &quot;ico&quot;) == NULL)
++	{
++		createIconsEXEDLL(filename);
++	}
++	else
++	{
++		createIconsICO(filename);
++	}
++
++	if (numIcons &lt;= 0)
++		throw string(&quot;No icons in file&quot;);
++	
++	//Determine the largest our canvas needs to be
++	getIconDimensions();
++
++    createMemBuffers();
++}
++
++//Free all of our buffers, release the DIB and DC
++void IconSet::destroy()
++{
++	SelectObject(iconContext, oldObjIcon);	
++	SelectObject(maskContext, oldObjMask);
++
++	DeleteObject(iconBitmap);
++	DeleteObject(maskBitmap);
++
++	DeleteDC(iconContext);	
++	DeleteDC(maskContext);
++
++	//Delete the icon resources
++	vector&lt;Icon&gt;::const_iterator start = icons.begin();
++	vector&lt;Icon&gt;::const_iterator end = icons.end();
++
++		width = height = 0;
++
++	while (start != end)
++	{
++		Icon icon = *start;
++		DestroyIcon( icon.getIcon() );
++
++		start++;
++	}
++
++	pixels = NULL;
++	mask = NULL;
++}
++
++void IconSet::createIconsEXEDLL(const char *filename)
++{
++	numIcons = ExtractIconEx(filename, -1, NULL, NULL, 1);
++
+ 	//Make icon store height and width
+ 	icons =  vector&lt;Icon&gt;();	
+ 
+ 	HICON *tmpIcons = new HICON[numIcons];
+ 
+ 	//Load the large icons into an array
+-	numIcons = ExtractIconEx(filename.c_str(), 0, tmpIcons, NULL, numIcons);
++	numIcons = ExtractIconEx(filename, 0, tmpIcons, NULL, numIcons);
+ 
+ 	for (int i = 0; i &lt; numIcons; i++)
+ 	{
+-		icons.push_back(Icon(tmpIcons[i]));
++		icons.push_back(Icon(tmpIcons[i]));		
+ 	}
+-	
+-	getIconDimensions();
+ 
+-	delete tmpIcons;
+-
+-    createMemBuffers();
++	if (numIcons &gt; 0)
++		delete tmpIcons;
+ }
+ 
+-//Free all of our buffers, release the DIB and DC
+-void IconSet::destroy()
++void IconSet::createIconsICO(const char *filename)
+ {
+-	DeleteObject(iconBitmap);
++	IconFileLoader iconLoader(filename);
+ 
+-	SelectObject(iconContext, oldObjIcon);	
++	numIcons = iconLoader.getNumIcons();
+ 
+-	DeleteDC(iconContext);	
++	for (int i = 0; i &lt; numIcons; i++)
++	{
++		icons.push_back(Icon(iconLoader.getIcon(i)));
++	}
+ }
+ 
+ //Loop through all the icons, and figure out the maximum width and height	
+@@ -47,7 +105,7 @@
+ 	vector&lt;Icon&gt;::const_iterator start = icons.begin();
+ 	vector&lt;Icon&gt;::const_iterator end = icons.end();
+ 
+-		width = height = 0;
++	width = height = 0;
+ 
+ 	while (start != end)
+ 	{
+@@ -63,22 +121,32 @@
+ 	}	
+ }
+ 
+-void IconSet::getIcon(int index)
++int* IconSet::getIcon(int index)
+ {
++	if (index &lt; 0 || index &gt; numIcons)
++		throw string(&quot;Icon index not in range&quot;);
++
+ 	BOOL result;
+ 	//Clear the DC
+ 	memset(pixels, 0x0, width * height * sizeof(UINT));	
+ 	memset(mask, 0x0, width * height * sizeof(UINT));	
+ 
++	Icon icon = icons[index];
++
+ 	//Paint the icon onto the DC		
+-	result = DrawIconEx(iconContext, 0, 0, icons[index].getIcon(), 0, 0, 0, NULL, DI_NORMAL); 
++	result = DrawIconEx(iconContext, 0, 0, icon.getIcon(), icon.getWidth(), icon.getHeight(), 0, NULL, DI_NORMAL); 	
+ 	checkResult(result, &quot;Failed to draw icon into memory&quot;);
+ 
+ 	//Paint the icon onto the DC		
+-	result = DrawIconEx(maskContext, 0, 0, icons[index].getIcon(), 0, 0, 0, NULL, DI_MASK); 
++	result = DrawIconEx(maskContext, 0, 0, icon.getIcon(), icon.getWidth(), icon.getHeight(), 0, NULL, DI_MASK); 
+ 	checkResult(result, &quot;Failed to draw icon alpha mask into memory&quot;);
+ 
+ 	//pixels and mask now contain the data
++	int *dimensions = new int[2];
++	dimensions[0] = icon.getWidth();
++	dimensions[1] = icon.getHeight();
++
++	return dimensions;
+ }
+ 
+ //Create a memory DC of the screen and a DIB for painting
+
+Modified: izpack-frontend/trunk/src/native/IconSet.h
+===================================================================
+--- izpack-frontend/trunk/src/native/IconSet.h	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/IconSet.h	2006-01-07 07:54:21 UTC (rev 179)
+@@ -11,9 +11,9 @@
+ class IconSet
+ {
+ public:
+-	IconSet(string filename);	
++	IconSet(const char *filename);	
+ 
+-	void getIcon(int index);
++	int* getIcon(int index);
+ 
+ 	UINT* getIconPixels()
+ 	{
+@@ -30,12 +30,12 @@
+ 		return numIcons;
+ 	}
+ 
+-	int getWidth()
++	int getMaxWidth()
+ 	{
+ 		return width;
+ 	}
+ 
+-	int getHeight()
++	int getMaxHeight()
+ 	{
+ 		return height;
+ 	}
+@@ -47,6 +47,9 @@
+ 	void fillBitmapHeader(BITMAP *bitmap, BITMAPINFOHEADER *header);
+ 	void getIconDimensions();	
+ 
++	void createIconsEXEDLL(const char *filename);
++	void createIconsICO(const char *filename);
++
+ 	int width, height;
+ 	int numIcons;
+ 
+
+Modified: izpack-frontend/trunk/src/native/JNIInterface.cpp
+===================================================================
+--- izpack-frontend/trunk/src/native/JNIInterface.cpp	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/JNIInterface.cpp	2006-01-07 07:54:21 UTC (rev 179)
+@@ -5,7 +5,7 @@
+ using namespace std;
+ 
+ IconSet *icons;
+-jclass clazz;
++jclass clazz, expClazz;
+ jmethodID constructor;
+ 
+ /*
+@@ -13,19 +13,25 @@
+  * Method:    initializeIconSet
+  * Signature: (Ljava/lang/String;)Z
+  */
+-JNIEXPORT jboolean JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_initializeIconSet(JNIEnv *env, jobject obj, jstring sfilename)
+-{
+-	const char *filename = env-&gt;GetStringUTFChars(sfilename, false);
++JNIEXPORT void JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_initializeIconSet(JNIEnv *env, jobject obj, jstring sfilename)
++{		
++	const char *filename = env-&gt;GetStringUTFChars(sfilename, NULL);	
+ 
+-	icons = new IconSet(string(filename));
++	clazz	 = env-&gt;FindClass(&quot;izpack/frontend/view/win32/NativeIcon&quot;);
++	expClazz = env-&gt;FindClass(&quot;izpack/frontend/view/win32/NativeIconException&quot;);
+ 
+-	clazz = env-&gt;FindClass(&quot;izpack/frontend/view/win32/NativeIcon&quot;);
++	constructor = env-&gt;GetMethodID(clazz, &quot;&lt;init&gt;&quot;, &quot;(Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;II)V&quot;);
+ 
+-	constructor = env-&gt;GetMethodID(clazz, &quot;&lt;init&gt;&quot;, &quot;(Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)V&quot;);
++	try
++	{		
++		icons = new IconSet(filename);	
++	}
++	catch (string message)
++	{
++		env-&gt;ThrowNew(expClazz, message.c_str());
++	}	
+ 
+ 	env-&gt;ReleaseStringUTFChars(sfilename, filename);
+-
+-	return 0;
+ }
+ 
+ /*
+@@ -34,7 +40,7 @@
+  * Signature: ()V
+  */
+ JNIEXPORT void JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_destroyIconSet(JNIEnv *, jobject)
+-{
++{	
+ 	icons-&gt;destroy();
+ 	delete icons;
+ }
+@@ -55,21 +61,55 @@
+  * Signature: ()LNativeIcon;
+  */
+ JNIEXPORT jobject JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_getNativeBuffers(JNIEnv *env, jobject obj)
+-{	
+-	jobject iconBuffer = env-&gt;NewDirectByteBuffer(icons-&gt;getIconPixels(), icons-&gt;getWidth() * icons-&gt;getHeight() * sizeof(UINT));
+-	jobject maskBuffer = env-&gt;NewDirectByteBuffer(icons-&gt;getMaskPixels(), icons-&gt;getWidth() * icons-&gt;getHeight() * sizeof(UINT));
++{		
++	jobject iconBuffer = env-&gt;NewDirectByteBuffer(icons-&gt;getIconPixels(), icons-&gt;getMaxWidth() * icons-&gt;getMaxHeight() * sizeof(UINT));
++	jobject maskBuffer = env-&gt;NewDirectByteBuffer(icons-&gt;getMaskPixels(), icons-&gt;getMaxWidth() * icons-&gt;getMaxHeight() * sizeof(UINT));
+ 
+-	jobject nativeIcon = env-&gt;NewObject(clazz, constructor, iconBuffer, maskBuffer);
++	if (iconBuffer != NULL &amp;&amp; maskBuffer != NULL)
++	{
++		//The references go &quot;bad&quot; or something
++		clazz	 = env-&gt;FindClass(&quot;izpack/frontend/view/win32/NativeIcon&quot;);
++		constructor = env-&gt;GetMethodID(clazz, &quot;&lt;init&gt;&quot;, &quot;(Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;II)V&quot;);
+ 
+-	return nativeIcon;
++		jobject nativeIcon = env-&gt;NewObject(clazz, constructor, iconBuffer, maskBuffer, icons-&gt;getMaxWidth(), icons-&gt;getMaxHeight());
++
++		if (nativeIcon != NULL)
++			return nativeIcon;
++		else
++			env-&gt;ThrowNew(expClazz, &quot;Unable to create native icon&quot;);
++	}
++	else
++	{
++		env-&gt;ThrowNew(expClazz, &quot;Unable to allocate NIO buffers&quot;);
++	}
++
++	return NULL;
+ }
+ 
+ /*
+  * Class:     izpack_frontend_view_win32_NativeIconAccessor
+  * Method:    getNativeIcon
+- * Signature: (I)V
++ * Signature: (I)[I
+  */
+-JNIEXPORT void JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_getNativeIcon(JNIEnv *env, jobject obj, jint index)
++JNIEXPORT jintArray JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_getNativeIcon(JNIEnv *env, jobject obj, jint index)
+ {		
+-	icons-&gt;getIcon(index);
++	int *dimensions = NULL;
++
++	try
++	{
++		dimensions = icons-&gt;getIcon(index);
++	}
++	catch (string message)
++	{
++		//I think this makes the native code return here
++		//Nothing is initialized yet
++		env-&gt;ThrowNew(expClazz, message.c_str());
++	}	
++	
++	jintArray javaDimensions = env-&gt;NewIntArray(2);
++	env-&gt;SetIntArrayRegion(javaDimensions, 0, 2, (const jint*) dimensions);
++
++	delete dimensions;
++
++	return javaDimensions;
+ }
+
+Modified: izpack-frontend/trunk/src/native/izpack_frontend_view_win32_NativeIconAccessor.h
+===================================================================
+--- izpack-frontend/trunk/src/native/izpack_frontend_view_win32_NativeIconAccessor.h	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/native/izpack_frontend_view_win32_NativeIconAccessor.h	2006-01-07 07:54:21 UTC (rev 179)
+@@ -12,7 +12,7 @@
+  * Method:    initializeIconSet
+  * Signature: (Ljava/lang/String;)Z
+  */
+-JNIEXPORT jboolean JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_initializeIconSet
++JNIEXPORT void JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_initializeIconSet
+   (JNIEnv *, jobject, jstring);
+ 
+ /*
+@@ -42,9 +42,9 @@
+ /*
+  * Class:     izpack_frontend_view_win32_NativeIconAccessor
+  * Method:    getNativeIcon
+- * Signature: (I)V
++ * Signature: (I)[I
+  */
+-JNIEXPORT void JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_getNativeIcon
++JNIEXPORT jintArray JNICALL Java_izpack_frontend_view_win32_NativeIconAccessor_getNativeIcon
+   (JNIEnv *, jobject, jint);
+ 
+ #ifdef __cplusplus
+
+Modified: izpack-frontend/trunk/src/res/i18n/LangResources_en.properties
+===================================================================
+--- izpack-frontend/trunk/src/res/i18n/LangResources_en.properties	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/res/i18n/LangResources_en.properties	2006-01-07 07:54:21 UTC (rev 179)
+@@ -38,6 +38,7 @@
+ UI.FileFilters.Icon                            = 
+ UI.FileFilters.Icon.Desc                       = Image files (JPG, PNG, GIF)
+ UI.FileFilters.Image.Desc                      = Image files (JPG, PNG, GIF)
++UI.FileFilters.IcoLib.Desc					   = Windows Icon Sets (DLL, EXE, ICO)	
+ UI.FileFilters.Jar.Desc                        = JAR Files (JAR)
+ UI.FileFilters.Text.Desc                       = Text Files (TXT, INI, CONF)
+ UI.FileFilters.XML.Desc                        = XML Files (XML, XSL)
+
+Modified: izpack-frontend/trunk/src/utils/UI.java
+===================================================================
+--- izpack-frontend/trunk/src/utils/UI.java	2005-12-13 17:25:33 UTC (rev 178)
++++ izpack-frontend/trunk/src/utils/UI.java	2006-01-07 07:54:21 UTC (rev 179)
+@@ -74,7 +74,6 @@
+     
+     public static void showError(String message, String title)
+     {
+-        System.out.println(UI.getApplicationFrame());
+         JOptionPane.showMessageDialog(UI.getApplicationFrame(), message, title, JOptionPane.ERROR_MESSAGE);
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000079.html">[izpack-changes] izpack-src/src build.xml,1.126.2.3,1.126.2.4
+</A></li>
+	<LI>Next message: <A HREF="000081.html">[izpack-changes] [Bug #6059] Wrong Installation Path for Windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#80">[ date ]</a>
+              <a href="thread.html#80">[ thread ]</a>
+              <a href="subject.html#80">[ subject ]</a>
+              <a href="author.html#80">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

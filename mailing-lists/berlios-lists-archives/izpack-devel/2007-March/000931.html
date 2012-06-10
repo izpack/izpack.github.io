@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Custom Actions NPE, patch
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Custom%20Actions%20NPE%2C%20patch&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139ACE2%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000923.html">
+   <LINK REL="Next"  HREF="000932.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Custom Actions NPE, patch</H1>
+    <B>Scott Plante</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Custom%20Actions%20NPE%2C%20patch&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139ACE2%40coi11.coi.com"
+       TITLE="[izpack-devel] Custom Actions NPE, patch">splante at insightsys.com
+       </A><BR>
+    <I>Sat Mar 10 19:07:43 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000923.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+        <LI>Next message: <A HREF="000932.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#931">[ date ]</a>
+              <a href="thread.html#931">[ thread ]</a>
+              <a href="subject.html#931">[ subject ]</a>
+              <a href="author.html#931">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus,
+
+  I updated the documentation as we discussed. Here is the patch. By the 
+way, we just distributed our first application packaged with IzPack. We 
+converted from InstallAnywhere, which wouldn't work with the updated 
+version of Java required for the new US Daylight Savings Time date 
+change, which goes into effect tomorrow night. I had some trouble and 
+the docs could certainly use some improvement, but the beauty of open 
+source is that the answers were all there with a little digging in the 
+source code. Perhaps as time goes on I will have a chance to learn more 
+about IzPack and submit some more documentation (and other) patches to 
+help make a great package even better. I also wrote this wiki page a 
+while back:
+
+<A HREF="http://www.izforge.com/izpack/wiki/native_launcher_and_alternatives#creating_a_native_launcher_that_installs_a_jre">http://www.izforge.com/izpack/wiki/native_launcher_and_alternatives#creating_a_native_launcher_that_installs_a_jre</A>
+
+  Thanks for your help.
+
+Scott
+
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">splante at guinness</A>:~/dev/izpack/src/&gt; svn diff doc-ng/XHTML/node9.html
+Index: doc-ng/XHTML/node9.html
+===================================================================
+--- doc-ng/XHTML/node9.html     (revision 1753)
++++ doc-ng/XHTML/node9.html     (working copy)
+@@ -450,20 +450,26 @@
+         [IzPackRoot]/src/lib/[MyPackagePath]/MyCompilerListener.java&lt;/tt&gt;.
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Add a &quot;compile.simple&quot; antcall in to 
+&lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
++        Add a &quot;&lt;tt&gt;build-compiler-listener&lt;/tt&gt;&quot; macro call in to the
++        &lt;tt&gt;build.listeners&lt;/tt&gt; target in 
+&lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
++        Note that the name attribute value in the build-instealler-listener
++        must match &lt;tt&gt;CompilerListener&lt;/tt&gt; implementation class name (not
++        including the package). You should include the actual Listener
++        implementation, as well as any other classes required by the 
+listener.
+ &lt;pre&gt;
+-&amp;lt;antcall target=&quot;compile.listener.simple&quot;&amp;gt;
+-  &amp;lt;param name=&quot;listener&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+-  &amp;lt;param name=&quot;listener-dir&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+-  &amp;lt;param name=&quot;listener-include&quot; value=&quot;[MyPackagePath]&quot;/&amp;gt;
+-&amp;lt;/antcall&amp;gt;
++        &amp;lt;build-compiler-listener name=&quot;MyCompilerListener&quot;&amp;gt;
++            &amp;lt;include name=&quot;[MyPackagePath]/MyCompilerListener.java&quot;/&amp;gt;
++            &amp;lt;include 
+name=&quot;[MyPackagePath]/SomeOtherHelperClass.java&quot;/&amp;gt;
++        &amp;lt;/build-compiler-listener&amp;gt;
+ &lt;/pre&gt;
+       &lt;/li&gt;
+       &lt;li&gt;
+         Run &lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
++        An &lt;tt&gt;ant&lt;/a&gt; alone will execute the required targets.
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Add a &quot;listeners&quot; ELEMENT with a &quot;listener&quot; ELEMENT with a 
+&quot;compiler&quot; attribute in to [MyProjectPath]/install.xml
++        Add a &quot;listeners&quot; ELEMENT with a &quot;listener&quot; ELEMENT with a 
+&quot;compiler&quot;
++        attribute in to [MyProjectPath]/install.xml
+ &lt;pre&gt;
+   &amp;lt;listeners&amp;gt;
+     &amp;lt;listener compiler=&quot;MyCompilerListener&quot; /&amp;gt;
+@@ -471,7 +477,7 @@
+ &lt;/pre&gt;
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Compile with
++        Compile with the following command, or an ant task you have set up.
+ &lt;pre&gt;
+ java -jar [IzPackRoot]/lib/compiler.jar -HOME [IzPackRoot]
+   [MyProjectPath]/install.xml -b [MyProductPath] -o
+
+
+Bartz, Klaus wrote:
+&gt;<i> Hi Scott,
+</I>&gt;<i> will be nice if you addapt the docu to the current
+</I>&gt;<i> &quot;reality&quot; (I hate to write docu :-( ).
+</I>&gt;<i> I am always writing docu in the html file. The xml files
+</I>&gt;<i> will be administered by an other developer (Fabrice).
+</I>&gt;<i> Some time ago our docu was converted from latex to html.
+</I>&gt;<i> Therefore some curios anchors.
+</I>&gt;<i> If you can do the changes, send me the svn diff of
+</I>&gt;<i> src/doc-ng/XHTML/node9.html.
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>   
+</I>&gt;<i>
+</I>
+-- 
+Scott Plante, CTO
+Insight Systems, Inc.
+(+1) 404 873 0058 x104
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">splante at insightsys.com</A>
+<A HREF="http://zyross.com">http://zyross.com</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000923.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+	<LI>Next message: <A HREF="000932.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#931">[ date ]</a>
+              <a href="thread.html#931">[ thread ]</a>
+              <a href="subject.html#931">[ subject ]</a>
+              <a href="author.html#931">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

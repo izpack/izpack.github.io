@@ -1,0 +1,554 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Re : Re : [izpack-users] Re : Tr :	Localizingshortcuts
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Re%20%3A%20Re%20%3A%20%5Bizpack-users%5D%20Re%20%3A%20Tr%20%3A%0A%09Localizingshortcuts&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001058.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Re : Re : [izpack-users] Re : Tr :	Localizingshortcuts</H1>
+    <B>Loic</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Re%20%3A%20Re%20%3A%20%5Bizpack-users%5D%20Re%20%3A%20Tr%20%3A%0A%09Localizingshortcuts&In-Reply-To="
+       TITLE="[izpack-devel] Re : Re : [izpack-users] Re : Tr :	Localizingshortcuts">lbndev at yahoo.fr
+       </A><BR>
+    <I>Fri Apr 27 12:25:22 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001058.html">[izpack-devel] Re : [izpack-users] Re : Tr : Localizingshortcuts
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1059">[ date ]</a>
+              <a href="thread.html#1059">[ thread ]</a>
+              <a href="subject.html#1059">[ subject ]</a>
+              <a href="author.html#1059">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus,
+
+You are probably right about the way this should be done. Sorry I haven't gotten far enough into izPack code to pick the ResourceManager at first. Thank you for the review and improvements.
+
+I have tested your SVN version and confirm it works as expected (uses language files and properly fallbacks to defaults when needed).
+
+The documentation I have written should not need to be affected by your chenges since the overall behavior is the same.
+
+Thank you very much,
+
+Lo&#239;c
+
+----- Message d'origine ----
+De : &quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>&gt;
+&#192; : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Envoy&#233; le : Vendredi, 27 Avril 2007, 11h54mn 35s
+Objet : Re: [izpack-devel] Re : [izpack-users] Re : Tr : Localizingshortcuts
+
+Hi Lo&#239;c,
+now I have had a little bit time to look into the given patch.
+It is not good that the shortcut config file can not be localized
+until now. Thanks for the hint and for the patch.
+Testing it I have seen, that there is already a methode to resolve
+locale dependencies (ResourceManager::getInputStream).
+This will be better because in near future I will change the locale
+determining from
+_ccc
+to
+_ll_CC
+Additional I am not amused that the locale identifier ofthen is written
+to the end of the file name. One result is, that syntax highlighting
+will not start automatically then.
+Therefore I have changed the patch to this behavior and checked in into
+trunk.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java    2007-04-24 14:50:54 UTC (rev 1818)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java    2007-04-27 09:34:36 UTC (rev 1819)
+@@ -756,11 +756,12 @@
+ 
+         try
+         {
+-            input = parent.getResource(TargetFactory.getCurrentOSPrefix() + SPEC_FILE_NAME);
++            input = ResourceManager.getInstance().getInputStream(
++                    TargetFactory.getCurrentOSPrefix() + 
++ SPEC_FILE_NAME);
+         }
+         catch (ResourceNotFoundException rnfE)
+         {
+-            input = parent.getResource(SPEC_FILE_NAME);
++            input = 
++ ResourceManager.getInstance().getInputStream(SPEC_FILE_NAME);
+         }
+ 
+         if (input == null)
+
+I have tested a little bit, but it will be good if you test also.
+
+Fabrice, can you look that the docu will also be OK for the
+changed internals? Thanks.
+
+
+Cheers
+
+Klaus
+
+
+&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of miraodb
+</I>&gt;<i> Sent: Wednesday, April 25, 2007 4:24 PM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Subject: Re: [izpack-devel] Re : [izpack-users] Re : Tr : 
+</I>&gt;<i> Localizingshortcuts
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Hi,
+</I>&gt;<i> 
+</I>&gt;<i> I'm taking care of that. Thx for the docu update.
+</I>&gt;<i> 
+</I>&gt;<i> Cheers,
+</I>&gt;<i> Fabrice
+</I>&gt;<i> 
+</I>&gt;<i> ----- Original Message -----
+</I>&gt;<i> From: &quot;Loic&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">lbndev at yahoo.fr</A>&gt;
+</I>&gt;<i> To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>&gt;
+</I>&gt;<i> Sent: Wednesday, April 25, 2007 5:35 AM
+</I>&gt;<i> Subject: [izpack-devel] Re : [izpack-users] Re : Tr : 
+</I>&gt;<i> Localizing shortcuts
+</I>&gt;<i> 
+</I>&gt;<i> Hi Klaus (&amp; list),
+</I>&gt;<i> 
+</I>&gt;<i> As promised, attached are the patches for the documentation, 
+</I>&gt;<i> related to my 
+</I>&gt;<i> patch on shortcutspecs posted yesterday.
+</I>&gt;<i> I am no expert in docbook so I updated both xml and html 
+</I>&gt;<i> files. Maybe you'll 
+</I>&gt;<i> want to use the xml file to regenereate the html one instead 
+</I>&gt;<i> of patching it 
+</I>&gt;<i> ?
+</I>&gt;<i> 
+</I>&gt;<i> Cheers,
+</I>&gt;<i> 
+</I>&gt;<i> Lo&#239;c
+</I>&gt;<i> P.S. : switching this thread to izpack-devel as the patches 
+</I>&gt;<i> seem to be best 
+</I>&gt;<i> suited here than on izpack-users. Sorry for cross-posting the 
+</I>&gt;<i> patch to both 
+</I>&gt;<i> lists yesterday, but I felt I needed to close my question 
+</I>&gt;<i> from the day 
+</I>&gt;<i> before there.
+</I>&gt;<i> 
+</I>&gt;<i> ----- Message d'origine ----
+</I>&gt;<i> De : &quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>&gt;
+</I>&gt;<i> &#192; : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Envoy&#233; le : Mardi, 24 Avril 2007, 12h26mn 45s
+</I>&gt;<i> Objet : Re: [izpack-users] Re :  Tr : Localizing shortcuts
+</I>&gt;<i> 
+</I>&gt;<i> Nachricht
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> DIV {
+</I>&gt;<i> MARGIN:0px;}
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Hi
+</I>&gt;<i> Loic,
+</I>&gt;<i> 
+</I>&gt;<i> then
+</I>&gt;<i> we are on the same side of the river :-)
+</I>&gt;<i> 
+</I>&gt;<i> English is also not my native language. May
+</I>&gt;<i> be about that I take words
+</I>&gt;<i> 
+</I>&gt;<i> more
+</I>&gt;<i> on an assay-balance as others. Sorry.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Cheers
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Klaus
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   -----Original Message-----
+</I>&gt;<i> From:
+</I>&gt;<i>   <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>   [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of
+</I>&gt;<i>   Loic
+</I>&gt;<i> Sent: Tuesday, April 24, 2007 12:10 PM
+</I>&gt;<i> To:
+</I>&gt;<i>   <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-users] Re : Tr :
+</I>&gt;<i>   Localizing shortcuts
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   Hi
+</I>&gt;<i>   Klaus,
+</I>&gt;<i> 
+</I>&gt;<i> Thank you for your reply.
+</I>&gt;<i> Sorry for not updating the
+</I>&gt;<i>   documentation. I will as soon as I can and post the patch.
+</I>&gt;<i> 
+</I>&gt;<i> From your
+</I>&gt;<i>   mail I understand that you took my mail as a personal 
+</I>&gt;<i> blame. I am sorry for
+</I>&gt;<i>   that, as it was everything but meant to be a blame for 
+</I>&gt;<i> anyone. IzPack is a
+</I>&gt;<i>   great product. I use it, I like it a lot, I recommend it to 
+</I>&gt;<i> other people. 
+</I>&gt;<i> When
+</I>&gt;<i>   I need something that's not in, I'll happily add it myself 
+</I>&gt;<i> if I can get 
+</I>&gt;<i> time
+</I>&gt;<i>   (and be allowed by my boss) to do it.
+</I>&gt;<i> 
+</I>&gt;<i> From your writing I understand
+</I>&gt;<i>   that I wrote &quot;shame&quot; where I should probably have put 
+</I>&gt;<i> &quot;pity&quot; or some other
+</I>&gt;<i>   word that would mean that I think this would be a great thing, as 
+</I>&gt;<i> everything
+</I>&gt;<i>   is localizable everywhere in izPack, but the shortcuts. 
+</I>&gt;<i> Sorry for the 
+</I>&gt;<i> language
+</I>&gt;<i>   slip. As you may know, English isn't my native language, so 
+</I>&gt;<i> I sometimes 
+</I>&gt;<i> pick
+</I>&gt;<i>   up words that aren't those which best reflect my feelings. Sorry for
+</I>&gt;<i>   that.
+</I>&gt;<i> 
+</I>&gt;<i> I hope you'll understand I never meant to hurt you or anyone
+</I>&gt;<i>   else, and tyhat I wasn't blaming izPack and its team in any way.
+</I>&gt;<i> 
+</I>&gt;<i> Thank
+</I>&gt;<i>   you for your understanding.
+</I>&gt;<i> 
+</I>&gt;<i> Lo&#239;c
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   ----- 
+</I>&gt;<i>   Message d'origine ----
+</I>&gt;<i> De : &quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>&gt;
+</I>&gt;<i> &#192;
+</I>&gt;<i>   : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users at listsberlios.de</A>
+</I>&gt;<i> Envoy&#233; le : Mardi, 24 Avril 2007, 12h00mn
+</I>&gt;<i>   07s
+</I>&gt;<i> Objet : Re: [izpack-users] Tr : Localizing shortcuts
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   DIV {
+</I>&gt;<i> MARGIN:0px;}
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   Hi
+</I>&gt;<i>   Loic,
+</I>&gt;<i> 
+</I>&gt;<i>   thank you for creating a patch for a new feature for 
+</I>&gt;<i> IzPack. Sorry that
+</I>&gt;<i>   we have
+</I>&gt;<i> 
+</I>&gt;<i>   forgotten to write explicitly, that this feature do not exist for
+</I>&gt;<i>   ShortCuts.
+</I>&gt;<i> 
+</I>&gt;<i>   Unfortunately I see no patches for the
+</I>&gt;<i>   docu which has also to be addapted.
+</I>&gt;<i> 
+</I>&gt;<i>   Please review the converned IzPack
+</I>&gt;<i>   documentation and send us a secound patch,
+</I>&gt;<i> 
+</I>&gt;<i>   if
+</I>&gt;<i>   you like it.
+</I>&gt;<i> 
+</I>&gt;<i>   Documentation is a big problem in IzPack. From time to time 
+</I>&gt;<i> an IzPack
+</I>&gt;<i>   user
+</I>&gt;<i> 
+</I>&gt;<i>   developes a new nice, cool feature for IzPack and send us the patch,
+</I>&gt;<i>   but about the docu we
+</I>&gt;<i> 
+</I>&gt;<i>   have
+</I>&gt;<i>   to run after or made it self for a feature we self do not
+</I>&gt;<i>   need.
+</I>&gt;<i> 
+</I>&gt;<i>   Therefore: no docu, no patch.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   I am
+</I>&gt;<i>   a little bit sensitive if some one verbalize a feature request as
+</I>&gt;<i>   blame.
+</I>&gt;<i> 
+</I>&gt;<i>   If
+</I>&gt;<i>   you really mean, that if you use IzPack, you have to shame, 
+</I>&gt;<i> do not use 
+</I>&gt;<i> IzPack.
+</I>&gt;<i>   Else
+</I>&gt;<i> 
+</I>&gt;<i>   take
+</I>&gt;<i>   your one, two or three thousend Euro and by a 
+</I>&gt;<i> &quot;professional&quot; tool. There
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   you
+</I>&gt;<i>   cannot made a patch (there you have no sources and no build 
+</I>&gt;<i> file for the
+</I>&gt;<i>   engine), but
+</I>&gt;<i> 
+</I>&gt;<i>   sometimes they have a vote list where you can write into your
+</I>&gt;<i>   feature request and hope, that
+</I>&gt;<i> 
+</I>&gt;<i>   they
+</I>&gt;<i>   implement it some year later. Or do you really mean these 
+</I>&gt;<i> tools contains 
+</I>&gt;<i> all
+</I>&gt;<i>   thinks you
+</I>&gt;<i> 
+</I>&gt;<i>   need
+</I>&gt;<i>   and much more?
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   Cheers
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>   Klaus
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>     -----Original Message-----
+</I>&gt;<i> From:
+</I>&gt;<i>     <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>     [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of
+</I>&gt;<i>     Loic
+</I>&gt;<i> Sent: Tuesday, April 24, 2007 11:14 AM
+</I>&gt;<i> To:
+</I>&gt;<i>     <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izPack-devel at lists.berlios.de</A>
+</I>&gt;<i> Cc:
+</I>&gt;<i>     <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izPack-users at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-users] Tr :
+</I>&gt;<i>     Localizing shortcuts
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>     Hello,
+</I>&gt;<i> 
+</I>&gt;<i> I'll
+</I>&gt;<i>     answer my own question posted yesterday to the 
+</I>&gt;<i> izPack-users lists, which 
+</I>&gt;<i> is
+</I>&gt;<i>     reproduced below.
+</I>&gt;<i> As a matter of fact, I found out that the answer is
+</I>&gt;<i>     &quot;no, shortcuts aren't localizable&quot;. Which is a shame.
+</I>&gt;<i> 
+</I>&gt;<i> Since I badly
+</I>&gt;<i>     need that, I went through the code from SVN and set up a 
+</I>&gt;<i> patch, which 
+</I>&gt;<i> you
+</I>&gt;<i>     will find attached.
+</I>&gt;<i> 
+</I>&gt;<i> What it does is :
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>       Search for a os-specific, language specific spec file (like
+</I>&gt;<i>       Unix_shortcutSpec.xml_eng)
+</I>&gt;<i>       If not found, search for a language specific (but 
+</I>&gt;<i> OS-independent) spec
+</I>&gt;<i>       (like shortcutSpec.xml_eng)
+</I>&gt;<i>       If still not found, revert to the processing before the patch
+</I>&gt;<i>       (OS-specific, and if not found, generic spec file)
+</I>&gt;<i> Please
+</I>&gt;<i>     review it and merge it into SVN if you like it.
+</I>&gt;<i> I'd love to have a
+</I>&gt;<i>     patched standalone-compiler.jar in izPack's next release.
+</I>&gt;<i> 
+</I>&gt;<i> Thank
+</I>&gt;<i>     you,
+</I>&gt;<i> 
+</I>&gt;<i> Lo&#239;c
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>     ----- 
+</I>&gt;<i>     Message transf&#233;r&#233; ----
+</I>&gt;<i> De : Loic &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">lbndev at yahoo.fr</A>&gt;
+</I>&gt;<i> &#192; :
+</I>&gt;<i>     <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Envoy&#233; le : Lundi, 23 Avril 2007, 15h58mn
+</I>&gt;<i>     43s
+</I>&gt;<i> Objet : Localizing shortcuts
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>     Hello,
+</I>&gt;<i> 
+</I>&gt;<i> I am using ant and IzPack standalone compiler version
+</I>&gt;<i>     3.10.1
+</I>&gt;<i> I have the following in my izPack XML install file
+</I>&gt;<i>     :
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;locale&gt;
+</I>&gt;<i>         &lt;langpack
+</I>&gt;<i>     iso3=&quot;fra&quot;/&gt;
+</I>&gt;<i>         &lt;langpack
+</I>&gt;<i>     iso3=&quot;eng&quot;/&gt;
+</I>&gt;<i>     &lt;/locale&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;resources&gt;
+</I>&gt;<i>         &lt;res
+</I>&gt;<i>     src=&quot;FRLicence.txt&quot;
+</I>&gt;<i>     id=&quot;LicencePanel.licence_fra&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;res src=&quot;ENGLicence.txt&quot;
+</I>&gt;<i>     id=&quot;LicencePanel.licence_eng&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;res src=&quot;FRInfo.txt&quot; id=&quot;InfoPanelinfo_fra&quot;
+</I>&gt;<i>     /&gt;
+</I>&gt;<i>         &lt;res src=&quot;ENInfo.txt&quot;
+</I>&gt;<i>     id=&quot;InfoPanel.info_eng&quot; /&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;res src=&quot;packsLang.xml_fra&quot;
+</I>&gt;<i>     id=&quot;packsLang.xml_fra&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;res src=&quot;packsLang.xml_eng&quot;
+</I>&gt;<i>     id=&quot;packsLang.xml_eng&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;res src=&quot;shortcutSpecxml&quot; id=&quot;shortcutSpec.xml&quot;
+</I>&gt;<i>     os=&quot;windows&quot;/&gt;
+</I>&gt;<i>         &lt;res
+</I>&gt;<i>     src=&quot;unix_shortcutSpec.xml&quot; id=&quot;Unix_shortcutSpec.xml&quot;
+</I>&gt;<i>     os=&quot;linux&quot;/&gt;
+</I>&gt;<i>         &lt;res
+</I>&gt;<i>     src=&quot;processpanelSpec-en.xml&quot;
+</I>&gt;<i>     id=&quot;ProcessPanel.Spec.xml_eng&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;res src=&quot;processpanelSpec-fr.xml&quot;
+</I>&gt;<i>     id=&quot;ProcessPanel.Spec.xml_fra&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;/resources&gt;
+</I>&gt;<i> 
+</I>&gt;<i> My problem is : I can't get IzPack to use an
+</I>&gt;<i>     &quot;english language shortcuts&quot; file (my default files, as 
+</I>&gt;<i> above, contain
+</I>&gt;<i>     shortcuts descriptions and captions in french). I have 
+</I>&gt;<i> tried adding 
+</I>&gt;<i> these
+</I>&gt;<i>     :
+</I>&gt;<i> 
+</I>&gt;<i>         &lt;res
+</I>&gt;<i>     src=&quot;shortcutSpec-en.xml&quot; id=&quot;shortcutSpec.xml_eng&quot;
+</I>&gt;<i>     os=&quot;windows&quot;/&gt;
+</I>&gt;<i>         &lt;res
+</I>&gt;<i>     src=&quot;unix_shortcutSpec-en.xml&quot; id=&quot;Unix_shortcutSpec.xml_eng&quot;
+</I>&gt;<i>     os=&quot;linux&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i> but it didn't seem to have any
+</I>&gt;<i>     effect.
+</I>&gt;<i> 
+</I>&gt;<i> LicencePanel localization works.
+</I>&gt;<i> InfoPanel localization
+</I>&gt;<i>     works.
+</I>&gt;<i> Packs localization works.
+</I>&gt;<i> ProcessPanel localization works,
+</I>&gt;<i>     too.
+</I>&gt;<i> 
+</I>&gt;<i> But shortcuts just don't. My shortcuts are still created with
+</I>&gt;<i>     french captions, while everything else is in english.
+</I>&gt;<i> 
+</I>&gt;<i> Is it possible
+</I>&gt;<i>     to localize shortcuts text, and if yes, how
+</I>&gt;<i>     ?
+</I>&gt;<i> 
+</I>&gt;<i> Thanks,
+</I>&gt;<i> 
+</I>&gt;<i> Lo&#239;c
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> ______________________________________________________________
+</I>&gt;<i> _____________
+</I>&gt;<i> Nouveau : t&#233;l&#233;phonez moins cher avec Yahoo! Messenger ! 
+</I>&gt;<i> D&#233;couvez les tarifs 
+</I>&gt;<i> exceptionnels pour appeler la France et l'international. 
+</I>&gt;<i> T&#233;l&#233;chargez sur <A HREF="http://fr.messenger.yahoo.com">http://fr.messenger.yahoo.com</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-devel mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A> 
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt; 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A> 
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> 
+</I>_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+
+
+
+
+
+      
+___________________________________________________________________________ 
+D&#233;couvrez une nouvelle fa&#231;on d'obtenir des r&#233;ponses &#224; toutes vos questions ! 
+Profitez des connaissances, des opinions et des exp&#233;riences des internautes sur Yahoo! Questions/R&#233;ponses 
+<A HREF="http://fr.answers.yahoo.com">http://fr.answers.yahoo.com</A>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070427/623ffcd7/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070427/623ffcd7/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001058.html">[izpack-devel] Re : [izpack-users] Re : Tr : Localizingshortcuts
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1059">[ date ]</a>
+              <a href="thread.html#1059">[ thread ]</a>
+              <a href="subject.html#1059">[ subject ]</a>
+              <a href="author.html#1059">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

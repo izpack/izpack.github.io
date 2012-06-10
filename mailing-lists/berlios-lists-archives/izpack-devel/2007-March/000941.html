@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Dynamic%20controls%26validation%20in%20UserInputPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000940.html">
+   <LINK REL="Next"  HREF="000942.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Dynamic controls&amp;validation in UserInputPanel</H1>
+    <B>Vladimir Ralev</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Dynamic%20controls%26validation%20in%20UserInputPanel&In-Reply-To="
+       TITLE="[izpack-devel] Dynamic controls&amp;validation in UserInputPanel">vralev at redhat.com
+       </A><BR>
+    <I>Tue Mar 13 17:16:35 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000940.html">[izpack-devel] FW: Problem with program menu bar entry
+</A></li>
+        <LI>Next message: <A HREF="000942.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#941">[ date ]</a>
+              <a href="thread.html#941">[ thread ]</a>
+              <a href="subject.html#941">[ subject ]</a>
+              <a href="author.html#941">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Now that we have conditions and the different fields can be displayed 
+conditionally with some rules assigned to them, I think it will be a 
+good addition to make these a bit more dynamic. In other words - make 
+the UIP GUI to be completely redrawn and revalidated on certain events 
+(like clicking on a checkbox or radio, others are possible too).
+
+For example let's say you have a Normal/Advanced radio selector in your 
+UIP and you want additional controls to be displayed for advanced users, 
+but not to be shown for users who selected the &quot;Normal&quot; option. Another 
+example is server security (this is what need here at JBoss). The user 
+has to choose:
+1. Enable local administration only (no authentication)
+2. Enable remote administration (password authentication)
+
+When the users clicks on remote admin he gets user/pass input fields, 
+otherwise nothig additional and all this in a single panel without 
+clicking next and going back and forth.
+
+
+The implementation:
+---------------------
+
+I added an attribute for radio and checkbox fields called &quot;revalidate&quot;. 
+If you set revalidave=&quot;yes&quot; for a radio of checkbox the whole Panel is 
+being recreated with updated variables.
+
+   &lt;!-- Standard/Advanced configuration panel --&gt;
+   &lt;panel order=&quot;0&quot;&gt;
+      &lt;field type=&quot;radio&quot; variable=&quot;installConfig&quot;&gt;
+         &lt;description align=&quot;left&quot; txt=&quot;Select Standard installation or 
+select Advanced to make changes&quot;
+            id=&quot;installConfig.text&quot;/&gt;
+         &lt;spec&gt;
+           &lt;choice txt=&quot;Standard&quot; revalidate=&quot;yes&quot; 
+id=&quot;installConfig.radio.standard&quot; value=&quot;standard&quot;  set=&quot;true&quot;/&gt;        
+           &lt;choice txt=&quot;Advance&quot; revalidate=&quot;yes&quot; 
+id=&quot;installConfig.radio.advanced&quot; value=&quot;advanced&quot; /&gt;          
+         &lt;/spec&gt;
+      &lt;/field&gt;     
+      &lt;field type=&quot;divider&quot; align=&quot;center&quot;/&gt;
+      &lt;field type=&quot;staticText&quot; conditionid=&quot;advanced&quot; align=&quot;left&quot; 
+id=&quot;installConfig.note&quot;
+         txt=&quot;This text is only displayed if advanced if checked&quot; /&gt;
+   &lt;/panel&gt;
+
+You can see that installConfig.note is rendered only when condition 
+&quot;advanced&quot; is satisfied. Condition advanced is defined like this:
+
+        &lt;condition type=&quot;variable&quot; id=&quot;advanced&quot;&gt;
+                &lt;name&gt;installConfig&lt;/name&gt;
+                &lt;value&gt;advanced&lt;/value&gt;
+        &lt;/condition&gt;
+
+This condition is checking whether installConfig (the radio) is in 
+advanced mode. Note that installConfig.radio.standard and 
+installConfig.radio.advanced cause revalidation, so the note is updated 
+whenever the user clicks on one of them.
+
+Performance:
+--------------
+There is no noticeable slowdown for up to about 10 conditionid-enabled 
+controls on my machine. Have in mind that if you radios or checkboxes do 
+not have revalidate=&quot;yes&quot; there is no performance loss at all.
+
+One more hack:
+----------------
+The UIPs are using a TwoColumnLayout with hardcoded topBuffer=25%. With 
+the dynamic panel updates the height of you panel varies as components 
+are removed or added on the fly, and thus moved up and down with each 
+revalidation. That's why I added an attribute topBuffer to the panel tag 
+in userInputSpec.xml. If you set topBuffer=0% the panel always appears 
+at the topmost available place and stays there no matter the height. If 
+you omit the topBuffer, the default value is 25 as before.
+   &lt;!-- Standard/Advanced configuration panel --&gt;
+   &lt;panel order=&quot;0&quot; topBuffer=&quot;0&quot;&gt;
+      &lt;field type=&quot;title&quot; align=&quot;right&quot;
+         txt=&quot;Standard - Advanced Option&quot; bold=&quot;true&quot; size=&quot;2&quot;
+         id=&quot;installConfigName&quot;
+         icon=&quot;/images/search.png&quot;
+         /&gt;
+      &lt;field type=&quot;radio&quot; variable=&quot;installConfig&quot;&gt;
+         &lt;description align=&quot;left&quot; txt=&quot;Select Standard installation or 
+select Advanced to make changes&quot;
+            id=&quot;installConfig.text&quot;/&gt;
+         &lt;spec&gt;
+           &lt;choice txt=&quot;Standard&quot; revalidate=&quot;yes&quot; 
+id=&quot;installConfig.radio.standard&quot; value=&quot;standard&quot;  set=&quot;true&quot;/&gt;        
+           &lt;choice txt=&quot;Advance&quot; revalidate=&quot;yes&quot; 
+id=&quot;installConfig.radio.advanced&quot; value=&quot;advanced&quot; /&gt;          
+         &lt;/spec&gt;
+      &lt;/field&gt;     
+      &lt;field type=&quot;divider&quot; align=&quot;center&quot;/&gt;
+      &lt;field type=&quot;staticText&quot; conditionid=&quot;standard-advanced&quot; 
+align=&quot;left&quot; id=&quot;installConfig.note&quot;
+         txt=&quot;Note: Selecting Advanced option allows you to chnage 
+various configurations like DataSource, Security, Isolation and Call by 
+Value Semantics etc&quot; /&gt;
+   &lt;/panel&gt;
+
+You can use spaces to make some static gap if you want to have similar 
+effects.
+
+
+If you approve this feature I will commit it to the trunk or the 3.10.1 
+branch (it's just 20 lines of code)?
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000940.html">[izpack-devel] FW: Problem with program menu bar entry
+</A></li>
+	<LI>Next message: <A HREF="000942.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#941">[ date ]</a>
+              <a href="thread.html#941">[ thread ]</a>
+              <a href="subject.html#941">[ subject ]</a>
+              <a href="author.html#941">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

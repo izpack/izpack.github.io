@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] fix: PathInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20fix%3A%20PathInputPanel&In-Reply-To=459D2907.6060803%40gmx.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000729.html">
+   <LINK REL="Next"  HREF="000749.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] fix: PathInputPanel</H1>
+    <B>Julien Ponge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20fix%3A%20PathInputPanel&In-Reply-To=459D2907.6060803%40gmx.de"
+       TITLE="[izpack-devel] fix: PathInputPanel">julien.ponge at gmail.com
+       </A><BR>
+    <I>Sat Jan  6 15:14:30 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000729.html">[izpack-devel] fix: PathInputPanel
+</A></li>
+        <LI>Next message: <A HREF="000749.html">[izpack-devel] fix: PathInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#734">[ date ]</a>
+              <a href="thread.html#734">[ thread ]</a>
+              <a href="subject.html#734">[ subject ]</a>
+              <a href="author.html#734">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Stefan,
+
+The hunk #2 failed when trying to apply the patch.
+
+On 1/4/07, Stefan Wachter &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">stefan.wachter at gmx.de</A>&gt; wrote:
+&gt;<i> Hi all,
+</I>&gt;<i>
+</I>&gt;<i> the current version of PathInputPanel logs a stacktrace on Linux systems when no defaultInstallDir
+</I>&gt;<i> is specified and no TargetPanel.dir.x resource is present.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> There are two problems:
+</I>&gt;<i>
+</I>&gt;<i> 1. The resouce &quot;TargetPanel.dir.unix&quot; is tried to access twice. The first time the access is not
+</I>&gt;<i> surrounded by a try-catch block.
+</I>&gt;<i>
+</I>&gt;<i> 2. It is possible that no suitable resource is found. In that case no InputStreamReader can be
+</I>&gt;<i> instantiated.
+</I>&gt;<i>
+</I>&gt;<i> Attached you find a corresonding patch.
+</I>&gt;<i>
+</I>&gt;<i> Cheers,
+</I>&gt;<i> --Stefan
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> PS: The problem is also present in older versions of IzPack. But now the stack trace is printed
+</I>&gt;<i> because the following lines where added to the loadDefaultInstallDir() method:
+</I>&gt;<i>
+</I>&gt;<i>              //mar: what's the common way to log an exception ?
+</I>&gt;<i>              e.printStackTrace();
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Index: lib/com/izforge/izpack/panels/PathInputPanel.java
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- lib/com/izforge/izpack/panels/PathInputPanel.java   (Revision 1673)
+</I>&gt;<i> +++ lib/com/izforge/izpack/panels/PathInputPanel.java   (Arbeitskopie)
+</I>&gt;<i> @@ -309,9 +309,6 @@
+</I>&gt;<i>                  catch (ResourceNotFoundException rnfe)
+</I>&gt;<i>                  {}
+</I>&gt;<i>                  // if not specific os, try getting generic 'unix' resource file
+</I>&gt;<i> -                if (in == null) in = parentFrame.getResource(&quot;TargetPanel.dir.unix&quot;);
+</I>&gt;<i> -
+</I>&gt;<i> -                // if all those failed, try to look up a generic dir file
+</I>&gt;<i>                  if (in == null)
+</I>&gt;<i>                  {
+</I>&gt;<i>                      try
+</I>&gt;<i> @@ -336,19 +333,22 @@
+</I>&gt;<i>                  {}
+</I>&gt;<i>              }
+</I>&gt;<i>
+</I>&gt;<i> -            // now read the file, once we've identified which one to read
+</I>&gt;<i> -            InputStreamReader isr = new InputStreamReader(in);
+</I>&gt;<i> -            br = new BufferedReader(isr);
+</I>&gt;<i> -            String line;
+</I>&gt;<i> -            while ((line = br.readLine()) != null)
+</I>&gt;<i> +            if (in != null)
+</I>&gt;<i>              {
+</I>&gt;<i> -                line = line.trim();
+</I>&gt;<i> -                // use the first non-blank line
+</I>&gt;<i> -                if (!&quot;&quot;.equals(line)) break;
+</I>&gt;<i> +                // now read the file, once we've identified which one to read
+</I>&gt;<i> +                InputStreamReader isr = new InputStreamReader(in);
+</I>&gt;<i> +                br = new BufferedReader(isr);
+</I>&gt;<i> +                String line;
+</I>&gt;<i> +                while ((line = br.readLine()) != null)
+</I>&gt;<i> +                {
+</I>&gt;<i> +                    line = line.trim();
+</I>&gt;<i> +                    // use the first non-blank line
+</I>&gt;<i> +                    if (!&quot;&quot;.equals(line)) break;
+</I>&gt;<i> +                }
+</I>&gt;<i> +                defaultInstallDir = line;
+</I>&gt;<i> +                VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+</I>&gt;<i> +                defaultInstallDir = vs.substitute(defaultInstallDir, null);
+</I>&gt;<i>              }
+</I>&gt;<i> -            defaultInstallDir = line;
+</I>&gt;<i> -            VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+</I>&gt;<i> -            defaultInstallDir = vs.substitute(defaultInstallDir, null);
+</I>&gt;<i>          }
+</I>&gt;<i>          catch (Exception e)
+</I>&gt;<i>          {
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000729.html">[izpack-devel] fix: PathInputPanel
+</A></li>
+	<LI>Next message: <A HREF="000749.html">[izpack-devel] fix: PathInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#734">[ date ]</a>
+              <a href="thread.html#734">[ thread ]</a>
+              <a href="subject.html#734">[ subject ]</a>
+              <a href="author.html#734">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

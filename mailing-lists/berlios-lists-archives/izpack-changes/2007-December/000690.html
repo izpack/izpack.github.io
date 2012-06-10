@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1944 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1944%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels%20src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000689.html">
+   <LINK REL="Next"  HREF="000691.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1944 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1944%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels%20src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1944 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Tue Dec 11 16:39:16 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000689.html">[izpack-changes] r1943 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000691.html">[izpack-changes] r1945 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#690">[ date ]</a>
+              <a href="thread.html#690">[ thread ]</a>
+              <a href="subject.html#690">[ subject ]</a>
+              <a href="author.html#690">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-12-11 16:39:08 +0100 (Tue, 11 Dec 2007)
+New Revision: 1944
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelInterface.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+Log:
+added built-in conditions and debugging of conditions in PacksPanelModel
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-12-11 14:46:21 UTC (rev 1943)
++++ izpack-src/trunk/Versions.txt	2007-12-11 15:39:08 UTC (rev 1944)
+@@ -63,6 +63,7 @@
+ - IzPack installer: check that users are actually launching the latest version by checking from
+   the <A HREF="http://izpack.org/">http://izpack.org/</A> website (Julien Ponge)
+ - Added debugging for variables and conditions (Dennis Reil)
++- Added built-in conditions (Dennis Reil)
+ 
+   
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java	2007-12-11 14:46:21 UTC (rev 1943)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java	2007-12-11 15:39:08 UTC (rev 1944)
+@@ -374,5 +374,9 @@
+         this.debugVariables(nextpanelmetadata, lastpanelmetadata);  
+         this.debugConditions(nextpanelmetadata, lastpanelmetadata);
+     }
++    
++    public void packSelectionChanged(String comment) {
++        this.updateChangedConditions(comment);
++    }
+ }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-12-11 14:46:21 UTC (rev 1943)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-12-11 15:39:08 UTC (rev 1944)
+@@ -276,6 +276,10 @@
+         switchPanel(0);
+     }
+     
++    public Debugger getDebugger() {
++        return this.debugger;
++    }
++    
+     private void refreshDynamicVariables() {        
+         if (dynamicvariables != null) {
+             Iterator iter = dynamicvariables.keySet().iterator();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-12-11 14:46:21 UTC (rev 1943)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-12-11 15:39:08 UTC (rev 1944)
+@@ -467,10 +467,16 @@
+                 updateDeps();
+ 
+                 if (packadded) {
++                    if (panel.getDebugger() != null) {
++                        panel.getDebugger().packSelectionChanged(&quot;after adding pack &quot; + pack.id);
++                    }
+                     // temporarily add pack to packstoinstall
+                     this.packsToInstall.add(pack);
+                 }
+                 else {
++                    if (panel.getDebugger() != null) {
++                        panel.getDebugger().packSelectionChanged(&quot;after removing pack &quot; + pack.id);
++                    }
+                     // temporarily remove pack from packstoinstall
+                     this.packsToInstall.remove(pack);
+                 }
+@@ -486,7 +492,7 @@
+                 updateBytes();
+                 fireTableDataChanged();
+                 refreshPacksToInstall();
+-                panel.showSpaceRequired();
++                panel.showSpaceRequired();                
+             }
+         }
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-12-11 14:46:21 UTC (rev 1943)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-12-11 15:39:08 UTC (rev 1944)
+@@ -61,6 +61,7 @@
+ import com.izforge.izpack.LocaleDatabase;
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.gui.LabelFactory;
++import com.izforge.izpack.installer.Debugger;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
+@@ -149,6 +150,8 @@
+      * The name of the XML file that specifies the panel langpack
+      */
+     private static final String LANG_FILE_NAME = &quot;packsLang.xml&quot;;
++    
++    private Debugger debugger;
+ 
+     /**
+      * The constructor.
+@@ -165,6 +168,7 @@
+             this.langpack = parent.langpack;
+             InputStream inputStream = ResourceManager.getInstance().getInputStream(LANG_FILE_NAME);
+             this.langpack.add(inputStream);
++            this.debugger = parent.getDebugger();
+         }
+         catch (Throwable exception)
+         {
+@@ -530,6 +534,7 @@
+     {
+         try
+         {            
++            
+             // TODO the PacksModel could be patched such that isCellEditable
+             // allows returns false. In that case the PacksModel must not be
+             // adapted here.
+@@ -793,5 +798,8 @@
+         }
+ 
+     }
+-
++    
++    public Debugger getDebugger() {
++        return this.debugger;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelInterface.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelInterface.java	2007-12-11 14:46:21 UTC (rev 1943)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelInterface.java	2007-12-11 15:39:08 UTC (rev 1944)
+@@ -22,6 +22,7 @@
+ package com.izforge.izpack.panels;
+ 
+ import com.izforge.izpack.LocaleDatabase;
++import com.izforge.izpack.installer.Debugger;
+ 
+ /**
+  * This interface is used to be able to access the common information in the PackPanel and the
+@@ -48,4 +49,6 @@
+     public void showSpaceRequired();
+ 
+     public void showFreeSpace();
++    
++    public Debugger getDebugger();
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java	2007-12-11 14:46:21 UTC (rev 1943)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java	2007-12-11 15:39:08 UTC (rev 1944)
+@@ -47,7 +47,7 @@
+ 
+     public JavaCondition() {
+ 
+-    }
++    }    
+ 
+     private boolean isTrue(Properties variables) {
+         if (!this.complete) {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-12-11 14:46:21 UTC (rev 1943)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-12-11 15:39:08 UTC (rev 1944)
+@@ -27,6 +27,7 @@
+ import java.util.Properties;
+ import java.util.Vector;
+ 
++import com.izforge.izpack.Pack;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.util.Debug;
+ 
+@@ -56,10 +57,60 @@
+         conditionsmap = new Hashtable();
+         this.panelconditions = new Hashtable();
+         this.packconditions = new Hashtable();
+-        this.optionalpackconditions = new Hashtable();
++        this.optionalpackconditions = new Hashtable();        
+     }      
+     
+     /**
++     * initializes builtin conditions
++     */
++    private void init() {
++        JavaCondition installonwindows = new JavaCondition();
++        installonwindows.setInstalldata(installdata);
++        installonwindows.id = &quot;izpack.windowsinstall&quot;;
++        installonwindows.classname = &quot;com.izforge.izpack.util.OsVersion&quot;;
++        installonwindows.fieldname = &quot;IS_WINDOWS&quot;;
++        installonwindows.returnvalue = &quot;true&quot;;
++        installonwindows.returnvaluetype = &quot;boolean&quot;;
++        installonwindows.complete = true;
++        conditionsmap.put(installonwindows.id, installonwindows);
++        
++        JavaCondition installonlinux = new JavaCondition();
++        installonlinux.setInstalldata(installdata);
++        installonlinux.id = &quot;izpack.linuxinstall&quot;;
++        installonlinux.classname = &quot;com.izforge.izpack.util.OsVersion&quot;;
++        installonlinux.fieldname = &quot;IS_LINUX&quot;;
++        installonlinux.returnvalue = &quot;true&quot;;
++        installonlinux.returnvaluetype = &quot;boolean&quot;;
++        installonlinux.complete = true;
++        conditionsmap.put(installonlinux.id, installonlinux);
++        
++        JavaCondition installonsolaris = new JavaCondition();
++        installonsolaris.setInstalldata(installdata);
++        installonsolaris.id = &quot;izpack.solarisinstall&quot;;
++        installonsolaris.classname = &quot;com.izforge.izpack.util.OsVersion&quot;;
++        installonsolaris.fieldname = &quot;IS_SUNOS&quot;;
++        installonsolaris.returnvalue = &quot;true&quot;;
++        installonsolaris.returnvaluetype = &quot;boolean&quot;;
++        installonsolaris.complete = true;
++        conditionsmap.put(installonsolaris.id, installonsolaris);
++        
++        if ((installdata != null) &amp;&amp; (installdata.allPacks != null)) {
++            for (Iterator iterator = installdata.allPacks.iterator(); iterator.hasNext();)
++            {
++                Pack pack = (Pack) iterator.next();
++                if (pack.id != null) {
++                    // automatically add packselection condition
++                    PackselectionCondition packselcond = new PackselectionCondition();
++                    packselcond.setInstalldata(installdata);
++                    packselcond.id = &quot;izpack.selected.&quot; + pack.id;
++                    packselcond.packid = pack.id;
++                    conditionsmap.put(packselcond.id, packselcond);
++                }
++            }
++        }
++    }
++    
++    /**
+      * 
+      */
+     public RulesEngine(XMLElement conditionsspecxml, InstallData installdata)
+@@ -68,6 +119,7 @@
+         this.conditionsspec = conditionsspecxml;        
+         RulesEngine.installdata = installdata;
+         this.readConditions();
++        init();
+     }
+     
+     public RulesEngine(Map rules, InstallData installdata) {
+@@ -80,6 +132,7 @@
+             Condition condition = (Condition) conditionsmap.get(key);
+             condition.setInstalldata(installdata);
+         }
++        init();
+     }
+     
+     /**
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000689.html">[izpack-changes] r1943 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000691.html">[izpack-changes] r1945 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#690">[ date ]</a>
+              <a href="thread.html#690">[ thread ]</a>
+              <a href="subject.html#690">[ subject ]</a>
+              <a href="author.html#690">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

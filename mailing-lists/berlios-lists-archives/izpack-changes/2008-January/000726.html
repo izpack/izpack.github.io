@@ -1,0 +1,315 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1980 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/net/n3/nanoxml
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1980%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/compiler%20src/lib/net/n3/nanoxml&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000725.html">
+   <LINK REL="Next"  HREF="000727.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1980 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/net/n3/nanoxml</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1980%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/compiler%20src/lib/net/n3/nanoxml&In-Reply-To="
+       TITLE="[izpack-changes] r1980 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/net/n3/nanoxml">noreply at berlios.de
+       </A><BR>
+    <I>Sat Jan 12 14:37:31 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000725.html">[izpack-changes] r1979 - in izpack-src/trunk: .	bin/langpacks/installer src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000727.html">[izpack-changes] r1981 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#726">[ date ]</a>
+              <a href="thread.html#726">[ thread ]</a>
+              <a href="subject.html#726">[ subject ]</a>
+              <a href="author.html#726">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-01-12 14:37:27 +0100 (Sat, 12 Jan 2008)
+New Revision: 1980
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/net/n3/nanoxml/XIncludeXMLBuilder.java
+Log:
+'parsexml' attribute for resources (Matthew Fudge via Julien Ponge)
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2008-01-12 11:21:02 UTC (rev 1979)
++++ izpack-src/trunk/Versions.txt	2008-01-12 13:37:27 UTC (rev 1980)
+@@ -81,6 +81,7 @@
+ - FileExecutor: fix a blank dialog prompting the user to continue if there's a failure (Jeff Gordon via Julien Ponge)
+ - Italian translation update (Roberto Boriotti, Sylvain Gaudard via Julien Ponge)
+ - PacksPanelAutomationHelper fix (Jeff Gordon via Julien Ponge)
++- 'parsexml' attribute for resources (Matthew Fudge via Julien Ponge)
+ 
+ 
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2008-01-12 11:21:02 UTC (rev 1979)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2008-01-12 13:37:27 UTC (rev 1980)
+@@ -26,14 +26,44 @@
+ 
+ package com.izforge.izpack.compiler;
+ 
++import com.izforge.izpack.CustomData;
++import com.izforge.izpack.ExecutableFile;
++import com.izforge.izpack.GUIPrefs;
++import com.izforge.izpack.Info;
++import com.izforge.izpack.PackFile;
++import com.izforge.izpack.Panel;
++import com.izforge.izpack.ParsableFile;
++import com.izforge.izpack.UpdateCheck;
++import com.izforge.izpack.compiler.Compiler.CmdlinePackagerListener;
++import com.izforge.izpack.event.CompilerListener;
++import com.izforge.izpack.rules.Condition;
++import com.izforge.izpack.rules.RulesEngine;
++import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.OsConstraint;
++import com.izforge.izpack.util.VariableSubstitutor;
++import net.n3.nanoxml.IXMLParser;
++import net.n3.nanoxml.IXMLReader;
++import net.n3.nanoxml.NonValidator;
++import net.n3.nanoxml.StdXMLParser;
++import net.n3.nanoxml.StdXMLReader;
++import net.n3.nanoxml.XMLBuilderFactory;
++import net.n3.nanoxml.XMLElement;
++import net.n3.nanoxml.XMLException;
++import net.n3.nanoxml.XMLParserFactory;
++import net.n3.nanoxml.XMLWriter;
++import org.apache.tools.ant.DirectoryScanner;
++
+ import java.io.BufferedInputStream;
+ import java.io.BufferedOutputStream;
++import java.io.ByteArrayInputStream;
++import java.io.ByteArrayOutputStream;
+ import java.io.File;
++import java.io.FileInputStream;
+ import java.io.FileNotFoundException;
+-import java.io.FileInputStream;
+ import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.io.InputStream;
++import java.io.OutputStream;
+ import java.net.MalformedURLException;
+ import java.net.URI;
+ import java.net.URL;
+@@ -55,32 +85,6 @@
+ import java.util.zip.ZipFile;
+ import java.util.zip.ZipInputStream;
+ 
+-import org.apache.tools.ant.DirectoryScanner;
+-
+-import com.izforge.izpack.CustomData;
+-import com.izforge.izpack.ExecutableFile;
+-import com.izforge.izpack.GUIPrefs;
+-import com.izforge.izpack.Info;
+-import com.izforge.izpack.PackFile;
+-import com.izforge.izpack.Panel;
+-import com.izforge.izpack.ParsableFile;
+-import com.izforge.izpack.UpdateCheck;
+-import com.izforge.izpack.compiler.Compiler.CmdlinePackagerListener;
+-import com.izforge.izpack.event.CompilerListener;
+-import com.izforge.izpack.rules.Condition;
+-import com.izforge.izpack.rules.RulesEngine;
+-import com.izforge.izpack.util.Debug;
+-import com.izforge.izpack.util.OsConstraint;
+-import com.izforge.izpack.util.VariableSubstitutor;
+-
+-import net.n3.nanoxml.IXMLReader;
+-import net.n3.nanoxml.NonValidator;
+-import net.n3.nanoxml.StdXMLParser;
+-import net.n3.nanoxml.StdXMLReader;
+-import net.n3.nanoxml.XMLElement;
+-import net.n3.nanoxml.XMLException;
+-import net.n3.nanoxml.XMLBuilderFactory;
+-
+ /**
+  * A parser for the installer xml configuration. This parses a document
+  * conforming to the installation.dtd and populates a Compiler instance to
+@@ -1294,46 +1298,96 @@
+             XMLElement res = (XMLElement) iter.next();
+             String id = requireAttribute(res, &quot;id&quot;);
+             String src = requireAttribute(res, &quot;src&quot;);
+-            boolean parse = validateYesNoAttribute(res, &quot;parse&quot;, NO);
++            boolean substitute = validateYesNoAttribute(res, &quot;substitute&quot;, NO);
++            boolean parsexml = validateYesNoAttribute(res, &quot;parsexml&quot;, NO);
+ 
+             // basedir is not prepended if src is already an absolute path
+-            URL url = findProjectResource(src, &quot;Resource&quot;, res);
++            URL originalUrl = findProjectResource(src, &quot;Resource&quot;, res);
++            URL url = originalUrl;
+ 
+-            // substitute variable values in the resource if parsed
+-            if (parse)
++            InputStream is = null;
++            OutputStream os = null;
++            try
+             {
+-                if (compiler.getVariables().isEmpty())
++                if (parsexml ||
++                    (substitute &amp;&amp; !compiler.getVariables().isEmpty()))
+                 {
+-                    parseWarn(res, &quot;No variables defined. &quot; + url.getPath() + &quot; not parsed.&quot;);
++                    // make the substitutions into a temp file
++                    File parsedFile = File.createTempFile(&quot;izpp&quot;, null);
++                    parsedFile.deleteOnExit();
++                    FileOutputStream outFile = new FileOutputStream(parsedFile);
++                    os = new BufferedOutputStream(outFile);
++                    // and specify the substituted file to be added to the
++                    // packager
++                    url = parsedFile.toURL();
+                 }
+-                else
++
++                if (parsexml)
++                {               
++                    IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
++                    // this constructor will open the specified url (this is
++                    // why the InputStream is not handled in a similar manner
++                    // to the OutputStream)
++                    IXMLReader reader = new StdXMLReader(null, url.toExternalForm());
++                    parser.setReader(reader);
++                    XMLElement xml = (XMLElement) parser.parse();
++
++                    if (substitute &amp;&amp; !compiler.getVariables().isEmpty()) {
++                        // if we are also performing substitutions on the file
++                        // then create an in-memory copy to pass to the
++                        // substitutor
++                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
++                        XMLWriter xmlWriter = new XMLWriter(baos);
++                        xmlWriter.write(xml);
++                        is = new ByteArrayInputStream(baos.toByteArray());
++                    } else {
++                        // otherwise write direct to the temp file
++                        XMLWriter xmlWriter = new XMLWriter(os);
++                        xmlWriter.write(xml);
++                    }
++                }
++
++                // substitute variable values in the resource if parsed
++                if (substitute)
+                 {
+-                    String type = res.getAttribute(&quot;type&quot;);
+-                    String encoding = res.getAttribute(&quot;encoding&quot;);
+-                    File parsedFile = null;
+-
+-                    try
++                    if (compiler.getVariables().isEmpty())
+                     {
+-                        // make the substitutions into a temp file
+-                        InputStream bin = new BufferedInputStream(url.openStream());
++                        // reset url to original.
++                        url = originalUrl;
++                        parseWarn(res, &quot;No variables defined. &quot; + url.getPath() + &quot; not parsed.&quot;);
++                    }
++                    else
++                    {
++                        String type = res.getAttribute(&quot;type&quot;);
++                        String encoding = res.getAttribute(&quot;encoding&quot;);
+ 
+-                        parsedFile = File.createTempFile(&quot;izpp&quot;, null);
+-                        parsedFile.deleteOnExit();
+-                        FileOutputStream outFile = new FileOutputStream(parsedFile);
+-                        BufferedOutputStream bout = new BufferedOutputStream(outFile);
+-
++                        // if the xml parser did not open the url
++                        // ('parsexml' was not enabled)
++                        if (null == is) {
++                            is = new BufferedInputStream(url.openStream());
++                        }
+                         VariableSubstitutor vs = new VariableSubstitutor(compiler.getVariables());
+-                        vs.substitute(bin, bout, type, encoding);
+-                        bin.close();
+-                        bout.close();
++                        vs.substitute(is, os, type, encoding);
++                    }
++                }
+ 
+-                        // and specify the substituted file to be added to the
+-                        // packager
+-                        url = parsedFile.toURL();
++            } catch (Exception e)
++            {
++                parseError(res, e.getMessage(), e);
++            } finally {
++                if (null != os) {
++                    try {
++                        os.close();
++                    } catch (IOException e) {
++                        // ignore as there is nothing we can realistically do
++                        // so lets at least try to close the input stream
+                     }
+-                    catch (IOException x)
+-                    {
+-                        parseError(res, x.getMessage(), x);
++                }
++                if (null != is) {
++                    try {
++                        is.close();
++                    } catch (IOException e) {
++                        // ignore as there is nothing we can realistically do
+                     }
+                 }
+             }
+
+Modified: izpack-src/trunk/src/lib/net/n3/nanoxml/XIncludeXMLBuilder.java
+===================================================================
+--- izpack-src/trunk/src/lib/net/n3/nanoxml/XIncludeXMLBuilder.java	2008-01-12 11:21:02 UTC (rev 1979)
++++ izpack-src/trunk/src/lib/net/n3/nanoxml/XIncludeXMLBuilder.java	2008-01-12 13:37:27 UTC (rev 1980)
+@@ -31,9 +31,9 @@
+  */
+ public class XIncludeXMLBuilder extends StdXMLBuilder {
+     /**
+-     * Namespace to for XInclude  (NOTE that this is not used
++     * Namespace for XInclude  (NOTE that this is not used
+      * at the moment). The specification can be found
+-     * here'&gt;<A HREF="http://www.w3.org/TR/xinclude/&quot;">http://www.w3.org/TR/xinclude/&quot;</A>&gt;here.
++     * &lt;a href=&quot;<A HREF="http://www.w3.org/TR/xinclude/&quot;">http://www.w3.org/TR/xinclude/&quot;</A>&gt;here&lt;/a&gt;.
+      */
+     public static final String INCLUDE_NS = &quot;<A HREF="http://www.w3.org/2001/XInclude&quot;;">http://www.w3.org/2001/XInclude&quot;;</A>
+     /**
+@@ -82,7 +82,7 @@
+     public static final String FRAGMENT_NS = &quot;<A HREF="http://izpack.org/izpack/fragment&quot;;">http://izpack.org/izpack/fragment&quot;;</A>
+ 
+     /**
+-     * The name of the fragment element is a root node element that can be
++     * The fragment element is a root node element that can be
+      * used to wrap xml fragments for inclusion. It is removed during the
+      * include operation. This should be called &quot;fragment&quot; and be in the
+      * {@link #FRAGMENT_NS} but namespaces are not supported.
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000725.html">[izpack-changes] r1979 - in izpack-src/trunk: .	bin/langpacks/installer src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000727.html">[izpack-changes] r1981 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#726">[ date ]</a>
+              <a href="thread.html#726">[ thread ]</a>
+              <a href="subject.html#726">[ subject ]</a>
+              <a href="author.html#726">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

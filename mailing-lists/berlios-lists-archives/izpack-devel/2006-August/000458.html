@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Patch for suppressing null pointer in RuleInputField
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20for%20suppressing%20null%20pointer%20in%20RuleInputField&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000454.html">
+   <LINK REL="Next"  HREF="000464.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Patch for suppressing null pointer in RuleInputField</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20for%20suppressing%20null%20pointer%20in%20RuleInputField&In-Reply-To="
+       TITLE="[izpack-devel] Patch for suppressing null pointer in RuleInputField">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Wed Aug 30 10:27:19 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000454.html">[izpack-devel] Starting a discussion about logging
+</A></li>
+        <LI>Next message: <A HREF="000464.html">[izpack-devel] Patch for suppressing null pointer in	RuleInputField
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#458">[ date ]</a>
+              <a href="thread.html#458">[ thread ]</a>
+              <a href="subject.html#458">[ subject ]</a>
+              <a href="author.html#458">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+When I use a rule input field in UserInputPanel, I always get a null
+pointer exception from caretUpdate() in RuleInputField. This is caused
+by an activeField set to null somewhere else. So just test if
+activeField equals null before calling any method on it.
+
+Below you'll find a patch for this problem.
+
+kind regards,
+     Dennis
+
+
+
+
+Index: /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.java
+===================================================================
+--- /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.java	(revision 1554)
++++ /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.java	(working copy)
+
+@@ -748,17 +748,20 @@
+     /*--------------------------------------------------------------------------*/
+     public void caretUpdate(CaretEvent event)
+     {
+-        String text = activeField.getText();
+-        int fieldSize = activeField.getEditLength();
+-        int caretPosition = activeField.getCaretPosition();
+-        int selection = activeField.getSelectionEnd() -
+activeField.getSelectionStart();
+-
+-        if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!
+activeField.unlimitedEdit()))
++        if (activeField != null)
+         {
+-            if ((text.length() == fieldSize) &amp;&amp; (selection == 0) &amp;&amp;
+(caretPosition == fieldSize)
+-                    &amp;&amp; !backstep)
++            String text = activeField.getText();
++            int fieldSize = activeField.getEditLength();
++            int caretPosition = activeField.getCaretPosition();
++            int selection = activeField.getSelectionEnd() -
+activeField.getSelectionStart();
++
++            if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!
+activeField.unlimitedEdit()))
+             {
+-                activeField.transferFocus();
++                if ((text.length() == fieldSize) &amp;&amp; (selection == 0)
++                        &amp;&amp; (caretPosition == fieldSize) &amp;&amp; !backstep)
++                {
++                    activeField.transferFocus();
++                }
+             }
+         }
+     }
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000454.html">[izpack-devel] Starting a discussion about logging
+</A></li>
+	<LI>Next message: <A HREF="000464.html">[izpack-devel] Patch for suppressing null pointer in	RuleInputField
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#458">[ date ]</a>
+              <a href="thread.html#458">[ thread ]</a>
+              <a href="subject.html#458">[ subject ]</a>
+              <a href="author.html#458">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

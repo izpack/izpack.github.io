@@ -1,0 +1,1415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1731 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels	uninstaller util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1731%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20installer%20panels%0A%09uninstaller%20util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000476.html">
+   <LINK REL="Next"  HREF="000478.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1731 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels	uninstaller util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1731%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20installer%20panels%0A%09uninstaller%20util&In-Reply-To="
+       TITLE="[izpack-changes] r1731 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels	uninstaller util">noreply at berlios.de
+       </A><BR>
+    <I>Tue Feb 13 14:52:04 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000476.html">[izpack-changes] r1730 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000478.html">[izpack-changes] r1732 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#477">[ date ]</a>
+              <a href="thread.html#477">[ thread ]</a>
+              <a href="subject.html#477">[ subject ]</a>
+              <a href="author.html#477">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: tschwarze
+Date: 2007-02-13 14:52:02 +0100 (Tue, 13 Feb 2007)
+New Revision: 1731
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/CompileResult.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/CompileWorker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerConsole.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/AbstractUIProgressHandler.java
+Log:
+support using the eclipse compiler for the CompilePanel
+extend the AbstractUIProgressHandler so the number of substeps may be
+altered on the fly (used by the eclipse compiler interface)
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/CompileResult.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/CompileResult.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/CompileResult.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -21,6 +21,11 @@
+ 
+ package com.izforge.izpack.installer;
+ 
++import java.io.PrintWriter;
++import java.io.StringWriter;
++import java.util.Iterator;
++import java.util.List;
++
+ /**
+  * This class describes the result of the compilation.
+  * 
+@@ -63,7 +68,7 @@
+     private String message = null;
+ 
+     /** the command line */
+-    private String[] cmdline = null;
++    private List cmdline = null;
+ 
+     /** the stdout of the command */
+     private String stdout = null;
+@@ -79,6 +84,20 @@
+     }
+ 
+     /**
++     * Creates a result because of exception.
++     * 
++     * @param anException The exception.
++     */
++    public CompileResult (Exception anException)
++    {
++        StringWriter writer = new StringWriter();
++        anException.printStackTrace(new PrintWriter (writer));
++        this.message = writer.toString();
++        this.action = ACTION_ABORT;
++        this.status = FAILED;
++    }
++    
++    /**
+      * creates a new CompileResult with status FAILED
+      * 
+      * @param message description of the exception
+@@ -86,7 +105,7 @@
+      * @param stdout standard output of failed command
+      * @param stderr standard error of failed command
+      */
+-    public CompileResult(String message, String[] cmdline, String stdout, String stderr)
++    public CompileResult(String message, List cmdline, String stdout, String stderr)
+     {
+         this.message = message;
+         this.status = FAILED;
+@@ -169,24 +188,14 @@
+     public String getCmdline()
+     {
+         StringBuffer sb = new StringBuffer();
+-        for (int i = 0; i &lt; this.cmdline.length; ++i)
++        for (Iterator cmdIt = this.cmdline.iterator(); cmdIt.hasNext();)
+         {
+             if (sb.length() &gt; 0) sb.append(' ');
+-            sb.append(this.cmdline[i]);
++            sb.append((String)cmdIt.next());
+         }
+         return sb.toString();
+     }
+ 
+-    /**
+-     * get command line of failed command as an array of strings
+-     * 
+-     * @return command line of failed command
+-     */
+-    public String[] getCmdlineArray()
+-    {
+-        return this.cmdline;
+-    }
+-
+     public String getStdout()
+     {
+         return this.stdout;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/CompileWorker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/CompileWorker.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/CompileWorker.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -21,9 +21,16 @@
+ 
+ package com.izforge.izpack.installer;
+ 
++import java.io.ByteArrayOutputStream;
+ import java.io.File;
++import java.io.FileNotFoundException;
++import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.io.InputStream;
++import java.io.OutputStream;
++import java.io.PrintStream;
++import java.lang.reflect.InvocationTargetException;
++import java.lang.reflect.Method;
+ import java.util.ArrayList;
+ import java.util.Enumeration;
+ import java.util.Iterator;
+@@ -65,6 +72,10 @@
+     /** Name of resource for specifying compilation parameters. */
+     private static final String SPEC_RESOURCE_NAME = &quot;CompilePanel.Spec.xml&quot;;
+ 
++    private static final String ECLIPSE_COMPILER_NAME = &quot;Integrated Eclipse JDT Compiler&quot;;
++    
++    private static final String ECLIPSE_COMPILER_CLASS = &quot;org.eclipse.jdt.internal.compiler.batch.Main&quot;;
++    
+     private VariableSubstitutor vs;
+ 
+     private XMLElement spec;
+@@ -92,15 +103,14 @@
+      * 
+      * @param idata The installation data.
+      * @param handler The handler to notify of progress.
++     * 
++     * @throws IOException 
+      */
+     public CompileWorker(AutomatedInstallData idata, CompileHandler handler) throws IOException
+     {
+         this.idata = idata;
+         this.handler = handler;
+         this.vs = new VariableSubstitutor(idata.getVariables());
+-
+-        Thread compilationThread = null;
+-
+         if (!readSpec()) throw new IOException(&quot;Error reading compilation specification&quot;);
+     }
+ 
+@@ -127,7 +137,11 @@
+         this.compilerToUse = compiler;
+     }
+ 
+-    /** Get the compiler used. */
++    /** 
++     * Get the compiler used.
++     * 
++     * @return the compiler.
++     */
+     public String getCompiler()
+     {
+         return this.compilerToUse;
+@@ -144,19 +158,31 @@
+         return this.compilerArgumentsList;
+     }
+ 
+-    /** Set the compiler arguments to use. */
++    /** 
++     * Set the compiler arguments to use.
++     * 
++     *  @param arguments The argument to use.
++     */
+     public void setCompilerArguments(String arguments)
+     {
+         this.compilerArgumentsToUse = arguments;
+     }
+ 
+-    /** Get the compiler arguments used. */
++    /** 
++     * Get the compiler arguments used.
++     * 
++     * @return The arguments used for compiling.
++     */
+     public String getCompilerArguments()
+     {
+         return this.compilerArgumentsToUse;
+     }
+ 
+-    /** Get the result of the compilation. */
++    /** 
++     * Get the result of the compilation. 
++     *
++     * @return The result.
++     */
+     public CompileResult getResult()
+     {
+         return this.result;
+@@ -181,10 +207,11 @@
+         {
+             if (!collectJobs())
+             {
+-                String[] dummy_command = { &quot;no command&quot;};
++                List args = new ArrayList();
++                args.add (&quot;nothing to do&quot;);
+ 
+                 this.result = new CompileResult(this.idata.langpack
+-                        .getString(&quot;CompilePanel.worker.nofiles&quot;), dummy_command, &quot;&quot;, &quot;&quot;);
++                        .getString(&quot;CompilePanel.worker.nofiles&quot;), args, &quot;&quot;, &quot;&quot;);
+             }
+             else
+             {
+@@ -193,9 +220,7 @@
+         }
+         catch (Exception e)
+         {
+-            this.result = new CompileResult();
+-            this.result.setStatus(CompileResult.FAILED);
+-            this.result.setAction(CompileResult.ACTION_ABORT);
++            this.result = new CompileResult(e);
+         }
+ 
+         this.handler.stopAction();
+@@ -280,13 +305,13 @@
+     }
+ 
+     // helper function
+-    private void readChoices(XMLElement element, ArrayList result)
++    private void readChoices(XMLElement element, ArrayList choiceList)
+     {
+         Vector choices = element.getChildrenNamed(&quot;choice&quot;);
+ 
+         if (choices == null) return;
+ 
+-        result.clear();
++        choiceList.clear();
+ 
+         Iterator choice_it = choices.iterator();
+ 
+@@ -302,7 +327,25 @@
+ 
+                 if (OsConstraint.oneMatchesCurrentSystem(osconstraints))
+                 {
+-                    result.add(this.vs.substitute(value, &quot;plain&quot;));
++                    if (value.equalsIgnoreCase(ECLIPSE_COMPILER_NAME))
++                    {
++                        // check for availability of eclipse compiler
++                        try
++                        {
++                            Class.forName(ECLIPSE_COMPILER_CLASS);
++                            choiceList.add(value);
++                        }
++                        catch (ExceptionInInitializerError eiie)
++                        {
++                            // ignore, just don't add it as a choice                            
++                        }
++                        catch (ClassNotFoundException cnfe)
++                        {
++                            // ignore, just don't add it as a choice
++                        }
++                    }
++                    else
++                        choiceList.add(this.vs.substitute(value, &quot;plain&quot;));
+                 }
+             }
+ 
+@@ -364,9 +407,9 @@
+ 
+             this.handler.nextStep(job.getName(), job.getSize(), job_no++);
+ 
+-            CompileResult result = job.perform(this.compilerToUse, args);
++            CompileResult job_result = job.perform(this.compilerToUse, args);
+ 
+-            if (!result.isContinue()) return result;
++            if (!job_result.isContinue()) return job_result;
+         }
+ 
+         Debug.trace(&quot;compilation finished.&quot;);
+@@ -456,8 +499,7 @@
+         }
+ 
+         if (files.size() &gt; 0)
+-            return new CompilationJob(this.handler, this.idata.langpack, (String) node
+-                    .getAttribute(&quot;name&quot;), files, ourclasspath);
++            return new CompilationJob(this.handler, this.idata, node.getAttribute(&quot;name&quot;), files, ourclasspath);
+ 
+         return null;
+     }
+@@ -508,9 +550,9 @@
+     {
+         Debug.trace(&quot;scanning directory &quot; + path.getAbsolutePath());
+ 
+-        ArrayList result = new ArrayList();
++        ArrayList scan_result = new ArrayList();
+ 
+-        if (!path.isDirectory()) return result;
++        if (!path.isDirectory()) return scan_result;
+ 
+         File[] entries = path.listFiles();
+ 
+@@ -522,16 +564,16 @@
+ 
+             if (f.isDirectory())
+             {
+-                result.addAll(scanDirectory(f));
++                scan_result.addAll(scanDirectory(f));
+             }
+             else if ((f.isFile()) &amp;&amp; (f.getName().toLowerCase().endsWith(&quot;.java&quot;)))
+             {
+-                result.add(f);
++                scan_result.add(f);
+             }
+ 
+         }
+ 
+-        return result;
++        return scan_result;
+     }
+ 
+     /** a compilation job */
+@@ -548,29 +590,36 @@
+ 
+         private LocaleDatabase langpack;
+ 
++        private AutomatedInstallData idata;
++        
+         // XXX: figure that out (on runtime?)
+         private static final int MAX_CMDLINE_SIZE = 4096;
+ 
+-        public CompilationJob(CompileHandler listener, LocaleDatabase langpack, ArrayList files,
+-                ArrayList classpath)
+-        {
+-            this.listener = listener;
+-            this.langpack = langpack;
+-            this.name = null;
+-            this.files = files;
+-            this.classpath = classpath;
+-        }
+-
+-        public CompilationJob(CompileHandler listener, LocaleDatabase langpack, String name,
++        /**
++         * Construct new compilation job.
++         * 
++         * @param listener The listener to report progress to.
++         * @param idata The installation data.
++         * @param name The name of the job.
++         * @param files The files to compile.
++         * @param classpath The class path to use.
++         */
++        public CompilationJob(CompileHandler listener, AutomatedInstallData idata, String name,
+                 ArrayList files, ArrayList classpath)
+         {
+             this.listener = listener;
+-            this.langpack = langpack;
++            this.idata = idata;
++            this.langpack = idata.langpack;
+             this.name = name;
+             this.files = files;
+             this.classpath = classpath;
+         }
+ 
++        /**
++         * Get the name of the job.
++         * 
++         * @return The name or an empty string if there is no name.
++         */
+         public String getName()
+         {
+             if (this.name != null) return this.name;
+@@ -578,11 +627,23 @@
+             return &quot;&quot;;
+         }
+ 
++        /**
++         * Get the number of files in this job.
++         * 
++         * @return The number of files to compile.
++         */
+         public int getSize()
+         {
+             return this.files.size();
+         }
+ 
++        /**
++         * Perform this job - start compilation.
++         * 
++         * @param compiler The compiler to use.
++         * @param arguments The compiler arguments to use.
++         * @return The result.
++         */
+         public CompileResult perform(String compiler, ArrayList arguments)
+         {
+             Debug.trace(&quot;starting job &quot; + this.name);
+@@ -598,6 +659,8 @@
+                     cmdline_len += ((String) arg_it.next()).length() + 1;
+             }
+ 
++            boolean isEclipseCompiler = compiler.equalsIgnoreCase(ECLIPSE_COMPILER_NAME);
++            
+             // add compiler in front of arguments
+             args.add(0, compiler);
+             cmdline_len += compiler.length() + 1;
+@@ -659,27 +722,24 @@
+                 cmdline_len += fpath.length();
+ 
+                 // start compilation if maximum command line length reached
+-                if (cmdline_len &gt;= MAX_CMDLINE_SIZE)
++                if (! isEclipseCompiler &amp;&amp; cmdline_len &gt;= MAX_CMDLINE_SIZE)
+                 {
+                     Debug.trace(&quot;compiling &quot; + jobfiles);
+ 
+                     // display useful progress bar (avoid showing 100% while
+-                    // still
+-                    // compiling a lot)
++                    // still compiling a lot)
+                     this.listener.progress(last_fileno, jobfiles);
+                     last_fileno = fileno;
+ 
+-                    String[] full_cmdline = (String[]) args.toArray(output);
++                    int retval = runCompiler(executor, output, args);
+ 
+-                    int retval = executor.executeCommand(full_cmdline, output);
+-
+                     // update progress bar: compilation of fileno files done
+                     this.listener.progress(fileno, jobfiles);
+ 
+                     if (retval != 0)
+                     {
+                         CompileResult result = new CompileResult(this.langpack
+-                                .getString(&quot;CompilePanel.error&quot;), full_cmdline, output[0],
++                                .getString(&quot;CompilePanel.error&quot;), args, output[0],
+                                 output[1]);
+                         this.listener.handleCompileError(result);
+                         if (!result.isContinue()) return result;
+@@ -688,8 +748,7 @@
+                     {
+                         // verify that all files have been compiled successfully
+                         // I found that sometimes, no error code is returned
+-                        // although
+-                        // compilation failed.
++                        // although compilation failed.
+                         Iterator arg_it = args.listIterator(common_args_no);
+                         while (arg_it.hasNext())
+                         {
+@@ -704,7 +763,7 @@
+                             {
+                                 CompileResult result = new CompileResult(this.langpack
+                                         .getString(&quot;CompilePanel.error.noclassfile&quot;)
+-                                        + java_file.getAbsolutePath(), full_cmdline, output[0],
++                                        + java_file.getAbsolutePath(), args, output[0],
+                                         output[1]);
+                                 this.listener.handleCompileError(result);
+                                 if (!result.isContinue()) return result;
+@@ -732,20 +791,49 @@
+             {
+                 this.listener.progress(last_fileno, jobfiles);
+ 
+-                String[] full_cmdline = (String[]) args.toArray(output);
++                int retval = runCompiler(executor, output, args);
+ 
+-                int retval = executor.executeCommand(full_cmdline, output);
++                if (! isEclipseCompiler)
++                    this.listener.progress(fileno, jobfiles);
+ 
+-                this.listener.progress(fileno, jobfiles);
+-
+                 if (retval != 0)
+                 {
+                     CompileResult result = new CompileResult(this.langpack
+-                            .getString(&quot;CompilePanel.error&quot;), full_cmdline, output[0], output[1]);
++                            .getString(&quot;CompilePanel.error&quot;), args, output[0], output[1]);
+                     this.listener.handleCompileError(result);
+                     if (!result.isContinue()) return result;
+                 }
++                else
++                {
++                    // verify that all files have been compiled successfully
++                    // I found that sometimes, no error code is returned
++                    // although compilation failed.
++                    Iterator arg_it = args.listIterator(common_args_no);
++                    while (arg_it.hasNext())
++                    {
++                        File java_file = new File((String) arg_it.next());
+ 
++                        String basename = java_file.getName();
++                        int dotpos = basename.lastIndexOf('.');
++                        basename = basename.substring(0, dotpos) + &quot;.class&quot;;
++                        File class_file = new File(java_file.getParentFile(), basename);
++
++                        if (!class_file.exists())
++                        {
++                            CompileResult result = new CompileResult(this.langpack
++                                    .getString(&quot;CompilePanel.error.noclassfile&quot;)
++                                    + java_file.getAbsolutePath(), args, output[0],
++                                    output[1]);
++                            this.listener.handleCompileError(result);
++                            if (!result.isContinue()) return result;
++                            // don't continue any further
++                            break;
++                        }
++
++                    }
++
++                }
++
+             }
+ 
+             Debug.trace(&quot;job &quot; + this.name + &quot; done (&quot; + fileno + &quot; files compiled)&quot;);
+@@ -754,6 +842,134 @@
+         }
+ 
+         /**
++         * Internal helper method.
++         * 
++         * @param executor The executor, only used when using external compiler.
++         * @param output The output from the compiler ([0] = stdout, [1] = stderr)
++         * @param full_cmdline The command line, first argument is the compiler.
++         * 
++         * @return The result of the compilation.
++         */
++        private int runCompiler(FileExecutor executor, String[] output, List cmdline)
++        {
++            if (cmdline.get(0).equals (ECLIPSE_COMPILER_NAME))
++                return runEclipseCompiler(output, cmdline);
++            
++            return executor.executeCommand((String[])cmdline.toArray(new String[cmdline.size()]), output);
++        }
++
++        private int runEclipseCompiler (String[] output, List cmdline)
++        {
++            try
++            {
++                List final_cmdline = new LinkedList (cmdline);
++
++                // remove compiler name from argument list
++                final_cmdline.remove(0);
++                
++                Class eclipseCompiler = Class.forName (ECLIPSE_COMPILER_CLASS);
++                
++                Method compileMethod = eclipseCompiler.getMethod(&quot;main&quot;, new Class[] { String[].class });
++                
++                final_cmdline.add (0, &quot;-noExit&quot;);
++                final_cmdline.add (0, &quot;-progress&quot;);
++                final_cmdline.add (0, &quot;-verbose&quot;);
++                
++                File _logfile = new File (this.idata.getInstallPath(), &quot;compile-&quot;+getName()+&quot;.log&quot;);
++                
++                if (Debug.isTRACE())
++                {                    
++                    final_cmdline.add(0, _logfile.getPath());
++                    final_cmdline.add(0, &quot;-log&quot;);
++                }
++                
++                // get log files / determine results...
++                try
++                {
++                    // capture stdout and stderr
++                    PrintStream _orgStdout = System.out;
++                    PrintStream _orgStderr = System.err;
++                    int error_count = 0;
++                    
++                    try
++                    {                    
++                        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
++                        EclipseStdOutHandler ownStdout = new EclipseStdOutHandler (outStream, this.listener);
++                        System.setOut (ownStdout);
++                        ByteArrayOutputStream errStream = new ByteArrayOutputStream();
++                        EclipseStdErrHandler ownStderr = new EclipseStdErrHandler (errStream, this.listener);
++                        System.setErr (ownStderr);
++                        
++                        compileMethod.invoke(null, new Object[] { final_cmdline.toArray(new String[final_cmdline.size()])});
++                        
++                        // TODO: launch thread which updates the progress
++                        output[0] = outStream.toString();
++                        output[1] = errStream.toString();
++                        error_count = ownStderr.getErrorCount();
++                        // for debugging: write output to log files
++                        if (error_count &gt; 0 || Debug.isTRACE())
++                        {
++                            File _out = new File (_logfile.getPath()+&quot;.stdout&quot;);
++                            FileOutputStream _fout = new FileOutputStream (_out);
++                            _fout.write(outStream.toByteArray());
++                            _fout.close();
++                            _out = new File (_logfile.getPath()+&quot;.stderr&quot;);
++                            _fout = new FileOutputStream (_out);
++                            _fout.write (errStream.toByteArray());
++                            _fout.close();
++                        }
++                        
++                    }
++                    finally
++                    {
++                        System.setOut(_orgStdout);
++                        System.setErr(_orgStderr);                    
++                    }
++                    
++                    if (error_count == 0)
++                        return 0;
++                    
++                    // TODO: construct human readable error message from log
++                    this.listener.emitNotification(&quot;Compiler reported &quot;+error_count+&quot; errors&quot;);
++                    
++                    return 1;
++                }
++                catch (FileNotFoundException fnfe)
++                {
++                    this.listener.emitError(&quot;error compiling&quot;, fnfe.getMessage());
++                    return -1;
++                }
++                catch (IOException ioe)
++                {
++                    this.listener.emitError(&quot;error compiling&quot;, ioe.getMessage());                        
++                    return -1;
++                }
++
++            }
++            catch (ClassNotFoundException cnfe)
++            {
++                output = new String[] { &quot;error getting eclipse compiler&quot;, cnfe.getMessage() };
++                return -1;
++            }
++            catch (NoSuchMethodException nsme)
++            {
++                output = new String[] { &quot;error getting eclipse compiler method&quot;, nsme.getMessage() };
++                return -1;                    
++            }
++            catch (IllegalAccessException iae)
++            {
++                output = new String[] { &quot;error calling eclipse compiler&quot;, iae.getMessage() };
++                return -1;                                        
++            }
++            catch (InvocationTargetException ite)
++            {
++                output = new String[] { &quot;error calling eclipse compiler&quot;, ite.getMessage() };
++                return -1;                                        
++            }
++
++        }
++        
++        /**
+          * Check whether the given compiler works.
+          * 
+          * This performs two steps:
+@@ -772,6 +988,10 @@
+          */
+         public CompileResult checkCompiler(String compiler, ArrayList arguments)
+         {
++            // don't do further checks for eclipse compiler - it would exit
++            if (compiler.equalsIgnoreCase(ECLIPSE_COMPILER_NAME))
++                return new CompileResult();
++            
+             int retval = 0;
+             FileExecutor executor = new FileExecutor();
+             String[] output = new String[2];
+@@ -779,9 +999,11 @@
+             Debug.trace(&quot;checking whether \&quot;&quot; + compiler + &quot; -help\&quot; works&quot;);
+ 
+             {
+-                String[] args = { compiler, &quot;-help&quot;};
++                List args = new ArrayList();
++                args.add (compiler);
++                args.add (&quot;-help&quot;);
+ 
+-                retval = executor.executeCommand(args, output);
++                retval = runCompiler(executor, output, args);
+ 
+                 if (retval != 0)
+                 {
+@@ -824,14 +1046,12 @@
+                 args.add(classpath_str);
+             }
+ 
+-            String[] args_arr = (String[]) args.toArray(output);
++            retval = runCompiler(executor, output, args);
+ 
+-            retval = executor.executeCommand(args_arr, output);
+-
+             if (retval != 0)
+             {
+                 CompileResult result = new CompileResult(this.langpack
+-                        .getString(&quot;CompilePanel.error.invalidarguments&quot;), args_arr, output[0],
++                        .getString(&quot;CompilePanel.error.invalidarguments&quot;), args, output[0],
+                         output[1]);
+                 this.listener.handleCompileError(result);
+                 if (!result.isContinue()) return result;
+@@ -842,4 +1062,386 @@
+ 
+     }
+ 
++    /**
++     * This PrintStream is used to track the Eclipse compiler output.
++     * 
++     * It will pass on all println requests and report progress to the listener.
++     */
++    private static class EclipseStdOutHandler extends PrintStream
++    {   
++        private CompileHandler listener;
++        private StdOutParser parser;
++        
++        /**
++         * Default constructor.
++         * 
++         * @param anOutputStream The stream to wrap.
++         * @param aHandler the handler to use.
++         */
++        public EclipseStdOutHandler(final OutputStream anOutputStream, final CompileHandler aHandler)     
++        {
++            // initialize with dummy stream (PrintStream needs it)
++            super(anOutputStream);
++            this.listener = aHandler;
++            this.parser = new StdOutParser();
++        }
++        
++        /**
++         * Eclipse compiler hopefully only uses println(String).
++         * 
++         * {@inheritDoc}
++         */
++        public void println(String x)
++        {
++            if (x.startsWith (&quot;[completed &quot;))
++            {
++                int pos = x.lastIndexOf (&quot;#&quot;);
++                int endpos = x.lastIndexOf (&quot;/&quot;);
++                String fileno_str = x.substring (pos+1, endpos-pos-1);
++                try
++                {
++                    int fileno = Integer.parseInt(fileno_str);
++                    this.listener.progress(fileno, x);
++                }
++                catch (NumberFormatException _nfe)
++                {
++                    Debug.log(&quot;could not parse eclipse compiler output: '&quot;+x+&quot;': &quot;+_nfe.getMessage());
++                }
++            }
++            
++            super.println(x);
++        }
++     
++        /**
++         * Unfortunately, the Eclipse compiler wraps System.out into a BufferedWriter.
++         * 
++         * So we get whole buffers here and cannot do anything about it.
++         * 
++         * {@inheritDoc}
++         */
++        public void write(byte[] buf, int off, int len)
++        {
++            super.write(buf, off, len);
++            // we cannot convert back to string because the buffer might start
++            // _inside_ a multibyte character
++            // so we build a simple parser.
++            int _fileno = this.parser.parse (buf, off, len);
++            if (_fileno &gt; -1)
++            {
++                this.listener.setSubStepNo(this.parser.getJobSize());
++                this.listener.progress(_fileno, this.parser.getLastFilename());
++            }
++        }
++        
++    }
++    
++    /**
++     * This PrintStream is used to track the Eclipse compiler error output.
++     * 
++     * It will pass on all println requests and report progress to the listener.
++     */
++    private static class EclipseStdErrHandler extends PrintStream
++    {   
++        private CompileHandler listener;
++        private int errorCount = 0;
++        private StdErrParser parser;
++        
++        /**
++         * Default constructor.
++         * 
++         * @param anOutputStream The stream to wrap.
++         * @param aHandler the handler to use.
++         */
++        public EclipseStdErrHandler(final OutputStream anOutputStream, final CompileHandler aHandler)     
++        {
++            // initialize with dummy stream (PrintStream needs it)
++            super(anOutputStream);
++            this.listener = aHandler;
++            this.parser = new StdErrParser();
++        }
++        
++        /**
++         * Eclipse compiler hopefully only uses println(String).
++         * 
++         * {@inheritDoc}
++         */
++        public void println(String x)
++        {
++            if (x.indexOf (&quot;. ERROR in &quot;) &gt; 0)
++            {                
++                this.errorCount++;
++            }
++            
++            super.println(x);
++        }
++        
++        /**
++         * Unfortunately, the Eclipse compiler wraps System.out into a BufferedWriter.
++         * 
++         * So we get whole buffers here and cannot do anything about it.
++         * 
++         * {@inheritDoc}
++         */
++        public void write(byte[] buf, int off, int len)
++        {
++            super.write(buf, off, len);
++            // we cannot convert back to string because the buffer might start
++            // _inside_ a multibyte character
++            // so we build a simple parser.
++            int _errno = this.parser.parse (buf, off, len);
++            if (_errno &gt; 0)
++            {
++                // TODO: emit error message instantly, but it may be incomplete yet
++                // and we'd need to throw an exception to abort compilation
++                this.errorCount += _errno;
++            }
++        }
++        
++        /**
++         * Get the error state.
++         * 
++         * @return true if there was an error detected.
++         */
++        public int getErrorCount()
++        {
++            return this.errorCount;
++        }
++    }
++    
++    /**
++     * Common class for parsing Eclipse compiler output.
++     */
++    private static abstract class StreamParser
++    {
++        int idx;
++        byte[] buffer;
++        int offset;
++        int length;
++        byte[] lastIdentifier;
++        int lastDigit;
++        
++        abstract int parse (byte[] buf, int off, int len);
++        
++        void init(byte[] buf, int off, int len)
++        {
++            this.buffer = buf;
++            this.offset = off;
++            this.length = len;
++            this.idx = 0;
++            this.lastIdentifier = null;
++            this.lastDigit = -1;           
++        }
++        
++        int getNext()
++        {
++            if (this.offset+this.idx == this.length)
++                return Integer.MIN_VALUE;
++            
++            return this.buffer[this.offset+this.idx++];
++        }
++        
++        boolean findString (final String aString)
++        {
++            byte[] _search_bytes = aString.getBytes();
++            int _search_idx = 0;
++            
++            do
++            {
++                int _c = getNext();
++                if (_c == Integer.MIN_VALUE)
++                    return false;
++                
++                if (_c == _search_bytes[_search_idx])
++                    _search_idx++;
++                else
++                {
++                    _search_idx = 0;
++                    if (_c == _search_bytes[_search_idx])
++                        _search_idx++;
++                }
++            }
++            while (_search_idx &lt; _search_bytes.length);
++            
++            return true;
++        }
++        
++        boolean readIdentifier()
++        {
++            int _c;
++            int _start_idx = this.idx;
++            
++            do
++            {
++                _c = getNext();
++                // abort on incomplete string
++                if (_c == Integer.MIN_VALUE)
++                    return false;
++            }
++            while (! Character.isWhitespace((char)_c));
++            
++            this.idx--;
++            this.lastIdentifier = new byte[this.idx-_start_idx];
++            System.arraycopy (this.buffer, _start_idx, this.lastIdentifier, 0, this.idx-_start_idx);
++            
++            return true;                
++        }
++                    
++        boolean readNumber()
++        {
++            int _c;
++            int _start_idx = this.idx;
++            
++            do
++            {
++                _c = getNext();
++                // abort on incomplete string
++                if (_c == Integer.MIN_VALUE)
++                    return false;
++            }
++            while (Character.isDigit((char)_c));
++            
++            this.idx--;
++            String _digit_str = new String (this.buffer, _start_idx, this.idx-_start_idx);
++            try
++            {
++                this.lastDigit = Integer.parseInt(_digit_str);
++            }
++            catch (NumberFormatException _nfe)
++            {
++                // should not happen - ignore                    
++            }
++            
++            return true;                
++        }
++                    
++        boolean skipSpaces()
++        {
++            int _c;
++            
++            do
++            {
++                _c = getNext();
++                if (_c == Integer.MIN_VALUE)
++                    return false;
++            }
++            while (Character.isWhitespace((char)_c));
++            
++            this.idx--;
++            
++            return true;
++        }
++        
++    }
++
++    private static class StdOutParser extends StreamParser
++    {
++        int fileno;
++        int jobSize;
++        String lastFilename;
++        
++        int parse (byte[] buf, int off, int len)
++        {
++            super.init(buf, off, len);
++            this.fileno = -1;
++            this.jobSize = -1;
++            this.lastFilename = null;
++
++            // a line looks like this:
++            // [completed  /path/to/file.java - #1/2025]
++            do
++            {                
++                if (findString (&quot;[completed &quot;)
++                    &amp;&amp; skipSpaces ()
++                    &amp;&amp; readIdentifier())
++                {
++                    // remember file name
++                    String filename = new String(this.lastIdentifier);
++                    
++                    if (! skipSpaces())
++                        continue;
++                    
++                    int _c = getNext();
++                    if (_c == Integer.MIN_VALUE)
++                        return this.fileno;
++                    if (_c != '-')
++                        continue;
++                    
++                    if (! skipSpaces())
++                        continue;
++                    
++                    _c = getNext();
++                    if (_c == Integer.MIN_VALUE)
++                        return this.fileno;
++                    if (_c != '#')
++                        continue;
++                    
++                    if (! readNumber())                        
++                        return this.fileno;
++
++                    int _fileno = this.lastDigit;
++                    
++                    _c = getNext();
++                    if (_c == Integer.MIN_VALUE)
++                        return this.fileno;
++                    if (_c != '/')
++                        continue;
++                                            
++                    if (! readNumber())                        
++                        return this.fileno;
++                    
++                    _c = getNext();
++                    if (_c == Integer.MIN_VALUE)
++                        return this.fileno;
++                    if (_c != ']')
++                        continue;
++                    
++                    this.lastFilename = filename;
++                    this.fileno = _fileno;
++                    this.jobSize = this.lastDigit;
++                    // continue parsing (figure out last occurence)
++                }
++                else
++                    return this.fileno;
++                
++            }
++            while (true);
++        }
++        
++        String getLastFilename ()
++        {
++            return this.lastFilename;
++        }
++        
++        int getJobSize()
++        {
++            return this.jobSize;
++        }
++    }
++
++    private static class StdErrParser extends StreamParser
++    {
++        int errorCount;
++        
++        int parse (byte[] buf, int off, int len)
++        {
++            super.init (buf, off, len);
++            this.errorCount = 0;
++
++            // a line looks like this:
++            // [completed  /path/to/file.java - #1/2025]
++            do
++            {                
++                if (findString (&quot;. ERROR in &quot;))
++                    this.errorCount++;
++                else
++                    return this.errorCount;                
++            }
++            while (true);
++        }
++        
++        int getErrorCount ()
++        {
++            return this.errorCount;
++        }
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -893,7 +893,7 @@
+             if (!f.isDirectory())
+             // skip directories - they cannot be removed safely yet
+             {
+-                this.handler.emitNotification(&quot;deleting &quot; + f.getPath());
++//                this.handler.emitNotification(&quot;deleting &quot; + f.getPath());
+                 f.delete();
+             }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -750,7 +750,7 @@
+             if (!f.isDirectory())
+             // skip directories - they cannot be removed safely yet
+             {
+-                this.handler.emitNotification(&quot;deleting &quot; + f.getPath());
++//                this.handler.emitNotification(&quot;deleting &quot; + f.getPath());
+                 f.delete();
+             }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanel.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanel.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -467,6 +467,14 @@
+                 + Integer.toString(this.noOfJobs));
+     }
+ 
++    /**
++     * {@inheritDoc}
++     */
++    public void setSubStepNo(int max)
++    {
++        packProgressBar.setMaximum(max);        
++    }
++    
+     /** Called when the panel becomes active. */
+     public void panelActivate()
+     {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanelAutomationHelper.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanelAutomationHelper.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -23,6 +23,7 @@
+ package com.izforge.izpack.panels;
+ 
+ import java.io.IOException;
++import java.io.PrintStream;
+ 
+ import net.n3.nanoxml.XMLElement;
+ 
+@@ -51,6 +52,10 @@
+ 
+     private int last_line_len = 0;
+ 
++    // when using the eclipse compiler, we're capturing System.out and System.err...
++    private PrintStream stdout;
++    private PrintStream stderr;
++    
+     /**
+      * Save data for running automated.
+      * 
+@@ -100,6 +105,9 @@
+             this.worker.setCompiler(compiler);
+             this.worker.setCompilerArguments(args);
+ 
++            this.stdout = System.out;
++            this.stderr = System.err;
++            
+             this.worker.run();
+             
+             return this.worker.getResult().isSuccess();
+@@ -118,7 +126,7 @@
+      */
+     public void startAction(String name, int noOfJobs)
+     {
+-        System.out.println(&quot;[ Starting compilation ]&quot;);
++        this.stdout.println(&quot;[ Starting compilation ]&quot;);
+         this.job_name = &quot;&quot;;
+     }
+ 
+@@ -130,14 +138,14 @@
+      */
+     public void handleCompileError(CompileResult error)
+     {
+-        System.out.println();
+-        System.out.println(&quot;[ Compilation failed ]&quot;);
+-        System.err.println(&quot;Command line: &quot; + error.getCmdline());
+-        System.err.println();
+-        System.err.println(&quot;stdout of compiler:&quot;);
+-        System.err.println(error.getStdout());
+-        System.err.println(&quot;stderr of compiler:&quot;);
+-        System.err.println(error.getStderr());
++        this.stdout.println();
++        this.stdout.println(&quot;[ Compilation failed ]&quot;);
++        this.stderr.println(&quot;Command line: &quot; + error.getCmdline());
++        this.stderr.println();
++        this.stderr.println(&quot;stdout of compiler:&quot;);
++        this.stderr.println(error.getStdout());
++        this.stderr.println(&quot;stderr of compiler:&quot;);
++        this.stderr.println(error.getStderr());
+         // abort instantly and make installation fail
+         error.setAction(CompileResult.ACTION_ABORT);
+     }
+@@ -152,13 +160,13 @@
+         if ((this.job_name != null) &amp;&amp; (this.last_line_len &gt; 0))
+         {
+             String line = this.job_name + &quot;: done.&quot;;
+-            System.out.print(&quot;\r&quot; + line);
++            this.stdout.print(&quot;\r&quot; + line);
+             for (int i = line.length(); i &lt; this.last_line_len; i++)
+-                System.out.print(' ');
+-            System.out.println();
++                this.stdout.print(' ');
++            this.stdout.println();
+         }
+ 
+-        if (this.worker.getResult().isSuccess()) System.out.println(&quot;[ Compilation successful ]&quot;);
++        if (this.worker.getResult().isSuccess()) this.stdout.println(&quot;[ Compilation successful ]&quot;);
+     }
+ 
+     /**
+@@ -177,9 +185,9 @@
+ 
+         int line_len = line.length();
+ 
+-        System.out.print(&quot;\r&quot; + line);
++        this.stdout.print(&quot;\r&quot; + line);
+         for (int i = line_len; i &lt; this.last_line_len; i++)
+-            System.out.print(' ');
++            this.stdout.print(' ');
+ 
+         this.last_line_len = line_len;
+     }
+@@ -197,14 +205,22 @@
+         if ((this.job_name != null) &amp;&amp; (this.last_line_len &gt; 0))
+         {
+             String line = this.job_name + &quot;: done.&quot;;
+-            System.out.print(&quot;\r&quot; + line);
++            this.stdout.print(&quot;\r&quot; + line);
+             for (int i = line.length(); i &lt; this.last_line_len; i++)
+-                System.out.print(' ');
+-            System.out.println();
++                this.stdout.print(' ');
++            this.stdout.println();
+         }
+ 
+         this.job_max = max;
+         this.job_name = jobName;
+         this.last_line_len = 0;
+     }
++    
++    /**
++     * {@inheritDoc}
++     */
++    public void setSubStepNo(int no_of_substeps)
++    {
++        this.job_max = no_of_substeps;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -215,6 +215,19 @@
+         });
+     }
+ 
++    /**
++     * {@inheritDoc}
++     */
++    public void setSubStepNo(final int no_of_substeps)
++    {
++        SwingUtilities.invokeLater(new Runnable() {
++            public void run()
++            {
++                packProgressBar.setMaximum(no_of_substeps);
++            }
++        });
++    }
++    
+     /** Called when the panel becomes active. */
+     public void panelActivate()
+     {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanelAutomationHelper.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanelAutomationHelper.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -135,4 +135,11 @@
+         System.out.println(&quot;) ]&quot;);
+     }
+ 
++    /**
++     * {@inheritDoc}
++     */
++    public void setSubStepNo(int no_of_substeps)
++    {
++        // not used here
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerConsole.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerConsole.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerConsole.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -182,8 +182,14 @@
+ 
+        public void nextStep(String step_name, int step_no, int no_of_substeps)
+        {
++           // not used
+        }
+ 
++       public void setSubStepNo(int no_of_substeps)
++       {
++           // not used
++       }
++       
+        /**
+         * Output a notification.
+         *
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -365,11 +365,23 @@
+             });
+         }
+ 
++        /**
++         * {@inheritDoc}
++         */
+         public void nextStep(String step_name, int step_no, int no_of_substeps)
+         {
++            // not used
+         }
+ 
+         /**
++         * {@inheritDoc}
++         */
++        public void setSubStepNo(int no_of_substeps)
++        {
++            // not used
++        }
++        
++        /**
+          * Output a notification.
+          * 
+          * Does nothing here.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/AbstractUIProgressHandler.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/AbstractUIProgressHandler.java	2007-02-13 13:50:50 UTC (rev 1730)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/AbstractUIProgressHandler.java	2007-02-13 13:52:02 UTC (rev 1731)
+@@ -55,6 +55,15 @@
+     public void nextStep(String step_name, int step_no, int no_of_substeps);
+ 
+     /**
++     * Set the number of substeps.
++     * 
++     * This may be used if the number of substeps changes during an action.
++     * 
++     * @param no_of_substeps The number of substeps.
++     */
++    public void setSubStepNo (int no_of_substeps);
++    
++    /**
+      * Notify of progress.
+      * 
+      * @param substep_no The substep which will be performed next.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000476.html">[izpack-changes] r1730 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000478.html">[izpack-changes] r1732 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#477">[ date ]</a>
+              <a href="thread.html#477">[ thread ]</a>
+              <a href="subject.html#477">[ subject ]</a>
+              <a href="author.html#477">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Problem creating shortcuts	withWindows(UnsatisfiedLinkError)
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problem%20creating%20shortcuts%0A%09withWindows%28UnsatisfiedLinkError%29&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889172A%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000928.html">
+   <LINK REL="Next"  HREF="000931.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Problem creating shortcuts	withWindows(UnsatisfiedLinkError)</H1>
+    <B>Benjamin Hanzelmann</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problem%20creating%20shortcuts%0A%09withWindows%28UnsatisfiedLinkError%29&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889172A%40coi11.coi.com"
+       TITLE="[izpack-users] Problem creating shortcuts	withWindows(UnsatisfiedLinkError)">benjamin at hanzelmann.de
+       </A><BR>
+    <I>Mon Oct  9 14:31:03 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000928.html">[izpack-users] Problem creating shortcuts	withWindows(UnsatisfiedLinkError)
+</A></li>
+        <LI>Next message: <A HREF="000931.html">[izpack-users] Problem creating shortcuts	withWindows(UnsatisfiedLinkError)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#930">[ date ]</a>
+              <a href="thread.html#930">[ thread ]</a>
+              <a href="subject.html#930">[ subject ]</a>
+              <a href="author.html#930">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Mon, Oct 09, 2006 at 11:17:20AM +0200, Bartz, Klaus wrote:
+&gt;<i> &gt;Yes, in <A HREF="http://lupus.cs.uni-dortmund.de/~hanzelm/">http://lupus.cs.uni-dortmund.de/~hanzelm/</A> are all the XML-files
+</I>&gt;<i> &gt;used for the installer. The ShellLink.dll is included in the
+</I>&gt;<i> &gt;JavaABC-Installer.jar under the name &quot;native/ShellLink.dll&quot;.
+</I>&gt;<i> 1. If you would create a shortcut to a installed program positioning 
+</I>&gt;<i> ShortcutPanel after InstallPanel because the COM classes needs an existent
+</I>&gt;<i> file to create the link. Else it fails.
+</I>
+Okay, I reordered.
+
+&gt;<i> 2. If you wold use an xml parser to validate your xml file use the
+</I>&gt;<i> same order as in the dtd. Means, write native entry as last.
+</I>
+Okay, I did not think of that -- 
+With reordered and valid xml I get the same errors:
+(this time at panel activation because of the update, see below)
+
+could not create shortcut instance
+java.lang.Exception: unidentified problem initializing COM
+java.lang.UnsatisfiedLinkError: initializeCOM
+        at com.izforge.izpack.util.os.ShellLink.initialize(ShellLink.java:481)
+        at com.izforge.izpack.util.os.ShellLink.&lt;init&gt;(ShellLink.java:349)
+        at com.izforge.izpack.util.os.Win_Shortcut.initialize(Win_Shortcut.java:79)
+        at com.izforge.izpack.panels.ShortcutPanel.panelActivate(ShortcutPanel.java:600)
+        at com.izforge.izpack.installer.InstallerFrame.switchPanel(InstallerFrame.java:576)
+        at com.izforge.izpack.installer.InstallerFrame.navigateNext(InstallerFrame.java:1120)
+        at com.izforge.izpack.installer.InstallerFrame$NavigationHandler.actionPerformed(InstallerFrame.java:1159)
+        at javax.swing.AbstractButton.fireActionPerformed(Unknown Source)
+        at javax.swing.AbstractButton$Handler.actionPerformed(Unknown Source)
+        at javax.swing.DefaultButtonModel.fireActionPerformed(Unknown Source)
+        at javax.swing.DefaultButtonModel.setPressed(Unknown Source)
+        at javax.swing.plaf.basic.BasicButtonListener.mouseReleased(Unknown Source)
+        at java.awt.Component.processMouseEvent(Unknown Source)
+        at javax.swing.JComponent.processMouseEvent(Unknown Source)
+        at java.awt.Component.processEvent(Unknown Source)
+        at java.awt.Container.processEvent(Unknown Source)
+        at java.awt.Component.dispatchEventImpl(Unknown Source)
+        at java.awt.Container.dispatchEventImpl(Unknown Source)
+        at java.awt.Component.dispatchEvent(Unknown Source)
+        at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown Source)
+        at java.awt.LightweightDispatcher.processMouseEvent(Unknown Source)
+        at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+        at java.awt.Container.dispatchEventImpl(Unknown Source)
+        at java.awt.Window.dispatchEventImpl(Unknown Source)
+        at java.awt.Component.dispatchEvent(Unknown Source)
+        at java.awt.EventQueue.dispatchEvent(Unknown Source)
+        at java.awt.EventDispatchThread.pumpOneEventForHierarchy(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+        at java.awt.EventDispatchThread.run(Unknown Source)
+
+&gt;<i> &gt;&gt; Works the IzPack installation on the box where 
+</I>&gt;<i> &gt;JavaABC-Installer fails?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;I did not try that, I will give it a go later today...
+</I>&gt;<i> With this test you get a hint whether it is a general or a problem of
+</I>&gt;<i> your specific installation. Therefore it should be an early test.
+</I>&gt;<i> Also tests on other windows boxes with other OS versions are need.
+</I>
+I have only two windows boxes at my workplace, and both show the same
+Exception. One is a Windows 2003 Terminalserver, the other a notebook
+with XP Professional (I think). I will try to boot my XP Professional
+at home this evening. (didn't do that for ages ;)
+
+&gt;<i> It is right that all panels are created just after language dialog. But the
+</I>&gt;<i> conclusion that all dependant classes are created at that time is not right.
+</I>&gt;<i> See the ShortcutPanel constructor, there is no creation of the class which
+</I>&gt;<i> uses the native part. Else in panelActivate the creation will be done
+</I>&gt;<i> (see ShortcutPanel.java line 621f).
+</I>&gt;<i> 
+</I>&gt;<i> You see, there are more than one things which are a little bit quaint
+</I>&gt;<i> with point in time of exception and exception contents.
+</I>
+I just updated from svn and now the behaviour is as you expected,
+the exceptions are coming at panel activation.
+
+I'll try to get a JDK installed on the terminal server and test building
+the installer there next...
+
+Regards,
+Ben
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000928.html">[izpack-users] Problem creating shortcuts	withWindows(UnsatisfiedLinkError)
+</A></li>
+	<LI>Next message: <A HREF="000931.html">[izpack-users] Problem creating shortcuts	withWindows(UnsatisfiedLinkError)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#930">[ date ]</a>
+              <a href="thread.html#930">[ thread ]</a>
+              <a href="subject.html#930">[ subject ]</a>
+              <a href="author.html#930">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

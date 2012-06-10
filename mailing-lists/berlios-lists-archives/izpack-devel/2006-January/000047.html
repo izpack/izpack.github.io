@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] search input field without choices
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20search%20input%20field%20without%20choices&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000044.html">
+   <LINK REL="Next"  HREF="000048.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] search input field without choices</H1>
+    <B>Oliver Kiddle</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20search%20input%20field%20without%20choices&In-Reply-To="
+       TITLE="[izpack-devel] search input field without choices">okiddle at yahoo.co.uk
+       </A><BR>
+    <I>Thu Jan 12 10:28:04 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000044.html">[izpack-devel] Cooperative Panels -- How To Enter in build.xml
+</A></li>
+        <LI>Next message: <A HREF="000048.html">[izpack-devel] search input field without choices
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#47">[ date ]</a>
+              <a href="thread.html#47">[ thread ]</a>
+              <a href="subject.html#47">[ subject ]</a>
+              <a href="author.html#47">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>If I use a search field in a UserInputPanel but don't include any
+&lt;choice&gt; elements, the installer crashes with a
+java.lang.reflect.InvocationTargetException on startup. Not using
+&lt;choice&gt; elements is useful where I just want a file picker. The
+following patch fixes the crash.
+
+Oliver
+
+--- IzPack/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-01-06 22:09:38.000000000 +0100
++++ IzPack.modified/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-01-12 10:23:17.000000000 +0100
+@@ -2621,6 +2621,11 @@
+              * Check if the user has entered data into the ComboBox and add it to the Itemlist
+              */
+             String selected = (String) this.pathComboBox.getSelectedItem();
++            if (selected == null)
++            {
++                return false;
++            }
++            
+             boolean found = false;
+             for (int x = 0; x &lt; this.pathComboBox.getItemCount(); x++)
+             {
+
+
+This e-mail and any attachment is for authorised use by the intended recipient(s) only. It may contain proprietary material, confidential information and/or be subject to legal privilege. It should not be copied, disclosed to, retained or used by, any other party. If you are not an intended recipient then please promptly delete this e-mail and any attachment and all copies and inform the sender. Thank you.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000044.html">[izpack-devel] Cooperative Panels -- How To Enter in build.xml
+</A></li>
+	<LI>Next message: <A HREF="000048.html">[izpack-devel] search input field without choices
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#47">[ date ]</a>
+              <a href="thread.html#47">[ thread ]</a>
+              <a href="subject.html#47">[ subject ]</a>
+              <a href="author.html#47">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Problem specifying path
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Problem%20specifying%20path&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889168F%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000257.html">
+   <LINK REL="Next"  HREF="000263.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Problem specifying path</H1>
+    <B>Elmar Grom</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Problem%20specifying%20path&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889168F%40coi11.coi.com"
+       TITLE="[izpack-devel] Problem specifying path">elmar at grom.net
+       </A><BR>
+    <I>Tue Jun 20 18:16:49 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000257.html">[izpack-devel] Problem specifying path
+</A></li>
+        <LI>Next message: <A HREF="000263.html">[izpack-devel] Problem specifying path / Problems with Java 1.5.x
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#261">[ date ]</a>
+              <a href="thread.html#261">[ thread ]</a>
+              <a href="subject.html#261">[ subject ]</a>
+              <a href="author.html#261">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus,
+
+thanks for your response. Actually in my case nothing works automatically. I
+have to list the Ant classpath in the task deinition for IzPack, otherwise I
+receive a ClassNotFoundException. That's actually how I found out that
+IzPack was using some stuff from Ant.
+
+I just checked and actually found the ANT_HOME path incorrect, as well as a
+setting in my IDE (Visual SlickEdit). This did not seem to have any negative
+impact on anything so far. After correcting all of this I still have all the
+same problems....
+
+Thanks
+
+	Elmar
+
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>]On Behalf Of Bartz, Klaus
+Sent: Tuesday, June 20, 2006 12:48 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+Subject: RE: [izpack-devel] Problem specifying path
+
+
+Hi Elmar,
+since the changes for support different compression algorithm
+IzPack needs the common ant file (ant.jar). It uses zip or
+bzip2. The apache version of zip is used to write the needed
+informations into the jar file which is not possible with the &quot;normal&quot;
+JarOutputStream.
+See source, there are some comments for it
+(e.g. com.izforge.izpack.util.JarOutputStream line 40-48).
+There is no against ant compile task.
+As most other internal things this is not documented else it is
+implemented in a manner that it work should automatically. A docu of
+it will only confuse the majority of the users, I think. It is a level
+where inline docu in the source will be better.
+
+Normally I use ant 1.6.2.
+I have just tested with 1.6.5 on Windows. A build with it of one
+of my Installation works using the ant API without problems.
+ant.jar 1.6.5 contains package org.apache.tools.zip.
+If you use the comandline API of IzPack ant.jar 1.6.2 will be
+used (as for other things) which is in %IZ_HOME%\lib.
+In the Manifest.mf of compiler.jar is the line
+Class-Path: ant.jar
+Therefore I do not know why it should not work if you use 1.6.5.
+You need not to declare additional libraries.
+On the other hand, there is a big difference in the ant build script
+between IzPack 3.7 and 3.8 (or earlier ??). But then the error
+messages should be other...
+
+May be you have a CLASSPATH and there an other (older) ant in front.
+May be there is wrong Manifest.mf in  compiler.jar.
+May be standalone-compiler.jar was not build in the right way.
+
+...
+
+Cheers
+
+Klaus
+
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>]On Behalf Of Elmar Grom
+</I>&gt;<i>Sent: Monday, June 19, 2006 11:45 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+</I>&gt;<i>Subject: RE: [izpack-devel] Problem specifying path
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>All right, it looks like I am narrowing in my problems.
+</I>&gt;<i>
+</I>&gt;<i>The problem described below was related to a wrong
+</I>&gt;<i>interpretation of the
+</I>&gt;<i>IzPack error message, so it's not actually a problem.
+</I>&gt;<i>
+</I>&gt;<i>After fixing this, I am now running into problems related to
+</I>&gt;<i>the fact that
+</I>&gt;<i>IzPack seems to be compiled against Ant. It would be good to know which
+</I>&gt;<i>version was used. Unfortunately I could find no hint in the
+</I>&gt;<i>documentation
+</I>&gt;<i>that additional libraries are even needed, let alone which ones, how to
+</I>&gt;<i>reference them and which versions will work. I am using Ant 1.6.5 with
+</I>&gt;<i>obvious problems (see below).
+</I>&gt;<i>
+</I>&gt;<i>java.lang.NoSuchMethodError:
+</I>&gt;<i>org.apache.tools.zip.ZipOutputStream.&lt;init&gt;(Ljava/io/File;)V
+</I>&gt;<i>	at
+</I>&gt;<i>com.izforge.izpack.util.JarOutputStream.&lt;init&gt;(JarOutputStream.
+</I>&gt;<i>java:104)
+</I>&gt;<i>	at
+</I>&gt;<i>com.izforge.izpack.compiler.Packager.getJarOutputStream(Package
+</I>&gt;<i>r.java:649)
+</I>&gt;<i>	at
+</I>&gt;<i>com.izforge.izpack.compiler.Packager.createInstaller(Packager.java:171)
+</I>&gt;<i>	at
+</I>&gt;<i>com.izforge.izpack.compiler.Compiler.createInstaller(Compiler.java:248)
+</I>&gt;<i>	at
+</I>&gt;<i>com.izforge.izpack.compiler.CompilerConfig.executeCompiler(Comp
+</I>&gt;<i>ilerConfig.ja
+</I>&gt;<i>va:320)
+</I>&gt;<i>	at
+</I>&gt;<i>com.izforge.izpack.ant.IzPackTask.execute(IzPackTask.java:234)
+</I>&gt;<i>	at org.apache.tools.ant.Task.perform(Task.java:341)
+</I>&gt;<i>	at org.apache.tools.ant.Target.execute(Target.java:309)
+</I>&gt;<i>	at org.apache.tools.ant.Target.performTasks(Target.java:336)
+</I>&gt;<i>	at org.apache.tools.ant.Project.executeTarget(Project.java:1339)
+</I>&gt;<i>	at
+</I>&gt;<i>org.apache.tools.ant.Project.executeTargets(Project.java:1255)
+</I>&gt;<i>	at org.apache.tools.ant.Main.runBuild(Main.java:609)
+</I>&gt;<i>	at org.apache.tools.ant.Main.start(Main.java:196)
+</I>&gt;<i>	at org.apache.tools.ant.Main.main(Main.java:235)
+</I>&gt;<i>org.apache.tools.zip.ZipOutputStream.&lt;init&gt;(Ljava/io/File;)V
+</I>&gt;<i>
+</I>&gt;<i>	Elmar
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>]On Behalf Of Elmar Grom
+</I>&gt;<i>Sent: Monday, June 19, 2006 12:25 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+</I>&gt;<i>Subject: [izpack-devel] Problem specifying path
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>OK, here is a problem that stops me form running the compiler
+</I>&gt;<i>of the 3.8
+</I>&gt;<i>version of IzPack in Ant.
+</I>&gt;<i>
+</I>&gt;<i>IzPack seems to be unwilling to accept an absolute path for
+</I>&gt;<i>the spec file
+</I>&gt;<i>(input=&quot;...&quot;). My original Ant code that works with the older
+</I>&gt;<i>version does
+</I>&gt;<i>not function any more with 3.8, so something must have changed
+</I>&gt;<i>there at some
+</I>&gt;<i>point in time.
+</I>&gt;<i>
+</I>&gt;<i>Using the following absolute path
+</I>&gt;<i>
+</I>&gt;<i>C:/DocumentsAndSettings/Elmar/MyDocuments/Installers/Teacher/De
+</I>&gt;<i>finition/Teac
+</I>&gt;<i>her.xml
+</I>&gt;<i>
+</I>&gt;<i>generates the following error:
+</I>&gt;<i>
+</I>&gt;<i>com.izforge.izpack.compiler.CompilerException:
+</I>&gt;<i>C:/DocumentsAndSettings/Elmar/MyDocuments/Installers/Teacher/De
+</I>&gt;<i>finition/Teac
+</I>&gt;<i>her.xml:8: &lt;url&gt; requires valid URL
+</I>&gt;<i>
+</I>&gt;<i>So I conclude that IzPack is now expecting a URL rather than a
+</I>&gt;<i>file path.
+</I>&gt;<i>Can anyone confirm that this is correct?
+</I>&gt;<i>
+</I>&gt;<i>Changing the path in such a way that it should be recognized
+</I>&gt;<i>as a URL makes
+</I>&gt;<i>this error go away. However, now IzPack screws the path
+</I>&gt;<i>completely up and as
+</I>&gt;<i>a result does not find the file. The URL looks like this:
+</I>&gt;<i>
+</I>&gt;<i><A HREF="file://C:/DocumentsAndSettings/Elmar/MyDocuments/Installers/Tea">file://C:/DocumentsAndSettings/Elmar/MyDocuments/Installers/Tea</A>
+</I>&gt;<i>cher/Definiti
+</I>&gt;<i>on/Teacher.xml
+</I>&gt;<i>
+</I>&gt;<i>in other words I just add the protocol prefix for file. IzPack
+</I>&gt;<i>produces the
+</I>&gt;<i>following:
+</I>&gt;<i>
+</I>&gt;<i>file:C:/DocumentsAndSettings/Elmar/MyDocuments/Java/project/Sch
+</I>&gt;<i>ool.xml:381:
+</I>&gt;<i>com.izforge.izpack.compiler.CompilerException: Invalid file:
+</I>&gt;<i>C:\DocumentsAndSettings\Elmar\MyDocuments\Java\project\file:\C:
+</I>&gt;<i>\DocumentsAnd
+</I>&gt;<i>Settings\Elmar\MyDocuments\Installers\Teacher\Definition\Teacher.xml
+</I>&gt;<i>
+</I>&gt;<i>In other words it inserts the path of the directory where my
+</I>&gt;<i>Ant file is
+</I>&gt;<i>located. Why it should do this is beyond me. Somehow it is not
+</I>&gt;<i>recognized as
+</I>&gt;<i>the absolute path that it is.
+</I>&gt;<i>
+</I>&gt;<i>Is this behavior as designed or does it represent a bug? In
+</I>&gt;<i>either case, is
+</I>&gt;<i>there a workaround or proper way of specifying an absolute path?
+</I>&gt;<i>
+</I>&gt;<i>	Elmar
+</I>&gt;<i>
+</I>&gt;<i>-----Original Message-----
+</I>&gt;<i>From: Elmar Grom [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>]
+</I>&gt;<i>Sent: Monday, June 19, 2006 10:10 AM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+</I>&gt;<i>Subject: RE: [izpack-devel] Running IzPack with VM 1.5 without SigSegV
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi folks,
+</I>&gt;<i>
+</I>&gt;<i>it's strange to hear all this stuff with Problems about 1.5.
+</I>&gt;<i>Somehow I can't
+</I>&gt;<i>relate to that. Neither do I have any Problems on my machines
+</I>&gt;<i>(Windows 2000
+</I>&gt;<i>and XP) nor do my customers report any.
+</I>&gt;<i>
+</I>&gt;<i>So I start wondering if it might be something else. One thing that is
+</I>&gt;<i>different in my case is that I use quite an old version of IzPack. So
+</I>&gt;<i>perhaps the causes are not with the shell link. As far as I
+</I>&gt;<i>know this has
+</I>&gt;<i>not changed since it was first implemented.
+</I>&gt;<i>
+</I>&gt;<i>It sounds awfully tedious but it might be worthwhile to start
+</I>&gt;<i>going back in
+</I>&gt;<i>time in an effort to identify the first version of IzPack that
+</I>&gt;<i>does exhibit
+</I>&gt;<i>the problems you observe. That might give us a narrower view
+</I>&gt;<i>on the things
+</I>&gt;<i>that may cause the problem.
+</I>&gt;<i>
+</I>&gt;<i>One problem I do have is that I never could get newer versions
+</I>&gt;<i>of IzPack to
+</I>&gt;<i>run in my environment. That is why I still stick with the old
+</I>&gt;<i>one (Julien
+</I>&gt;<i>might remember a conversation on this topic quite a while
+</I>&gt;<i>ago). Right now I
+</I>&gt;<i>am at a point where I have to give my build environment a
+</I>&gt;<i>work-over to build
+</I>&gt;<i>a parallel version of my application. Therefore this might be a good
+</I>&gt;<i>opportunity for me to invest a day or two in order to get this
+</I>&gt;<i>working. At
+</I>&gt;<i>the same time, there might be an opportunity for IzPack in general to
+</I>&gt;<i>benefit....
+</I>&gt;<i>
+</I>&gt;<i>	Elmar
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000257.html">[izpack-devel] Problem specifying path
+</A></li>
+	<LI>Next message: <A HREF="000263.html">[izpack-devel] Problem specifying path / Problems with Java 1.5.x
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#261">[ date ]</a>
+              <a href="thread.html#261">[ thread ]</a>
+              <a href="subject.html#261">[ subject ]</a>
+              <a href="author.html#261">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

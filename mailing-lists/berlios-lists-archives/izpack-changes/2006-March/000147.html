@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] izpack-src/src/lib/com/coi/tools/os/win NativeLibException.java,1.4,1.5 RegDataContainer.java,1.4,1.5 RegistryImpl.java,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/coi/tools/os/win%20NativeLibException.java%2C1.4%2C1.5%20RegDataContainer.java%2C1.4%2C1.5%20RegistryImpl.java%2C1.8%2C1.9&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000144.html">
+   <LINK REL="Next"  HREF="000145.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] izpack-src/src/lib/com/coi/tools/os/win NativeLibException.java,1.4,1.5 RegDataContainer.java,1.4,1.5 RegistryImpl.java,1.8,1.9</H1>
+    <B>jponge</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/coi/tools/os/win%20NativeLibException.java%2C1.4%2C1.5%20RegDataContainer.java%2C1.4%2C1.5%20RegistryImpl.java%2C1.8%2C1.9&In-Reply-To="
+       TITLE="[izpack-changes] izpack-src/src/lib/com/coi/tools/os/win NativeLibException.java,1.4,1.5 RegDataContainer.java,1.4,1.5 RegistryImpl.java,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 21 19:14:49 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000144.html">[izpack-changes] izpack-src Versions.txt,1.215,1.216
+</A></li>
+        <LI>Next message: <A HREF="000145.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/ant IzPackTask.java,1.19,1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#147">[ date ]</a>
+              <a href="thread.html#147">[ thread ]</a>
+              <a href="subject.html#147">[ subject ]</a>
+              <a href="author.html#147">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/izpack/izpack-src/src/lib/com/coi/tools/os/win
+In directory sheep:/tmp/cvs-serv3622/src/lib/com/coi/tools/os/win
+
+Modified Files:
+	NativeLibException.java RegDataContainer.java 
+	RegistryImpl.java 
+Log Message:
+Some fixes adviced by IntelliJ IDEA 5.1 code inspector.
+
+Index: NativeLibException.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/coi/tools/os/win/NativeLibException.java,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -d -r1.4 -r1.5
+--- NativeLibException.java	12 Mar 2006 16:32:13 -0000	1.4
++++ NativeLibException.java	21 Mar 2006 18:14:42 -0000	1.5
+@@ -87,7 +87,6 @@
+             mre.printStackTrace();
+         }
+         messageResourceBundles.put(bundlePath, bd);
+-        return;
+ 
+     }
+ 
+
+Index: RegDataContainer.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/coi/tools/os/win/RegDataContainer.java,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -d -r1.4 -r1.5
+--- RegDataContainer.java	12 Mar 2006 16:32:13 -0000	1.4
++++ RegDataContainer.java	21 Mar 2006 18:14:42 -0000	1.5
+@@ -344,4 +344,12 @@
+         return (false);
+     }
+ 
++    public int hashCode()
++    {
++        int result;
++        result = (int) (dwordData ^ (dwordData &gt;&gt;&gt; 32));
++        result = 29 * result + (stringData != null ? stringData.hashCode() : 0);
++        result = 29 * result + type;
++        return result;
++    }
+ }
+
+Index: RegistryImpl.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/coi/tools/os/win/RegistryImpl.java,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -u -d -r1.8 -r1.9
+--- RegistryImpl.java	12 Mar 2006 16:32:13 -0000	1.8
++++ RegistryImpl.java	21 Mar 2006 18:14:42 -0000	1.9
+@@ -206,7 +206,7 @@
+         catch (NativeLibException ne)
+         {
+             String em = ne.getLibMessage();
+-            if (em.equals(&quot;functionFailed.RegOpenKeyEx&quot;)) { return (false); }
++            if (&quot;functionFailed.RegOpenKeyEx&quot;.equals(em)) { return (false); }
+             throw (ne);
+         }
+     }
+@@ -228,8 +228,8 @@
+         catch (NativeLibException ne)
+         {
+             String em = ne.getLibMessage();
+-            if (em.equals(&quot;functionFailed.RegOpenKeyEx&quot;)
+-                    || em.equals(&quot;functionFailed.RegQueryValueEx&quot;)) { return (false); }
++            if (&quot;functionFailed.RegOpenKeyEx&quot;.equals(em)
++                    || &quot;functionFailed.RegQueryValueEx&quot;.equals(em)) { return (false); }
+             throw (ne);
+         }
+         return (true);
+@@ -338,8 +338,8 @@
+             catch (NativeLibException ne)
+             {
+                 String em = ne.getLibMessage();
+-                if (em.equals(&quot;functionFailed.RegOpenKeyEx&quot;)
+-                        || em.equals(&quot;functionFailed.RegQueryValueEx&quot;))
++                if (&quot;functionFailed.RegOpenKeyEx&quot;.equals(em)
++                        || &quot;functionFailed.RegQueryValueEx&quot;.equals(em))
+                 {
+                     setValueR(root, key, value, contents);
+                     return;
+@@ -357,7 +357,6 @@
+                     localValue, contents, oldContents);
+             log(rli);
+         }
+-        return;
+     }
+ 
+     /**
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000144.html">[izpack-changes] izpack-src Versions.txt,1.215,1.216
+</A></li>
+	<LI>Next message: <A HREF="000145.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/ant IzPackTask.java,1.19,1.20
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#147">[ date ]</a>
+              <a href="thread.html#147">[ thread ]</a>
+              <a href="subject.html#147">[ subject ]</a>
+              <a href="author.html#147">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

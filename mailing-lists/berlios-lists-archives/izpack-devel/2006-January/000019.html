@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Multi-Panel Panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Multi-Panel%20Panels&In-Reply-To=op.s24dzvaanznptk%40hase2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000018.html">
+   <LINK REL="Next"  HREF="000020.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Multi-Panel Panels</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Multi-Panel%20Panels&In-Reply-To=op.s24dzvaanznptk%40hase2"
+       TITLE="[izpack-devel] Multi-Panel Panels">hal at thresholddigital.com
+       </A><BR>
+    <I>Mon Jan  9 18:29:40 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000018.html">[izpack-devel] Multi-Panel Panels
+</A></li>
+        <LI>Next message: <A HREF="000020.html">[izpack-devel] Multi-Panel Panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Monday 09 January 2006 11:41 am, Klaus Bartz wrote:
+&gt;<i> Hi Hal,
+</I>&gt;<i>
+</I>&gt;<i> Am 08.01.2006, 21:04 Uhr, schrieb Hal Vaughan &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">hal at thresholddigital.com</A>&gt;:
+</I>&gt;<i> &gt; I have an idea for a panel that would search for specified versions of an
+</I>&gt;<i> &gt; application and report if it is on a computer or not.  In my case, this
+</I>&gt;<i> &gt; would
+</I>&gt;<i> &gt; help because my application needs OpenOffice 2.x.  If it is on the
+</I>&gt;<i> &gt; computer,
+</I>&gt;<i> &gt; I need the path to it, if it isn't, I need to know where I can install
+</I>&gt;<i> &gt; it.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; This would require multiple steps:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; 1) Ask end user if app is present
+</I>&gt;<i> &gt; 2) Search (if needed) to see if it is present and create list of
+</I>&gt;<i> &gt; locations of
+</I>&gt;<i> &gt; different versions or instances
+</I>&gt;<i>
+</I>&gt;<i> Or look (on windows) into the registry. There are all regular installed
+</I>&gt;<i> version registered. For Unix you can do an other way, may be search the
+</I>&gt;<i> common dirs for applications.
+</I>
+That's one way.  I haven't gotten into that much detail yet.  But are all 
+programs installed with IzPack in the registry?  I know I, not being a 
+Windows person, tend to forget to include things like that.  I think it would 
+be possible, if you're using the registry enabled version, to check the 
+registry and, if not found, do a directory search.
+
+&gt;<i> &gt; 3a) If app is present, ask end user which instance or version to use
+</I>&gt;<i>
+</I>&gt;<i> Do not forget to implement a range mimik (like in JDKPathPanel), or is your
+</I>&gt;<i> application able to use any version of OpenOffice ?.
+</I>
+I was thinking of something close to that, but I've seen programs change their 
+version messages from one version to another (other than just updating the 
+version number).  It'd be more work, but more accurate, to specify a command 
+(and parameters) and a list of acceptable or unacceptable strings to search 
+for in the output.  For example:
+
+$ bigapp --version
+BigApp, (C) 2005 by Megalithic Corporation
+Version 2.1.9
+
+$bigapp --version
+Monolithic Corporation, a Megalithic subsidary
+BigApp 1.9.2
+(C) 2005
+
+Since we're dealing with all programs out there, this would allow the 
+developer to specify strings to match all acceptable (and some non 
+acceptable) verisons.  A little more work, but it provides much more in terms 
+of ability and accuracy.
+
+&gt;<i> &gt; OR
+</I>&gt;<i> &gt; 3b) If app is not present, ask end user where it can be installed.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I've noticed most panels are simple, like many installers.  This keeps
+</I>&gt;<i> &gt; things
+</I>&gt;<i> &gt; easy for the end user, allows for uncluttered panels (that are less
+</I>&gt;<i> &gt; confusing), and also takes into account that different languages and 
+</I>&gt;<i> &gt; translations may require different amounts of space.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; To do what I want to do would require either a cluttered panel where the
+</I>&gt;<i> &gt; lower
+</I>&gt;<i> &gt; portions would change according to input on the upper sections or several
+</I>&gt;<i> &gt; different panels (some that would appear under some conditions, others
+</I>&gt;<i> &gt; under
+</I>&gt;<i> &gt; other conditions).
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Is here any problem with a &quot;panel&quot; that needs to have 3-4 panels in a
+</I>&gt;<i> &gt; row?  In
+</I>&gt;<i> &gt; the Panels section of the install.xml file it might look like this:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;panel classname=&quot;ApplicationFinderPanel&quot; stage=&quot;1&quot;/&gt;
+</I>&gt;<i> &gt; &lt;panel classname=&quot;ApplicationFinderPanel&quot; stage=&quot;2&quot;/&gt;
+</I>&gt;<i> &gt; &lt;panel classname=&quot;ApplicationFinderPanel&quot; stage=&quot;3&quot;/&gt;
+</I>&gt;<i> &gt; &lt;panel classname=&quot;ApplicationFinderPanel&quot; stage=&quot;4&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i> You know the problem with additional attributes in the &lt;panel&gt; element of
+</I>&gt;<i> install.xml. Why not use four different panels? May be one with the base
+</I>&gt;<i> outfit and three or four only with the additional different layout.
+</I>
+I'm thinking of that.  I'm still working out the overall idea.  It could be 4 
+panels, specified in order (AppFinder0Panel, AppFinder1Panel, etc) or with 
+different names, but if the order number is in the name, it helps senile 
+people like me keep them in order.
+
+&gt;<i> In IzPack there is only one panel which can exist in more than one stages,
+</I>&gt;<i> the UserInputPanel.
+</I>&gt;<i> Look into UserInputPanel. Would you write a secound one?
+</I>&gt;<i> It is a little bit complex. What is better, four simple hard coded panels
+</I>&gt;<i> or one
+</I>&gt;<i> really complex panel for which the most questions on this mailing list
+</I>&gt;<i> will be come.
+</I>
+I prefer the simpler panels.  I experimentend, though, and found just the code 
+for multiple panels was not hard.  There are some custom panels I'm using 
+that I need several times, and I found it easy to set that up.  But UserInput 
+is definitely a complex panel.  I have no desire to write anything that 
+complex -- which is why I was thinking of doing this as a series of panels.
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000018.html">[izpack-devel] Multi-Panel Panels
+</A></li>
+	<LI>Next message: <A HREF="000020.html">[izpack-devel] Multi-Panel Panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

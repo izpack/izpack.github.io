@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] 3.8.1: Custom Actions - Ant: Nativedlls not available in java library path
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%203.8.1%3A%20Custom%20Actions%20-%20Ant%3A%20Nativedlls%20not%20available%20in%20java%20library%20path&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891689%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000558.html">
+   <LINK REL="Next"  HREF="000559.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] 3.8.1: Custom Actions - Ant: Nativedlls not available in java library path</H1>
+    <B>Ren&#233; Krell</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%203.8.1%3A%20Custom%20Actions%20-%20Ant%3A%20Nativedlls%20not%20available%20in%20java%20library%20path&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891689%40coi11.coi.com"
+       TITLE="[izpack-users] 3.8.1: Custom Actions - Ant: Nativedlls not available in java library path">rkrell at gk-software.com
+       </A><BR>
+    <I>Tue Jun 27 08:58:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000558.html">[izpack-users] 3.8.1: Custom Actions - Ant: Nativedlls not available in java library path
+</A></li>
+        <LI>Next message: <A HREF="000559.html">[izpack-users] MSI compatibility?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#592">[ date ]</a>
+              <a href="thread.html#592">[ thread ]</a>
+              <a href="subject.html#592">[ subject ]</a>
+              <a href="author.html#592">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello Klaus,
+Thanks for your hints. Some notes below.
+Ren&#233;
+
+On Monday 19 June 2006 10:29, Bartz, Klaus wrote:
+&gt;<i> Hi Ren&#233;,
+</I>&gt;<i> natives with an installation are not so easy as natives in a
+</I>&gt;<i> well installed environment.
+</I>&gt;<i> One rule of IzPack is to clean up all things which are used only
+</I>&gt;<i> by the installation.
+</I>&gt;<i> An other rule is to put all needed into one jar file.
+</I>&gt;<i> Therefore dlls are stored in the jar and written out with a
+</I>&gt;<i> temp name as needed. Because this the mimik via Librarian;
+</I>&gt;<i> it triggers the outloading. But with some ant tasks
+</I>&gt;<i> (if you allow fork because you need a java compiler from
+</I>&gt;<i> tools.jar) you are in an other process where Librarian not
+</I>&gt;<i> exist.
+</I>&gt;<i> What is the path of &quot;win32jni.dll&quot;? If you use ant after install
+</I>&gt;<i> you can declare a variable for ant where the path of win32jni.dll
+</I>&gt;<i> is stored and load the dll with path. How to do it you can see
+</I>&gt;<i> in Librarian.java.
+</I>
+Since I declared win32jni with the native tag in my install.xml:
+---
+  ...
+  &lt;native type=&quot;3rdparty&quot; name=&quot;win32jni.dll&quot;/&gt;
+  ...
+  &lt;jar src=&quot;lib/apache-ant/1.6.5/ant.jar&quot; stage=&quot;both&quot;/&gt;
+  &lt;jar src=&quot;lib/apache-ant/1.6.5/ant-launcher.jar&quot; stage=&quot;both&quot;/&gt;
+  &lt;jar src=&quot;lib/apache-ant/1.6.5/ant-nodeps.jar&quot; stage=&quot;both&quot;/&gt;
+  &lt;jar src=&quot;lib/lib_using_win32jni.jar&quot; stage=&quot;both&quot;/&gt;
+  ...
+---
+the file win32jni.dll resides in bin/native/3rdparty/ of my installation 
+source root following the documentation.
+
+&gt;<i> One &quot;trick&quot; is to use System.load instead of System.loadLibrary
+</I>&gt;<i> where you can use the full path.
+</I>&gt;<i>
+</I>&gt;<i> Additional AntActionInstallerListener should be a workable
+</I>&gt;<i> example for an InstallerListener. Not less, but also not more.
+</I>&gt;<i> I have spend many time to made it passably generic. In the moment
+</I>&gt;<i> I have not the time to add native support in a generic way to it.
+</I>&gt;<i>
+</I>&gt;<i> Will be nice if you can do it. But only in the Listener and its
+</I>&gt;<i> dependants, not in the common IzPack part.
+</I>&gt;<i> May be the best will be you write a &quot;base&quot; ant class for it
+</I>&gt;<i> which makes the load.
+</I>
+I'd very likely provide some patch to make this common. At the moment, I reuse 
+the Librarian native library loader from IZPack, which works in my 
+environment. As soon as I get some spare time for it... :-(
+
+&gt;<i> [..]
+</I>&gt;<i>
+</I>&gt;<i> &gt;-----Original Message-----
+</I>&gt;<i> &gt;From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;<i> &gt;[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Ren&#233; Krell
+</I>&gt;<i> &gt;Sent: Friday, June 16, 2006 2:23 PM
+</I>&gt;<i> &gt;To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;<i> &gt;Subject: ***SPAM*** Re: [izpack-users] 3.8.1: Custom Actions - Ant:
+</I>&gt;<i> &gt;Nativedlls not available in java library path
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;I solved the problem by my own according to the recommendations at
+</I>&gt;<i> &gt;<A HREF="http://openfacts.berlios.de/index-en.phtml?title=IzPack/Undocum">http://openfacts.berlios.de/index-en.phtml?title=IzPack/Undocum</A>
+</I>&gt;<i> &gt;entedFeatures:
+</I>&gt;<i> &gt;---
+</I>&gt;<i> &gt;Native libraries
+</I>&gt;<i> &gt;If you add some jar that used custom code, and use the
+</I>&gt;<i> &gt;&lt;native&gt; tag, don't use
+</I>&gt;<i> &gt;System.load or System.loadLibrary in order to load the native
+</I>&gt;<i> &gt;library. Use
+</I>&gt;<i> &gt;instead this:
+</I>&gt;<i> &gt;  Librarian.getInstance().loadLibrary(
+</I>&gt;<i> &gt;	&quot;myNativeLibWithoutExtension&quot;,
+</I>&gt;<i> &gt;	nativeLibraryClient)
+</I>&gt;<i> &gt;where:
+</I>&gt;<i> &gt;com.izforge.izpack.util.Librarian is a class supplied with IzPack.
+</I>&gt;<i> &gt;nativeLibraryClient is an object belonging to a class implementing the
+</I>&gt;<i> &gt;NativeLibraryClient interface.
+</I>&gt;<i> &gt;---
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;The problem was that System.loadLibrary does not work during
+</I>&gt;<i> &gt;custom Ant
+</I>&gt;<i> &gt;actions in own Ant tasks (due to a missing system property
+</I>&gt;<i> &gt;java.library.path
+</I>&gt;<i> &gt;or environment variable LD_LIBRARY_PATH).
+</I>&gt;<i> &gt;The Librarian refers to a System.load which requires an
+</I>&gt;<i> &gt;absolute path to the
+</I>&gt;<i> &gt;native library instead.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Nevertheless, this is a workaround and in future it would be
+</I>&gt;<i> &gt;nice to have
+</I>&gt;<i> &gt;System.loadLibrary working for custom Ant actions in own Ant
+</I>&gt;<i> &gt;tasks, too, as
+</I>&gt;<i> &gt;long as the &lt;native&gt; tag is declared and the referred file is
+</I>&gt;<i> &gt;provided. At
+</I>&gt;<i> &gt;least there could be overgiven some system property
+</I>&gt;<i> &gt;java.library.path or so
+</I>&gt;<i> &gt;when calling Ant(?).
+</I>&gt;<i> &gt;Otherwise I'd always have to add izpack jars to their
+</I>&gt;<i> &gt;classpath to use the
+</I>&gt;<i> &gt;Librarian and all depending classes.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Ren&#233;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;On Tuesday 13 June 2006 15:32, Ren&#233; Krell wrote:
+</I>&gt;<i> &gt;&gt; On launching my self compiled installation jar, I get
+</I>&gt;<i> &gt;&gt; an &quot;java.lang.UnsatisfiedLinkError: no win32jni in
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;java.library.path&quot; (see:
+</I>&gt;<i> &gt;&gt; stacktrace.log) when launching a custom Ant install action,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;even though I
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&gt; declared the appropriate DLL in my install.xml:
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;   &lt;native type=&quot;3rdparty&quot; name=&quot;win32jni.dll&quot;/&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Questions:
+</I>&gt;<i> &gt;&gt; 1. Is it possible to use links to native libraries from
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;custom Ant actions
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&gt; at all?
+</I>&gt;<i> &gt;&gt; 2a. Where is the right place to declare them (if I need them only at
+</I>&gt;<i> &gt;&gt; install time)?
+</I>&gt;<i> &gt;&gt; 3b. or ... How can I set the according properties probably
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;needed for this
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&gt; and given to the Ant launcher as -Djava.library.path (and
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;user variables,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&gt; as LD_LIBRARY_PATH)? Are they set automatically by the installer?
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Thanks,
+</I>&gt;<i> &gt;&gt; Ren&#233;
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000558.html">[izpack-users] 3.8.1: Custom Actions - Ant: Nativedlls not available in java library path
+</A></li>
+	<LI>Next message: <A HREF="000559.html">[izpack-users] MSI compatibility?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#592">[ date ]</a>
+              <a href="thread.html#592">[ thread ]</a>
+              <a href="subject.html#592">[ subject ]</a>
+              <a href="author.html#592">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] file type association
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20file%20type%20association&In-Reply-To=freemail.20070813102626.33429%40fm11.freemail.hu">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001653.html">
+   <LINK REL="Next"  HREF="001654.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] file type association</H1>
+    <B>Csizmadia Peter</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20file%20type%20association&In-Reply-To=freemail.20070813102626.33429%40fm11.freemail.hu"
+       TITLE="[izpack-users] file type association">szocsp at freemail.hu
+       </A><BR>
+    <I>Mon Sep 17 08:27:08 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001653.html">[izpack-users] file type association
+</A></li>
+        <LI>Next message: <A HREF="001654.html">[izpack-users] How to access INSTALL_PATH in process panel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1664">[ date ]</a>
+              <a href="thread.html#1664">[ thread ]</a>
+              <a href="subject.html#1664">[ subject ]</a>
+              <a href="author.html#1664">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+
+&gt;<i> I want to associate a file type (.sls) to my application. Unfortunately, the only documented method,  <A HREF="http://izpack.org/wiki/how_to_associate_file_types_in_windows">http://izpack.org/wiki/how_to_associate_file_types_in_windows</A> is wrong (let me not go into details, but I'm afraid the author has never even tried it). Even if it would work, the absolute paths appearing in the exported .reg file would make it impossible to use the same file in another installation.
+</I>&gt;<i> I think the right way is to make a RegistrySpec.xml. However, I'm not a windows expert to make such a file and I couldn't find any examples.
+</I>&gt;<i> d a working solution, see the end of this letter. 
+</I> It is far from perfect. 
+A registry entry is not really good place for java command line options (-Xmx384m), because it can only be changed by a windows expert. Instead of directly running java, it would be better to run a script. I tried the open command 'wscript.exe &quot;$INSTALL_PATH\bin\slideproject.vbs&quot; %1', but it does not work, the file argument (%1) is not passed to my script. Even if it would work, another windows problem is that the virus scan software pops up annoying dialogs when running .VBS files. So the only improvement of using VBS instead of batch, is that the superfluous terminal window is replaced by an annoying virus warning.
+It would also be good have file type associations on Linux and Mac.
+
+If anyone knows how to improve it, then please let me know.
+
+Peter
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+&lt;registry&gt;
+    &lt;pack name=&quot;Core&quot;&gt;
+        &lt;!-- -------------------------------------------------------------
+             Register the SlideProject.SLSFile type in HKLM\software\classes\.
+             It is also written automatically to HKCR\SlideProject.SLSFile.
+             ------------------------------------------------------------- --&gt;
+        &lt;key root=&quot;HKLM&quot;
+            keypath=&quot;software\classes\SlideProject.SLSFile&quot;/&gt;
+        &lt;value root=&quot;HKLM&quot;
+            keypath=&quot;software\classes\SlideProject.SLSFile&quot;
+            name=&quot;&quot; string=&quot;SlideProject Slides&quot;/&gt;
+        &lt;!-- icon of .sls files in explorer --&gt;
+        &lt;value root=&quot;HKLM&quot;
+            keypath=&quot;software\classes\SlideProject.SLSFile\DefaultIcon&quot;
+            name=&quot;&quot; string=&quot;$INSTALL_PATH\icons\slideproject.ico,0&quot;/&gt;
+        &lt;key root=&quot;HKLM&quot;
+            keypath=&quot;software\classes\SlideProject.SLSFile\shell&quot;/&gt;
+        &lt;key root=&quot;HKLM&quot;
+            keypath=&quot;software\classes\SlideProject.SLSFile\shell\open&quot;/&gt;
+        &lt;value root=&quot;HKLM&quot;
+            keypath=&quot;software\classes\SlideProject.SLSFile\shell\open\command&quot;
+            name=&quot;&quot; string='javaw.exe -Xmx384m -jar &quot;$INSTALL_PATH\lib\slideproject.jar&quot; %1'/&gt;
+
+        &lt;!-- -------------------------------------------------------------
+             Register the .sls file extension in HKLM\software\classes\.
+             It is also written automatically to HKCR\.sls.
+             ------------------------------------------------------------- --&gt;
+        &lt;value root=&quot;HKLM&quot;
+            keypath=&quot;software\classes\.sls&quot;
+            name=&quot;&quot; string=&quot;SlideProject.SLSFile&quot;/&gt;
+
+        &lt;!-- -------------------------------------------------------------
+             Register the .sls extension in
+             HKCU\software\microsoft\currentversion\explorer\fileexts\open\.
+             ------------------------------------------------------------- --&gt;
+        &lt;key root=&quot;HKCU&quot;
+            keypath=&quot;software\microsoft\windows\currentversion\explorer\fileexts\open\.sls&quot;/&gt;
+        &lt;value root=&quot;HKCU&quot;
+            keypath=&quot;software\microsoft\windows\currentversion\explorer\fileexts\open\.sls\OpenWithProgIds&quot;
+            name=&quot;SlideProject.SLSFile&quot;&gt;&lt;bin data=&quot;&quot;/&gt;&lt;/value&gt;
+    &lt;/pack&gt;
+&lt;/registry&gt;
+
+Kiz&#225;r&#243;lag a Zene&#225;ruh&#225;zb&#243;l t&#246;ltheted le Kir&#225;ly Linda leg&#250;jabb maxij&#225;t.
+<A HREF="http://zenearuhaz.t-online.hu/index.php?m=info&amp;albumid=49331&amp;sty=3">http://zenearuhaz.t-online.hu/index.php?m=info&amp;albumid=49331&amp;sty=3</A>
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070917/59cba018/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070917/59cba018/attachment.html</A> 
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001653.html">[izpack-users] file type association
+</A></li>
+	<LI>Next message: <A HREF="001654.html">[izpack-users] How to access INSTALL_PATH in process panel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1664">[ date ]</a>
+              <a href="thread.html#1664">[ thread ]</a>
+              <a href="subject.html#1664">[ subject ]</a>
+              <a href="author.html#1664">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

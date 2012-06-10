@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20IZPack%20Ant%20task%20-%20native%20files%20are%20not%20taken%0A%09from%20%24%7Bbasedir%7D%20but%20from%20current%20directory&In-Reply-To=200711281524.46954.rkrell%40gk-software.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001758.html">
+   <LINK REL="Next"  HREF="001764.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory</H1>
+    <B>Craig Thomson</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20IZPack%20Ant%20task%20-%20native%20files%20are%20not%20taken%0A%09from%20%24%7Bbasedir%7D%20but%20from%20current%20directory&In-Reply-To=200711281524.46954.rkrell%40gk-software.com"
+       TITLE="[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory">craig at craigthomson.me.uk
+       </A><BR>
+    <I>Wed Nov 28 18:56:11 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001758.html">[izpack-users] IZPack Ant task - native files are not taken from	${basedir} but from current directory
+</A></li>
+        <LI>Next message: <A HREF="001764.html">[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1759">[ date ]</a>
+              <a href="thread.html#1759">[ thread ]</a>
+              <a href="subject.html#1759">[ subject ]</a>
+              <a href="author.html#1759">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+&gt;<i>If I run it from the same directory ${basedir} as the current working
+</I>&gt;<i>directory, than all goes fine.
+</I>&gt;<i>
+</I>&gt;<i>If I run it from another directory by relative or absolute paths, either by
+</I>&gt;<i>ant -f ... or the &lt;ant&gt; task within another buildfile from a different
+</I>&gt;<i>directory, the task fails:
+</I>
+I encountered a similar problem. My solution was to add this to the
+performAction method of AntAction.java:
+
+After: antProj.setSystemProperties();
+
+// Set the working directory of the ant task to be the same as the
+// folder in which the xml file lives.
+File buildFile = new File(getBuildFile());
+antProj.setBaseDir(buildFile.getParentFile());
+
+I do not guarantee that this is terribly robust, but it seems to work for
+me.
+
+Cheers,
+Craig
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001758.html">[izpack-users] IZPack Ant task - native files are not taken from	${basedir} but from current directory
+</A></li>
+	<LI>Next message: <A HREF="001764.html">[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1759">[ date ]</a>
+              <a href="thread.html#1759">[ thread ]</a>
+              <a href="subject.html#1759">[ subject ]</a>
+              <a href="author.html#1759">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

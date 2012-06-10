@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] window title stripped after first character	underWindows
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20window%20title%20stripped%20after%20first%20character%0A%09underWindows&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FA63%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000590.html">
+   <LINK REL="Next"  HREF="000593.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] window title stripped after first character	underWindows</H1>
+    <B>Stefan Wachter</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20window%20title%20stripped%20after%20first%20character%0A%09underWindows&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FA63%40coi11.coi.com"
+       TITLE="[izpack-devel] window title stripped after first character	underWindows">stefan.wachter at gmx.de
+       </A><BR>
+    <I>Mon Nov 20 14:19:01 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000590.html">[izpack-devel] window title stripped after first character	underWindows
+</A></li>
+        <LI>Next message: <A HREF="000593.html">[izpack-devel] patch: use intance number to customize strings
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#598">[ date ]</a>
+              <a href="thread.html#598">[ thread ]</a>
+              <a href="subject.html#598">[ subject ]</a>
+              <a href="author.html#598">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus,
+
+I set a breakpoint at the constructur of InstallerFrame:
+
+     public InstallerFrame(String title, InstallData installdata) throws Exception
+     {
+         super(title);
+         guiListener = new ArrayList();
+         visiblePanelMapping = new ArrayList();
+         this.installdata = installdata;
+         this.langpack = installdata.langpack;
+
+         // Sets the window events handler
+         addWindowListener(new WindowHandler());
+         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+         // Builds the GUI
+         loadIcons();
+         loadPanels();
+         buildGUI();
+
+         // We show the frame
+         showFrame();
+         switchPanel(0);
+     }
+
+Being called, the title parameter contains the correct value (&quot;PolFHa - Installation&quot;). Yet, when 
+the line showFrame() is reached the opened window has a window title consisting only of a single &quot;P&quot;.
+
+I recognized that this happens only if the setup is started from a network folder (either directly 
+addressed in the file explorer or mapped through a network drive). If a local copy of the setup is 
+used then the title is displayed correctly!
+
+Do you have an idea about what is going wrong?
+
+Cheers,
+--Stefan
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: izpack.jpg
+Type: image/jpeg
+Size: 3717 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061120/9b3fe4f0/attachment.jpg">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061120/9b3fe4f0/attachment.jpg</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000590.html">[izpack-devel] window title stripped after first character	underWindows
+</A></li>
+	<LI>Next message: <A HREF="000593.html">[izpack-devel] patch: use intance number to customize strings
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#598">[ date ]</a>
+              <a href="thread.html#598">[ thread ]</a>
+              <a href="subject.html#598">[ subject ]</a>
+              <a href="author.html#598">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

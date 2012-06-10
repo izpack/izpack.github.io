@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] File Browser without combo box
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20File%20Browser%20without%20combo%20box&In-Reply-To=870c8dd20602241130p500938a3u42da8db8270ef673%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000272.html">
+   <LINK REL="Next"  HREF="000255.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] File Browser without combo box</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20File%20Browser%20without%20combo%20box&In-Reply-To=870c8dd20602241130p500938a3u42da8db8270ef673%40mail.gmail.com"
+       TITLE="[izpack-users] File Browser without combo box">bartzkau at gmx.net
+       </A><BR>
+    <I>Sat Feb 25 16:49:21 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000272.html">[izpack-users] File Browser without combo box
+</A></li>
+        <LI>Next message: <A HREF="000255.html">[izpack-users] Can ProcessPanel have dependency like Shortcuts
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#277">[ date ]</a>
+              <a href="thread.html#277">[ thread ]</a>
+              <a href="subject.html#277">[ subject ]</a>
+              <a href="author.html#277">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Laurent,
+there are two &quot;types&quot; of extended IzPack users:
+One uses the UserInputPanel and made there panels with
+the associated xml file.
+The other &quot;type&quot; writes own (custom) panels.
+Every group means, that there way is the better for some
+proplems, but really it is matter of taste, I think :-)
+
+I am one of the custom panel people...
+
+The first own panel will be realy hard. The rest of the fifty
+is easy. OK, you need to be firm with java (it is not a good
+place to learn java with IzPack panel implementation...).
+
+Following one of my own path panels. For beginners may be
+it will be better to go under IzPack path with
+package com.izforge.izpack.panels
+but it is not a must. All my &quot;private&quot; panels are under my
+package path.
+This panel uses the same layout as TargetPanel, therefore it can
+be really short (the base class do the most). If you would have
+an other layout, may be you should write more. See the impl of
+PathInputPanel.
+An other panel of this family is the JDKPathPanel. You will
+really have problems to make such a panel with the UserInputPanel.
+
+Cheers
+
+Klaus
+
+-------- START $ROOT/com/coi/tools/install/panels/DataPathPanel.java -----
+package com.coi.tools.install.panels;
+
+import com.izforge.izpack.installer.InstallData;
+import com.izforge.izpack.installer.InstallerFrame;
+import com.izforge.izpack.panels.PathInputPanel;
+
+/**
+  * Input panel for the data path.
+  *
+  * @author  Klaus Bartz
+  * @version @(#) $Revision: 1.3 $ $Date: 2005/10/26 13:34:26 $
+  *
+  */
+public class DataPathPanel extends PathInputPanel
+{
+
+   /**
+    *  The constructor.
+    *
+    * @param  parent  The parent window.
+    * @param  idata   The installation data.
+    */
+   public DataPathPanel(InstallerFrame parent, InstallData idata)
+   {
+     super(parent, idata);
+   }
+
+   /**
+    *  Indicates wether the panel has been validated or not.
+    *
+    * @return    Wether the panel has been validated or not.
+    */
+   public boolean isValidated()
+   {
+	if( ! super.isValidated() )
+       return(false);
+     String chosenPath = pathSelectionPanel.getPath();
+     if(chosenPath == null || chosenPath.length() &lt; 1 )
+       return( false );
+     idata.setVariable(&quot;DataPath&quot;,chosenPath);
+
+     return( true );
+   }
+   /* (non-Javadoc)
+    * @see com.izforge.izpack.installer.IzPanel#panelActivate()
+    */
+   public void panelActivate()
+   {
+     super.panelActivate();
+     // Resolve and set the default for chosenPath
+     String chosenPath;
+     // common lines for back steps...
+     if( idata.getVariable(&quot;DataPath&quot;) != null )
+       chosenPath = idata.getVariable(&quot;DataPath&quot;);
+     else
+       chosenPath = idata.getInstallPath();
+     pathSelectionPanel.setPath(chosenPath);
+   }
+   /* (non-Javadoc)
+    * @see com.coi.tools.install.panels.SummaryPanelClient#getSummaryBody()
+    */
+   public String getSummaryBody()
+   {
+     return(String) ( idata.getVariable(&quot;DataPath&quot;));
+   }
+}
+
+-------- END $ROOT/com/coi/tools/install/panels/DataPathPanel.java -----
+
+Am 24.02.2006, 20:30 Uhr, schrieb Laurent Duperval &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">lduperval at gmail.com</A>&gt;:
+
+&gt;<i> On 2/24/06, Hal Vaughan &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">hal at thresholddigital.com</A>&gt; wrote:
+</I>&gt;&gt;<i> Essentially it is.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> PathSelectionPanel psPanel = new PathSelectionPanel(this, iData);
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> And then just add it to your panel layout as you would any other widget.
+</I>&gt;&gt;<i> Check the JavaDocs for it, so you know how to get the path from it once
+</I>&gt;&gt;<i> it's chosen.
+</I>&gt;&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> At the risk of really sounding stupid and annoying... I don't
+</I>&gt;<i> understand the answer. I assume it's because I didn't right the proper
+</I>&gt;<i> question, so let me reformulate it.
+</I>&gt;<i>
+</I>&gt;<i> Can I add a label, text field and browse button to a UserInputPanel
+</I>&gt;<i> just by writing the Installation XML file? (So can I specify a
+</I>&gt;<i> PathSelectionPanel in XML? If so, where can I see the syntax? I want
+</I>&gt;<i> something similar to the &quot;search&quot;, but with a text input instead of a
+</I>&gt;<i> combo box and no Autodetect button).
+</I>&gt;<i>
+</I>&gt;<i> If I can't, is there another specialised panel I can use? I know about
+</I>&gt;<i> TargetPanel but that sets INSTALL_PATH. I want to set a different
+</I>&gt;<i> variable.
+</I>&gt;<i>
+</I>&gt;<i> Otherwise I will extend UserPanel for my purposes and provide patches.
+</I>&gt;<i>
+</I>&gt;<i> Thanks,
+</I>&gt;<i>
+</I>&gt;<i> L
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+
+
+-- 
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000272.html">[izpack-users] File Browser without combo box
+</A></li>
+	<LI>Next message: <A HREF="000255.html">[izpack-users] Can ProcessPanel have dependency like Shortcuts
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#277">[ date ]</a>
+              <a href="thread.html#277">[ thread ]</a>
+              <a href="subject.html#277">[ subject ]</a>
+              <a href="author.html#277">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

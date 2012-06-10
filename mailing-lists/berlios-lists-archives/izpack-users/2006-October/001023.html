@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Alignment/Size problem with TargetPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Alignment/Size%20problem%20with%20TargetPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001021.html">
+   <LINK REL="Next"  HREF="001026.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Alignment/Size problem with TargetPanel</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Alignment/Size%20problem%20with%20TargetPanel&In-Reply-To="
+       TITLE="[izpack-users] Alignment/Size problem with TargetPanel">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Oct 25 09:58:36 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001021.html">[izpack-users] Alignment/Size problem with TargetPanel
+</A></li>
+        <LI>Next message: <A HREF="001026.html">[izpack-users] How to get changes into the install.jar?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1023">[ date ]</a>
+              <a href="thread.html#1023">[ thread ]</a>
+              <a href="subject.html#1023">[ subject ]</a>
+              <a href="author.html#1023">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Uwe,
+sorry, normaly I use NORTH_WEST anchor. There the TargetPanel works
+as assumed. But bug is bug and this is really no peanuts.
+In your situation (anchor CENTER, I assume) it is possible that the 
+generell offsets will be less than zero. The result you know...
+
+Therefore next patch:
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2006-10-24 09:59:14 UTC (rev 1633)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2006-10-25 07:50:05 UTC (rev 1634)
+@@ -933,6 +933,8 @@
+             break;
+ 
+         }
++        if(generellOffset[0] &lt; 0 ) generellOffset[0] = 0;
++        if(generellOffset[1] &lt; 0 ) generellOffset[1] = 0;
+         return (retval);
+     }
+ 
+Hope it works now. In the current version some gaps are changed.
+May be this will amaze you.
+But you can configure them. Look into docu or as example into
+%IZ_HOME%\src\dist-files\IzPack-install.xml
+
+Cheers
+
+Klaus
+
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Uwe Seimet
+</I>&gt;<i>Sent: Tuesday, October 24, 2006 7:14 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-users] Alignment/Size problem with TargetPanel
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi Klaus,
+</I>&gt;<i>
+</I>&gt;&gt;<i> it is a bug, not feature.
+</I>&gt;&gt;<i> I assume that you use IzPack 3.9 because there I can reproduce.
+</I>&gt;&gt;<i> I have just fixed the bug in the svn trunk. If you have installed
+</I>&gt;&gt;<i> the sources you can simple perform following changes:
+</I>&gt;<i>
+</I>&gt;<i>Thank you for posting the patch. This patch improves the situation a
+</I>&gt;<i>bit, but problems remain:
+</I>&gt;<i>
+</I>&gt;<i>- When making the window smaller (horizontally) the text in the input
+</I>&gt;<i>  field is still partially hidden by the image on the left.
+</I>&gt;<i>- The &quot;Browse&quot; button is now always visible, but when making the window
+</I>&gt;<i>  smaller a blank area remains on the right of this button. One would
+</I>&gt;<i>  expect the button to remain on the very right of the window.
+</I>&gt;<i>
+</I>&gt;<i>I have attached a new screenshot, based on the result from the patched
+</I>&gt;<i>sources.
+</I>&gt;<i>
+</I>&gt;<i>I am sorry that I do not have the time to have a closer look at the
+</I>&gt;<i>sources, in order to help with improving IzPack ...
+</I>&gt;<i>
+</I>&gt;<i>Best regards,  Uwe
+</I>&gt;<i>
+</I></PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001021.html">[izpack-users] Alignment/Size problem with TargetPanel
+</A></li>
+	<LI>Next message: <A HREF="001026.html">[izpack-users] How to get changes into the install.jar?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1023">[ date ]</a>
+              <a href="thread.html#1023">[ thread ]</a>
+              <a href="subject.html#1023">[ subject ]</a>
+              <a href="author.html#1023">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

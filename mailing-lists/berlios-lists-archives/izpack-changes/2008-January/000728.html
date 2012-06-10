@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1982 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1982%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000727.html">
+   <LINK REL="Next"  HREF="000729.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1982 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1982%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1982 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sun Jan 13 14:37:50 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000727.html">[izpack-changes] r1981 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000729.html">[izpack-changes] r1983 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#728">[ date ]</a>
+              <a href="thread.html#728">[ thread ]</a>
+              <a href="subject.html#728">[ subject ]</a>
+              <a href="author.html#728">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-01-13 14:37:46 +0100 (Sun, 13 Jan 2008)
+New Revision: 1982
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+Log:
+InstallationGroupPanel UI improvements (Jeff Gordon via Julien Ponge)
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2008-01-13 13:29:57 UTC (rev 1981)
++++ izpack-src/trunk/Versions.txt	2008-01-13 13:37:46 UTC (rev 1982)
+@@ -82,6 +82,7 @@
+ - Italian translation update (Roberto Boriotti, Sylvain Gaudard via Julien Ponge)
+ - PacksPanelAutomationHelper fix (Jeff Gordon via Julien Ponge)
+ - 'parsexml' attribute for resources (Matthew Fudge via Julien Ponge)
++- InstallationGroupPanel UI improvements (Jeff Gordon via Julien Ponge)
+ 
+ 
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	2008-01-13 13:29:57 UTC (rev 1981)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	2008-01-13 13:37:46 UTC (rev 1982)
+@@ -59,6 +59,8 @@
+ import com.izforge.izpack.util.AbstractUIHandler;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.OsConstraint;
++import javax.swing.SwingConstants;
++import javax.swing.table.DefaultTableCellRenderer;
+ 
+ 
+ /**
+@@ -148,6 +150,10 @@
+           }
+         };
+         tcm.getColumn(0).setCellRenderer(radioButtonRenderer);
++
++        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
++        renderer.setHorizontalAlignment(SwingConstants.RIGHT);
++        tcm.getColumn(1).setCellRenderer(renderer);
+         
+         //groupsTable.setColumnSelectionAllowed(false);
+         //groupsTable.setRowSelectionAllowed(true);
+@@ -499,9 +505,9 @@
+     protected TableModel getModel(HashMap groupData)
+     {
+         String c1 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameSelected&quot;);
+-        String c2 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameInstallType&quot;);
++        //String c2 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameInstallType&quot;);
+         String c3 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameSize&quot;);
+-        String[] columns = {c1, c2, c3};
++        String[] columns = {c1, c3};
+          DefaultTableModel model = new DefaultTableModel (columns, 0)
+          {
+             public boolean isCellEditable (int row, int column)
+@@ -567,7 +573,8 @@
+             }
+             buttonGroup.add(btn);
+             String sizeText = gd.getSizeString();
+-            Object[] data = { btn, gd.description, sizeText};
++            //Object[] data = { btn, gd.description, sizeText};
++            Object[] data = { btn, sizeText};
+             model.addRow(data);
+             count ++;
+         }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000727.html">[izpack-changes] r1981 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000729.html">[izpack-changes] r1983 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#728">[ date ]</a>
+              <a href="thread.html#728">[ thread ]</a>
+              <a href="subject.html#728">[ subject ]</a>
+              <a href="author.html#728">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

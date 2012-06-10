@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Implementation for conditions in izpack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Implementation%20for%20conditions%20in%20izpack&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000566.html">
+   <LINK REL="Next"  HREF="000569.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Implementation for conditions in izpack</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Implementation%20for%20conditions%20in%20izpack&In-Reply-To="
+       TITLE="[izpack-devel] Implementation for conditions in izpack">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Nov  9 15:15:02 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000566.html">[izpack-devel] Dennis Reil joins the team
+</A></li>
+        <LI>Next message: <A HREF="000569.html">[izpack-devel] Implementation for conditions in izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#567">[ date ]</a>
+              <a href="thread.html#567">[ thread ]</a>
+              <a href="subject.html#567">[ subject ]</a>
+              <a href="author.html#567">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Dennis,
+welcome in the IzPack team.
+I hope we can have some good discussion about IzPack in the
+future.
+I think conditions can be a good thing. Hope it do not 
+interfere with the stuff Fabrice has announced some time ago.
+
+The right branch for it is trunk, not 3.9 I think. Do you agree?
+I am enquiring about the implementation. 
+Hope it is baseline at IzPanel level and will therefore also work
+with custom panels without impl anything. 
+May be I can it also use (and impl) for custom actions.
+
+Will be nice if a DTD exist in %IZ_HOME%\src\dtd. 
+Also an adapted docu :-)
+But first things first...
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Dennis Reil
+</I>&gt;<i>Sent: Thursday, November 09, 2006 8:49 AM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i>Subject: [izpack-devel] Implementation for conditions in izpack
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi,
+</I>&gt;<i>
+</I>&gt;<i>As mentioned, some time ago, I implemented an extension which adds the
+</I>&gt;<i>possibility of defining conditions for the izpack installer. These
+</I>&gt;<i>conditions can be used e.g. to only show panels for which 
+</I>&gt;<i>conditions are
+</I>&gt;<i>met. Conditions can be currently defined based on pack selections,
+</I>&gt;<i>variables and Java field values. The boolean conditions and, 
+</I>&gt;<i>or, xor and
+</I>&gt;<i>not are also possible to create more complex conditions.
+</I>&gt;<i>
+</I>&gt;<i>These conditions can be used to specify which panel are shown, which
+</I>&gt;<i>packs can be installed and which variables should be set. I also
+</I>&gt;<i>extended UserInputPanel so that conditions could be used to show fields
+</I>&gt;<i>on a panel.
+</I>&gt;<i>
+</I>&gt;<i>Conditions are currently defined in a resource file. An example
+</I>&gt;<i>conditions.xml could look like:
+</I>&gt;<i>
+</I>&gt;<i>&lt;?xml version=&quot;1.0&quot; ?&gt;
+</I>&gt;<i>&lt;conditions&gt;	
+</I>&gt;<i>	&lt;condition type=&quot;variable&quot; id=&quot;notwarfilesetup&quot;&gt;
+</I>&gt;<i>		&lt;name&gt;izpack.setuptype&lt;/name&gt;
+</I>&gt;<i>		&lt;value&gt;standard&lt;/value&gt;
+</I>&gt;<i>	&lt;/condition&gt;
+</I>&gt;<i>        &lt;condition type=&quot;packselection&quot; id=&quot;demoprojectsselected&quot;&gt;
+</I>&gt;<i>                &lt;packid&gt;pack.demo.projects&lt;/packid&gt;
+</I>&gt;<i>        &lt;/condition&gt;
+</I>&gt;<i>        &lt;panelcondition panelid=&quot;jvmpanel&quot;  
+</I>&gt;<i>                  conditionid=&quot;notwarfilesetup&quot;/&gt;
+</I>&gt;<i>        &lt;panelcondition panelid=&quot;projects.settings&quot;
+</I>&gt;<i>                  conditionid=&quot;demoprojectsselected&quot; /&gt;
+</I>&gt;<i>	&lt;packcondition packid=&quot;pack.appserver.tomcat&quot;
+</I>&gt;<i>                 conditionid=&quot;notwarfilesetup&quot; /&gt;
+</I>&gt;<i>&lt;/conditions&gt;
+</I>&gt;<i>
+</I>&gt;<i>This spec has two conditions, one based on a variable value
+</I>&gt;<i>(notwarfilesetup) and one based on a pack selection. Based on this
+</I>&gt;<i>conditions two panelconditions and one packcondition is defined. This
+</I>&gt;<i>means, that jvmpanel is only shown if notwarfilesetup validates true
+</I>&gt;<i>which means, that the variable with name izpack.setuptype has to be
+</I>&gt;<i>standard. The pack (pack.appserver.tomcat) will only be available for
+</I>&gt;<i>installation if condition notwarfilesetup validates true.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>If you find this useful, I would create the appropriate patches to
+</I>&gt;<i>integrate it in izpack. New types of conditions can easily be added by
+</I>&gt;<i>subclassing an abstract condition base class. As the rules engine loads
+</I>&gt;<i>conditions by reflections, a new type can easily be used in the spec
+</I>&gt;<i>file.
+</I>&gt;<i>For sure, there are many more places in izpack, where conditions can be
+</I>&gt;<i>useful (e.g. pack definition, executables, parsables).
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Do you find this useful?
+</I>&gt;<i>
+</I>&gt;<i>Regards 
+</I>&gt;<i>   Dennis
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000566.html">[izpack-devel] Dennis Reil joins the team
+</A></li>
+	<LI>Next message: <A HREF="000569.html">[izpack-devel] Implementation for conditions in izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#567">[ date ]</a>
+              <a href="thread.html#567">[ thread ]</a>
+              <a href="subject.html#567">[ subject ]</a>
+              <a href="author.html#567">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

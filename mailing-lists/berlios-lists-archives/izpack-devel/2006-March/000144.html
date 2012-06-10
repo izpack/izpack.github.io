@@ -1,0 +1,499 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Strange NullPointerException
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Strange%20NullPointerException&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000143.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Strange NullPointerException</H1>
+    <B>Chris McGonagle</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Strange%20NullPointerException&In-Reply-To="
+       TITLE="[izpack-devel] Strange NullPointerException">Chris at fbbt.co.uk
+       </A><BR>
+    <I>Thu Mar 30 13:23:05 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000143.html">[izpack-devel] Question regarding langpack / PrinterSelectPanel
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#144">[ date ]</a>
+              <a href="thread.html#144">[ thread ]</a>
+              <a href="subject.html#144">[ subject ]</a>
+              <a href="author.html#144">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+
+ 
+
+Hope someone can help with this problem I've been having - the Ant
+script itself runs fine as a standalone script, but somehow when I try
+to run it as part of the IzPack install process, it falls over with a
+NullPointerException.
+
+ 
+
+Here is the stack trace from the installer:
+
+ 
+
+ 
+
+LOG enabled.
+
+creating Logfile: 'IzPack_Logfile_at_1143717579047.txt' in:
+'C:\DOCUME~1\Chris\L
+
+OCALS~1\Temp\'
+
+TRACE enabled.
+
+STACKTRACE enabled.
+
+No custom langpack available.
+
+checking if os constraints [Os  family unix name null version null arch
+null ] m
+
+atch current OS
+
+no match with current OS!
+
+checking if os constraints [Os  family windows name null version null
+arch null
+
+] match current OS
+
+matched current OS.
+
+checking if os constraints [Os  family unix name null version null arch
+null ] m
+
+atch current OS
+
+no match with current OS!
+
+checking if os constraints [Os  family windows name null version null
+arch null
+
+] match current OS
+
+matched current OS.
+
+******* Executing all afterpacks actions of runinstallers ...
+
+Calling ANT with buildfile: C:/Temp/build_runinstallers.xml
+
+com.izforge.izpack.installer.InstallerException:
+java.lang.NullPointerException
+
+        at
+com.izforge.izpack.event.AntActionInstallerListener.performAllActions
+
+(AntActionInstallerListener.java:260)
+
+        at
+com.izforge.izpack.event.AntActionInstallerListener.afterPacks(AntAct
+
+ionInstallerListener.java:189)
+
+        at
+com.izforge.izpack.installer.Unpacker.informListeners(Unpacker.java:1
+
+036)
+
+        at com.izforge.izpack.installer.Unpacker.run(Unpacker.java:563)
+
+Caused by: java.lang.NullPointerException
+
+        at java.util.Hashtable.put(Hashtable.java:389)
+
+        at
+org.apache.tools.ant.PropertyHelper.setProperty(PropertyHelper.java:3
+
+35)
+
+        at
+org.apache.tools.ant.Project.setPropertyInternal(Project.java:460)
+
+        at
+org.apache.tools.ant.Project.setSystemProperties(Project.java:800)
+
+        at
+com.izforge.izpack.event.AntAction.performAction(AntAction.java:140)
+
+        at
+com.izforge.izpack.event.AntAction.performInstallAction(AntAction.jav
+
+a:100)
+
+        at
+com.izforge.izpack.event.AntActionInstallerListener.performAllActions
+
+(AntActionInstallerListener.java:256)
+
+        ... 3 more
+
+ 
+
+My AntActionsSpec.xml looks like this:
+
+ 
+
+&lt;antactions&gt;
+
+    &lt;pack name=&quot;runinstallers&quot;&gt;
+
+      &lt;antcall buildfile=&quot;C:/Temp/build_runinstallers.xml&quot;
+order=&quot;afterpacks&quot; verbose=&quot;yes&quot; logfile=&quot;C:/Temp/mainantinstall.log&quot;&gt;
+
+            &lt;target name=&quot;do_all&quot;/&gt;
+
+      &lt;/antcall&gt;
+
+    &lt;/pack&gt;
+
+&lt;/antactions&gt;
+
+ 
+
+Ant build script:
+
+ 
+
+&lt;project name=&quot;build_runinstallers&quot; default=&quot;do_all&quot; basedir=&quot;.&quot;&gt;
+
+      &lt;!-- set global properties for this build
+
+      &lt;property environment=&quot;env&quot;/&gt;
+
+      &lt;property name=&quot;build.compiler&quot; value=&quot;${JAVAC}&quot;/&gt;
+
+      &lt;property name=&quot;classpath.thisbuild&quot; value=&quot;${env.CLASSPATH}&quot;/&gt;
+
+       --&gt;
+
+      &lt;target name=&quot;do_all&quot;
+depends=&quot;which_installers,execute_comms_installer,execute_database_insta
+ller,execute_access_installer&quot;/&gt;
+
+      &lt;target name=&quot;which_installers&quot; description=&quot;&quot;&gt;
+
+            &lt;condition property=&quot;comms.layer&quot;&gt;
+
+                        &lt;equals arg1=&quot;${COMMS_LAYER}&quot; arg2=&quot;on&quot;/&gt;
+
+            &lt;/condition&gt;
+
+         
+
+            &lt;condition property=&quot;database.layer&quot;&gt;
+
+                        &lt;equals arg1=&quot;${DATABASE_LAYER}&quot; arg2=&quot;on&quot;/&gt;
+
+            &lt;/condition&gt;
+
+       
+
+            &lt;condition property=&quot;access.layer&quot;&gt;
+
+                        &lt;equals arg1=&quot;${ACCESS_LAYER}&quot; arg2=&quot;on&quot;/&gt;
+
+            &lt;/condition&gt;
+
+      &lt;/target&gt;
+
+      &lt;target name=&quot;execute_comms_installer&quot; if=&quot;comms.layer&quot;
+description=&quot;Should run any of the comms installers&quot;&gt;
+
+            &lt;java jar=&quot;${INSTALL_TYPE}_comms.jar&quot; fork=&quot;true&quot;/&gt;
+
+      &lt;/target&gt;
+
+      &lt;target name=&quot;execute_database_installer&quot; if=&quot;database.layer&quot;
+description=&quot;Should run any of the database installers&quot;&gt;
+
+            &lt;java jar=&quot;${INSTALL_TYPE}_database.jar&quot; fork=&quot;true&quot;/&gt;
+
+      &lt;/target&gt;
+
+      &lt;target name=&quot;execute_access_installer&quot; if=&quot;access.layer&quot;
+description=&quot;Should run any of the access installers&quot;&gt;
+
+            &lt;java jar=&quot;${INSTALL_TYPE}_access.jar&quot; fork=&quot;true&quot;/&gt;
+
+      &lt;/target&gt;
+
+&lt;/project&gt;
+
+ 
+
+And the Install.xml looks like this:
+
+ 
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+
+ 
+
+&lt;!-- 
+
+      Matador Server IzPack creation file.
+
+      
+
+      This file is used during IzPack compilation process
+
+      to create the Matador Database installer.
+
+ 
+
+--&gt;
+
+ 
+
+&lt;installation version=&quot;1.0&quot;&gt;
+
+ 
+
+    &lt;!-- 
+
+        The info section.
+
+        The meaning of the tags should be natural ...
+
+    --&gt;
+
+    &lt;info&gt;
+
+        &lt;appname&gt;Matador&lt;/appname&gt;
+
+        &lt;appversion&gt;1.1&lt;/appversion&gt;
+
+        &lt;authors&gt;
+
+            &lt;author name=&quot;FBBT&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">info at fbbt.co.uk</A>&quot;/&gt;
+
+        &lt;/authors&gt;
+
+        &lt;url&gt;<A HREF="http://www.fbbt.co.uk/&lt;/url">http://www.fbbt.co.uk/&lt;/url</A>&gt;
+
+        &lt;uninstaller write=&quot;no&quot;/&gt;
+
+    &lt;/info&gt;
+
+    
+
+    &lt;!-- 
+
+        The gui preferences indication.
+
+        Sets the installer window to 800x800. It will not be able to
+change the size.
+
+    --&gt;
+
+    &lt;guiprefs width=&quot;600&quot; height=&quot;400&quot; resizable=&quot;no&quot;&gt;
+
+      &lt;laf name=&quot;looks&quot;&gt;
+
+            &lt;os family=&quot;unix&quot;/&gt;
+
+      &lt;/laf&gt;
+
+      &lt;laf name=&quot;looks&quot;&gt;
+
+            &lt;os family=&quot;windows&quot;/&gt;
+
+      &lt;/laf&gt;
+
+    &lt;/guiprefs&gt;
+
+    
+
+    &lt;!-- 
+
+    Different locales not required yet...
+
+    --&gt;
+
+    
+
+    &lt;locale&gt;
+
+        &lt;langpack iso3=&quot;eng&quot;/&gt;
+
+    &lt;/locale&gt;
+
+ 
+
+    &lt;!-- 
+
+        The resources section.
+
+        The ids must be these ones if you want to use the LicencePanel
+and/or the InfoPanel.
+
+    --&gt;
+
+    &lt;resources&gt;
+
+        &lt;res id=&quot;HTMLLicencePanel.licence&quot; src=&quot;licence.html&quot;/&gt;
+
+        &lt;res id=&quot;HTMLInfoPanel.info&quot; src=&quot;readme.html&quot;/&gt;
+
+        &lt;res id=&quot;userInputSpec.xml&quot; src=&quot;userInputSpec.xml&quot;/&gt;
+
+        &lt;res id=&quot;AntActionsSpec.xml&quot; src=&quot;AntActionsSpec.xml&quot;/&gt;
+
+    &lt;/resources&gt;
+
+    
+
+    &lt;listeners&gt;
+
+        &lt;listener installer=&quot;AntActionInstallerListener&quot;
+uninstaller=&quot;AntActionUninstallerListener&quot;/&gt; 
+
+    &lt;/listeners&gt;  
+
+    
+
+            
+
+    &lt;jar src=&quot;jars/ant.jar&quot; stage=&quot;both&quot;/&gt;
+
+    &lt;jar src=&quot;jars/commons-net-1.4.1.jar&quot; stage=&quot;both&quot;/&gt;
+
+    &lt;jar src=&quot;jars/jakarta-oro-2.0.8.jar&quot; stage=&quot;both&quot;/&gt;
+
+    &lt;jar src=&quot;jars/jsch.jar&quot; stage=&quot;both&quot;/&gt;
+
+    &lt;jar src=&quot;jars/xercesImpl.jar&quot; stage=&quot;both&quot;/&gt;
+
+    &lt;jar src=&quot;jars/xml-apis.jar&quot; stage=&quot;both&quot;/&gt;
+
+    
+
+    &lt;!-- 
+
+        The panels section.
+
+        We indicate here which panels we want to use. The order will be
+respected.
+
+    --&gt;
+
+    &lt;panels&gt;
+
+        &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;HTMLInfoPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;UserInputPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;SimpleFinishPanel&quot;/&gt;
+
+    &lt;/panels&gt;
+
+    
+
+    &lt;!-- 
+
+        The packs section.
+
+        We specify here our packs.
+
+    --&gt;
+
+    &lt;packs&gt;
+
+      &lt;pack name=&quot;Base&quot; required=&quot;yes&quot;&gt;
+
+              &lt;description&gt;Ant Build scripts for servers&lt;/description&gt;
+
+            &lt;file src=&quot;build_runinstallers.xml&quot; targetdir=&quot;/tmp&quot;&gt;
+
+                  &lt;os family=&quot;unix&quot;/&gt;
+
+            &lt;/file&gt;
+
+            &lt;file src=&quot;build_runinstallers.xml&quot; targetdir=&quot;C:/Temp&quot;&gt;
+
+                  &lt;os family=&quot;windows&quot;/&gt; 
+
+            &lt;/file&gt; 
+
+            &lt;parsable targetfile=&quot;/tmp/build_runinstallers.xml&quot;&gt;
+
+                  &lt;os family=&quot;unix&quot;/&gt;
+
+            &lt;/parsable&gt; 
+
+            &lt;parsable targetfile=&quot;C:/Temp/build_runinstallers.xml&quot;&gt;
+
+                  &lt;os family=&quot;windows&quot;/&gt; 
+
+            &lt;/parsable&gt;
+
+      &lt;/pack&gt;
+
+      &lt;pack name=&quot;runinstallers&quot; required=&quot;yes&quot;&gt;
+
+            &lt;!-- Dummy pack here so that the other pack gets completed
+before ANT is tried to be run on it --&gt;
+
+            &lt;description&gt;Dummy Pack needed for
+installation&lt;/description&gt;
+
+      &lt;/pack&gt;
+
+    &lt;/packs&gt;
+
+    
+
+&lt;/installation&gt;
+
+ 
+
+ 
+
+Any ideas would be welcome!!
+
+--
+
+Chris McGonagle
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20060330/9db6fbb8/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20060330/9db6fbb8/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000143.html">[izpack-devel] Question regarding langpack / PrinterSelectPanel
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#144">[ date ]</a>
+              <a href="thread.html#144">[ thread ]</a>
+              <a href="subject.html#144">[ subject ]</a>
+              <a href="author.html#144">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

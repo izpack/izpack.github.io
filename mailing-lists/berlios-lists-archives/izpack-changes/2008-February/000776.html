@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2030 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2030%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000777.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2030 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2030%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r2030 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Fri Feb  1 17:25:12 CET 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000777.html">[izpack-changes] r2031 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#776">[ date ]</a>
+              <a href="thread.html#776">[ thread ]</a>
+              <a href="subject.html#776">[ subject ]</a>
+              <a href="author.html#776">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-02-01 17:24:56 +0100 (Fri, 01 Feb 2008)
+New Revision: 2030
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ProcessPanel.java
+Log:
+ProcessPanel: the installation success is set to false in case an error has occurred (Julien Ponge)
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2008-01-31 09:51:35 UTC (rev 2029)
++++ izpack-src/trunk/Versions.txt	2008-02-01 16:24:56 UTC (rev 2030)
+@@ -104,6 +104,7 @@
+ - PacksPanelBase: the packs would be selected / deselected on any list event (e.g., by navigating using the keys).
+   This funky behavior has been fixed (Julien Ponge).
+ - Changed File.toURL() to File.toURI().toURL() to get rid of deprecation messages in Java 6. (Jeff Gordon)
++- ProcessPanel: the installation success is set to false in case an error has occurred (Julien Ponge)
+ 
+   &gt; 3.10.2 (build 2007.05.11)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java	2008-01-31 09:51:35 UTC (rev 2029)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java	2008-02-01 16:24:56 UTC (rev 2030)
+@@ -412,9 +412,14 @@
+ 
+                     if (exitStatus != 0)
+                     {
+-                        if (this.handler.askQuestion(&quot;process execution failed&quot;,
++                        // New bahavior: make it fail
++                        this.handler.emitError(&quot;process execution failed&quot;, &quot;&quot;);
++                        /*if (this.handler.askQuestion(&quot;process execution failed&quot;,
+                                 &quot;Continue anyway?&quot;, AbstractUIHandler.CHOICES_YES_NO,
+-                                AbstractUIHandler.ANSWER_YES) == AbstractUIHandler.ANSWER_NO) { return false; }
++                                AbstractUIHandler.ANSWER_YES) == AbstractUIHandler.ANSWER_NO)
++                        {
++                            return false;
++                        }*/
+                     }
+                 }
+                 catch (InterruptedException ie)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ProcessPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ProcessPanel.java	2008-01-31 09:51:35 UTC (rev 2029)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ProcessPanel.java	2008-02-01 16:24:56 UTC (rev 2030)
+@@ -161,7 +161,7 @@
+         processLabel.setEnabled(false);
+ 
+         validated = true;
+-        idata.installSuccess = true;
++        idata.installSuccess = worker.getResult();
+         if (idata.panels.indexOf(this) != (idata.panels.size() - 1)) parent.unlockNextButton();
+     }
+ 
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000777.html">[izpack-changes] r2031 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#776">[ date ]</a>
+              <a href="thread.html#776">[ thread ]</a>
+              <a href="subject.html#776">[ subject ]</a>
+              <a href="author.html#776">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

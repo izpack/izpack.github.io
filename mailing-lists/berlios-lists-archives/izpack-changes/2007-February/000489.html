@@ -1,0 +1,349 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1743 - in izpack-src/trunk: . src	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1743%20-%20in%20izpack-src/trunk%3A%20.%20src%0A%09src/lib/com/izforge/izpack/compiler%20src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000488.html">
+   <LINK REL="Next"  HREF="000490.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1743 - in izpack-src/trunk: . src	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1743%20-%20in%20izpack-src/trunk%3A%20.%20src%0A%09src/lib/com/izforge/izpack/compiler%20src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1743 - in izpack-src/trunk: . src	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Sat Feb 17 14:51:03 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000488.html">[izpack-changes] r1742 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os
+</A></li>
+        <LI>Next message: <A HREF="000490.html">[izpack-changes] r1744 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#489">[ date ]</a>
+              <a href="thread.html#489">[ thread ]</a>
+              <a href="subject.html#489">[ subject ]</a>
+              <a href="author.html#489">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-02-17 14:50:49 +0100 (Sat, 17 Feb 2007)
+New Revision: 1743
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/FileUtil.java
+Log:
+Modifications to keep original file dates and times in _dist directory and in the installer jar (Ari Voutilainen via Julien Ponge)
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-02-17 13:47:35 UTC (rev 1742)
++++ izpack-src/trunk/Versions.txt	2007-02-17 13:50:49 UTC (rev 1743)
+@@ -8,6 +8,8 @@
+ - Fixed RegularExpressionValidator (Dennis Reil)
+ - Added corrupt volume detection (Dennis Reil)
+ - Added file and dir fields in UserInputPanel (Dennis Reil)
++- Modifications to keep original file dates and times in _dist directory and in the installer jar
++  (Ari Voutilainen via Julien Ponge)
+ 
+ 	&gt; 3.10.1 (build 2007.xx.xx)
+ 	
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2007-02-17 13:47:35 UTC (rev 1742)
++++ izpack-src/trunk/src/build.xml	2007-02-17 13:50:49 UTC (rev 1743)
+@@ -160,6 +160,12 @@
+   10.10.2006: (Fabrice Mirabile)   
+ 	  Fixed target src.tar.gz and clean.src.tar.gz
+               
++  11.02.2007: (Ari Voutilainen)
++     Added 'preservelastmodified=&quot;true&quot;' to all 'copy todir' commands to keep original file date
++     and time. This will effect in directory _dist. This won't effect to compiled files and
++     other files which are manipulated during the process.
++
++
+   Mini-HowTo:
+ 
+   To compile and package the compiler.jar jar file, type:
+@@ -307,6 +313,7 @@
+                 &lt;include name=&quot;com/izforge/izpack/util/*Processor.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/util/VariableSubstitutor.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/util/JarOutputStream.class&quot; /&gt;
++                &lt;include name=&quot;com/izforge/izpack/util/FileUtil.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/ant/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/ant/langpacks/*.properties&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/event/CompilerListener.class&quot; /&gt;
+@@ -877,7 +884,7 @@
+                 &lt;exclude name=&quot;**/CVS&quot; /&gt;
+             &lt;/packageset&gt;
+         &lt;/javadoc&gt;
+-        &lt;copy todir=&quot;${doc.dir}/izpack/javadoc&quot;&gt;
++        &lt;copy todir=&quot;${doc.dir}/izpack/javadoc&quot; preservelastmodified=&quot;true&quot;&gt;
+             &lt;fileset dir=&quot;${build.dir}/javadoc&quot;&gt;
+                 &lt;include name=&quot;**/*&quot; /&gt;
+             &lt;/fileset&gt;
+@@ -886,7 +893,7 @@
+ 
+     &lt;target name=&quot;build.docu&quot; description=&quot;Builds the customer documentation&quot;&gt;
+         &lt;mkdir dir=&quot;${doc.dir}/izpack/xhtml&quot; /&gt;
+-        &lt;copy todir=&quot;${doc.dir}/izpack/xhtml&quot;&gt;
++        &lt;copy todir=&quot;${doc.dir}/izpack/xhtml&quot; preservelastmodified=&quot;true&quot;&gt;
+             &lt;fileset dir=&quot;${basedir}/src/doc-ng/XHTML&quot;&gt;
+                 &lt;include name=&quot;**/*&quot; /&gt;
+             &lt;/fileset&gt;
+@@ -920,17 +927,19 @@
+         &lt;mkdir dir=&quot;${basedir}/bin/native/izpack&quot; /&gt;
+         &lt;!-- If unicode support of ShellLink.dll will be not used, change between  both copy blocks --&gt;
+         &lt;!--
+-		&lt;copy todir=&quot;${basedir}/bin/native/izpack&quot; file=&quot;${basedir}/src/native/ShellLink/Release/ShellLink.dll&quot; verbose=&quot;true&quot; overwrite=&quot;yes&quot;/&gt;
+-		&lt;copy todir=&quot;${basedir}/bin/native/3rdparty&quot; file=&quot;${basedir}/src/native/win/COIOSHelper/Release/COIOSHelper.dll&quot; verbose=&quot;true&quot; overwrite=&quot;yes&quot;/&gt;
++		&lt;copy todir=&quot;${basedir}/bin/native/izpack&quot; file=&quot;${basedir}/src/native/ShellLink/Release/ShellLink.dll&quot; verbose=&quot;true&quot; overwrite=&quot;yes&quot; preservelastmodified=&quot;true&quot;/&gt;
++		&lt;copy todir=&quot;${basedir}/bin/native/3rdparty&quot; file=&quot;${basedir}/src/native/win/COIOSHelper/Release/COIOSHelper.dll&quot; verbose=&quot;true&quot; overwrite=&quot;yes&quot; preservelastmodified=&quot;true&quot;/&gt;
+ 		--&gt;
+         &lt;copy todir=&quot;${basedir}/bin/native/izpack&quot;
+               file=&quot;${basedir}/src/native/ShellLink/Release_Unicode/ShellLink.dll&quot;
+               verbose=&quot;true&quot;
+-              overwrite=&quot;yes&quot; /&gt;
++              overwrite=&quot;yes&quot;
++              preservelastmodified=&quot;true&quot; /&gt;
+         &lt;copy todir=&quot;${basedir}/bin/native/3rdparty&quot;
+               file=&quot;${basedir}/src/native/win/COIOSHelper/Release_Unicode/COIOSHelper.dll&quot;
+               verbose=&quot;true&quot;
+-              overwrite=&quot;yes&quot; /&gt;
++              overwrite=&quot;yes&quot;
++              preservelastmodified=&quot;true&quot; /&gt;
+     &lt;/target&gt;
+ 
+     
+@@ -939,7 +948,7 @@
+          - - - - - - - - - - - - - - - - - --&gt;
+     &lt;target name=&quot;copy.dist.files&quot;&gt;
+         &lt;echo message=&quot;Copies the general files to the dist directory&quot; /&gt;
+-        &lt;copy todir=&quot;${dist.dir}&quot; includeEmptyDirs=&quot;yes&quot;&gt;
++        &lt;copy todir=&quot;${dist.dir}&quot; includeEmptyDirs=&quot;yes&quot; preservelastmodified=&quot;true&quot;&gt;
+             &lt;fileset dir=&quot;${basedir}&quot;&gt;
+                 &lt;include name=&quot;bin/**&quot; /&gt;
+                 &lt;include name=&quot;lib/*.jar&quot; /&gt;
+@@ -951,13 +960,13 @@
+             &lt;/fileset&gt;
+         &lt;/copy&gt;
+         &lt;echo message=&quot;Copies the langpacks to the dist directory&quot; /&gt;
+-        &lt;copy todir=&quot;${dist.dir}/bin&quot; includeEmptyDirs=&quot;yes&quot;&gt;
++        &lt;copy todir=&quot;${dist.dir}/bin&quot; includeEmptyDirs=&quot;yes&quot; preservelastmodified=&quot;true&quot;&gt;
+             &lt;fileset dir=&quot;${basedir}&quot;&gt;
+                 &lt;include name=&quot;langpacks/**&quot; /&gt;
+             &lt;/fileset&gt;
+         &lt;/copy&gt;
+         &lt;echo message=&quot;Copies the license images and specs to the dist directory&quot; /&gt;
+-        &lt;copy todir=&quot;${dist.dir}&quot; includeEmptyDirs=&quot;yes&quot;&gt;
++        &lt;copy todir=&quot;${dist.dir}&quot; includeEmptyDirs=&quot;yes&quot; preservelastmodified=&quot;true&quot;&gt;
+             &lt;fileset dir=&quot;${dist-files.dir}&quot;&gt;
+                 &lt;include name=&quot;useNativeLAF&quot; /&gt;
+                 &lt;include name=&quot;*.jpg&quot; /&gt;
+@@ -972,7 +981,7 @@
+             &lt;/fileset&gt;
+         &lt;/copy&gt;
+         &lt;echo message=&quot;Copies the bin files to the dist directory&quot; /&gt;
+-        &lt;copy todir=&quot;${dist.dir}/bin&quot; includeEmptyDirs=&quot;yes&quot; overwrite=&quot;yes&quot;&gt;
++        &lt;copy todir=&quot;${dist.dir}/bin&quot; includeEmptyDirs=&quot;yes&quot; overwrite=&quot;yes&quot; preservelastmodified=&quot;true&quot;&gt;
+             &lt;fileset dir=&quot;${dist-files.dir}&quot;&gt;
+                 &lt;include name=&quot;compile*&quot; /&gt;            	
+                 &lt;include name=&quot;lcp.bat&quot; /&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-02-17 13:47:35 UTC (rev 1742)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-02-17 13:50:49 UTC (rev 1743)
+@@ -56,6 +56,7 @@
+ import com.izforge.izpack.io.FileSpanningInputStream;
+ import com.izforge.izpack.io.FileSpanningOutputStream;
+ import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.FileUtil;
+ 
+ /**
+  * The packager class. The packager is used by the compiler to put files into an installer, and
+@@ -558,7 +559,13 @@
+         {
+             String name = (String) i.next();
+             InputStream in = ((URL) installerResourceURLMap.get(name)).openStream();
+-            primaryJarStream.putNextEntry(new ZipEntry(name));
++
++            org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(name);
++            long dateTime = FileUtil.getFileDateTime((URL) installerResourceURLMap.get(name));
++            if (dateTime != -1)
++                newEntry.setTime(dateTime);
++            primaryJarStream.putNextEntry(newEntry);
++
+             copyStream(in, primaryJarStream);
+             primaryJarStream.closeEntry();
+             in.close();
+@@ -819,7 +826,15 @@
+             if (currentSet.contains(currentName)) continue;
+             try
+             {
+-                out.putNextEntry(new ZipEntry(currentName));
++                // Create new entry for zip file.
++                ZipEntry newEntry = new ZipEntry(currentName);
++                // Get input file date and time.
++                long fileTime = zentry.getTime();
++                // Make sure there is date and time set.
++                if (fileTime != -1)
++                    newEntry.setTime(fileTime); // If found set it into output file.
++                out.putNextEntry(newEntry);
++
+                 copyStream(zin, out);
+                 out.closeEntry();
+                 zin.closeEntry();
+@@ -874,7 +889,15 @@
+             if (currentSet.contains(currentName)) continue;
+             try
+             {
+-                out.putNextEntry(new ZipEntry(currentName));
++                // Create new entry for zip file.
++                ZipEntry newEntry = new ZipEntry(currentName);
++                // Get input file date and time.
++                long fileTime = zentry.getTime();
++                // Make sure there is date and time set.
++                if (fileTime != -1)
++                    newEntry.setTime(fileTime); // If found set it into output file.
++                out.putNextEntry(newEntry);
++
+                 copyStream(zin, out);
+                 out.closeEntry();
+                 zin.closeEntry();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-02-17 13:47:35 UTC (rev 1742)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-02-17 13:50:49 UTC (rev 1743)
+@@ -56,6 +56,7 @@
+ import com.izforge.izpack.Panel;
+ import com.izforge.izpack.compressor.PackCompressor;
+ import com.izforge.izpack.compressor.PackCompressorFactory;
++import com.izforge.izpack.util.FileUtil;
+ //import com.izforge.izpack.util.JarOutputStream;
+ 
+ /**
+@@ -425,7 +426,13 @@
+         {
+             String name = (String) i.next();
+             InputStream in = ((URL) installerResourceURLMap.get(name)).openStream();
+-            primaryJarStream.putNextEntry(new org.apache.tools.zip.ZipEntry(name));
++            
++            org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(name);
++            long dateTime = FileUtil.getFileDateTime((URL) installerResourceURLMap.get(name));
++            if (dateTime != -1)
++                newEntry.setTime(dateTime);
++            primaryJarStream.putNextEntry(newEntry);
++
+             PackagerHelper.copyStream(in, primaryJarStream);
+             primaryJarStream.closeEntry();
+             in.close();
+@@ -669,7 +676,15 @@
+                 continue;
+             try
+             {
+-                out.putNextEntry(new org.apache.tools.zip.ZipEntry(currentName));
++                // Create new entry for zip file.
++                org.apache.tools.zip.ZipEntry newEntry = new org.apache.tools.zip.ZipEntry(currentName);
++                // Get input file date and time.
++                long fileTime = zentry.getTime();
++                // Make sure there is date and time set.
++                if (fileTime != -1)
++                    newEntry.setTime(fileTime); // If found set it into output file.
++                out.putNextEntry(newEntry);
++
+                 PackagerHelper.copyStream(zin, out);
+                 out.closeEntry();
+                 zin.closeEntry();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/FileUtil.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/FileUtil.java	2007-02-17 13:47:35 UTC (rev 1742)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/FileUtil.java	2007-02-17 13:50:49 UTC (rev 1743)
+@@ -29,7 +29,9 @@
+ import java.util.ArrayList;
+ import java.util.Iterator;
+ 
++import java.net.URL;
+ 
++
+ /**
+  * Provides general global file utility methods
+  *
+@@ -159,7 +161,41 @@
+ 
+     return result;
+   }
++  
++  /**
++   * Gets file date and time.
++   *
++   * @param   url     The URL of the file for which date and time will be returned.
++   * @return  Returns long value which is the date and time of the file. If any error
++   *          occures returns -1 (=no file date and time available).
++   * @author  Ari Voutilainen, ari(dot)voutilainen(at) iki(dot)fi
++   */
++  public static long getFileDateTime(URL url)
++  {
++      if (url==null)
++          return -1;
+ 
++      String fileName = url.getFile();
++      if (fileName.charAt(0) == '/' || fileName.charAt(0) == '\\')
++          fileName = fileName.substring(1, fileName.length());
++
++      try
++      {
++          File file = new File(fileName);
++          // File name must be a file or a directory.
++          if (!file.isDirectory() &amp;&amp; !file.isFile())
++          {
++              return -1;
++          }
++
++          return file.lastModified();
++      }
++      catch (java.lang.Exception e)
++      {   // Trap all Exception based exceptions and return -1.
++          return -1;
++      }
++  }
++
+   /** 
+    * Test main
+    *
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000488.html">[izpack-changes] r1742 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os
+</A></li>
+	<LI>Next message: <A HREF="000490.html">[izpack-changes] r1744 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#489">[ date ]</a>
+              <a href="thread.html#489">[ thread ]</a>
+              <a href="subject.html#489">[ subject ]</a>
+              <a href="author.html#489">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

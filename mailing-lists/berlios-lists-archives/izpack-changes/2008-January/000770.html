@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2024 - in izpack-src/trunk/src: doc-reST	lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2024%20-%20in%20izpack-src/trunk/src%3A%20doc-reST%0A%09lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000769.html">
+   <LINK REL="Next"  HREF="000771.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2024 - in izpack-src/trunk/src: doc-reST	lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2024%20-%20in%20izpack-src/trunk/src%3A%20doc-reST%0A%09lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r2024 - in izpack-src/trunk/src: doc-reST	lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Sun Jan 27 21:15:39 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000769.html">[izpack-changes] r2023 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000771.html">[izpack-changes] r2025 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#770">[ date ]</a>
+              <a href="thread.html#770">[ thread ]</a>
+              <a href="subject.html#770">[ subject ]</a>
+              <a href="author.html#770">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pskowronek
+Date: 2008-01-27 21:15:36 +0100 (Sun, 27 Jan 2008)
+New Revision: 2024
+
+Modified:
+   izpack-src/trunk/src/doc-reST/installation-files.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/VariableSubstitutor.java
+Log:
+Added ANT type to VariableSubstitutor
+
+Modified: izpack-src/trunk/src/doc-reST/installation-files.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/installation-files.txt	2008-01-26 15:59:32 UTC (rev 2023)
++++ izpack-src/trunk/src/doc-reST/installation-files.txt	2008-01-27 20:15:36 UTC (rev 2024)
+@@ -193,6 +193,12 @@
+ -   ``shell`` - use this type if the substitution happens in a shell
+     script. Because shell scripts use ``$variable`` themselves, an
+     alternative variable marker is used: ``%variable`` or ``%{variable}``.
++-   ``at`` - use this type if the substitution must occure on files
++    where paramters are marked with leading AT characters. 
++    The example: ``@variable``.
++-   ``ant`` - use this type if the substitution must occure on files
++    where parameters are surrounded with AT characters (similar to ANT 
++    filters, hence the type name). The example: ``@variable@``.
+ 
+ 
+ The IzPack Elements
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/VariableSubstitutor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/VariableSubstitutor.java	2008-01-26 15:59:32 UTC (rev 2023)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/VariableSubstitutor.java	2008-01-27 20:15:36 UTC (rev 2024)
+@@ -79,7 +79,10 @@
+     
+     /** A constant for file type. Java file, where \ have to be escaped. */
+     protected final static int TYPE_JAVA = 5;
+-    
++
++    /** A constant for file type. Plain file with ANT-like variable markers, ie @param@ */
++    protected final static int TYPE_ANT = 6;
++
+     /** PLAIN = &quot;plain&quot; */
+     public final static String PLAIN = &quot;plain&quot;;
+ 
+@@ -96,6 +99,7 @@
+         typeNameToConstantMap.put(&quot;xml&quot;, new Integer(TYPE_XML));
+         typeNameToConstantMap.put(&quot;shell&quot;, new Integer(TYPE_SHELL));
+         typeNameToConstantMap.put(&quot;at&quot;, new Integer(TYPE_AT));
++        typeNameToConstantMap.put(&quot;ant&quot;, new Integer(TYPE_ANT));
+     }
+ 
+     /**
+@@ -274,16 +278,25 @@
+         // Check the file type
+         int t = getTypeConstant(type);
+ 
+-        // determine character which starts a variable
++        // determine character which starts (and ends) a variable
+         char variable_start = '$';
++        char variable_end = '\0';
+         if (t == TYPE_SHELL)
+             variable_start = '%';
+-        else if (t == TYPE_AT) variable_start = '@';
++        else if (t == TYPE_AT) 
++            variable_start = '@';
++        else if (t == TYPE_ANT) 
++        {
++            variable_start = '@';
++            variable_end = '@';
++        }
++       
+ 
+         int subs = 0;
+ 
+         // Copy data and substitute variables
+         int c = reader.read();
++        
+         // Ignore BOM of UTF-8
+         if( c == 0xEF )
+         {
+@@ -328,7 +341,7 @@
+             StringBuffer nameBuffer = new StringBuffer();
+             while (c != -1 &amp;&amp; (braces &amp;&amp; c != '}') || (c &gt;= 'a' &amp;&amp; c &lt;= 'z')
+                     || (c &gt;= 'A' &amp;&amp; c &lt;= 'Z') || (braces &amp;&amp; (c == '[') || (c == ']'))
+-                    || (((c &gt;= '0' &amp;&amp; c &lt;= '9') || c == '_') &amp;&amp; nameBuffer.length() &gt; 0))
++                    || (((c &gt;= '0' &amp;&amp; c &lt;= '9') || c == '_' || c == '.') &amp;&amp; nameBuffer.length() &gt; 0))
+             {
+                 nameBuffer.append((char) c);
+                 c = reader.read();
+@@ -338,7 +351,9 @@
+             // Check if a legal and defined variable found
+             String varvalue = null;
+ 
+-            if ((!braces || c == '}') &amp;&amp; name.length() &gt; 0)
++            if (( (!braces || c == '}') &amp;&amp; 
++                  (!braces || variable_end == '\0' || variable_end == c )
++                ) &amp;&amp; name.length() &gt; 0)
+             {
+                 // check for environment variables
+                 if (braces &amp;&amp; name.startsWith(&quot;ENV[&quot;)
+@@ -356,7 +371,7 @@
+             if (varvalue != null)
+             {
+                 writer.write(escapeSpecialChars(varvalue, t));
+-                if (braces) c = reader.read();
++                if (braces || variable_end != '\0') c = reader.read();
+             }
+             // ...or ignore it
+             else
+@@ -401,6 +416,7 @@
+         case TYPE_PLAIN:
+         case TYPE_SHELL:
+         case TYPE_AT:
++        case TYPE_ANT:
+             return str;
+         case TYPE_JAVA_PROPERTIES:
+         case TYPE_JAVA:
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000769.html">[izpack-changes] r2023 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000771.html">[izpack-changes] r2025 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#770">[ date ]</a>
+              <a href="thread.html#770">[ thread ]</a>
+              <a href="subject.html#770">[ subject ]</a>
+              <a href="author.html#770">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Regex checking and staring passwords on	userInputSpec.xml
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Regex%20checking%20and%20staring%20passwords%20on%0A%09userInputSpec.xml&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001636.html">
+   <LINK REL="Next"  HREF="001638.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Regex checking and staring passwords on	userInputSpec.xml</H1>
+    <B>Matt_nz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Regex%20checking%20and%20staring%20passwords%20on%0A%09userInputSpec.xml&In-Reply-To="
+       TITLE="[izpack-users] Regex checking and staring passwords on	userInputSpec.xml">matthewd at datacom.co.nz
+       </A><BR>
+    <I>Fri Aug 17 01:29:11 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001636.html">[izpack-users] How to remove default &quot;Program Files&quot;
+</A></li>
+        <LI>Next message: <A HREF="001638.html">[izpack-users] Ensure that install dir is clean from previous	install
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1637">[ date ]</a>
+              <a href="thread.html#1637">[ thread ]</a>
+              <a href="subject.html#1637">[ subject ]</a>
+              <a href="author.html#1637">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+First I would like to say thanks for all the hardwork that has gone into
+Izpack.
+
+I have got the installer all working to my liking, and now I am going back
+and fixing a few issues that have arisen.
+I'm using Izpack ver 3.10.2.
+
+The following code works fine and does the regex checking I require.
+&lt;userInput&gt;
+	&lt;panel order=&quot;0&quot;&gt;
+		&lt;field type=&quot;title&quot; txt=&quot;Administrator credentials&quot; align=&quot;left&quot;/&gt;
+		&lt;field type=&quot;staticText&quot; align=&quot;center&quot; txt=&quot;Please Enter a username.
+Username must be between 5-15 alpha numeric characters and can include - and
+_&quot; /&gt;
+
+		&lt;field type=&quot;rule&quot; variable=&quot;USERNAME&quot;&gt;
+			&lt;spec txt=&quot;Username:&quot; layout=&quot;AN:15:15&quot; resultFormat=&quot;displayFormat&quot; /&gt;
+			&lt;validator
+				class=&quot;com.izforge.izpack.util.RegularExpressionValidator&quot;
+				txt=&quot;Invalid username entered, username must be between 5-15 alpha
+numeric characters&quot;&gt;
+				
+			&lt;/validator&gt;
+		&lt;/field&gt;		
+
+		&lt;field type=&quot;space&quot; align=&quot;center&quot;/&gt; 
+		&lt;field type=&quot;staticText&quot; align=&quot;left&quot; txt=&quot;Please Enter a password.
+Password must be between 8-15 characters&quot; /&gt;
+
+		&lt;field type=&quot;rule&quot; variable=&quot;PASSWORD&quot;&gt;
+			&lt;spec txt=&quot;Password:&quot; layout=&quot;O:15:15&quot;
+				resultFormat=&quot;displayFormat&quot; /&gt;
+			&lt;validator
+				class=&quot;com.izforge.izpack.util.RegularExpressionValidator&quot;
+				txt=&quot;Invalid password entered, Password must be between 8-15
+characters.&quot;&gt;
+				
+			&lt;/validator&gt;
+		&lt;/field&gt;
+	&lt;/panel&gt;
+&lt;/userInput&gt;
+
+Now the problem is trying to star the Password input field I've tried
+combinations of: 
+
+	&lt;field type=&quot;password&quot; variable=&quot;PASSWORD&quot;&gt;
+			&lt;spec&gt;
+				&lt;pwd txt=&quot;Password:&quot; size=&quot;15&quot; id=&quot;pwd.label&quot;/&gt;
+			&lt;/spec&gt;
+			&lt;...validator...&gt;
+		 &lt;/field&gt;  
+And then attaching my validator where indicated, this doesn't work.  I've
+also tried having the &lt;pwd txt input above the rule input and passing the
+value of $PASSWORD to the rule as a hidden input.
+
+Is what I'm trying to do possible with userinputSpec in its current form? 
+It appears to be the case that field type=&quot;password&quot; cannot use the
+RegualrExpressionValidator, if so any other ways to do this?  I want to star
+a password and restrict its length to 8-15 characters (I can be more
+leanient on valid characters if necessary).
+
+Thanks for your help.
+
+
+Matt
+-- 
+View this message in context: <A HREF="http://www.nabble.com/Regex-checking-and-staring-passwords-on-userInputSpec.xml-tf4270007.html#a12153194">http://www.nabble.com/Regex-checking-and-staring-passwords-on-userInputSpec.xml-tf4270007.html#a12153194</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001636.html">[izpack-users] How to remove default &quot;Program Files&quot;
+</A></li>
+	<LI>Next message: <A HREF="001638.html">[izpack-users] Ensure that install dir is clean from previous	install
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1637">[ date ]</a>
+              <a href="thread.html#1637">[ thread ]</a>
+              <a href="subject.html#1637">[ subject ]</a>
+              <a href="author.html#1637">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

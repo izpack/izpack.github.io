@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Windows XP Registry Entries cleaning up
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Windows%20XP%20Registry%20Entries%20cleaning%20up&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001610.html">
+   <LINK REL="Next"  HREF="001612.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Windows XP Registry Entries cleaning up</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Windows%20XP%20Registry%20Entries%20cleaning%20up&In-Reply-To="
+       TITLE="[izpack-users] Windows XP Registry Entries cleaning up">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue Jul 24 14:32:15 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001610.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+        <LI>Next message: <A HREF="001612.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1611">[ date ]</a>
+              <a href="thread.html#1611">[ thread ]</a>
+              <a href="subject.html#1611">[ subject ]</a>
+              <a href="author.html#1611">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Daniel,
+I am not secure that I have understand right. Do it now work or not?
+You can have as much Listener as you need. The RegistryHandler will be used internal
+in the RegistryInstallerListener, but it can be used also at an other place. Then it is needed
+to use only one instance of it. But I assume that you do not use registry at an other point.
+ 
+I have just tested the IzPack 3.10.2 installation and uninstallation. It works as assumed.
+My box has Windows XP SP2, I use Java SDK 1.5.0_11.
+If the uninstallation of IzPack after a clean installation (without preexistent keys) 
+will not clean the regkeys I do not know why. Test it on an other computer.
+ 
+Cheers
+ 
+Klaus
+
+	-----Original Message-----
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Daniel Silva
+	Sent: Tuesday, July 24, 2007 1:48 PM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+	Subject: Re: [izpack-users] Windows XP Registry Entries cleaning up
+	
+	
+	also, I&#180;m using Windows XP as an administrator, so I must have all the rights to change the registry.
+	
+	
+	On 7/24/07, Daniel Silva &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">ddso.01 at gmail.com</A>&gt; wrote: 
+
+		Hi Klaus, thanks again.
+		 
+		I removed the registries myself after uninstalling. Installed again and uninstalled all over. The registries are still not automatically removed.
+		 
+		I didnt understand what you said about using a second RegistryHandler, but the registries that my installation process creates never change. I&#180;m only using one for the installation and one for the uninstallation:
+		
+		 
+		&lt;listener  installer=&quot;RegistryInstallerListener&quot;
+		              uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
+		              &lt;os family=&quot;windows&quot;/&gt;
+		&lt;/listener&gt;
+		 
+		I&#180;m using another for the installation, but there&#180;s nothing to do with the registry:
+		 
+		&lt;listener installer=&quot;SummaryLoggerInstallerListener&quot;/&gt;
+		 
+		Also, I changed the $APP_NAME to $UNINSTALL_NAME in RegistrySpec.xml and CheckedHelloPanel started working the way the manual said it would. That&#180;s something, all right. Thanks for that clue.
+		
+		 
+		
+		On 7/24/07, Bartz, Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A> &gt; wrote: 
+
+			Hi Daniel,
+			if you do not use a second RegistryHandler all keys (except some with format multi string) have to
+			be removed after uninstall, if the have not changed after install.
+			If the keys exist before installing, they will also exist after uninstall. This can be if you have forgotten the dll 
+			in the uninstaller (keyword &quot;both&quot;) in a previos test. The uninstaller do not simple remove the entries else
+			it changes the entries to the state before installation. 
+			Therefore remove the not automatically removed keys after uninstall and test again with install - uninstall. 
+			 
+			This work only with a direct call of the uninstaller.jar, not at debugging with e.g. Eclipse. For the last
+			see my email to &quot;fxa&quot;.
+			 
+			Cheers
+			 
+			Klaus
+
+				-----Original Message-----
+				From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Daniel Silva
+				Sent: Monday, July 23, 2007 7:53 PM
+				To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+				
+				Subject: Re: [izpack-users] Windows XP Registry Entries cleaning up
+				
+				
+				
+				Hi Klaus, thans for the reply.
+				 
+				the &quot;registryEntries&quot;, native\COIOSHelper.dll  and the com\izforge\izpack\event\RegistryUninstallerListener.class are all there. 
+				I really dont know if the key are persistent or not. How do I know that?
+				 
+				Even izPack entries are not erase when I uninstall it.
+				
+				
+				 
+				On 7/23/07, Bartz, Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A> &gt; wrote: 
+
+					Hi Daniel,
+					sorry for late answer, but I was on a workshop.
+					I do not really know why uninstall do not work correctly with your program.
+					We use $UNINSTALL_NAME instead of $APP_NAME, but this should produce only problems
+					with multiple installations of the same program.
+					 
+					Try with some additional other keys, may be with the root HKCU.
+					 
+					Are all keys persistent, or only some?
+					Look into your uninstaller.jar (may be with an unzipper or with jar).
+					Is there a file &quot;registryEntries&quot; in the root? It is a java object stream, but with some editors
+					you can look into. If you can, is there the entry
+					SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\&lt;your APP_NAME&gt;   ?
+					Is in the uninstaller 
+					com\izforge\izpack\event\RegistryUninstallerListener.class    
+					and
+					native\COIOSHelper.dll        ?
+					 
+					Cheers
+					
+					 
+					Klaus
+					
+
+					-----Original Message-----
+					From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Daniel Silva
+					Sent: Monday, July 16, 2007 10:38 PM
+					To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A> 
+					Subject: [izpack-users] Windows XP Registry Entries cleaning up
+					
+					
+					Hi,
+					 
+					I&#180;ve just started using izPack for my applications and I had some trouble with Windows XP registry entries.
+					 
+					I have a InstallSpec.xml file for the installer creating procedure with the following lines
+					 
+					&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+					&lt;installation version=&quot;1.0&quot;&gt;
+					   (...)
+					   &lt;native type=&quot;izpack&quot; name=&quot;ShellLink.dll&quot;/&gt;
+					      &lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+					      &lt;os family=&quot;windows&quot;/&gt; 
+					   &lt;/native&gt;
+					   (...)
+					   &lt;resources&gt;
+					      (...)
+					      &lt;res src=&quot;./spec/RegistrySpec.xml&quot; id=&quot;RegistrySpec.xml&quot;/&gt;
+					      (...)
+					   &lt;/resources&gt;
+					   (...)
+					   &lt;listeners&gt;
+					      &lt;listener installer=&quot;SummaryLoggerInstallerListener&quot;/&gt;
+					      &lt;listener installer=&quot;RegistryInstallerListener&quot;
+					                   uninstaller=&quot;RegistryUninstallerListener&quot;&gt; 
+					         &lt;os family=&quot;windows&quot;/&gt;
+					      &lt;/listener&gt;
+					   &lt;/listeners&gt;
+					   (...)
+					&lt;/installation&gt;
+					 
+					And a RegistrySpec.xml like this:
+					 
+					&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+
+					&lt;registry&gt;
+					 &lt;pack name=&quot;UninstallStuff&quot;&gt;
+					  &lt;value name=&quot;DisplayName&quot; 
+					   keypath=&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$APP_NAME&quot;  
+					   root=&quot;HKLM&quot; 
+					   string=&quot;$APP_NAME&quot;/&gt;
+					  &lt;value name=&quot;UninstallString&quot; 
+					   keypath=&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$APP_NAME&quot;  
+					   root=&quot;HKLM&quot; 
+					   string=&quot;&amp;quot;$JAVA_HOME\bin\javaw.exe&amp;quot; -jar &amp;quot;$INSTALL_PATH\Uninstaller\uninstaller.jar&amp;quot;&quot;/&gt; 
+					  &lt;value name=&quot;DisplayIcon&quot; 
+					   keypath=&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$APP_NAME&quot;  
+					   root=&quot;HKLM&quot; 
+					   string=&quot;$INSTALL_PATH\icons\SCarimbo.ico&quot;/&gt; 
+					  &lt;value name=&quot;HelpLink&quot; 
+					   keypath=&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$APP_NAME&quot;  
+					   root=&quot;HKLM&quot; 
+					   string=&quot;$APP_URL&quot;/&gt;
+					      &lt;/pack&gt; 
+					&lt;/registry&gt;
+
+					I'm using CheckedHelloPanel, so $APP_NAME is declared. My problem is that when I uninstall the application, the registry entries are not erased. The application is still listed as installed in Control Panel -&gt; Add or Remove Programs. 
+					 
+					Am I doing something wrong?
+					 
+					Obs.: I've notice that when I uninstall izPack itself, its registry entries are not erased either.
+					-- 
+					Abra&#231;os,
+					Daniel Silva 
+
+
+					_______________________________________________ 
+					izpack-users mailing list
+					<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+					<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+					
+					
+
+
+
+
+				-- 
+				Abra&#231;os,
+				Daniel Silva 
+
+
+			_______________________________________________ 
+			izpack-users mailing list
+			<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+			<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+			
+			
+
+
+
+
+		-- 
+		Abra&#231;os,
+		Daniel Silva 
+
+
+
+
+	-- 
+	Abra&#231;os,
+	Daniel Silva 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070724/6b53094c/attachment-0001.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070724/6b53094c/attachment-0001.html</A> 
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001610.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+	<LI>Next message: <A HREF="001612.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1611">[ date ]</a>
+              <a href="thread.html#1611">[ thread ]</a>
+              <a href="subject.html#1611">[ subject ]</a>
+              <a href="author.html#1611">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,349 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1613 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1613%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000357.html">
+   <LINK REL="Next"  HREF="000359.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1613 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1613%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1613 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sun Sep 24 21:02:39 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000357.html">[izpack-changes] r1612 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller
+</A></li>
+        <LI>Next message: <A HREF="000359.html">[izpack-changes] r1614 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#358">[ date ]</a>
+              <a href="thread.html#358">[ thread ]</a>
+              <a href="subject.html#358">[ subject ]</a>
+              <a href="author.html#358">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-24 21:02:38 +0200 (Sun, 24 Sep 2006)
+New Revision: 1613
+
+Modified:
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java
+Log:
+Revision3.9: Fixed Automated Installation on Win32 + sync with linux.root.shortcut.
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2006-09-24 19:00:51 UTC (rev 1612)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2006-09-24 19:02:38 UTC (rev 1613)
+@@ -131,10 +131,10 @@
+     private static final String LOCATION_START_MENU = &quot;startMenu&quot;;
+     
+     /** SPEC_CATEGORIES = &quot;categories&quot; */   
+-    private static final String SPEC_CATEGORIES = &quot;categories&quot;;
++    public static final String SPEC_CATEGORIES = &quot;categories&quot;;
+     
+     /** SPEC_TRYEXEC = &quot;tryexec&quot; */
+-    private static final String SPEC_TRYEXEC = &quot;tryexec&quot;;
++    public static final String SPEC_TRYEXEC = &quot;tryexec&quot;;
+     
+ 
+     /**
+@@ -1927,7 +1927,9 @@
+                     : Boolean.FALSE).toString());
+ 
+             // Boolean.valueOf(data.addToGroup)
+-            dataElement.setAttribute(AUTO_ATTRIBUTE_TYPE, Integer.toString(data.type));
++            if(OsVersion.IS_WINDOWS)
++            
++              dataElement.setAttribute(AUTO_ATTRIBUTE_TYPE, Integer.toString(data.type));
+             dataElement.setAttribute(AUTO_ATTRIBUTE_COMMAND, data.commandLine);
+             dataElement.setAttribute(AUTO_ATTRIBUTE_DESCRIPTION, data.description);
+             dataElement.setAttribute(AUTO_ATTRIBUTE_ICON, data.iconFile);
+@@ -1942,7 +1944,8 @@
+             dataElement.setAttribute( SPEC_ATTRIBUTE_MIMETYPE, data.deskTopEntryLinux_MimeType );
+             dataElement.setAttribute( SPEC_ATTRIBUTE_TERMINAL, data.deskTopEntryLinux_Terminal );
+             dataElement.setAttribute( SPEC_ATTRIBUTE_TERMINAL_OPTIONS, data.deskTopEntryLinux_TerminalOptions );
+-            dataElement.setAttribute( SPEC_ATTRIBUTE_TYPE, data.deskTopEntryLinux_Type );
++            if(! OsVersion.IS_WINDOWS )
++              dataElement.setAttribute( SPEC_ATTRIBUTE_TYPE, data.deskTopEntryLinux_Type );
+ 
+             dataElement.setAttribute( SPEC_ATTRIBUTE_URL, data.deskTopEntryLinux_URL );
+ 
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java	2006-09-24 19:00:51 UTC (rev 1612)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java	2006-09-24 19:02:38 UTC (rev 1613)
+@@ -1,34 +1,26 @@
+ /*
+  * $Id: copyright-notice-template 1421 2006-03-12 16:32:32Z jponge $
+  * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+- * 
++ *
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+- * 
++ *
+  * Copyright 2006 Marc Eppelmann (marc.eppelmann&amp;#064;gmx.de)
+  *
+  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+- *     
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+- 
+ package com.izforge.izpack.panels;
+ 
+-import java.io.File;
+-import java.util.ArrayList;
+-import java.util.Enumeration;
+-import java.util.Vector;
+-
+-import net.n3.nanoxml.XMLElement;
+-
+ import com.izforge.izpack.ExecutableFile;
+ import com.izforge.izpack.installer.AutomatedInstallData;
+ import com.izforge.izpack.installer.PanelAutomation;
+@@ -36,33 +28,50 @@
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.FileExecutor;
+ import com.izforge.izpack.util.OsConstraint;
++import com.izforge.izpack.util.OsVersion;
+ import com.izforge.izpack.util.TargetFactory;
+ import com.izforge.izpack.util.os.Shortcut;
+ 
++import net.n3.nanoxml.XMLElement;
++
++import java.io.File;
++
++import java.util.ArrayList;
++import java.util.Enumeration;
++import java.util.Vector;
++
+ /**
+- * The ShortcutPanelAutomationHelper is responsible to create Shortcuts
+- * during the automated installation.
+- * Most code comes copied from the ShortcutPanel 
++ * The ShortcutPanelAutomationHelper is responsible to create Shortcuts during the automated
++ * installation. Most code comes copied from the ShortcutPanel
+  * 
+  * @author Marc Eppelmann (marc.eppelmann&amp;#064;gmx.de)
+  * @version $Revision: 1540 $
+- * 
+  */
+ public class ShortcutPanelAutomationHelper implements PanelAutomation
+ {
+ 
++    // ~ Methods ****************************************************************************
++
+     /**
+      * dummy method
++     * 
++     * @param idata DOCUMENT ME!
++     * @param panelRoot DOCUMENT ME!
+      */
+     public void makeXMLData(AutomatedInstallData idata, XMLElement panelRoot)
+     {
+         Debug.log(this.getClass().getName() + &quot;::entering makeXMLData()&quot;);
++
+         // ShortcutPanel.getInstance().makeXMLData( idata, panelRoot );
+-
+     }
+ 
+     /**
+-     * Implementation of the Shortcut Specific Automation Code 
++     * Implementation of the Shortcut Specific Automation Code
++     * 
++     * @param installData DOCUMENT ME!
++     * @param panelRoot DOCUMENT ME!
++     * 
++     * @return DOCUMENT ME!
+      */
+     public boolean runAutomated(AutomatedInstallData installData, XMLElement panelRoot)
+     {
+@@ -95,6 +104,7 @@
+         {
+             Debug.log(&quot;Could not create shortcut instance&quot;);
+             exception.printStackTrace();
++
+             return true;
+         }
+ 
+@@ -106,12 +116,14 @@
+         if (!shortcut.supported())
+         {
+             Debug.log(&quot;shortcuts not supported here&quot;);
++
+             return true;
+         }
+ 
+         if (!OsConstraint.oneMatchesCurrentSystem(panelRoot))
+         {
+             Debug.log(&quot;Shortcuts Not oneMatchesCurrentSystem&quot;);
++
+             return true;
+         }
+ 
+@@ -125,6 +137,7 @@
+         // set the name of the program group
+         // ----------------------------------------------------
+         dataElement = panelRoot.getFirstChildNamed(ShortcutPanel.AUTO_KEY_PROGRAM_GROUP);
++
+         String groupName = dataElement.getAttribute(ShortcutPanel.AUTO_ATTRIBUTE_NAME);
+ 
+         if (groupName == null)
+@@ -147,12 +160,12 @@
+             data.addToGroup = Boolean.valueOf(
+                     dataElement.getAttribute(ShortcutPanel.AUTO_ATTRIBUTE_GROUP)).booleanValue();
+ 
+-            try
++            if (OsVersion.IS_WINDOWS)
+             {
+                 data.type = Integer.valueOf(
+                         dataElement.getAttribute(ShortcutPanel.AUTO_ATTRIBUTE_TYPE)).intValue();
+             }
+-            catch (NumberFormatException e)
++            else
+             {
+                 Debug.log(&quot;WARN: On Linux data.type is NOT an int. Ignored.&quot;);
+             }
+@@ -185,32 +198,46 @@
+                     &quot;&quot;);
+ 
+             data.deskTopEntryLinux_X_KDE_SubstituteUID = dataElement.getAttribute(
+-                    ShortcutPanel.SPEC_ATTRIBUTE_KDE_SUBST_UID, &quot;&quot;);
++                    ShortcutPanel.SPEC_ATTRIBUTE_KDE_SUBST_UID, &quot;false&quot;);
+ 
++            data.deskTopEntryLinux_X_KDE_UserName = dataElement.getAttribute(
++                    ShortcutPanel.SPEC_ATTRIBUTE_KDE_USERNAME, &quot;root&quot;);
++
++            data.Categories = dataElement.getAttribute(ShortcutPanel.SPEC_CATEGORIES,
++                    &quot;Application;Development&quot;);
++
++            data.TryExec = dataElement.getAttribute(ShortcutPanel.SPEC_TRYEXEC, &quot;&quot;);
++
+             data.createForAll = new Boolean(dataElement.getAttribute(ShortcutPanel.CREATE_FOR_ALL,
+                     &quot;false&quot;));
+             data.userType = Integer.valueOf(
+                     dataElement.getAttribute(ShortcutPanel.USER_TYPE, Integer
+                             .toString(Shortcut.CURRENT_USER))).intValue();
+             // END LINUX
+-
+             shortcuts.add(data);
+         }
+ 
+         System.out.print(&quot;[ Creating shortcuts &quot;);
+ 
+         // ShortcutData data;
+-
+         for (int i = 0; i &lt; shortcuts.size(); i++)
+         {
+             data = (ShortcutData) shortcuts.elementAt(i);
+ 
+             try
+             {
+-                groupName = groupName + data.subgroup;
++                if( data.subgroup!=null )
++                {
++                  groupName = groupName + data.subgroup;
++                }
+                 shortcut.setUserType(data.userType);
+                 shortcut.setLinkName(data.name);
+-                shortcut.setLinkType(data.type);
++
++                if (OsVersion.IS_WINDOWS)
++                {
++                    shortcut.setLinkType(data.type);
++                }
++
+                 shortcut.setArguments(data.commandLine);
+                 shortcut.setDescription(data.description);
+                 shortcut.setIconLocation(data.iconFile, data.iconIndex);
+@@ -223,7 +250,12 @@
+ 
+                 shortcut.setTerminal(data.deskTopEntryLinux_Terminal);
+                 shortcut.setTerminalOptions(data.deskTopEntryLinux_TerminalOptions);
+-                shortcut.setType(data.deskTopEntryLinux_Type);
++
++                if (!OsVersion.IS_WINDOWS)
++                {
++                    shortcut.setType(data.deskTopEntryLinux_Type);
++                }
++
+                 shortcut.setKdeSubstUID(data.deskTopEntryLinux_X_KDE_SubstituteUID);
+                 shortcut.setURL(data.deskTopEntryLinux_URL);
+                 shortcut.setCreateForAll(data.createForAll);
+@@ -239,9 +271,7 @@
+ 
+                 try
+                 {
+-
+                     // save the shortcut
+-
+                     System.out.print(&quot;.&quot;);
+                     System.out.flush();
+ 
+@@ -280,7 +310,6 @@
+                             files.add(0, filesEnum.nextElement().toString());
+                         }
+                     }
+-
+                 }
+                 catch (Exception exception)
+                 {}
+@@ -317,6 +346,7 @@
+         {
+             cannot.printStackTrace();
+         }
++
+         System.out.println(&quot; done. ]&quot;);
+         System.out.print(&quot;[ Add shortcuts to uninstaller &quot;);
+ 
+@@ -333,5 +363,4 @@
+ 
+         return true;
+     }
+-
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000357.html">[izpack-changes] r1612 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller
+</A></li>
+	<LI>Next message: <A HREF="000359.html">[izpack-changes] r1614 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#358">[ date ]</a>
+              <a href="thread.html#358">[ thread ]</a>
+              <a href="subject.html#358">[ subject ]</a>
+              <a href="author.html#358">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

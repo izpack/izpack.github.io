@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] MultiVolumeInstaller
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20MultiVolumeInstaller&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C8991016FADCB%40svrexol1.ol.reddot.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001452.html">
+   <LINK REL="Next"  HREF="001447.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] MultiVolumeInstaller</H1>
+    <B>Andrew Fang</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20MultiVolumeInstaller&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C8991016FADCB%40svrexol1.ol.reddot.de"
+       TITLE="[izpack-users] MultiVolumeInstaller">afang4 at gmail.com
+       </A><BR>
+    <I>Mon Apr 23 21:03:40 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001452.html">[izpack-users] MultiVolumeInstaller
+</A></li>
+        <LI>Next message: <A HREF="001447.html">[izpack-users] Pack File Encryption?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1454">[ date ]</a>
+              <a href="thread.html#1454">[ thread ]</a>
+              <a href="subject.html#1454">[ subject ]</a>
+              <a href="author.html#1454">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Dennis,
+
+Thanks a lot for your help.
+
+Andrew
+
+
+On 4/23/07, Dennis Reil &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Dennis.Reil at reddot.de</A>&gt; wrote:
+&gt;<i>
+</I>&gt;<i>  The purpose of the MultiVolumeInstaller is to create an installer which
+</I>&gt;<i> spans over multiple volumes. We use this feature to create an installer
+</I>&gt;<i> packaged on two CDs.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> What has to be done to use this feature?
+</I>&gt;<i>
+</I>&gt;<i> -          Add the following to your installer xml:
+</I>&gt;<i> &lt;packaging&gt;
+</I>&gt;<i>
+</I>&gt;<i>             &lt;packager class=&quot;
+</I>&gt;<i> com.izforge.izpack.compiler.MultiVolumePackager&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i>                &lt;options volumesize=&quot;in BYTES&quot; firstvolumefreespace=&quot;in
+</I>&gt;<i> Bytes&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i>             &lt;/packager&gt;
+</I>&gt;<i>
+</I>&gt;<i>             &lt;unpacker class=&quot;
+</I>&gt;<i> com.izforge.izpack.installer.MultiVolumeUnpacker&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>       &lt;/packaging&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> If you compile your installer, you'll get one jar-File and n **.pak.**
+</I>&gt;<i> files. The multi volume packager tries to put as many bytes as available
+</I>&gt;<i> onto one volume. Additional space on the first volume can be reserved by
+</I>&gt;<i> setting the firstvolumefreespace attribute.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> 1st volume: PAKSIZE = VOLUME_SIZE &#8211; FIRSTVOLUMEFREESPACE
+</I>&gt;<i>
+</I>&gt;<i> 2nd to last volume: PAKSIZE = VOLUME_SIZE
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Normally, you will put the jar + pak-file + additional files (e.g. docu)
+</I>&gt;<i> on the first volume and each of the **.pak.** files on seperate volumes.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Regards,
+</I>&gt;<i>
+</I>&gt;<i>   Dennis
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> *Von:* <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] *Im Auftrag von *Andrew Fang
+</I>&gt;<i> *Gesendet:* Freitag, 20. April 2007 16:59
+</I>&gt;<i> *An:* <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> *Betreff:* [izpack-users] MultiVolumeInstaller
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> I saw this class in the 3.10.1 source, but could not find any
+</I>&gt;<i> documentation on the purpose and the usage of it. Can someone provide
+</I>&gt;<i> information on how to use it?
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> I have the need to to run installation that accross multiple volumes/disks
+</I>&gt;<i> and think this may be something that can fit this purpose. Your help is
+</I>&gt;<i> greatly appreciated.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Andrew
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070423/6245f5d7/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070423/6245f5d7/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001452.html">[izpack-users] MultiVolumeInstaller
+</A></li>
+	<LI>Next message: <A HREF="001447.html">[izpack-users] Pack File Encryption?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1454">[ date ]</a>
+              <a href="thread.html#1454">[ thread ]</a>
+              <a href="subject.html#1454">[ subject ]</a>
+              <a href="author.html#1454">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

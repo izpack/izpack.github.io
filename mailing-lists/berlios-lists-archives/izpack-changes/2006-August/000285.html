@@ -1,0 +1,364 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1540 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1540%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000284.html">
+   <LINK REL="Next"  HREF="000286.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1540 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1540%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1540 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sun Aug 27 13:33:49 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000284.html">[izpack-changes] r1539 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000286.html">[izpack-changes] r1541 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#285">[ date ]</a>
+              <a href="thread.html#285">[ thread ]</a>
+              <a href="subject.html#285">[ subject ]</a>
+              <a href="author.html#285">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-08-27 13:33:42 +0200 (Sun, 27 Aug 2006)
+New Revision: 1540
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutData.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+Log:
+Added Shortcut-Support for Automated Installation. - just a hack for 3.9; needs to be intensive tested; needs feedback even on win32 platforms; on Suse Linux10.1 it works :-)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutData.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutData.java	2006-08-27 11:32:58 UTC (rev 1539)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutData.java	2006-08-27 11:33:42 UTC (rev 1540)
+@@ -72,6 +72,8 @@
+     public String deskTopEntryLinux_X_KDE_SubstituteUID;
+ 
+     public Boolean createForAll;
++    
++     
+ 
+     /*--------------------------------------------------------------------------*/
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2006-08-27 11:32:58 UTC (rev 1539)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2006-08-27 11:33:42 UTC (rev 1540)
+@@ -59,6 +59,7 @@
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.gui.ButtonFactory;
+ import com.izforge.izpack.gui.LabelFactory;
++import com.izforge.izpack.installer.AutomatedInstallData;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
+@@ -100,25 +101,25 @@
+     // ~ Static fields/initializers *********************************************************
+ 
+     /** SPEC_ATTRIBUTE_KDE_SUBST_UID = &quot;KdeSubstUID&quot; */
+-    private final static String SPEC_ATTRIBUTE_KDE_SUBST_UID = &quot;KdeSubstUID&quot;;
++    public final static String SPEC_ATTRIBUTE_KDE_SUBST_UID = &quot;KdeSubstUID&quot;;
+ 
+     /** SPEC_ATTRIBUTE_URL = &quot;url&quot; */
+-    private final static String SPEC_ATTRIBUTE_URL = &quot;url&quot;;
++    public final static String SPEC_ATTRIBUTE_URL = &quot;url&quot;;
+ 
+     /** SPEC_ATTRIBUTE_TYPE = &quot;type&quot; */
+-    private final static String SPEC_ATTRIBUTE_TYPE = &quot;type&quot;;
++    public final static String SPEC_ATTRIBUTE_TYPE = &quot;type&quot;;
+ 
+     /** SPEC_ATTRIBUTE_TERMINAL_OPTIONS = &quot;terminalOptions&quot; */
+-    private final static String SPEC_ATTRIBUTE_TERMINAL_OPTIONS = &quot;terminalOptions&quot;;
++    public final static String SPEC_ATTRIBUTE_TERMINAL_OPTIONS = &quot;terminalOptions&quot;;
+ 
+     /** SPEC_ATTRIBUTE_TERMINAL = &quot;terminal&quot; */
+-    private final static String SPEC_ATTRIBUTE_TERMINAL = &quot;terminal&quot;;
++    public final static String SPEC_ATTRIBUTE_TERMINAL = &quot;terminal&quot;;
+ 
+     /** SPEC_ATTRIBUTE_MIMETYPE = &quot;mimetype&quot; */
+-    private final static String SPEC_ATTRIBUTE_MIMETYPE = &quot;mimetype&quot;;
++    public final static String SPEC_ATTRIBUTE_MIMETYPE = &quot;mimetype&quot;;
+ 
+     /** SPEC_ATTRIBUTE_ENCODING = &quot;encoding&quot; */
+-    private final static String SPEC_ATTRIBUTE_ENCODING = &quot;encoding&quot;;
++    public final static String SPEC_ATTRIBUTE_ENCODING = &quot;encoding&quot;;
+ 
+     /** LOCATION_APPLICATIONS=applications */
+     private static final String LOCATION_APPLICATIONS = &quot;applications&quot;;
+@@ -242,51 +243,53 @@
+ 
+     /**   */
+ 
+-    /** AUTO_KEY_PROGRAM_GROUP = &quot;programGroup&quot; */
+-    private static final String AUTO_KEY_PROGRAM_GROUP = &quot;programGroup&quot;;
++    /** AUTO_KEY_PROGRAM_GROUP = SPEC_KEY_PROGRAM_GROUP = &quot;programGroup&quot; */
++    public static final String AUTO_KEY_PROGRAM_GROUP = SPEC_KEY_PROGRAM_GROUP;
+ 
+-    /** AUTO_KEY_SHORTCUT = &quot;shortcut&quot; */
+-    private static final String AUTO_KEY_SHORTCUT = &quot;shortcut&quot;;
++    /** AUTO_KEY_SHORTCUT = SPEC_KEY_SHORTCUT = &quot;shortcut&quot; */
++    public static final String AUTO_KEY_SHORTCUT = SPEC_KEY_SHORTCUT;
+ 
+     // ------------------------------------------------------
+     // automatic script keys attributes
+     // ------------------------------------------------------
+ 
+     /** AUTO_ATTRIBUTE_NAME = &quot;name&quot; */
+-    private static final String AUTO_ATTRIBUTE_NAME = &quot;name&quot;;
++    public static final String AUTO_ATTRIBUTE_NAME = &quot;name&quot;;
+ 
+     /** AUTO_ATTRIBUTE_GROUP = &quot;group&quot; */
+-    private static final String AUTO_ATTRIBUTE_GROUP = &quot;group&quot;;
++    public static final String AUTO_ATTRIBUTE_GROUP = &quot;group&quot;;
+ 
+     /** AUTO_ATTRIBUTE_TYPE &quot;type&quot; */
+-    private static final String AUTO_ATTRIBUTE_TYPE = &quot;type&quot;;
++    public static final String AUTO_ATTRIBUTE_TYPE = &quot;type&quot;;
+ 
+     /** AUTO_ATTRIBUTE_COMMAND = &quot;commandLine&quot; */
+-    private static final String AUTO_ATTRIBUTE_COMMAND = &quot;commandLine&quot;;
++    public static final String AUTO_ATTRIBUTE_COMMAND = &quot;commandLine&quot;;
+ 
+     /** AUTO_ATTRIBUTE_DESCRIPTION = &quot;description&quot; */
+-    private static final String AUTO_ATTRIBUTE_DESCRIPTION = &quot;description&quot;;
++    public static final String AUTO_ATTRIBUTE_DESCRIPTION = &quot;description&quot;;
+ 
+     /** AUTO_ATTRIBUTE_ICON = &quot;icon&quot; */
+-    private static final String AUTO_ATTRIBUTE_ICON = &quot;icon&quot;;
++    public static final String AUTO_ATTRIBUTE_ICON = &quot;icon&quot;;
+ 
+     /** AUTO_ATTRIBUTE_ICON_INDEX = &quot;iconIndex&quot; */
+-    private static final String AUTO_ATTRIBUTE_ICON_INDEX = &quot;iconIndex&quot;;
++    public static final String AUTO_ATTRIBUTE_ICON_INDEX = &quot;iconIndex&quot;;
+ 
+     /** AUTO_ATTRIBUTE_INITIAL_STATE = &quot;initialState&quot; */
+-    private static final String AUTO_ATTRIBUTE_INITIAL_STATE = &quot;initialState&quot;;
++    public static final String AUTO_ATTRIBUTE_INITIAL_STATE = &quot;initialState&quot;;
+ 
+     /** AUTO_ATTRIBUTE_TARGET = &quot;target&quot; */
+-    private static final String AUTO_ATTRIBUTE_TARGET = &quot;target&quot;;
++    public static final String AUTO_ATTRIBUTE_TARGET = &quot;target&quot;;
+ 
+     /** AUTO_ATTRIBUTE_WORKING_DIR = &quot;workingDirectory&quot; */
+-    private static final String AUTO_ATTRIBUTE_WORKING_DIR = &quot;workingDirectory&quot;;
++    public static final String AUTO_ATTRIBUTE_WORKING_DIR = &quot;workingDirectory&quot;;
+ 
+     // permission flags
+ 
+     /** CREATE_FOR_ALL = &quot;createForAll&quot; */
+-    private static final String CREATE_FOR_ALL = &quot;createForAll&quot;;
++    public static final String CREATE_FOR_ALL = &quot;createForAll&quot;;
+ 
++    private static ShortcutPanel self = null;
++
+     /** internal flag: create */
+     static boolean create;
+ 
+@@ -408,6 +411,9 @@
+ 
+     /** itsUserType */
+     private int itsUserType;
++    
++    /** USER_TYPE = &quot;usertype&quot; to store this information in the automated.xml  */
++    public final static String USER_TYPE = &quot;usertype&quot;;
+ 
+     /** shortCuts */
+     private Vector shortCuts;
+@@ -447,6 +453,11 @@
+         else 
+             con = new GridBagConstraints();
+         setLayout(super.getLayout());
++        
++        if( self != null )
++          throw new RuntimeException( this.getClass().getName() + &quot; is not allowed to instantiate more than once!&quot; );
++        
++        self = this;
+     }
+ 
+     // ~ Methods ****************************************************************************
+@@ -1088,7 +1099,7 @@
+     /*--------------------------------------------------------------------------*/
+     private void createShortcuts()
+     {
+-        if (!create) { return; }
++        if (!create) { Debug.log( this.getClass().getName() + &quot;::createShortcuts():create=&quot; + create ); return; }
+ 
+         ShortcutData data;
+ 
+@@ -1837,11 +1848,12 @@
+     /*--------------------------------------------------------------------------*/
+ 
+     /**
+-     * Adds iformation about the shortcuts that have been created during the installation to the XML
+-     * tree.
+-     * 
+-     * @param panelRoot the root of the XML tree
+-     */
++     * Returns Instance of themself 
++     */    
++    public static ShortcutPanel getInstance(  )
++    {
++       return self; 
++    }
+ 
+     /*--------------------------------------------------------------------------*/
+     /*
+@@ -1852,7 +1864,7 @@
+      * is only stored once in a separate XML element, since there is only one.
+      * --------------------------------------------------------------------------
+      */
+-    public void makeXMLData(XMLElement panelRoot)
++    public void makeXMLData( XMLElement panelRoot )
+     {
+         // ----------------------------------------------------
+         // if there are no shortcuts to create, shortcuts are
+@@ -1860,8 +1872,11 @@
+         // not supported, then we have nothing to add. Just
+         // return
+         // ----------------------------------------------------
++        Debug.log( &quot;entering makeXMLData&quot; );
++        
++        
+         if (!shortcutsToCreate || !shortcut.supported() || (groupName == null)
+-                || simulteNotSupported) { return; }
++                || simulteNotSupported || ! create ) { Debug.log( &quot;abort makeXMLData!&quot; ); return; }
+ 
+         ShortcutData data;
+         XMLElement dataElement;
+@@ -1878,6 +1893,7 @@
+         // ----------------------------------------------------
+         for (int i = 0; i &lt; shortcuts.size(); i++)
+         {
++            Debug.log( &quot;entering makeXMLData&quot; );
+             data = (ShortcutData) shortcuts.elementAt(i);
+             dataElement = new XMLElement(AUTO_KEY_SHORTCUT);
+ 
+@@ -1895,7 +1911,25 @@
+                     .toString(data.initialState));
+             dataElement.setAttribute(AUTO_ATTRIBUTE_TARGET, data.target);
+             dataElement.setAttribute(AUTO_ATTRIBUTE_WORKING_DIR, data.workingDirectory);
++            
++            
++            dataElement.setAttribute( SPEC_ATTRIBUTE_ENCODING, data.deskTopEntryLinux_Encoding );
++            dataElement.setAttribute( SPEC_ATTRIBUTE_MIMETYPE, data.deskTopEntryLinux_MimeType );
++            dataElement.setAttribute( SPEC_ATTRIBUTE_TERMINAL, data.deskTopEntryLinux_Terminal );
++            dataElement.setAttribute( SPEC_ATTRIBUTE_TERMINAL_OPTIONS, data.deskTopEntryLinux_TerminalOptions );
++            dataElement.setAttribute( SPEC_ATTRIBUTE_TYPE, data.deskTopEntryLinux_Type );
+ 
++            dataElement.setAttribute( SPEC_ATTRIBUTE_URL, data.deskTopEntryLinux_URL );
++
++            dataElement.setAttribute( SPEC_ATTRIBUTE_KDE_SUBST_UID, data.deskTopEntryLinux_X_KDE_SubstituteUID );
++
++            dataElement.setAttribute( CREATE_FOR_ALL, data.createForAll.toString() );// ? Boolean.TRUE : Boolean.FALSE).toString() );
++            dataElement.setAttribute( USER_TYPE, Integer.toString( data.userType ) );
++
++            
++            
++            //TODO: Add Linux.Attibutes
++
+             // ----------------------------------------------
+             // add the shortcut only if it is either not on
+             // the desktop or if it is on the desktop and
+@@ -1928,63 +1962,8 @@
+      * createShortcuts() to complete the operation.
+      * --------------------------------------------------------------------------
+      */
+-    public void runAutomated(XMLElement panelRoot)
+-    {
+-        // ----------------------------------------------------
+-        // if shortcuts are not supported, then we can not
+-        // create shortcuts, even if there was any install
+-        // data. Just return.
+-        // ----------------------------------------------------
+-        if (!shortcut.supported()) { return; }
+ 
+-        if (!OsConstraint.oneMatchesCurrentSystem(panelRoot)) { return; }
+-
+-        shortcuts = new Vector();
+-
+-        Vector shortcutElements;
+-        ShortcutData data;
+-        XMLElement dataElement;
+-
+-        // ----------------------------------------------------
+-        // set the name of the program group
+-        // ----------------------------------------------------
+-        dataElement = panelRoot.getFirstChildNamed(AUTO_KEY_PROGRAM_GROUP);
+-        groupName = dataElement.getAttribute(AUTO_ATTRIBUTE_NAME);
+-
+-        if (groupName == null)
+-        {
+-            groupName = &quot;&quot;;
+-        }
+-
+-        // ----------------------------------------------------
+-        // add the details for each of the shortcuts
+-        // ----------------------------------------------------
+-        shortcutElements = panelRoot.getChildrenNamed(AUTO_KEY_SHORTCUT);
+-
+-        for (int i = 0; i &lt; shortcutElements.size(); i++)
+-        {
+-            data = new ShortcutData();
+-            dataElement = (XMLElement) shortcutElements.elementAt(i);
+-
+-            data.name = dataElement.getAttribute(AUTO_ATTRIBUTE_NAME);
+-            data.addToGroup = Boolean.valueOf(dataElement.getAttribute(AUTO_ATTRIBUTE_GROUP))
+-                    .booleanValue();
+-            data.type = Integer.valueOf(dataElement.getAttribute(AUTO_ATTRIBUTE_TYPE)).intValue();
+-            data.commandLine = dataElement.getAttribute(AUTO_ATTRIBUTE_COMMAND);
+-            data.description = dataElement.getAttribute(AUTO_ATTRIBUTE_DESCRIPTION);
+-            data.iconFile = dataElement.getAttribute(AUTO_ATTRIBUTE_ICON);
+-            data.iconIndex = Integer.valueOf(dataElement.getAttribute(AUTO_ATTRIBUTE_ICON_INDEX))
+-                    .intValue();
+-            data.initialState = Integer.valueOf(
+-                    dataElement.getAttribute(AUTO_ATTRIBUTE_INITIAL_STATE)).intValue();
+-            data.target = dataElement.getAttribute(AUTO_ATTRIBUTE_TARGET);
+-            data.workingDirectory = dataElement.getAttribute(AUTO_ATTRIBUTE_WORKING_DIR);
+-
+-            shortcuts.add(data);
+-        }
+-
+-        createShortcuts();
+-    }
++    
+ }
+ 
+ /*---------------------------------------------------------------------------*/
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000284.html">[izpack-changes] r1539 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000286.html">[izpack-changes] r1541 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#285">[ date ]</a>
+              <a href="thread.html#285">[ thread ]</a>
+              <a href="subject.html#285">[ subject ]</a>
+              <a href="author.html#285">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

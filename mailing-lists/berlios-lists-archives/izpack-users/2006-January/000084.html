@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Reading Attributes from install.xml
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Reading%20Attributes%20from%20install.xml&In-Reply-To=op.s24dgqfhnznptk%40hase2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000083.html">
+   <LINK REL="Next"  HREF="000085.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Reading Attributes from install.xml</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Reading%20Attributes%20from%20install.xml&In-Reply-To=op.s24dgqfhnznptk%40hase2"
+       TITLE="[izpack-users] Reading Attributes from install.xml">hal at thresholddigital.com
+       </A><BR>
+    <I>Mon Jan  9 18:20:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000083.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+        <LI>Next message: <A HREF="000085.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Monday 09 January 2006 11:30 am, Klaus Bartz wrote:
+&gt;<i> Hi Hal,
+</I>&gt;<i> seems so you have started playing with IzPack. Nice tool, isn't it?
+</I>
+I'm having fun with it!
+
+&gt;<i> Am 09.01.2006, 07:57 Uhr, schrieb Hal Vaughan &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">hal at thresholddigital.com</A>&gt;:
+</I>&gt;<i> &gt; Remember I mentioned writing a class to read attributes given to panels
+</I>&gt;<i> &gt; in
+</I>&gt;<i> &gt; install.xml?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; It's done.  It requires there to be a file /res/install.xml, which means
+</I>&gt;<i> &gt; it
+</I>&gt;<i> &gt; has to be declared as a resource in the original install.xml file
+</I>&gt;<i> &gt; (whatever
+</I>&gt;<i> &gt; it is named).  It could easily be changed to read from any XML file
+</I>&gt;<i> &gt; anywhere
+</I>&gt;<i> &gt; in the install jar.
+</I>&gt;<i>
+</I>&gt;<i> You have seen, that you cannot read install.xml because this file will be
+</I>&gt;<i> not present at install time else only at packaging (compiling).
+</I>&gt;<i> install.xml self is not a good place to add data for custom panels because
+</I>&gt;<i> all people has to handle it and the dtd is large enough
+</I>&gt;<i> (src/dtd/installation.dtd)
+</I>&gt;<i> and the file was not made to exist in the installation else only at
+</I>&gt;<i> packaging time.
+</I>
+How about a resource called panel.xml or panelconfigspec.xml that would 
+contain attributes for several panels?  The reason I am bringing this up is 
+I'm working on several panels that need something like 2-4 config options, 
+and it is a bit frustrating to have a lot of files that have only 2-3 or so 
+config options.
+
+&gt;<i> Also other panels or custom actions uses an own xml file. It is common to
+</I>&gt;<i> give them a
+</I>&gt;<i> name which has an association to the used class which use it; see
+</I>&gt;<i> shortcutSpec.xml or RegistrySpec.xml. I think it will be an good idea to
+</I>&gt;<i> write a dtd for it like src/dtd/event/registry.dtd for RegistrySpec.xml.
+</I>&gt;<i> Problems with IzPack are often related with wrong written xml files. If we
+</I>&gt;<i> change from the current xml parser (nanoxml) to one of the VM. Then
+</I>&gt;<i> we would validate the xml files. I know, not all xml files (like the one
+</I>&gt;<i> for the UserInputPanel) has a corresponding dtd, this is not good.
+</I>
+Would there be a problem with creating an extra xml file that SOME panels 
+could use for customization?  That way panels that only need a few attributes 
+set don't need separate files for each panel.  Maybe the file could be names 
+SimplePanelsSpec.xml to emphasize it is ONLY used by panels that have simple 
+configurations and NOT by panels that are more complex.  I'd even be willing 
+to write it up in the docs that way and list the panels that use it.
+
+&gt;<i> &gt; I also edited PasswordPanel to get the panel attributes from this class
+</I>&gt;<i> &gt; instead of reading install.xml directly.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; It's time for sleep, but I thought I'd mention I had this working.  I
+</I>&gt;<i> &gt; can send
+</I>&gt;<i> &gt; you the class once I've had time to clean up the code (way to many
+</I>&gt;<i> &gt; debugging
+</I>&gt;<i> &gt; comments and printouts in there now!).
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I think I read somewhere that there was an intent to not let install.xml
+</I>&gt;<i> &gt; get
+</I>&gt;<i> &gt; too cluttered.  Unless I missed a method somewhere (and I looked
+</I>&gt;<i> &gt; carefully),
+</I>&gt;<i>
+</I>&gt;<i> Yes, install.xml defines the hole installation, not additional data for a
+</I>&gt;<i> custom panel or custom action (if we use the way for panels, the next
+</I>&gt;<i> question
+</I>&gt;<i> will be why not for custom actions). Look into src/dtd/event/antaction.dtd.
+</I>&gt;<i> How to put all the attributes and elements into the &lt;listener&gt; element of
+</I>&gt;<i> install.xml
+</I>&gt;<i>
+</I>&gt;<i> &gt; the class I wrote (PanelAttributes) is the only allowance for reading the
+</I>&gt;<i> &gt; panel attributes.  If more panels are going to use this method of having
+</I>&gt;<i> &gt; attributes in the install.xml file, it seems to me it might be a good
+</I>&gt;<i> &gt; idea if
+</I>&gt;<i> &gt; either the install.xml file is automatically included OR just the
+</I>&gt;<i> &gt; &lt;panels&gt;
+</I>&gt;<i> &gt; section could be extracted and put in /res.
+</I>&gt;<i>
+</I>&gt;<i> There are panels which needs a spec file, most not. It will be good if a
+</I>&gt;<i> spec
+</I>&gt;<i> has a dtd. Therefore we need for each spec one file. I have had until jet
+</I>&gt;<i> no problems to add the one or five  resource line(s) in install.xml for my
+</I>&gt;<i> spec files.
+</I>&gt;<i> There exist a helper class for specs, see
+</I>&gt;<i> com.izforge.izpack.util.SpecHelper.
+</I>&gt;<i> Primary made for custom actions, but also useable from custom panels.
+</I>
+My thought on it, and my focus is for panels that only need a few simple 
+config options.  Do you feel it would be possible to have one combined file 
+for those panels, or better to have a lot of separate files of 2-3 lines 
+each?
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000083.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+	<LI>Next message: <A HREF="000085.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

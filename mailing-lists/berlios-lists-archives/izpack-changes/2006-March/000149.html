@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] izpack-src/src/lib/com/izforge/izpack/compiler CompilerConfig.java,1.9,1.10
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/compiler%20CompilerConfig.java%2C1.9%2C1.10&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000145.html">
+   <LINK REL="Next"  HREF="000146.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] izpack-src/src/lib/com/izforge/izpack/compiler CompilerConfig.java,1.9,1.10</H1>
+    <B>jponge</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/compiler%20CompilerConfig.java%2C1.9%2C1.10&In-Reply-To="
+       TITLE="[izpack-changes] izpack-src/src/lib/com/izforge/izpack/compiler CompilerConfig.java,1.9,1.10">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 21 19:14:50 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000145.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/ant IzPackTask.java,1.19,1.20
+</A></li>
+        <LI>Next message: <A HREF="000146.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/event ProgressBarInstallerListener.java,1.4,1.5 RegistryInstallerListener.java,1.6,1.7 SimpleInstallerListener.java,1.5,1.6 SimpleUninstallerListener.java,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#149">[ date ]</a>
+              <a href="thread.html#149">[ thread ]</a>
+              <a href="subject.html#149">[ subject ]</a>
+              <a href="author.html#149">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/compiler
+In directory sheep:/tmp/cvs-serv3622/src/lib/com/izforge/izpack/compiler
+
+Modified Files:
+	CompilerConfig.java 
+Log Message:
+Some fixes adviced by IntelliJ IDEA 5.1 code inspector.
+
+Index: CompilerConfig.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/compiler/CompilerConfig.java,v
+retrieving revision 1.9
+retrieving revision 1.10
+diff -u -d -r1.9 -r1.10
+--- CompilerConfig.java	12 Mar 2006 16:32:15 -0000	1.9
++++ CompilerConfig.java	21 Mar 2006 18:14:44 -0000	1.10
+@@ -434,7 +434,7 @@
+             // wiil be only observed for the uninstaller.
+             String stage = el.getAttribute(&quot;stage&quot;);
+             if (stage != null
+-                    &amp;&amp; (stage.equalsIgnoreCase(&quot;both&quot;) || stage.equalsIgnoreCase(&quot;uninstall&quot;)))
++                    &amp;&amp; (&quot;both&quot;.equalsIgnoreCase(stage) || &quot;uninstall&quot;.equalsIgnoreCase(stage)))
+             {
+                 CustomData ca = new CustomData(null, getContainedFilePaths(url), null,
+                         CustomData.UNINSTALLER_JAR);
+@@ -473,7 +473,7 @@
+             String stage = el.getAttribute(&quot;stage&quot;);
+             List constraints = OsConstraint.getOsList(el);
+             if (stage != null
+-                    &amp;&amp; (stage.equalsIgnoreCase(&quot;both&quot;) || stage.equalsIgnoreCase(&quot;uninstall&quot;)))
++                    &amp;&amp; (&quot;both&quot;.equalsIgnoreCase(stage) || &quot;uninstall&quot;.equalsIgnoreCase(stage)))
+             {
+                 ArrayList al = new ArrayList();
+                 al.add(name);
+@@ -1007,7 +1007,6 @@
+             }
+             catch (Exception e)
+             {
+-                ;
+             }
+             if (fullClassName != null)
+                 panel.className = fullClassName;
+@@ -1399,23 +1398,23 @@
+         String override_val = f.getAttribute(&quot;override&quot;);
+         if (override_val != null)
+         {
+-            if (override_val.equalsIgnoreCase(&quot;true&quot;))
++            if (&quot;true&quot;.equalsIgnoreCase(override_val))
+             {
+                 override = PackFile.OVERRIDE_TRUE;
+             }
+-            else if (override_val.equalsIgnoreCase(&quot;false&quot;))
++            else if (&quot;false&quot;.equalsIgnoreCase(override_val))
+             {
+                 override = PackFile.OVERRIDE_FALSE;
+             }
+-            else if (override_val.equalsIgnoreCase(&quot;asktrue&quot;))
++            else if (&quot;asktrue&quot;.equalsIgnoreCase(override_val))
+             {
+                 override = PackFile.OVERRIDE_ASK_TRUE;
+             }
+-            else if (override_val.equalsIgnoreCase(&quot;askfalse&quot;))
++            else if (&quot;askfalse&quot;.equalsIgnoreCase(override_val))
+             {
+                 override = PackFile.OVERRIDE_ASK_FALSE;
+             }
+-            else if (override_val.equalsIgnoreCase(&quot;update&quot;))
++            else if (&quot;update&quot;.equalsIgnoreCase(override_val))
+             {
+                 override = PackFile.OVERRIDE_UPDATE;
+             }
+@@ -1646,8 +1645,8 @@
+             throws CompilerException
+     {
+         String value = requireAttribute(element, attribute);
+-        if (value.equalsIgnoreCase(&quot;yes&quot;)) return true;
+-        if (value.equalsIgnoreCase(&quot;no&quot;)) return false;
++        if (&quot;yes&quot;.equalsIgnoreCase(value)) return true;
++        if (&quot;no&quot;.equalsIgnoreCase(value)) return false;
+ 
+         parseError(element, &quot;&lt;&quot; + element.getName() + &quot;&gt; invalid attribute '&quot; + attribute
+                 + &quot;': Expected (yes|no)&quot;);
+@@ -1669,8 +1668,8 @@
+         if (element == null) return defaultValue;
+ 
+         String value = element.getAttribute(attribute, (defaultValue ? &quot;yes&quot; : &quot;no&quot;));
+-        if (value.equalsIgnoreCase(&quot;yes&quot;)) return true;
+-        if (value.equalsIgnoreCase(&quot;no&quot;)) return false;
++        if (&quot;yes&quot;.equalsIgnoreCase(value)) return true;
++        if (&quot;no&quot;.equalsIgnoreCase(value)) return false;
+ 
+         // TODO: should this be an error if it's present but &quot;none of the
+         // above&quot;?
+@@ -1731,7 +1730,7 @@
+             Compiler.setIzpackHome(home);
+ 
+             // The users wants to know the command line parameters
+-            if (args[0].equalsIgnoreCase(&quot;-?&quot;))
++            if (&quot;-?&quot;.equalsIgnoreCase(args[0]))
+             {
+                 System.out.println(&quot;-&gt; Command line parameters are : (xml file) [args]&quot;);
+                 System.out.println(&quot;   (xml file): the xml file describing the installation&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000145.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/ant IzPackTask.java,1.19,1.20
+</A></li>
+	<LI>Next message: <A HREF="000146.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/event ProgressBarInstallerListener.java,1.4,1.5 RegistryInstallerListener.java,1.6,1.7 SimpleInstallerListener.java,1.5,1.6 SimpleUninstallerListener.java,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#149">[ date ]</a>
+              <a href="thread.html#149">[ thread ]</a>
+              <a href="subject.html#149">[ subject ]</a>
+              <a href="author.html#149">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

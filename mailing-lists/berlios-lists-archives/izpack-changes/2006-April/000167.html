@@ -1,0 +1,498 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r190 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/model/files izpack/frontend/model/stages izpack/frontend/view/stages/configure/panels utils
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r190%20-%20in%20izpack-frontend/trunk/src%3A%20izpack/frontend/actions%20izpack/frontend/controller%20izpack/frontend/model/files%20izpack/frontend/model/stages%20izpack/frontend/view/stages/configure/panels%20utils&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000166.html">
+   <LINK REL="Next"  HREF="000168.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r190 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/model/files izpack/frontend/model/stages izpack/frontend/view/stages/configure/panels utils</H1>
+    <B>gumbo at BerliOS</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r190%20-%20in%20izpack-frontend/trunk/src%3A%20izpack/frontend/actions%20izpack/frontend/controller%20izpack/frontend/model/files%20izpack/frontend/model/stages%20izpack/frontend/view/stages/configure/panels%20utils&In-Reply-To="
+       TITLE="[izpack-changes] r190 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/model/files izpack/frontend/model/stages izpack/frontend/view/stages/configure/panels utils">gumbo at berlios.de
+       </A><BR>
+    <I>Tue Apr 11 01:24:02 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000166.html">[izpack-changes] r189 - in izpack-frontend/trunk/src: . izpack/frontend/view/stages/configure/panels utils
+</A></li>
+        <LI>Next message: <A HREF="000168.html">[izpack-changes] r191 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/view/mode izpack/frontend/view/stages izpack/frontend/view/stages/compile utils
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#167">[ date ]</a>
+              <a href="thread.html#167">[ thread ]</a>
+              <a href="subject.html#167">[ subject ]</a>
+              <a href="author.html#167">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gumbo
+Date: 2006-04-11 01:23:36 +0200 (Tue, 11 Apr 2006)
+New Revision: 190
+
+Modified:
+   izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java
+   izpack-frontend/trunk/src/izpack/frontend/controller/XMLCreator.java
+   izpack-frontend/trunk/src/izpack/frontend/model/files/FileSet.java
+   izpack-frontend/trunk/src/izpack/frontend/model/stages/ConfigurationStageModel.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ConfigurePanel.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLInfo.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLLicense.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/Info.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/JDKPath.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/License.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/NoEditingNecessary.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/NoEditorCreated.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/PreviouslyConfigured.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ShortcutPanel.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/XInfo.java
+   izpack-frontend/trunk/src/utils/XMLAggregator.java
+Log:
+Fixed packs and FileSets - implemented parsing. Worked on generating more correct files, and compiler robustness.
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -32,6 +32,7 @@
+ import org.w3c.dom.Document;
+ 
+ import utils.XML;
++import utils.XMLAggregator;
+ 
+ import com.izforge.izpack.compiler.CompilerConfig;
+ import com.izforge.izpack.compiler.CompilerException;
+@@ -54,10 +55,11 @@
+     }
+     
+     public static void compile(Document xmlFile, String[] installArgs, PackagerListener pl)
+-    {
++    {   
+         StringWriter stringStream = new StringWriter(2000);
+         XML.writeXML(new StreamResult(stringStream), xmlFile);
+         
++        //TODO Make this configurable
+         XML.writeXML(installArgs[2] + &quot;.xml&quot;, xmlFile);
+      
+         System.out.println(&quot;Starting compiler&quot;);
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/controller/XMLCreator.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/controller/XMLCreator.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/controller/XMLCreator.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -31,6 +31,7 @@
+ import org.w3c.dom.Element;
+ 
+ import utils.XML;
++import utils.XMLAggregator;
+ 
+ public class XMLCreator
+ {
+@@ -57,14 +58,13 @@
+         root.setAttribute(&quot;version&quot;, &quot;1.0&quot;);
+         
+         doc.appendChild(root);
+-
+-        System.out.println(xmlChunks.size());
++        
+         for (Element elem : xmlChunks)
+         {            
+             root.appendChild(elem);
+         }
+         
+-        return doc;
++        return XMLAggregator.aggregateDocument(doc);
+     }
+     
+     /**
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/model/files/FileSet.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/model/files/FileSet.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/model/files/FileSet.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -34,6 +34,7 @@
+ import org.w3c.dom.Element;
+ import org.w3c.dom.NamedNodeMap;
+ import org.w3c.dom.Node;
++import org.w3c.dom.NodeList;
+ 
+ import utils.XML;
+ 
+@@ -43,7 +44,7 @@
+ public class FileSet extends PackFileModel implements ListModel
+ {
+     public boolean caseSensitive = true, defaultExcludes = true;
+-    private ArrayList files = new ArrayList();
++    private ArrayList&lt;Set&gt; files = new ArrayList&lt;Set&gt;();
+ 
+     /* (non-Javadoc)
+      * @see izpack.frontend.model.files.PackElement#writeXML()
+@@ -93,6 +94,38 @@
+         
+         if (attributes.getNamedItem(&quot;defaultexcludes&quot;) != null)
+             defaultExcludes = yesNoBoolean(attributes.getNamedItem(&quot;defaultexcludes&quot;).getNodeValue());
++        
++        //TODO implement Set loading
++        NodeList children = elementNode.getChildNodes();
++        
++        for (int i = 0; i &lt; children.getLength(); i++)
++        {
++            Node child = children.item(i);
++            
++            if (child.getNodeType() == Node.ELEMENT_NODE)
++            {
++                if (child.getNodeName().equals(&quot;include&quot;))
++                {                    
++                    String include = child.getAttributes().getNamedItem(&quot;name&quot;).getNodeValue();
++                    
++                    if (include != null)
++                    {
++                        files.add(new Include(include));
++                    }
++                    //TODO throw malformed XML error here
++                }
++                else if (child.getNodeName().equals(&quot;exclude&quot;))
++                {                    
++                    String exclude = child.getAttributes().getNamedItem(&quot;name&quot;).getNodeValue();
++                    
++                    if (exclude != null)
++                    {
++                        files.add(new Exclude(exclude));
++                    }
++                    //TODO throw malformed XML error here
++                }
++            }
++        }
+     }
+ 
+     
+@@ -273,5 +306,5 @@
+         }
+     }
+     
+-    private ArrayList dataListeners = new ArrayList();
++    private ArrayList&lt;ListDataListener&gt; dataListeners = new ArrayList&lt;ListDataListener&gt;();
+ }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/model/stages/ConfigurationStageModel.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/model/stages/ConfigurationStageModel.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/model/stages/ConfigurationStageModel.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -31,6 +31,7 @@
+ 
+ import org.w3c.dom.Document;
+ import org.w3c.dom.Element;
++import org.w3c.dom.NodeList;
+ 
+ import com.jgoodies.binding.beans.Model;
+ 
+@@ -57,11 +58,14 @@
+         //TODO Create the interesting XML data
+         for (ConfigurePanel editor : editors)
+         {
+-            Element xml = editor.createXML(doc);
++            Element[] xml = editor.createXML(doc);
+             
+             if (xml != null)
+-            {   
+-                editorXML.add(xml);
++            {       
++                for (int i = 0; i &lt; xml.length; i++)
++                {
++                    editorXML.add(xml[i]);
++                }                
+             }
+         }        
+         
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ConfigurePanel.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ConfigurePanel.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ConfigurePanel.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -36,9 +36,9 @@
+      *  Create an XML segment for the install file to be compiled.  Follows the DTD.
+      * @param doc TODO
+      * 
+-     *  @return An Element that forms the current XML tree
++     *  @return An Element array that contains elements for the current XML tree
+      */
+-    public Element createXML(Document doc);
++    public Element[] createXML(Document doc);
+     
+     /**
+      *	Initialize panel values from a ready-to-compile installer file.  The panel must
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLInfo.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLInfo.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLInfo.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -75,11 +75,11 @@
+         }
+     }
+ 
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     { 
+         Element root = XML.createResourceTree(&quot;HTMLInfoPanel.info&quot;, filename, doc);        
+         
+-        return root;
++        return new Element[]{root};
+     }
+ 
+     public void initFromXML(Document xmlFile)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLLicense.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLLicense.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLLicense.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -71,11 +71,11 @@
+         }
+     }
+ 
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     { 
+         Element root = XML.createResourceTree(&quot;HTMLLicencePanel.licence&quot;, filename, doc);        
+         
+-        return root;
++        return new Element[]{root};
+     }
+ 
+     public void initFromXML(Document xmlFile)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/Info.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/Info.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/Info.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -64,11 +64,11 @@
+         this.filename = filename;
+     }
+ 
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     { 
+         Element root = XML.createResourceTree(&quot;InfoPanel.info&quot;, filename, doc);        
+         
+-        return root;
++        return new Element[]{root};
+     }
+ 
+     public void initFromXML(Document xmlFile)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/JDKPath.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/JDKPath.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/JDKPath.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -67,7 +67,7 @@
+         bg.add(no);
+     }
+     
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     {
+         Element root = XML.createElement(&quot;variables&quot;, doc);
+         
+@@ -93,7 +93,7 @@
+         maxVerElem.setAttribute(&quot;value&quot;, maxVer.getText());
+         root.appendChild(maxVerElem);
+         
+-        return root;
++        return new Element[]{root};
+     }
+ 
+     public void initFromXML(Document xmlFile)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/License.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/License.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/License.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -64,11 +64,11 @@
+         this.filename = filename;
+     }
+ 
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     { 
+         Element root = XML.createResourceTree(&quot;LicencePanel.licence&quot;, filename, doc);        
+         
+-        return root;
++        return new Element[]{root};
+     }
+ 
+     public void initFromXML(Document xmlFile)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/NoEditingNecessary.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/NoEditingNecessary.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/NoEditingNecessary.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -36,7 +36,7 @@
+         add(new JLabel(&quot;No configuration is necessary for this panel&quot;));
+     }
+     
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     {
+         // TODO Auto-generated method stub
+         return null;
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/NoEditorCreated.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/NoEditorCreated.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/NoEditorCreated.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -36,7 +36,7 @@
+         add(new JLabel(&quot;No editor has been created for this panel&quot;));
+     }
+     
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     {
+         // TODO Auto-generated method stub
+         return null;
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/PreviouslyConfigured.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/PreviouslyConfigured.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/PreviouslyConfigured.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -36,7 +36,7 @@
+         add(new JLabel(&quot;This panel was previously configured. Make any changes there.&quot;));
+     }
+     
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     {
+         // TODO Auto-generated method stub
+         return null;
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ShortcutPanel.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ShortcutPanel.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ShortcutPanel.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -203,7 +203,7 @@
+         return completePanel;
+     }
+ 
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     {
+         //Windows, Unix, Mac when implemented
+         Document[] docs = model.writeXML();
+@@ -215,22 +215,14 @@
+         //Create the resources specs, and native library stuff
+         
+         
+-        Element root = XML.createElement(&quot;installation&quot;, doc);
+-        root.setAttribute(&quot;version&quot;, &quot;1.0&quot;);
+-        
+         Element winResources = XML.createResourceTree(&quot;shortcutSpec.xml&quot;, &quot;shortcutSpec_Windows.xml&quot;, doc);
+-        Element unixResources = XML.createResourceTree(&quot;Unix_shortcutSpec.xml&quot;, &quot;shortcutSpec_Unix.xml&quot;, doc);
++        Element unixResources = XML.createResourceTree(&quot;Unix_shortcutSpec.xml&quot;, &quot;shortcutSpec_Unix.xml&quot;, doc);        
+         
+-        root.appendChild(winResources);
+-        root.appendChild(unixResources);
+-        
+         Element nativeLib = XML.createElement(&quot;native&quot;, doc);
+         nativeLib.setAttribute(&quot;type&quot;, &quot;izpack&quot;);
+         nativeLib.setAttribute(&quot;name&quot;, &quot;ShellLink.dll&quot;);
+         
+-        root.appendChild(nativeLib);
+-        
+-        return root;
++        return new Element[]{winResources, unixResources, nativeLib};
+     }
+     
+     public void initFromXML(Document xmlFile)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/XInfo.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/XInfo.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/XInfo.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -77,9 +77,9 @@
+      * 	&lt;res ...&gt;
+      * &lt;/resources&gt;
+      */
+-    public Element createXML(Document doc)
++    public Element[] createXML(Document doc)
+     {   
+-        return XML.createResourceTree(&quot;XInfoPanel.info&quot;, filename, doc);
++        return new Element[]{XML.createResourceTree(&quot;XInfoPanel.info&quot;, filename, doc)};
+     }
+ 
+     /* (non-Javadoc)
+
+Modified: izpack-frontend/trunk/src/utils/XMLAggregator.java
+===================================================================
+--- izpack-frontend/trunk/src/utils/XMLAggregator.java	2006-04-10 15:29:20 UTC (rev 189)
++++ izpack-frontend/trunk/src/utils/XMLAggregator.java	2006-04-10 23:23:36 UTC (rev 190)
+@@ -27,23 +27,21 @@
+  */
+ public class XMLAggregator
+ {
+-    public XMLAggregator(Document doc)
++    public static Document aggregateDocument(Document doc)
+     {
+         Node root = doc.getDocumentElement();
+         
+         ArrayList&lt;MergeableElements&gt; duplicates = findCombinableNodes(root);
+         
+-        System.out.println(duplicates);
+-        
+         for (MergeableElements elements : duplicates)
+         {
+             elements.merge();
+         }
+         
+-        XML.printXML(doc);        
++        return doc;        
+     }
+ 
+-    private ArrayList&lt;MergeableElements&gt; findCombinableNodes(Node root)
++    private static ArrayList&lt;MergeableElements&gt; findCombinableNodes(Node root)
+     {        
+         
+         ArrayList&lt;MergeableElements&gt; duplicates = new ArrayList&lt;MergeableElements&gt;();
+@@ -76,7 +74,7 @@
+         return duplicates;
+     }
+     
+-    private boolean areNodesEqual(Node n1, Node n2)
++    private static boolean areNodesEqual(Node n1, Node n2)
+     {
+         if (! n1.getNodeName().equals(n2.getNodeName()))
+             return false;
+@@ -113,7 +111,7 @@
+         return true;
+     }
+     
+-    private class MergeableElements
++    private static class MergeableElements
+     {
+         public MergeableElements(Node n1, Node n2)
+         {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000166.html">[izpack-changes] r189 - in izpack-frontend/trunk/src: . izpack/frontend/view/stages/configure/panels utils
+</A></li>
+	<LI>Next message: <A HREF="000168.html">[izpack-changes] r191 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/view/mode izpack/frontend/view/stages izpack/frontend/view/stages/compile utils
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#167">[ date ]</a>
+              <a href="thread.html#167">[ thread ]</a>
+              <a href="subject.html#167">[ subject ]</a>
+              <a href="author.html#167">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

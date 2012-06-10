@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Maven IzPack 3.8.0 standalone plugin issues
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Maven%20IzPack%203.8.0%20standalone%20plugin%20issues&In-Reply-To=200512140331.jBE3VNYP025807%40mail841.megamailservers.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000054.html">
+   <LINK REL="Next"  HREF="000059.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Maven IzPack 3.8.0 standalone plugin issues</H1>
+    <B>Delfina Gonzalez</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Maven%20IzPack%203.8.0%20standalone%20plugin%20issues&In-Reply-To=200512140331.jBE3VNYP025807%40mail841.megamailservers.com"
+       TITLE="[izpack-users] Maven IzPack 3.8.0 standalone plugin issues">delfina at observant.com.au
+       </A><BR>
+    <I>Mon Jan  9 02:36:52 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000054.html">[izpack-users] list box in a custom panel
+</A></li>
+        <LI>Next message: <A HREF="000059.html">[izpack-users] Bash script not runnig even though it was with executable permission
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I figured as much, thanks. I wonder why Shell.dll has been ommitted?
+
+Anyway, if I repackage the JAR with the DLL or omit the ShortcutsPanel 
+and its resources I now get the ambiguous build error:
+    org.apache.tools.zip.ZipOutputStream.&lt;init&gt;(Ljava/io/File;)V
+
+Debug stack trace offers a bit more info:
+
+java.lang.NoSuchMethodError: 
+org.apache.tools.zip.ZipOutputStream.&lt;init&gt;(Ljava/io/File;)V
+        at 
+com.izforge.izpack.util.JarOutputStream.&lt;init&gt;(JarOutputStream.java:104)
+        at 
+com.izforge.izpack.compiler.Packager.getJarOutputStream(Packager.java:649)
+        at 
+com.izforge.izpack.compiler.Packager.createInstaller(Packager.java:171)
+        at 
+com.izforge.izpack.compiler.Compiler.createInstaller(Compiler.java:248)
+        at 
+com.izforge.izpack.compiler.CompilerConfig.executeCompiler(CompilerConfig.java:320)
+        at com.izforge.izpack.ant.IzPackTask.execute(IzPackTask.java:234)
+        at org.apache.tools.ant.Task.perform(Task.java:341)
+        at org.apache.commons.jelly.tags.ant.AntTag.doTag(AntTag.java:185)
+        at org.apache.commons.jelly.impl.TagScript.run(TagScript.java:279)
+        at 
+org.apache.commons.jelly.impl.ScriptBlock.run(ScriptBlock.java:135)
+        at 
+org.apache.maven.jelly.tags.werkz.MavenGoalTag.runBodyTag(MavenGoalTag.java:79)
+        at 
+org.apache.maven.jelly.tags.werkz.MavenGoalTag$MavenGoalAction.performAction(MavenGoalTag.java:110)
+        at com.werken.werkz.Goal.fire(Goal.java:639)
+        at com.werken.werkz.Goal.attain(Goal.java:575)
+        at 
+org.apache.maven.plugin.PluginManager.attainGoals(PluginManager.java:671)
+        at org.apache.maven.MavenSession.attainGoals(MavenSession.java:263)
+        at org.apache.maven.cli.App.doMain(App.java:488)
+        at org.apache.maven.cli.App.main(App.java:1239)
+        at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at 
+sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+        at 
+sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:324)
+        at com.werken.forehead.Forehead.run(Forehead.java:551)
+        at com.werken.forehead.Forehead.main(Forehead.java:581)
+
+
+
+Joe Favero wrote:
+&gt;<i> Yes
+</I>&gt;<i> 
+</I>&gt;<i> I ran into this and simply repackaged the standalone-compiler.jar with the
+</I>&gt;<i> ShellLink.dll.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Thanx Joe
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]
+</I>&gt;<i> On Behalf Of Delfina Gonzalez
+</I>&gt;<i> Sent: Tuesday, December 13, 2005 6:19 PM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-users] Maven IzPack 3.8.0 standalone plugin doesn't include
+</I>&gt;<i> ShellLink.dll
+</I>&gt;<i> 
+</I>&gt;<i> Hi all
+</I>&gt;<i> 
+</I>&gt;<i> Has anyone else experienced this problem upgrading from 3.7 to 3.8?
+</I>&gt;<i> &quot;Native Library not found: bin\native\izpack\ShellLink.dll&quot;
+</I>&gt;<i> 
+</I>&gt;<i> Reverting back to the 3.7 plugin works fine, but as I need some of the new
+</I>&gt;<i> functionality in 3.8 I'd greatly appreciate any help.
+</I>&gt;<i> 
+</I>&gt;<i> Thanks
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000054.html">[izpack-users] list box in a custom panel
+</A></li>
+	<LI>Next message: <A HREF="000059.html">[izpack-users] Bash script not runnig even though it was with executable permission
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

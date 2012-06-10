@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Problem with the os attribute 'windows'
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problem%20with%20the%20os%20attribute%20%27windows%27&In-Reply-To=200602271741.32927.news%40s-th.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000285.html">
+   <LINK REL="Next"  HREF="000288.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Problem with the os attribute 'windows'</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problem%20with%20the%20os%20attribute%20%27windows%27&In-Reply-To=200602271741.32927.news%40s-th.de"
+       TITLE="[izpack-users] Problem with the os attribute 'windows'">bartzkau at gmx.net
+       </A><BR>
+    <I>Mon Feb 27 18:58:27 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000285.html">[izpack-users] Problem with the os attribute 'windows'
+</A></li>
+        <LI>Next message: <A HREF="000288.html">[izpack-users] Martina Albrecht/Curiavant ist au&#223;er Haus.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#287">[ date ]</a>
+              <a href="thread.html#287">[ thread ]</a>
+              <a href="subject.html#287">[ subject ]</a>
+              <a href="author.html#287">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Thilo,
+in the moment unfortunately not. The used xml parser (nanoxml)
+is not able to validate but will crash often if a dtd is referenced
+in install.xml.
+For a while we have discussed it but not implemented. It will be not only
+the usage of an other xml parser because if we change it we would also
+validate the other xml files like e.g. the one for the short cuts or the
+UserInputPanel. That will be a little bit tricky because they are
+not parsed at compile (package time).
+Validating all the xml files is on the todo list for new IzPack
+versions. But I do not know at what time we can realize it.
+
+Cheers
+
+Klaus
+
+Am 27.02.2006, 17:41 Uhr, schrieb Thilo Schwarz (News) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">news at s-th.de</A>&gt;:
+
+&gt;<i> Thanks a lot for helping, Klaus and Trasher!
+</I>&gt;<i>
+</I>&gt;<i> The problem was between my ears! ;-) Although I had a look at the DTD, I
+</I>&gt;<i> didn't see this little difference!
+</I>&gt;<i>
+</I>&gt;<i> BTW: Isn't there any way to integrate the dtd in the installer xml,
+</I>&gt;<i> without crashing the comiple step?
+</I>&gt;<i>
+</I>&gt;<i> @developer: A very nice peace of software!
+</I>&gt;<i>
+</I>&gt;<i> Regards,
+</I>&gt;<i> Thilo
+</I>&gt;<i>
+</I>&gt;<i> Am Montag, 27. Februar 2006 15:46 schrieb Klaus Bartz:
+</I>&gt;&gt;<i> Hi Thilo,
+</I>&gt;&gt;<i> &quot;linux&quot; is not valid for the OS attribute, you can only use
+</I>&gt;&gt;<i> &quot;windows&quot; &quot;unix&quot; or &quot;mac&quot;. It determine the family of OS.
+</I>&gt;&gt;<i> If no valid family was declared, it is assumed as no setted OS which
+</I>&gt;&gt;<i> means it should be installed on all OSs.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> You can use the element OS for more detail; e.g.
+</I>&gt;&gt;<i>          &lt;pack name=&quot;WINCore&quot; required=&quot;yes&quot;&gt;
+</I>&gt;&gt;<i>              &lt;description&gt;The Windows XP InstallTest core
+</I>&gt;&gt;<i> files.&lt;/description&gt;
+</I>&gt;&gt;<i>              &lt;os family=&quot;windows&quot; name=&quot;windows xp&quot; /&gt;
+</I>&gt;&gt;<i>              &lt;file src=&quot;WindowsXPCore.txt&quot; targetdir=&quot;$INSTALL_PATH&quot;
+</I>&gt;&gt;<i> /&gt; &lt;/pack&gt;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> &quot;name&quot; is the value which will be returned by
+</I>&gt;&gt;<i> System.getProperty(&quot;os.name&quot;).
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Some weeks ago someone
+</I>&gt;&gt;<i> has posted an actual list of valid OS names, but in the moment I cannot
+</I>&gt;&gt;<i> find the mail. One of the email threads related to OS  has had the
+</I>&gt;&gt;<i> title &quot;Specifiying Required Packs and OSs&quot;.
+</I>&gt;&gt;<i> Or look into the docu and dtd.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Cheers
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Am 27.02.2006, 14:48 Uhr, schrieb Thilo Schwarz (News) &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">news at s-th.de</A>&gt;:
+</I>&gt;&gt;<i> &gt; Hi there!
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; I've a problem with the os attribute in the pack tag and the fileset
+</I>&gt;&gt;<i> &gt; tag. I'm currently working on a swt based application. Therefore I
+</I>&gt;&gt;<i> &gt; need to distribute different swt files on different os'. I've tested
+</I>&gt;&gt;<i> &gt; 2 ways.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; 1st way:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; &lt;pack name=&quot;SWT files&quot; required=&quot;yes&quot;&gt;
+</I>&gt;&gt;<i> &gt;      &lt;description&gt;The SWT files&lt;/description&gt;
+</I>&gt;&gt;<i> &gt;           &lt;fileset dir=&quot;packs/swt/unzip/linux-gtk&quot;
+</I>&gt;&gt;<i> &gt;                         targetdir=&quot;$INSTALL_PATH/lib/swt&quot;
+</I>&gt;&gt;<i> &gt; os=&quot;linux&quot;/&gt; &lt;fileset dir=&quot;packs/swt/unzip/win32&quot;
+</I>&gt;&gt;<i> &gt;                         targetdir=&quot;$INSTALL_PATH/lib/swt&quot;
+</I>&gt;&gt;<i> &gt; os=&quot;windows&quot;/&gt; &lt;/pack&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; 2nd way:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; &lt;pack name=&quot;SWT files for linux&quot; required=&quot;yes&quot; os=&quot;linux&quot;&gt;
+</I>&gt;&gt;<i> &gt;      &lt;description&gt;The SWT files for linux&lt;/description&gt;
+</I>&gt;&gt;<i> &gt;      &lt;fileset dir=&quot;packs/swt/unzip/linux-gtk&quot;
+</I>&gt;&gt;<i> &gt;           targetdir=&quot;$INSTALL_PATH/lib/swt&quot;/&gt;
+</I>&gt;&gt;<i> &gt; &lt;/pack&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; &lt;pack name=&quot;SWT files for windows&quot; required=&quot;yes&quot; os=&quot;windows&quot;&gt;
+</I>&gt;&gt;<i> &gt;      &lt;description&gt;The SWT files for windows&lt;/description&gt;
+</I>&gt;&gt;<i> &gt;      &lt;fileset dir=&quot;packs/swt/unzip/win32&quot;
+</I>&gt;&gt;<i> &gt;           targetdir=&quot;$INSTALL_PATH/lib/swt&quot;/&gt;
+</I>&gt;&gt;<i> &gt; &lt;/pack&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; Both ways are working as expected on linux, but on windows (tested on
+</I>&gt;&gt;<i> &gt; XP (SP2) and 2k (SP4a)) I get all swt files for windows and linux in
+</I>&gt;&gt;<i> &gt; my lib/swt directory. BTW: I've checked the unzip directories! ;-)
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; Am I wrong or stupid? (If so, please give me a hit on my head!) Or
+</I>&gt;&gt;<i> &gt; did I found a bug? How can I debug this!
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; Every hint and help are welcome.
+</I>&gt;&gt;<i> &gt; Cheers,
+</I>&gt;&gt;<i> &gt; Thilo
+</I>&gt;&gt;<i> &gt; _______________________________________________
+</I>&gt;&gt;<i> &gt; izpack-users mailing list
+</I>&gt;&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt; <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; __________ NOD32 1.1419 (20060226) Information __________
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; Diese E-Mail wurde vom NOD32 Antivirus System gepr&#252;ft
+</I>&gt;&gt;<i> &gt; <A HREF="http://www.nod32.com">http://www.nod32.com</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> __________ NOD32 1.1419 (20060226) Information __________
+</I>&gt;<i>
+</I>&gt;<i> Diese E-Mail wurde vom NOD32 Antivirus System gepr&#252;ft
+</I>&gt;<i> <A HREF="http://www.nod32.com">http://www.nod32.com</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+
+-- 
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000285.html">[izpack-users] Problem with the os attribute 'windows'
+</A></li>
+	<LI>Next message: <A HREF="000288.html">[izpack-users] Martina Albrecht/Curiavant ist au&#223;er Haus.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#287">[ date ]</a>
+              <a href="thread.html#287">[ thread ]</a>
+              <a href="subject.html#287">[ subject ]</a>
+              <a href="author.html#287">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

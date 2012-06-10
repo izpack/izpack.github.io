@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] IzPack installer and uninstaller evolution...
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20IzPack%20installer%20and%20uninstaller%20evolution...&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001232.html">
+   <LINK REL="Next"  HREF="001233.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] IzPack installer and uninstaller evolution...</H1>
+    <B>Gildas Le-Louarn</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20IzPack%20installer%20and%20uninstaller%20evolution...&In-Reply-To="
+       TITLE="[izpack-devel] IzPack installer and uninstaller evolution...">gildas.le-louarn at aptus.fr
+       </A><BR>
+    <I>Fri Sep 21 09:51:15 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001232.html">[izpack-devel] [Patch] No chmod on JAR type
+</A></li>
+        <LI>Next message: <A HREF="001233.html">[izpack-devel] IzPack installer and uninstaller evolution...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1231">[ date ]</a>
+              <a href="thread.html#1231">[ thread ]</a>
+              <a href="subject.html#1231">[ subject ]</a>
+              <a href="author.html#1231">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+
+ 
+
+New member of the list, I use IzPack since six month for a Java based
+application deployment. Because I had some particular requirements, I
+realized some minor evolution of IzPack.
+
+ 
+
+My first constraint is that I need to define some &quot;pack&quot; that shouldn't be
+removed during uninstall (in our case the jre). To do so, I update
+installation.dtd adding a new &quot;pack&quot; attribute:
+
+ 
+
+&lt;!ATTLIST pack uninstall (yes|no) &quot;yes&quot;&gt;
+
+ 
+
+By default, if attribute isn't defined or set to yes, referenced pack is
+uninstalled. If set to false, pack isn't removed during uninstall (except if
+uninstaller force option is activated).
+
+ 
+
+As a consequence, I need to forbid force uninstall option to final user. To
+do so, I update uninstaller parameters as follow:
+
+ 
+
+For console uninstaller &quot;-c&quot;, no changes. By default, uninstall doesn't
+force deletion. If &quot;-f&quot; force uninstall is activated.
+
+ 
+
+For frame uninstaller:
+
+- by default, final user see the force deletion checkbox except if &quot;-x&quot;
+option is set
+
+- by default, force deletion isn't activated except if &quot;-f&quot; option is set
+
+ 
+
+I realize modifications on 3.10.2 revision:
+&lt;<A HREF="http://svn.berlios.de/svnroot/repos/izpack/izpack-src/tags/3.10.2">http://svn.berlios.de/svnroot/repos/izpack/izpack-src/tags/3.10.2</A>&gt;
+<A HREF="http://svn.berlios.de/svnroot/repos/izpack/izpack-src/tags/3.10.2.">http://svn.berlios.de/svnroot/repos/izpack/izpack-src/tags/3.10.2.</A> The patch
+file in attachment defines all modifications I have done to realize
+presented modifications.
+
+ 
+
+Expecting you can integrate my modification in the official release, don't
+hesitate to contact me form more information.
+
+ 
+
+Cordially.
+
+ 
+
+Gildas Le Louarn.
+
+ 
+
+ 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070921/5295ec19/attachment-0001.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070921/5295ec19/attachment-0001.html</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: izpack-3.10.2-patch-gln
+Type: application/octet-stream
+Size: 17718 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070921/5295ec19/attachment-0001.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070921/5295ec19/attachment-0001.obj</A> 
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001232.html">[izpack-devel] [Patch] No chmod on JAR type
+</A></li>
+	<LI>Next message: <A HREF="001233.html">[izpack-devel] IzPack installer and uninstaller evolution...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1231">[ date ]</a>
+              <a href="thread.html#1231">[ thread ]</a>
+              <a href="subject.html#1231">[ subject ]</a>
+              <a href="author.html#1231">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

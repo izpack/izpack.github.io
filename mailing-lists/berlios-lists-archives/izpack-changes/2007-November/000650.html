@@ -1,0 +1,445 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1904 - in izpack-src/trunk/src: dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1904%20-%20in%20izpack-src/trunk/src%3A%20dtd%0A%09lib/com/izforge/izpack%20lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000649.html">
+   <LINK REL="Next"  HREF="000651.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1904 - in izpack-src/trunk/src: dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1904%20-%20in%20izpack-src/trunk/src%3A%20dtd%0A%09lib/com/izforge/izpack%20lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1904 - in izpack-src/trunk/src: dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Fri Nov 16 13:40:17 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000649.html">[izpack-changes] r1903 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000651.html">[izpack-changes] r1905 - in izpack-src/trunk/src: dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#650">[ date ]</a>
+              <a href="thread.html#650">[ thread ]</a>
+              <a href="subject.html#650">[ subject ]</a>
+              <a href="author.html#650">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-16 13:40:11 +0100 (Fri, 16 Nov 2007)
+New Revision: 1904
+
+Modified:
+   izpack-src/trunk/src/dtd/installation.dtd
+   izpack-src/trunk/src/lib/com/izforge/izpack/ExecutableFile.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/ParsableFile.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+Log:
+added condition support in installation.xml
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2007-11-16 12:26:14 UTC (rev 1903)
++++ izpack-src/trunk/src/dtd/installation.dtd	2007-11-16 12:40:11 UTC (rev 1904)
+@@ -10,7 +10,7 @@
+ --&gt;
+ 
+ &lt;!-- The root element --&gt;
+-&lt;!ELEMENT installation (preinstall?, info, properties?, variables?, 
++&lt;!ELEMENT installation (preinstall?, info, packaging?, properties?, variables?, 
+                         guiprefs?, locale, resources?, panels,
+                         listeners?, packs, jar*, native*, postinstall?)&gt;
+     &lt;!ATTLIST installation version CDATA #REQUIRED&gt;
+@@ -32,6 +32,15 @@
+     &lt;!ELEMENT webdir (#PCDATA)&gt;
+     &lt;!ELEMENT summarylogfilepath (#PCDATA)&gt;
+ 
++&lt;!ELEMENT packaging (packager, unpacker)&gt;
++&lt;!ELEMENT packager (options)&gt;
++&lt;!ATTLIST packager class CDATA #REQUIRED&gt;
++&lt;!ELEMET options EMPTY&gt;
++&lt;!ATTLIST options volumesize CDATA #IMPLIED&gt;
++&lt;!ATTLIST options firstvolumefreespace CDATA #IMPLIED&gt;
++&lt;!ELEMENT unpacker EMPTY&gt;
++&lt;!ATTLIST unpacker class CDATA #REQUIRED&gt;
++
+ &lt;!-- The properties markup (property declarations) --&gt;
+ &lt;!ELEMENT properties (property*)&gt;
+     &lt;!ELEMENT property EMPTY&gt;
+@@ -117,11 +126,13 @@
+             &lt;!ATTLIST file targetdir CDATA #REQUIRED&gt;
+             &lt;!ATTLIST file os (unix|windows|mac) #IMPLIED&gt;
+             &lt;!ATTLIST file override (true|false|asktrue|askfalse|update) &quot;update&quot;&gt;
++            &lt;!ATTLIST file condition CDATA #IMPLIED&gt;
+         &lt;!ELEMENT singlefile (os*, additionaldata*)&gt;
+             &lt;!ATTLIST singlefile src CDATA #REQUIRED&gt;
+             &lt;!ATTLIST singlefile target CDATA #REQUIRED&gt;
+             &lt;!ATTLIST singlefile os (unix|windows|mac) #IMPLIED&gt;
+             &lt;!ATTLIST singlefile override (true|false|asktrue|askfalse|update) &quot;update&quot;&gt;
++            &lt;!ATTLIST files condition CDATA #IMPLIED&gt;
+     &lt;!ELEMENT fileset (include*, exclude*, os*, additionaldata*)&gt;
+           &lt;!ATTLIST fileset dir CDATA #REQUIRED&gt;
+           &lt;!ATTLIST fileset targetdir CDATA #REQUIRED&gt;  
+@@ -131,6 +142,7 @@
+           &lt;!ATTLIST fileset override (true|false|asktrue|askfalse|update) &quot;update&quot;&gt;
+           &lt;!ATTLIST fileset includes CDATA #IMPLIED&gt;
+           &lt;!ATTLIST fileset excludes CDATA #IMPLIED&gt;
++          &lt;!ATTLIST fileset condition CDATA #IMPLIED&gt;
+       &lt;!ELEMENT include EMPTY&gt;
+             &lt;!ATTLIST include name CDATA #REQUIRED&gt;
+       &lt;!ELEMENT exclude EMPTY&gt;
+@@ -143,6 +155,7 @@
+           &lt;!ATTLIST parsable type CDATA &quot;plain&quot;&gt;
+           &lt;!ATTLIST parsable encoding CDATA #IMPLIED&gt;
+           &lt;!ATTLIST parsable os (unix|windows|mac) #IMPLIED&gt;
++          &lt;!ATTLIST parsable condition CDATA #IMPLIED&gt;
+       &lt;!ELEMENT executable (args?, os*)&gt;
+           &lt;!ATTLIST executable targetfile CDATA #IMPLIED&gt;
+           &lt;!ATTLIST executable class CDATA #IMPLIED&gt;
+@@ -150,6 +163,7 @@
+           &lt;!ATTLIST executable stage (postinstall|never|uninstall) &quot;never&quot;&gt;
+           &lt;!ATTLIST executable failure (abort|warn|ask) &quot;ask&quot;&gt;
+           &lt;!ATTLIST executable keep (true|false) &quot;false&quot;&gt;
++          &lt;!ATTLIST executable condition CDATA #IMPLIED&gt;
+           &lt;!ELEMENT args (arg+)&gt;
+               &lt;!ELEMENT arg EMPTY&gt;
+                   &lt;!ATTLIST arg value CDATA #REQUIRED&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/ExecutableFile.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/ExecutableFile.java	2007-11-16 12:26:14 UTC (rev 1903)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/ExecutableFile.java	2007-11-16 12:40:11 UTC (rev 1904)
+@@ -84,6 +84,9 @@
+      * compatibility.
+      */
+     public boolean keepFile;
++    
++    /** condition for this executable */
++    private String condition = null;
+ 
+     /** Constructs a new uninitialized instance. */
+     public ExecutableFile()
+@@ -167,4 +170,26 @@
+         retval.append(&quot;\n&quot;);
+         return retval.toString();
+     }
++
++    
++    /**
++     * @return the condition
++     */
++    public String getCondition()
++    {
++        return this.condition;
++    }
++
++    
++    /**
++     * @param condition the condition to set
++     */
++    public void setCondition(String condition)
++    {
++        this.condition = condition;
++    }
++    
++    public boolean hasCondition() {
++        return this.condition != null;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java	2007-11-16 12:26:14 UTC (rev 1903)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java	2007-11-16 12:40:11 UTC (rev 1904)
+@@ -102,6 +102,9 @@
+     public String previousPackId = null;
+ 
+     public long offsetInPreviousPack = -1;
++    
++    /** condition for this packfile */
++    private String condition = null;
+ 
+     /**
+      * Constructs and initializes from a source file.
+@@ -256,4 +259,25 @@
+         return additionals;
+     }
+ 
++    
++    /**
++     * @return the condition
++     */
++    public String getCondition()
++    {
++        return this.condition;
++    }
++
++    
++    /**
++     * @param condition the condition to set
++     */
++    public void setCondition(String condition)
++    {
++        this.condition = condition;
++    }
++
++    public boolean hasCondition() {
++        return this.condition != null;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/ParsableFile.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/ParsableFile.java	2007-11-16 12:26:14 UTC (rev 1903)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/ParsableFile.java	2007-11-16 12:40:11 UTC (rev 1904)
+@@ -46,6 +46,9 @@
+ 
+     /** The list of OS constraints limiting file installation. */
+     public List osConstraints = null;
++    
++    /** condition for this Parsable */
++    private String condition = null;
+ 
+     /**
+      * Constructs and initializes a new instance.
+@@ -63,4 +66,26 @@
+         this.osConstraints = osConstraints;
+     }
+ 
++    
++    /**
++     * @return the condition
++     */
++    public String getCondition()
++    {
++        return this.condition;
++    }
++
++    
++    /**
++     * @param condition the condition to set
++     */
++    public void setCondition(String condition)
++    {
++        this.condition = condition;
++    }
++    
++    public boolean hasCondition() {
++        return this.condition != null;
++    }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-16 12:26:14 UTC (rev 1903)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-16 12:40:11 UTC (rev 1904)
+@@ -605,10 +605,7 @@
+             String parent = el.getAttribute(&quot;parent&quot;);
+             
+             String conditionid = el.getAttribute(&quot;condition&quot;);
+-            if ((conditionid != null) &amp;&amp; (id == null)) {
+-                parseError(el,&quot;Pack, which has no id can not have conditions.&quot;);
+-                new Exception(&quot;Pack, which has no id can not have conditions.&quot;);
+-            }
++            
+             if(required &amp;&amp; excludeGroup != null)
+             {
+                 parseError(el, &quot;Pack, which has excludeGroup can not be required.&quot;, 
+@@ -655,8 +652,10 @@
+                 String type = p.getAttribute(&quot;type&quot;, &quot;plain&quot;);
+                 String encoding = p.getAttribute(&quot;encoding&quot;, null);
+                 List osList = OsConstraint.getOsList(p); // TODO: unverified
+-
+-                pack.addParsable(new ParsableFile(target, type, encoding, osList));
++                String condition = p.getAttribute(&quot;condition&quot;);
++                ParsableFile parsable = new ParsableFile(target, type, encoding, osList);
++                parsable.setCondition(condition);
++                pack.addParsable(parsable);
+             }
+ 
+             // We get the executables list
+@@ -666,7 +665,8 @@
+                 XMLElement e = (XMLElement) iter.next();
+                 ExecutableFile executable = new ExecutableFile();
+                 String val; // temp value
+-
++                String condition = e.getAttribute(&quot;condition&quot;);
++                executable.setCondition(condition);
+                 executable.path = requireAttribute(e, &quot;targetfile&quot;);
+ 
+                 // when to execute this executable
+@@ -725,16 +725,17 @@
+                 int override = getOverrideValue(f);
+                 Map additionals = getAdditionals(f);
+                 boolean unpack = src.endsWith(&quot;.zip&quot;) &amp;&amp; &quot;true&quot;.equalsIgnoreCase(f.getAttribute(&quot;unpack&quot;));
+-
++                String condition = f.getAttribute(&quot;condition&quot;);
++                
+                 File file = new File(src);
+                 if (!file.isAbsolute()) file = new File(basedir, src);
+ 
+                 try
+                 {
+                     if (unpack)
+-                        addArchiveContent(baseDir, file, targetdir, osList, override, pack, additionals);
++                        addArchiveContent(baseDir, file, targetdir, osList, override, pack, additionals,condition);
+                     else
+-                        addRecursively(baseDir, file, targetdir, osList, override, pack, additionals);
++                        addRecursively(baseDir, file, targetdir, osList, override, pack, additionals,condition);
+                 }
+                 catch (Exception x)
+                 {
+@@ -752,13 +753,13 @@
+                 List osList = OsConstraint.getOsList(f); // TODO: unverified
+                 int override = getOverrideValue(f);
+                 Map additionals = getAdditionals(f);
+-
++                String condition = f.getAttribute(&quot;condition&quot;);
+                 File file = new File(src);
+                 if (!file.isAbsolute()) file = new File(basedir, src);
+ 
+                 try
+                 {
+-                    pack.addFile(baseDir, file, target, osList, override, additionals);
++                    pack.addFile(baseDir, file, target, osList, override, additionals,condition);
+                 }
+                 catch (FileNotFoundException x)
+                 {
+@@ -784,6 +785,7 @@
+                 List osList = OsConstraint.getOsList(f); // TODO: unverified
+                 int override = getOverrideValue(f);
+                 Map additionals = getAdditionals(f);
++                String condition = f.getAttribute(&quot;condition&quot;);
+ 
+                 // get includes and excludes
+                 Vector xcludesList = null;
+@@ -867,9 +869,7 @@
+                     try
+                     {
+                         String target = new File(targetdir, files[i]).getPath();
+-                        pack
+-                                .addFile(baseDir, new File(dir, files[i]), target, osList, override,
+-                                        additionals);
++                        pack.addFile(baseDir, new File(dir, files[i]), target, osList, override,additionals,condition);
+                     }
+                     catch (FileNotFoundException x)
+                     {
+@@ -881,7 +881,7 @@
+                     try
+                     {
+                         String target = new File(targetdir, dirs[i]).getPath();
+-                        pack.addFile(baseDir, new File(dir, dirs[i]), target, osList, override, additionals);
++                        pack.addFile(baseDir, new File(dir, dirs[i]), target, osList, override, additionals,condition);
+                     }
+                     catch (FileNotFoundException x)
+                     {
+@@ -1117,8 +1117,9 @@
+      * @param override Overriding behaviour.
+      * @param pack Pack to be packed into
+      * @param additionals Map which contains additional data
++     * @param condition 
+      */
+-    protected void addArchiveContent(File baseDir, File archive, String targetdir, List osList, int override, PackInfo pack, Map additionals) throws IOException {
++    protected void addArchiveContent(File baseDir, File archive, String targetdir, List osList, int override, PackInfo pack, Map additionals, String condition) throws IOException {
+       
+       FileInputStream fin = new FileInputStream(archive);
+       ZipInputStream zin = new ZipInputStream(fin);
+@@ -1135,7 +1136,7 @@
+             PackagerHelper.copyStream(zin, out);
+             out.close();
+         
+-            pack.addFile(baseDir, temp, targetdir + &quot;/&quot; + zentry.getName(), osList, override, additionals);
++            pack.addFile(baseDir, temp, targetdir + &quot;/&quot; + zentry.getName(), osList, override, additionals,condition);
+         } catch (IOException e) {
+             throw new IOException(&quot;Couldn't create temporary file for &quot;+zentry.getName()+&quot; in archive &quot;+archive+&quot; (&quot;+e.getMessage()+&quot;)&quot;);
+         }
+@@ -1153,24 +1154,25 @@
+      * @param override Overriding behaviour.
+      * @param pack Pack to be packed into
+      * @param additionals Map which contains additional data
++     * @param condition 
+      * @exception FileNotFoundException if the file does not exist
+      */
+     protected void addRecursively(File baseDir, File file, String targetdir, List osList, int override,
+-            PackInfo pack, Map additionals) throws IOException
++            PackInfo pack, Map additionals, String condition) throws IOException
+     {
+         String targetfile = targetdir + &quot;/&quot; + file.getName();
+         if (!file.isDirectory())
+-            pack.addFile(baseDir, file, targetfile, osList, override, additionals);
++            pack.addFile(baseDir, file, targetfile, osList, override, additionals,condition);
+         else
+         {
+             File[] files = file.listFiles();
+             if (files.length == 0) // The directory is empty so must be added
+-                pack.addFile(baseDir, file, targetfile, osList, override, additionals);
++                pack.addFile(baseDir, file, targetfile, osList, override, additionals,condition);
+             else
+             {
+                 // new targetdir = targetfile;
+                 for (int i = 0; i &lt; files.length; i++)
+-                    addRecursively(baseDir, files[i], targetfile, osList, override, pack, additionals);
++                    addRecursively(baseDir, files[i], targetfile, osList, override, pack, additionals,condition);
+             }
+         }
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-11-16 12:26:14 UTC (rev 1903)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-11-16 12:40:11 UTC (rev 1904)
+@@ -184,6 +184,7 @@
+      * @param targetfile path file will be installed to.
+      * @param osList the target operation system(s) of this pack.
+      * @param override what to do if the file already exists when installing
++     * @param condition 
+      * 
+      * @throws FileNotFoundException if the file specified does not exist. The file is not read
+      * until the {@link Packager#createInstaller} is invoked, thus a FileNotFoundEception will occur
+@@ -205,12 +206,13 @@
+      * until the {@link Packager#createInstaller} is invoked, thus a FileNotFoundEception will occur
+      * then, if the file is deleted in between.
+      */
+-    public void addFile(File baseDir, File file, String targetfile, List osList, int override, Map additionals)
++    public void addFile(File baseDir, File file, String targetfile, List osList, int override, Map additionals, String condition)
+             throws FileNotFoundException
+     {
+         if (!file.exists()) throw new FileNotFoundException(file.toString());
+ 
+         PackFile packFile = new PackFile(baseDir, file, targetfile, osList, override, additionals);
++        packFile.setCondition(condition);
+         files.put(packFile, file);
+     }
+ 
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000649.html">[izpack-changes] r1903 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000651.html">[izpack-changes] r1905 - in izpack-src/trunk/src: dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#650">[ date ]</a>
+              <a href="thread.html#650">[ thread ]</a>
+              <a href="subject.html#650">[ subject ]</a>
+              <a href="author.html#650">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

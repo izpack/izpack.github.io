@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How to extract zipped file to a temp directory	using IzPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20to%20extract%20zipped%20file%20to%20a%20temp%20directory%0A%09using%20IzPack&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000898.html">
+   <LINK REL="Next"  HREF="000900.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How to extract zipped file to a temp directory	using IzPack</H1>
+    <B>Christopher Brooks</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20to%20extract%20zipped%20file%20to%20a%20temp%20directory%0A%09using%20IzPack&In-Reply-To="
+       TITLE="[izpack-users] How to extract zipped file to a temp directory	using IzPack">cxh at eecs.berkeley.edu
+       </A><BR>
+    <I>Fri Sep 29 00:26:33 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000898.html">[izpack-users] Variable desktopshortcutcheckboxenabled	doesn'twork
+</A></li>
+        <LI>Next message: <A HREF="000900.html">[izpack-users] Patch for trunk/src/doc-ng/XHTML/node4.patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#899">[ date ]</a>
+              <a href="thread.html#899">[ thread ]</a>
+              <a href="subject.html#899">[ subject ]</a>
+              <a href="author.html#899">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Friday 22 September 2006 03:08, Gowri Shankar wrote:
+&gt;<i> Hello,
+</I>&gt;<i>
+</I>&gt;<i> I need a small help, I need to use some file inside an archived
+</I>&gt;<i> folder. The archived folder will be shipped with the installer and
+</I>&gt;<i> while installing we
+</I>&gt;<i> need to extract file to temp dir and use some file in it. can you
+</I>&gt;<i> help me in this regards.
+</I>&gt;<i>
+</I>&gt;<i> Thanks,
+</I>&gt;<i> GowriShankar.
+</I>
+I have a similar issue, where I have a jar file that has my source code in
+it and I would like to extract the jar file if and only if the user selects
+the source code pack.  My workaround was to use the ProcessPanel,
+and to write a small class (ExtractJarFile) that extracts a jar file.
+I also use an even smaller class file (Echo) to Echo a message.
+
+The tricky part is that both .class files need to go in to a jar file 
+and then be added to the installer with the &lt;jar&gt; directive.
+
+My install.xml file looks like:
+--start--
+...
+    &lt;/resources&gt;
+...
+        &lt;res src=&quot;ProcessPanel.Spec.xml&quot; id=&quot;ProcessPanel.Spec.xml&quot;/&gt;
+    &lt;/resources&gt;
+
+    &lt;panels&gt;
+...
+        &lt;panel classname=&quot;ProcessPanel&quot;/&gt;
+...
+
+    &lt;/panels&gt;
+
+    &lt;!-- Include ExtractJarFile.class for the Process Panel --&gt;
+    &lt;jar src=&quot;ExtractJarFile.jar&quot; stage=&quot;install&quot;/&gt;
+...
+--end--
+
+
+
+ProcessPanel.Spec.xml looks like:
+--start--
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+
+&lt;processing&gt;
+  &lt;job name=&quot;unjar sources&quot;&gt;
+    &lt;executeForPack name=&quot;Sources&quot;/&gt;
+    &lt;executeclass name=&quot;ExtractJarFile&quot;&gt;
+      &lt;arg&gt;ptII6.0.alpha.src.jar&lt;/arg&gt;
+      &lt;arg&gt;$INSTALL_PATH&lt;/arg&gt;
+    &lt;/executeclass&gt;
+  &lt;/job&gt;
+  &lt;job name=&quot;Done&quot;&gt;
+    &lt;executeclass name=&quot;Echo&quot;&gt;
+      &lt;arg&gt;Processing completed, please press Next.&lt;/arg&gt;
+    &lt;/executeclass&gt;
+  &lt;/job&gt;
+&lt;/processing&gt;
+
+--end--
+
+The docs could use an update, they don't mention the &lt;jar&gt; issue
+or executeForPack.  I'll submit a patch to the devel list.
+
+_Christopher
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: Echo.java
+Type: application/octet-stream
+Size: 2196 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060928/69754157/attachment.obj">https://lists.berlios.de/pipermail/izpack-users/attachments/20060928/69754157/attachment.obj</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: ExtractJarFile.java
+Type: application/octet-stream
+Size: 9513 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060928/69754157/attachment-0001.obj">https://lists.berlios.de/pipermail/izpack-users/attachments/20060928/69754157/attachment-0001.obj</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: smime.p7s
+Type: application/x-pkcs7-signature
+Size: 2773 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060928/69754157/attachment.bin">https://lists.berlios.de/pipermail/izpack-users/attachments/20060928/69754157/attachment.bin</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000898.html">[izpack-users] Variable desktopshortcutcheckboxenabled	doesn'twork
+</A></li>
+	<LI>Next message: <A HREF="000900.html">[izpack-users] Patch for trunk/src/doc-ng/XHTML/node4.patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#899">[ date ]</a>
+              <a href="thread.html#899">[ thread ]</a>
+              <a href="subject.html#899">[ subject ]</a>
+              <a href="author.html#899">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

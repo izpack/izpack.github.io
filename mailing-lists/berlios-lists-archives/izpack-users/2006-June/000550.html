@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Fix for Automatic Installation ProcessPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Fix%20for%20Automatic%20Installation%20ProcessPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000549.html">
+   <LINK REL="Next"  HREF="000551.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Fix for Automatic Installation ProcessPanel</H1>
+    <B>Miraodb</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Fix%20for%20Automatic%20Installation%20ProcessPanel&In-Reply-To="
+       TITLE="[izpack-users] Fix for Automatic Installation ProcessPanel">miraodb at hotmail.com
+       </A><BR>
+    <I>Tue Jun 13 09:03:09 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000549.html">Out-of-office-reply: [izpack-users] Fix for Automatic Installation Proc
+</A></li>
+        <LI>Next message: <A HREF="000551.html">[izpack-users] Fix for Automatic Installation ProcessPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#550">[ date ]</a>
+              <a href="thread.html#550">[ thread ]</a>
+              <a href="subject.html#550">[ subject ]</a>
+              <a href="author.html#550">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi David,
+
+You're completely right about the fact that it's wrong to have
+ProcessPanelAutomationPanel.
+It should indeed be ProcessPanelAutomationHelper.
+We merged to svn repo a few days ago and i checked the build.xml which is
+fine. You can just do an update from it or change it locally on your system.
+
+If you could do a brand new checkout from svn it would give you the latest
+version of everything (beside what you might have added obviously !).
+
+I also noticed a while back but never had time to fiw it, that during an
+automated installation (which i DO use :-) ), the shortcuts aren't created !
+I never really understood why. Any idea ????
+
+Cheers,
+Fabrice
+----- Original Message ----- 
+From: &quot;David Ferrero&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">david.ferrero at zion.com</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-developers at lists.berlios.de</A>&gt;
+Cc: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>&gt;
+Sent: Monday, June 12, 2006 11:08 PM
+Subject: [izpack-users] Fix for Automatic Installation ProcessPanel
+
+
+&gt;<i> FYI:
+</I>&gt;<i>
+</I>&gt;<i> in the 3.8.0 build.xml I pulled from CVS last week I found this:
+</I>&gt;<i>          &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+</I>&gt;<i>              &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanel.java&quot; /&gt;
+</I>&gt;<i>              &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanelAutomationPanel.java&quot; /&gt;
+</I>&gt;<i>          &lt;/build-panel&gt;
+</I>&gt;<i>
+</I>&gt;<i> ProcessPanelAutomationPanel.java doesn't exist...
+</I>&gt;<i>
+</I>&gt;<i> I think it should be:
+</I>&gt;<i>          &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+</I>&gt;<i>              &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanel.java&quot; /&gt;
+</I>&gt;<i>              &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanelAutomationHelper.java&quot; /&gt;
+</I>&gt;<i>          &lt;/build-panel&gt;
+</I>&gt;<i>
+</I>&gt;<i> Using CVS log and diff, I pinpointed the error was introduced in
+</I>&gt;<i> build.xml commit 1.94 back in May 2005.
+</I>&gt;<i> cvs diff -u -r 1.93 -r 1.94 build.xml
+</I>&gt;<i>
+</I>&gt;<i> -  $Id: build.xml,v 1.93 2005/05/01 21:37:53 mchenryc Exp $
+</I>&gt;<i> +  $Id: build.xml,v 1.94 2005/05/02 06:17:16 mchenryc Exp $
+</I>&gt;<i> ..
+</I>&gt;<i>           &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+</I>&gt;<i>               &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanel.java&quot;/&gt;
+</I>&gt;<i> +            &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanelAutomationPanel.java&quot;/&gt;
+</I>&gt;<i>           &lt;/build-panel&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> This was preventing the Automated installer from running my Process
+</I>&gt;<i> jobs...
+</I>&gt;<i> Am I the only one doing ProcessPanel in the Automated installer?
+</I>&gt;<i> Seems like it's been broke over a year now...
+</I>&gt;<i>
+</I>&gt;<i> Any comments are welcome...
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Regards,
+</I>&gt;<i> David
+</I>&gt;<i>
+</I>&gt;<i> PS:
+</I>&gt;<i>
+</I>&gt;<i> Here's my local change as shown below:
+</I>&gt;<i>
+</I>&gt;<i> cvs diff -u build.xml
+</I>&gt;<i> Index: build.xml
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> RCS file: /cvsroot/izpack/izpack-src/src/build.xml,v
+</I>&gt;<i> retrieving revision 1.129
+</I>&gt;<i> diff -u -u -r1.129 build.xml
+</I>&gt;<i> --- build.xml   8 Apr 2006 10:34:13 -0000       1.129
+</I>&gt;<i> +++ build.xml   12 Jun 2006 20:46:00 -0000
+</I>&gt;<i> @@ -607,7 +607,7 @@
+</I>&gt;<i>           &lt;/build-panel&gt;
+</I>&gt;<i>           &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+</I>&gt;<i>               &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanel.java&quot; /&gt;
+</I>&gt;<i> -            &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanelAutomationPanel.java&quot; /&gt;
+</I>&gt;<i> +            &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> ProcessPanelAutomationHelper.java&quot; /&gt;
+</I>&gt;<i>           &lt;/build-panel&gt;
+</I>&gt;<i>           &lt;build-panel name=&quot;SudoPanel&quot;&gt;
+</I>&gt;<i>               &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> SudoPanel.java&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> On Jun 9, 2006, at 3:06 AM, Miraodb wrote:
+</I>&gt;<i>
+</I>&gt;<i> &gt; Hi David,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I have the process panel in an automated install and it works fine.
+</I>&gt;<i> &gt; Could you post your config files please. We'll check it out.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Cheers,
+</I>&gt;<i> &gt; Fabrice
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; ----- Original Message -----
+</I>&gt;<i> &gt; From: &quot;David Ferrero&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">david.ferrero at zion.com</A>&gt;
+</I>&gt;<i> &gt; To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>&gt;
+</I>&gt;<i> &gt; Sent: Thursday, June 08, 2006 10:07 PM
+</I>&gt;<i> &gt; Subject: Re: [izpack-users] automatic installation doesn't run
+</I>&gt;<i> &gt; process panel
+</I>&gt;<i> &gt; ?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&gt; Hi Folks:
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; I never saw an answer to this problem from January 2005. Does this
+</I>&gt;<i> &gt;&gt; mean that process panel doesn't run for automated installations? How
+</I>&gt;<i> &gt;&gt; can this be solved?
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; - David
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000549.html">Out-of-office-reply: [izpack-users] Fix for Automatic Installation Proc
+</A></li>
+	<LI>Next message: <A HREF="000551.html">[izpack-users] Fix for Automatic Installation ProcessPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#550">[ date ]</a>
+              <a href="thread.html#550">[ thread ]</a>
+              <a href="subject.html#550">[ subject ]</a>
+              <a href="author.html#550">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] RegistryDefaultHandler problem
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20RegistryDefaultHandler%20problem&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC8A%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001209.html">
+   <LINK REL="Next"  HREF="001212.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] RegistryDefaultHandler problem</H1>
+    <B>fxa</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20RegistryDefaultHandler%20problem&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC8A%40coi11.coi.com"
+       TITLE="[izpack-devel] RegistryDefaultHandler problem">fxa_01 at yahoo.com
+       </A><BR>
+    <I>Mon Jul 23 17:52:49 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001209.html">[izpack-devel] RegistryDefaultHandler problem
+</A></li>
+        <LI>Next message: <A HREF="001212.html">[izpack-devel] RegistryDefaultHandler problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1210">[ date ]</a>
+              <a href="thread.html#1210">[ thread ]</a>
+              <a href="subject.html#1210">[ subject ]</a>
+              <a href="author.html#1210">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Tx, I see what the problem was.  
+Still have related problem, since it is looking in the wrong directory for
+dll. It is looking in: eclipse-bin\native\COIOSHelper.dll instead of
+bin/native/3rdparty.  
+
+Path is being created through &quot;ProtectionDomain.codeSource&quot;+/native.  Where
+&quot;codeSource=.../eclipse-bin/&quot; which gets mangled with classloaders.  Does
+defining my class in different package could cause this problem?
+
+My install xml file contains:
+   &lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+        &lt;os family=&quot;windows&quot; /&gt;
+    &lt;/native&gt;
+
+
+
+
+
+
+Bartz, Klaus wrote:
+&gt;<i> 
+</I>&gt;<i> Hi &quot;fxa&quot;,
+</I>&gt;<i> you should not call RegistryDefaultHandler.getInstance() in the
+</I>&gt;<i> constructor
+</I>&gt;<i> else in the method beforePacks (see RegistryInstallerListener) because
+</I>&gt;<i> you
+</I>&gt;<i> need the AutomatedInstallData object which you gets in beforePacks.
+</I>&gt;<i> After
+</I>&gt;<i> getInstance you have also to call verify(idata) with the idata object
+</I>&gt;<i> (see
+</I>&gt;<i> RegistryInstallerListener.initializeRegistryHandler.
+</I>&gt;<i> 
+</I>&gt;<i> Without verify(idata) the default handler do not work right, but he have
+</I>&gt;<i> to exist. Therefore there is also an other problem in your installation.
+</I>&gt;<i> Do you have add the dll into your jar file via 
+</I>&gt;<i> 
+</I>&gt;<i> 	&lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+</I>&gt;<i> 		&lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;<i> 	&lt;/native&gt;
+</I>&gt;<i> 
+</I>&gt;<i> ?
+</I>&gt;<i> call
+</I>&gt;<i> java -DTRACE=TRUE -jar &lt;Your Install&gt;.jar
+</I>&gt;<i> After language dialog there should be a line like 
+</I>&gt;<i> 
+</I>&gt;<i> Ctor OSClassHelper for com.coi.tools.os.izpack.Registry is good: true
+</I>&gt;<i> 
+</I>&gt;<i> If not good: true, most you have forgotten the dll.
+</I>&gt;<i> 
+</I>&gt;<i> Hope it helps
+</I>&gt;<i> 
+</I>&gt;<i> Klaus
+</I>&gt;<i> 
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A> 
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of fxa
+</I>&gt;&gt;<i> Sent: Sunday, July 22, 2007 7:29 PM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: [izpack-devel] RegistryDefaultHandler problem
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> I am using 3.10.3 and I have written a listener that needs 
+</I>&gt;&gt;<i> some information from Registry so it tries to get an instance 
+</I>&gt;&gt;<i> of RegistryDefaultHandler through getInstance method.  At the 
+</I>&gt;&gt;<i> same time I am using RegistryInstallerListener.  Problem is 
+</I>&gt;&gt;<i> RegistryDefaultHandler.getInstance()
+</I>&gt;&gt;<i> which returns null.  
+</I>&gt;&gt;<i> It seems on first access to handler its initialized flag has 
+</I>&gt;&gt;<i> been set and somehow the work object gets null so 
+</I>&gt;&gt;<i> registryHandler.good() return false.  
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> How can I resolve this problem?  Here is the some snippet:
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> public class SomeInstallerListener extends SimpleInstallerListener {
+</I>&gt;&gt;<i>    
+</I>&gt;&gt;<i>     RegistryHandler registryHandler = null;
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i>     public SomeInstallerListener(){
+</I>&gt;&gt;<i>         super(true);
+</I>&gt;&gt;<i>         registryHandler = RegistryDefaultHandler.getInstance();
+</I>&gt;&gt;<i>     } 
+</I>&gt;&gt;<i> -- 
+</I>&gt;&gt;<i> View this message in context: 
+</I>&gt;&gt;<i> <A HREF="http://www.nabble.com/RegistryDefaultHandler-problem-tf4125717">http://www.nabble.com/RegistryDefaultHandler-problem-tf4125717</A>
+</I>&gt;<i> .html#a11732705
+</I>&gt;<i> Sent from the izpack devel mailing list archive at Nabble.com.
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+-- 
+View this message in context: <A HREF="http://www.nabble.com/RegistryDefaultHandler-problem-tf4125717.html#a11747265">http://www.nabble.com/RegistryDefaultHandler-problem-tf4125717.html#a11747265</A>
+Sent from the izpack devel mailing list archive at Nabble.com.
+
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001209.html">[izpack-devel] RegistryDefaultHandler problem
+</A></li>
+	<LI>Next message: <A HREF="001212.html">[izpack-devel] RegistryDefaultHandler problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1210">[ date ]</a>
+              <a href="thread.html#1210">[ thread ]</a>
+              <a href="subject.html#1210">[ subject ]</a>
+              <a href="author.html#1210">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

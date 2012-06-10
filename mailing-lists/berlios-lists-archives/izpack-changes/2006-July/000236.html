@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1492 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/event
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1492%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/event&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000235.html">
+   <LINK REL="Next"  HREF="000237.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1492 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/event</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1492%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/event&In-Reply-To="
+       TITLE="[izpack-changes] r1492 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/event">noreply at berlios.de
+       </A><BR>
+    <I>Tue Jul 18 10:06:50 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000235.html">[izpack-changes] r1491 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000237.html">[izpack-changes] r1493 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#236">[ date ]</a>
+              <a href="thread.html#236">[ thread ]</a>
+              <a href="subject.html#236">[ subject ]</a>
+              <a href="author.html#236">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-07-18 10:06:45 +0200 (Tue, 18 Jul 2006)
+New Revision: 1492
+
+Modified:
+   izpack-src/trunk/Thanks.txt
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/event/AntAction.java
+Log:
+Bugfix logfile creation.
+
+
+Modified: izpack-src/trunk/Thanks.txt
+===================================================================
+--- izpack-src/trunk/Thanks.txt	2006-07-16 03:16:43 UTC (rev 1491)
++++ izpack-src/trunk/Thanks.txt	2006-07-18 08:06:45 UTC (rev 1492)
+@@ -103,4 +103,6 @@
+ - Oliver Kiddle: for the patches and fixes
+ - Julian Payne: for the patch on WebAccessor
+ - Hal Vaughan: for the patches
+-- Ryan Shillington: for the patches
+\ No newline at end of file
++- Eric Rose: for the patch related to the logfile of AntActions.
++- Ryan Shillington: for the patches
++
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2006-07-16 03:16:43 UTC (rev 1491)
++++ izpack-src/trunk/Versions.txt	2006-07-18 08:06:45 UTC (rev 1492)
+@@ -21,6 +21,7 @@
+ - Configurable heading panel added to InstallerFrame (Klaus Bartz).
+ - Panels counter (text or progressbar) useable in the heading or 
+   navigation panel (Klaus Bartz).
++- Fixed logfile for AntActions (Eric Rose).
+ - PacksPanels: fixed disk space requirements (Ryan Shillington, via Julien
+   Ponge).
+ - Compiler fix (Ryan Shillington, via Julien Ponge).
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/event/AntAction.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/event/AntAction.java	2006-07-16 03:16:43 UTC (rev 1491)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/event/AntAction.java	2006-07-18 08:06:45 UTC (rev 1492)
+@@ -24,6 +24,8 @@
+ 
+ import java.io.File;
+ import java.io.FileInputStream;
++import java.io.FileNotFoundException;
++import java.io.FileOutputStream;
+ import java.io.PrintStream;
+ import java.util.ArrayList;
+ import java.util.Iterator;
+@@ -396,8 +398,26 @@
+         else if (quiet) msgOutputLevel = 1;
+         BuildLogger logger = new DefaultLogger();
+         logger.setMessageOutputLevel(msgOutputLevel);
+-        logger.setOutputPrintStream(System.out);
+-        logger.setErrorPrintStream(System.err);
++        if (logFile != null)
++        {
++            PrintStream printStream;
++            try
++            {
++                printStream = new PrintStream(new FileOutputStream(logFile));
++                logger.setOutputPrintStream(printStream);
++                logger.setErrorPrintStream(printStream);
++            }
++            catch (FileNotFoundException e)
++            {
++                logger.setOutputPrintStream(System.out);
++                logger.setErrorPrintStream(System.err);
++            }
++        }
++        else
++        {
++            logger.setOutputPrintStream(System.out);
++            logger.setErrorPrintStream(System.err);
++        }
+         return logger;
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000235.html">[izpack-changes] r1491 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000237.html">[izpack-changes] r1493 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#236">[ date ]</a>
+              <a href="thread.html#236">[ thread ]</a>
+              <a href="subject.html#236">[ subject ]</a>
+              <a href="author.html#236">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

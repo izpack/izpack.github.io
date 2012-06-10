@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] patch: use intance number to customize strings
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20patch%3A%20use%20intance%20number%20to%20customize%20strings&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000588.html">
+   <LINK REL="Next"  HREF="000592.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] patch: use intance number to customize strings</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20patch%3A%20use%20intance%20number%20to%20customize%20strings&In-Reply-To="
+       TITLE="[izpack-devel] patch: use intance number to customize strings">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Nov 16 18:33:10 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000588.html">[izpack-devel] window title stripped after first character under	Windows
+</A></li>
+        <LI>Next message: <A HREF="000592.html">[izpack-devel] patch: use intance number to customize strings
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#591">[ date ]</a>
+              <a href="thread.html#591">[ thread ]</a>
+              <a href="subject.html#591">[ subject ]</a>
+              <a href="author.html#591">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Stefan,
+I do not use multiple instances of one panel class (else I 
+had seen the problem at impl the feature) but it hear good.
+Unfortunately I have nearly no time...
+Please send us your changes as a diff -u (comments as java 
+comments in the files). Simplest you checkout the SVN
+IzPack project and make the diff with SVN.
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Stefan
+</I>&gt;<i>Wachter
+</I>&gt;<i>Sent: Thursday, November 16, 2006 2:53 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i>Subject: [izpack-devel] patch: use intance number to customize strings
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi all,
+</I>&gt;<i>
+</I>&gt;<i>I have several UserInputPanels that should have different 
+</I>&gt;<i>headlines. I looked into the code and 
+</I>&gt;<i>recognized that only a single headline can be configured that 
+</I>&gt;<i>is used for all UserInputPanels. 
+</I>&gt;<i>Therefore I patched the getI18nStringForClass(String subkey) 
+</I>&gt;<i>method in the IzPanel class to consider 
+</I>&gt;<i>instance numbers and added the method getInstanceNumber() with 
+</I>&gt;<i>a default implementation that returns -1:
+</I>&gt;<i>
+</I>&gt;<i>// start code
+</I>&gt;<i>
+</I>&gt;<i>public String getI18nStringForClass(String subkey)
+</I>&gt;<i>{
+</I>&gt;<i>     String retval = null;
+</I>&gt;<i>     Class clazz = this.getClass();
+</I>&gt;<i>     while (retval == null &amp;&amp; !clazz.getName().endsWith(&quot;.IzPanel&quot;))
+</I>&gt;<i>     {
+</I>&gt;<i>         int instanceNumber = getInstanceNumber();
+</I>&gt;<i>         if (instanceNumber != -1) {
+</I>&gt;<i>             retval = getI18nStringForClass(clazz.getName(), 
+</I>&gt;<i>subkey + &quot;.&quot; + instanceNumber, null);
+</I>&gt;<i>             if (retval != null) return retval;
+</I>&gt;<i>         }
+</I>&gt;<i>         retval = getI18nStringForClass(clazz.getName(), subkey, null);
+</I>&gt;<i>         clazz = clazz.getSuperclass();
+</I>&gt;<i>     }
+</I>&gt;<i>     return (retval);
+</I>&gt;<i>}
+</I>&gt;<i>
+</I>&gt;<i>protected int getInstanceNumber() { return -1; }
+</I>&gt;<i>
+</I>&gt;<i>// end code
+</I>&gt;<i>
+</I>&gt;<i>In order to make use of this new flexibility, I overloaded the 
+</I>&gt;<i>getInstanceNumber() method in the 
+</I>&gt;<i>UserInputPanel class returning the instance number of the 
+</I>&gt;<i>UserInputPanel:
+</I>&gt;<i>
+</I>&gt;<i>// start code
+</I>&gt;<i>
+</I>&gt;<i>protected int getInstanceNumber() { return instanceNumber; }
+</I>&gt;<i>
+</I>&gt;<i>// end code
+</I>&gt;<i>
+</I>&gt;<i>Now different headlines can be configured for the various 
+</I>&gt;<i>UserInputPanels. For example:
+</I>&gt;<i>
+</I>&gt;<i>&lt;langpack&gt;
+</I>&gt;<i>   &lt;str id=&quot;UserInputPanel.headline.0&quot; txt=&quot;Rechnername und Port&quot;/&gt;
+</I>&gt;<i>   &lt;str id=&quot;UserInputPanel.headline.1&quot; txt=&quot;Shortcuts&quot;/&gt;
+</I>&gt;<i>   &lt;str id=&quot;UserInputPanel.headline.2&quot; txt=&quot;PolFHa-Server starten&quot;/&gt;
+</I>&gt;<i>&lt;/langpack&gt;
+</I>&gt;<i>
+</I>&gt;<i>Is this code of public interest? Will someone integrate it into IzPack?
+</I>&gt;<i>
+</I>&gt;<i>Cheers,
+</I>&gt;<i>--Stefan
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000588.html">[izpack-devel] window title stripped after first character under	Windows
+</A></li>
+	<LI>Next message: <A HREF="000592.html">[izpack-devel] patch: use intance number to customize strings
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#591">[ date ]</a>
+              <a href="thread.html#591">[ thread ]</a>
+              <a href="subject.html#591">[ subject ]</a>
+              <a href="author.html#591">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

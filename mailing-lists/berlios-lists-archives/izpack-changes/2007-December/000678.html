@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1932 - in izpack-src/trunk/src: doc-reST dtd
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1932%20-%20in%20izpack-src/trunk/src%3A%20doc-reST%20dtd&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000679.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1932 - in izpack-src/trunk/src: doc-reST dtd</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1932%20-%20in%20izpack-src/trunk/src%3A%20doc-reST%20dtd&In-Reply-To="
+       TITLE="[izpack-changes] r1932 - in izpack-src/trunk/src: doc-reST dtd">noreply at berlios.de
+       </A><BR>
+    <I>Mon Dec  3 16:30:03 CET 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000679.html">[izpack-changes] r1933 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#678">[ date ]</a>
+              <a href="thread.html#678">[ thread ]</a>
+              <a href="subject.html#678">[ subject ]</a>
+              <a href="author.html#678">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-12-03 16:29:59 +0100 (Mon, 03 Dec 2007)
+New Revision: 1932
+
+Modified:
+   izpack-src/trunk/src/doc-reST/installation-files.txt
+   izpack-src/trunk/src/doc-reST/introduction.txt
+   izpack-src/trunk/src/dtd/installation.dtd
+Log:
+updated documentation
+
+Modified: izpack-src/trunk/src/doc-reST/installation-files.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/installation-files.txt	2007-11-30 16:37:24 UTC (rev 1931)
++++ izpack-src/trunk/src/doc-reST/installation-files.txt	2007-12-03 15:29:59 UTC (rev 1932)
+@@ -159,6 +159,18 @@
+ ``${ENV[CATALINA_HOME]}``.
+ 
+ 
++Dynamic Variables
++-----------------
++
++Dynamic variables can be defined in the installation XML with the ``&lt;variable&gt;`` tag inside
++the ``&lt;dynamicvariables&gt;`` element. The value of dynamic variables will be evaluated every time a panel
++is switched, i.e. between the panels. Dynamic variables can have a condition which will be evaluated
++first. If it's true, the value would be assigned, otherwise nothing happens to the variable.
++
++Example: To change a certain directory based on user input, use the following
++``&lt;variable name=&quot;test&quot; value=&quot;/test/${USER_INPUT}&quot; condition=&quot;hasuserinput&quot; /&gt;`` 
++The condition has userinput has to be specified in the condition section of installation XML.
++
+ Parse Types
+ -----------
+ 
+@@ -332,7 +344,102 @@
+       button. Default value is &quot;False&quot;. --&gt;
+     &lt;/variables&gt;
+ 
++The dynamic Variables Element ``&lt;dynamicvariables&gt;``
++''''''''''''''''''''''''''''''''''''''''''''''''''''
+ 
++This element allows you to define dynamic variables for the variables substitution
++system. In contrast to the static ``&lt;variables``, dynamic variables will be evaluated
++every time, a panel switch is done.
++
++When you define a set of variables, you just have to place as many ``&lt;variable&gt;`` tags 
++in the file as needed. Normally you would use the condition attribute to specify, when 
++a certain value will be set. 
++
++One ``&lt;variable&gt;`` tag take the following attributes :
++
++-   ``name`` : the variable name
++-   ``value`` : the variable value
++-   ``condition`` : a condition for this variable, which has to be true to set the value
++
++Here's a sample ``&lt;dynamicvariables&gt;`` section :
++
++
++::
++
++    &lt;dynamicvariables&gt;
++      &lt;variable name=&quot;app-version&quot; value=&quot;1.4&quot; condition=&quot;mycondition1&quot; /&gt;
++      &lt;variable name=&quot;app-version&quot; value=&quot;1.4b&quot; condition=&quot;!mycondition1&quot; /&gt;
++      &lt;variable name=&quot;released-on&quot; value=&quot;08/03/2002&quot; /&gt;
++    &lt;/dynamicvariables&gt;
++
++
++The Conditions Element ``&lt;conditions&gt;``
++''''''''''''''''''''''''''''''''''''''
++
++This element allows you to define conditions which can be used to dynamically change the installer, 
++e.g. the panels shown, the variables set, files parsed, files
++executed and much more. When you define a condition it will get a type and an id. The id has to be unique. Conditions can be referenced
++based on this id (e.g. with the ``RefCondition``). 
++
++There are several built-in types of conditions. At the time of writing this, Izpack has the following built-in types:
++
++-	``VariableCondition``: a condition based on the value of a certain variable
++-	``PackSelectionCondition``: a condition based on a pack selected for installation
++-	``JavaCondition``: a condition based on a static java field or method.
++
++There are also boolean types to combine more than one condition:
++
++- 	``AndCondition``: both conditions have to be true
++-	``OrCondition``: only one of both conditions has to be true
++- 	``XOrCondition``: one condition has to be true, the other one has to be false
++- 	``NotCondition``: the condition has to be false
++
++When you define a set of conditions, you just have to write as many ``&lt;condition&gt;`` tags as you like. A
++condition can take the following attributes:
++
++- 	``type``: the type of the condition. For built-in types, this is the lowercase portion of the condition class
++              name without condition appended (variable,packselection,java, ...)
++- 	``id``: the id of the condition. This will be used to refer to this conditions in other elements
++
++The condition element can have several child elements depending on the type of this conditions. E.g. the VariableCondition
++has a name and value child element to specify, which variable should have a certain value to fullfil this condition.
++
++:: 	This is an example which defines four conditions, two VariableConditions, a JavaCondition and a AndCondition which will
++    refer to two of the first conditions.
++    
++   &lt;conditions&gt;
++      &lt;condition type=&quot;variable&quot; id=&quot;standardinstallation&quot;&gt;
++         &lt;name&gt;setup.type&lt;/name&gt;
++         &lt;value&gt;standard&lt;/name&gt;
++      &lt;/condition&gt;
++      &lt;condition type=&quot;variable&quot; id=&quot;expertinstallation&quot;&gt;
++         &lt;name&gt;setup.type&lt;/name&gt;
++         &lt;value&gt;expert&lt;/name&gt;
++      &lt;/condition&gt;
++      &lt;condition type=&quot;java&quot; id=&quot;installonwindows&quot;&gt;
++		&lt;java&gt;
++			&lt;class&gt;com.izforge.izpack.util.OsVersion&lt;/class&gt;
++			&lt;field&gt;IS_WINDOWS&lt;/field&gt;
++		&lt;/java&gt;
++		&lt;returnvalue type=&quot;boolean&quot;&gt;true&lt;/returnvalue&gt;
++	  &lt;/condition&gt;
++	  &lt;condition type=&quot;and&quot; id=&quot;standardinstallation.onwindows&quot;&gt;
++	  	&lt;condition type=&quot;ref&quot; refid=&quot;standardinstallation&quot;/&gt;
++	  	&lt;condition type=&quot;ref&quot; refid=&quot;installonwindows&quot; /&gt;
++	  &lt;/condition&gt;
++   &lt;/condition&gt;
++   
++Note, from IzPack 3.11 on normally, you don't have to define the compound conditions because you can use a simple
++expression language. The language has the following operators:
++
++-	``+``: an operator for the Andcondition
++- 	``|``: an operator for the OrCondition
++- 	``\``: an operator for the XOrCondition
++-	``!``: an operator for the NotCondition
++
++Neverthless if you define really complex conditions it's much easier to define them using the xml structure. 
++
++
+ The GUI Preferences Element ``&lt;guiprefs&gt;``
+ '''''''''''''''''''''''''''''''''''''''''''
+ 
+@@ -523,10 +630,13 @@
+ Here you tell the compiler which panels you want to use. They will appear in
+ the installer in the order in which they are listed in your XML installation
+ file. Take a look at the different panels in order to find the ones you need.
+-The ``&lt;panel&gt;`` markup takes a single attribute ``classname`` which is the
+-classname of the panel.
++The ``&lt;panel&gt;`` markup takes the following attributes:
+ 
++-	``classname``: which is the classname of the panel.
++-	``id``: an identifier for a panel which can be used e.g. for referencing in userinput panel definitions.
++- 	``condition``: an id of a condition which has to be fullfilled to show this panel
+ 
++
+ Here's a sample :
+ 
+ ::
+@@ -536,6 +646,7 @@
+       &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+       &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+       &lt;panel classname=&quot;InstallPanel&quot;/&gt;
++      &lt;panel classname=&quot;UserInputPanel&quot; id=&quot;myuserinput&quot; condition=&quot;pack2selected&quot; /&gt;
+       &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+     &lt;/panels&gt;
+ 
+@@ -572,6 +683,8 @@
+     that represents the pack's image for the ImgPacksPanel. The resource
+     should be defined in the ``&lt;resources&gt;`` element of the installation XML
+     using the same value for the ``id`` attribute of the ``&lt;res&gt;`` element.
++-	``condition``: an id of a condition which has to be fullfilled to install this 
++	package. 
+ 
+ The ``&lt;refpack&gt;`` takes only one attribute ``file``, which contains the
+ relative path (from the installation compiler) to an externally defined
+@@ -685,6 +798,7 @@
+     installation this way.) By default it is set to `` update``.
+ -   ``unpack``: if ``true`` and the file is an archive then its content
+     will be unpacked and added as individual files
++-	``condition``: an id of a condition which has to be fullfilled to install this file
+ 
+ 
+ 
+@@ -713,6 +827,7 @@
+     windows, mac``) - this means that the file will only be installed on its
+     target operating system
+ -   ``override``: see ``&lt;file&gt;`` for description
++-	``condition``: an id of a condition which has to be fullfilled to install this file
+ 
+ A ``&lt;additionaldata&gt;`` tag can also be specified for customizing.
+ 
+@@ -738,6 +853,7 @@
+ -   ``excludes``: comma- or space-separated list of patterns of files
+     that must be excluded; no files (except default excludes) are excluded
+     when omitted. This is an alternative for multiple exclude tags.
++-	``condition``: an id of a condition which has to be fullfilled to install the files in this fileset
+ 
+ You specify the files with ``&lt;include&gt;`` and ``&lt;exclude&gt;`` tags that take the
+ ``name`` parameter to specify the Ant-like pattern :
+@@ -795,6 +911,7 @@
+     default is ``plain``
+ -   ``encoding`` : specifies the file encoding
+ -   ``os``: specifies the operating system, works like for ``&lt;file&gt;``
++-	``condition``: an id of a condition which has to be fullfilled to parse this file
+ 
+ 
+ ``&lt;executable&gt;`` - mark file executable or execute it
+@@ -823,6 +940,7 @@
+ -   ``keep`` : specifies whether the file will be kept after execution.
+     The default is to delete the file after is has been executed. This can be
+     changed by specifying ``keep=&quot;true&quot;``.
++-	``condition``: an id of a condition which has to be fullfilled to execute this file    
+ 
+ A ``&lt;args&gt;`` tag can also be specified in order to pass arguments to the
+ executable:
+
+Modified: izpack-src/trunk/src/doc-reST/introduction.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/introduction.txt	2007-11-30 16:37:24 UTC (rev 1931)
++++ izpack-src/trunk/src/doc-reST/introduction.txt	2007-12-03 15:29:59 UTC (rev 1932)
+@@ -69,7 +69,9 @@
+     is included !)
+ -   powerful variable substitution system that you can use to customize
+     scripts and more generally any text-based file
+--   different kinds of installers (standard, web-based, ...)
++-   powerful condition system that can be used to conditionally show panels, user input fields and
++    execute files conditionally
++-   different kinds of installers (standard, web-based, multi-volume, ...)
+ -   launching of external executables during the installation process and
+     Unix executable flag support (useful for the scripts for instance)
+ -   layout of the installation files in packs (some can be optional)
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2007-11-30 16:37:24 UTC (rev 1931)
++++ izpack-src/trunk/src/dtd/installation.dtd	2007-12-03 15:29:59 UTC (rev 1932)
+@@ -105,6 +105,7 @@
+         &lt;!ATTLIST panel os (unix|windows|mac) #IMPLIED&gt;
+         &lt;!ATTLIST panel classname CDATA #REQUIRED&gt;
+         &lt;!ATTLIST panel condition CDATA #IMPLIED&gt;
++        &lt;!ATTLIST panel	id CDATA #IMPLIED&gt;
+ 
+ &lt;!-- The listener section (indicates which listener where to use) --&gt;
+ &lt;!ELEMENT listeners (listener*)&gt;
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000679.html">[izpack-changes] r1933 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#678">[ date ]</a>
+              <a href="thread.html#678">[ thread ]</a>
+              <a href="subject.html#678">[ subject ]</a>
+              <a href="author.html#678">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

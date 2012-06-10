@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1735 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/io
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1735%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/io&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000480.html">
+   <LINK REL="Next"  HREF="000482.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1735 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/io</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1735%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/io&In-Reply-To="
+       TITLE="[izpack-changes] r1735 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/io">noreply at berlios.de
+       </A><BR>
+    <I>Fri Feb 16 10:22:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000480.html">[izpack-changes] r1734 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000482.html">[izpack-changes] r1736 -	izpack-src/trunk/src/lib/com/izforge/izpack/io
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#481">[ date ]</a>
+              <a href="thread.html#481">[ thread ]</a>
+              <a href="subject.html#481">[ subject ]</a>
+              <a href="author.html#481">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-02-16 10:22:03 +0100 (Fri, 16 Feb 2007)
+New Revision: 1735
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningInputStream.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningOutputStream.java
+Log:
+Added corrupt volume detection
+
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-02-16 08:41:43 UTC (rev 1734)
++++ izpack-src/trunk/Versions.txt	2007-02-16 09:22:03 UTC (rev 1735)
+@@ -5,6 +5,7 @@
+ - Added Conditional expressions (Dennis Reil)
+ - Fixed selection of default language in LanguageSelectionDialog (Dennis Reil)
+ - Fixed RegularExpressionValidator (Dennis Reil)
++- Added corrupt volume detection (Dennis Reil)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningInputStream.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningInputStream.java	2007-02-16 08:41:43 UTC (rev 1734)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningInputStream.java	2007-02-16 09:22:03 UTC (rev 1735)
+@@ -50,6 +50,8 @@
+ 
+     protected GZIPInputStream zippedinputstream;
+ 
++    protected byte[] magicnumber;
++
+     public FileSpanningInputStream(File volume, int volumestotal) throws IOException
+     {
+         fileinputstream = new FileInputStream(volume);
+@@ -58,7 +60,14 @@
+         volumename = volume.getAbsolutePath();
+         this.volumestotal = volumestotal;
+         filepointer = 0;
+-        Debug.trace(&quot;Opening stream to &quot; + volume);
++
++        // read magic number
++        this.magicnumber = new byte[FileSpanningOutputStream.MAGIC_NUMER_LENGTH];
++        zippedinputstream.read(this.magicnumber);
++        // this.read(this.magicnumber);
++        Debug.trace(&quot;Opening stream to &quot; + volume + &quot; magicnr is &quot; + magicnumber);
++        // reset filepointer
++        filepointer = 0;
+     }
+ 
+     public FileSpanningInputStream(String volumename, int volumestotal) throws IOException
+@@ -67,6 +76,58 @@
+     }
+ 
+     /**
++     * checks if the MagicNumber of this stream is valid. The stream has to be opened right before.
++     * 
++     * @return
++     * @throws IOException
++     */
++    private boolean isMagicNumberValid() throws IOException
++    {
++        Debug.trace(&quot;trying to read magic number&quot;);
++        boolean valid = false;
++        byte[] magicnumberofvolume = new byte[FileSpanningOutputStream.MAGIC_NUMER_LENGTH];
++        long oldfilepointer = this.filepointer;
++        // this.read(magicnumberofvolume);
++        this.zippedinputstream.read(magicnumberofvolume);
++        this.filepointer = oldfilepointer;
++        Debug.trace(&quot;MagicNr is &quot; + magicnumberofvolume);
++        if ((magicnumberofvolume != null) &amp;&amp; (this.magicnumber != null))
++        {
++            if (magicnumberofvolume.length != this.magicnumber.length)
++            {
++                // magicnumbers aren't valid
++                valid = false;
++            }
++            else
++            {
++                boolean errorfound = false;
++                // check if magicnumbers are identical
++                for (int i = 0; i &lt; magicnumberofvolume.length; i++)
++                {
++                    byte op1 = magicnumberofvolume[i];
++                    byte op2 = this.magicnumber[i];
++                    if (op1 != op2)
++                    {
++                        errorfound = true;
++                        break;
++                    }
++                }
++                if (errorfound)
++                {
++                    // there was an error
++                    valid = false;
++                }
++                else
++                {
++                    // magic number is valid
++                    valid = true;
++                }
++            }
++        }
++        return valid;
++    }
++
++    /**
+      * creates an inputstream to the next volume
+      * 
+      * @return true - an inputstream to the next volume has been created false - the last volume was
+@@ -79,7 +140,7 @@
+         // have we reached the last volume?
+         if (currentvolumeindex &gt;= volumestotal)
+         {
+-            Debug.error(&quot;last volume reached.&quot;);
++            Debug.trace(&quot;last volume reached.&quot;);
+             return false;
+         }
+         // the next volume name
+@@ -97,6 +158,17 @@
+         // try to open new stream to next volume
+         fileinputstream = new FileInputStream(nextvolumefile);
+         zippedinputstream = new GZIPInputStream(fileinputstream);
++        // check magic number
++        if (!this.isMagicNumberValid())
++        {
++            currentvolumeindex--;
++            nextvolumenotfound = true;
++            Debug
++                    .trace(&quot;volume found, but magic number incorrect. Maybe not a volume of the same version.&quot;);
++            throw new CorruptVolumeException(nextvolumename
++                    + &quot;was found, but has magic number error. Maybe not the right version?&quot;,
++                    nextvolumename);
++        }
+         // everything fine
+         nextvolumenotfound = false;
+         return true;
+@@ -298,4 +370,4 @@
+         return filepointer;
+     }
+ 
+-}
++}
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningOutputStream.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningOutputStream.java	2007-02-16 08:41:43 UTC (rev 1734)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningOutputStream.java	2007-02-16 09:22:03 UTC (rev 1735)
+@@ -21,6 +21,8 @@
+ import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.io.OutputStream;
++import java.util.Date;
++import java.util.Random;
+ import java.util.zip.GZIPOutputStream;
+ 
+ import com.izforge.izpack.util.Debug;
+@@ -34,9 +36,9 @@
+ public class FileSpanningOutputStream extends OutputStream
+ {
+ 
+-    public static final long KB = 1024;
++    public static final long KB = 1000;
+ 
+-    public static final long MB = 1024 * KB;
++    public static final long MB = 1000 * KB;
+ 
+     // the default size of a volume
+     public static final long DEFAULT_VOLUME_SIZE = 650 * MB;
+@@ -47,7 +49,7 @@
+     public static final long DEFAULT_ADDITIONAL_FIRST_VOLUME_FREE_SPACE_SIZE = 0;
+ 
+     // the default volume name
+-    protected static final String DEFAULT_VOLUME_NAME = &quot;installer&quot;;
++    protected static final String DEFAULT_VOLUME_NAME = &quot;rdpack&quot;;
+ 
+     protected static final long FILE_NOT_AVAILABLE = -1;
+ 
+@@ -56,9 +58,9 @@
+ 
+     // the addition free space of volume 0
+     protected long firstvolumefreespacesize = DEFAULT_ADDITIONAL_FIRST_VOLUME_FREE_SPACE_SIZE;
+-    
+-    public static final String VOLUMES_INFO = &quot;/volumes.info&quot;;  
+ 
++    public static final int MAGIC_NUMER_LENGTH = 10;
++
+     // the current file this stream writes to
+     protected File currentfile;
+ 
+@@ -73,6 +75,9 @@
+ 
+     private GZIPOutputStream zippedoutputstream;
+ 
++    // 
++    private byte[] magicnumber;
++
+     // the current position in the open file
+     protected long filepointer;
+ 
+@@ -113,9 +118,31 @@
+     protected FileSpanningOutputStream(File volume, long maxvolumesize, int currentvolume)
+             throws IOException
+     {
++        this.generateMagicNumber();
+         this.createVolumeOutputStream(volume, maxvolumesize, currentvolume);
+     }
+ 
++    private void generateMagicNumber()
++    {
++        // only create a magic number, if not already done
++        if (magicnumber == null)
++        {
++            // create empty magic number
++            magicnumber = new byte[MAGIC_NUMER_LENGTH];
++            Date currenttime = new Date();
++            long currenttimeseconds = currenttime.getTime();
++            // create random number generator
++            Random random = new Random(currenttimeseconds);
++            random.nextBytes(magicnumber);
++            Debug.trace(&quot;created new magic number for FileOutputstream: &quot;
++                    + new String(magicnumber));
++            for (int i = 0; i &lt; magicnumber.length; i++)
++            {
++                Debug.trace(i + &quot; - &quot; + magicnumber[i]);
++            }
++        }
++    }
++
+     /**
+      * Actually creates the outputstream for writing a volume with index currentvolume and a maximum
+      * of maxvolumesize
+@@ -145,6 +172,11 @@
+         {
+             volumename = volabsolutePath;
+         }
++        long oldfilepointer = filepointer;
++        // write magic number into output stream
++        this.write(magicnumber);
++        // reset filepointer
++        filepointer = oldfilepointer;
+     }
+ 
+     /**
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000480.html">[izpack-changes] r1734 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000482.html">[izpack-changes] r1736 -	izpack-src/trunk/src/lib/com/izforge/izpack/io
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#481">[ date ]</a>
+              <a href="thread.html#481">[ thread ]</a>
+              <a href="subject.html#481">[ subject ]</a>
+              <a href="author.html#481">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

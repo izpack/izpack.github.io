@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1620 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1620%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000364.html">
+   <LINK REL="Next"  HREF="000366.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1620 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1620%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1620 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Tue Sep 26 04:09:57 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000364.html">[izpack-changes] r1619 - in izpack-src/trunk: . bin/langpacks/flags	bin/langpacks/installer src src/dist-files src/doc-ng/XHTML	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os	src/lib/com/izforge/izpack/util/os/unix src/tests/com/izforge/izpack
+</A></li>
+        <LI>Next message: <A HREF="000366.html">[izpack-changes] r1621 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#365">[ date ]</a>
+              <a href="thread.html#365">[ thread ]</a>
+              <a href="subject.html#365">[ subject ]</a>
+              <a href="author.html#365">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: miraodb
+Date: 2006-09-26 04:09:52 +0200 (Tue, 26 Sep 2006)
+New Revision: 1620
+
+Modified:
+   izpack-src/branches/branch-3.9/Versions.txt
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+Log:
+Fix NullPointerException in CompilerConfig.java (FM)
+
+Modified: izpack-src/branches/branch-3.9/Versions.txt
+===================================================================
+--- izpack-src/branches/branch-3.9/Versions.txt	2006-09-25 05:03:12 UTC (rev 1619)
++++ izpack-src/branches/branch-3.9/Versions.txt	2006-09-26 02:09:52 UTC (rev 1620)
+@@ -1,6 +1,8 @@
+ [ The list of the different public versions of IzPack ]
+ 
+   &gt; 3.9.0 (build 2006.09.25)
++- Fix NullPointerException in CompilerConfig, if you specify a 
++	compiler listener and the compiler listener class can't be found (Dennis Reil)
+ - Fix Accents In French Langpack (Fabrice Mirabile)
+ - Update French Langpack (Julien Ponge)
+ - New Indonesian Langpack (Hans Aikema, thanks to Thomas Edwin Santosa)
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-09-25 05:03:12 UTC (rev 1619)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-09-26 02:09:52 UTC (rev 1620)
+@@ -2052,6 +2052,10 @@
+             jarPath = &quot;bin/customActions/&quot; + className + &quot;.jar&quot;;
+         URL url = findIzPackResource(jarPath, &quot;CustomAction jar file&quot;, var);
+         String fullName = getFullClassName(url, className);
++        if (fullName == null){
++            // class not found
++            return null;
++        }
+         if (url != null)
+         {
+             if (getClass().getResource(&quot;/&quot; + jarPath) != null)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000364.html">[izpack-changes] r1619 - in izpack-src/trunk: . bin/langpacks/flags	bin/langpacks/installer src src/dist-files src/doc-ng/XHTML	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os	src/lib/com/izforge/izpack/util/os/unix src/tests/com/izforge/izpack
+</A></li>
+	<LI>Next message: <A HREF="000366.html">[izpack-changes] r1621 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#365">[ date ]</a>
+              <a href="thread.html#365">[ thread ]</a>
+              <a href="subject.html#365">[ subject ]</a>
+              <a href="author.html#365">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

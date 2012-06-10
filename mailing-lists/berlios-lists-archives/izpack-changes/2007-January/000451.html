@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1706 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/event lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1706%20-%20in%20izpack-src/trunk/src%3A%20.%0A%09lib/com/izforge/izpack/event%20lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000450.html">
+   <LINK REL="Next"  HREF="000452.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1706 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/event lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1706%20-%20in%20izpack-src/trunk/src%3A%20.%0A%09lib/com/izforge/izpack/event%20lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1706 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/event lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sat Jan 13 19:03:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000450.html">[izpack-changes] r1705 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000452.html">[izpack-changes] r1707 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#451">[ date ]</a>
+              <a href="thread.html#451">[ thread ]</a>
+              <a href="subject.html#451">[ subject ]</a>
+              <a href="author.html#451">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-01-13 19:02:49 +0100 (Sat, 13 Jan 2007)
+New Revision: 1706
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/event/LateShortcutInstallListener.java
+Modified:
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+Log:
+UserInputPanel (Markus Schlegel via Julien Ponge):
+  - support for the new &quot;installGroup&quot;-attribute for the &quot;programGroup&quot; element of the shortcutSpec.xml
+  - late creation of shortcuts, for example in case ShortcutPanel is displayed before InstallPanel
+  - fixed a bug where each Shortcut-Subgroup influenced the remaining Shortcut creation
+
+
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2007-01-13 17:39:52 UTC (rev 1705)
++++ izpack-src/trunk/src/build.xml	2007-01-13 18:02:49 UTC (rev 1706)
+@@ -696,6 +696,7 @@
+     &lt;!-- Macro to compile a listener's classes and create its jar file --&gt;
+     &lt;macrodef name=&quot;build-listener&quot;&gt;
+         &lt;attribute name=&quot;name&quot; description=&quot;The listener jar will get this name&quot; /&gt;
++        &lt;attribute name=&quot;classpath-ext&quot; description=&quot;An extension of the classpath required to build the listener&quot; default=&quot;&quot;/&gt;
+         &lt;attribute name=&quot;srcdir&quot;
+                    default=&quot;${src.dir}&quot;
+                    description=&quot;Source directory. Defaults to izpack src dir&quot; /&gt;
+@@ -710,7 +711,7 @@
+             &lt;!-- sourcepath is cleared so there's no mistaking what goes into the Listener --&gt;
+             &lt;javac srcdir=&quot;@{srcdir}&quot;
+                    destdir=&quot;${bin.dir}/customActions/@{name}&quot;
+-                   classpath=&quot;${installer.jar};${compiler.jar};${izevent.jar}&quot;
++                   classpath=&quot;${installer.jar};${compiler.jar};${izevent.jar};@{classpath-ext}&quot;
+                    sourcepath=&quot;&quot;
+                    optimize=&quot;on&quot;
+                    deprecation=&quot;on&quot;
+@@ -747,12 +748,13 @@
+     &lt;!-- Convenience macro to call build-listener for installer listeners --&gt;
+     &lt;macrodef name=&quot;build-installer-listener&quot;&gt;
+         &lt;attribute name=&quot;name&quot; /&gt;
++        &lt;attribute name=&quot;classpath-ext&quot; description=&quot;An extension of the classpath required to build the listener&quot; default=&quot;&quot;/&gt;
+         &lt;attribute name=&quot;srcdir&quot; default=&quot;${src.dir}&quot; /&gt;
+         &lt;element name=&quot;installer-fileset&quot;
+                  implicit=&quot;yes&quot;
+                  description=&quot;include and exclude elements indicating listener sources&quot; /&gt;
+         &lt;sequential&gt;
+-            &lt;build-listener name=&quot;@{name}&quot; srcdir=&quot;@{srcdir}&quot; izeventExcludes=&quot;**/*Uninstaller*&quot;&gt;
++            &lt;build-listener name=&quot;@{name}&quot; srcdir=&quot;@{srcdir}&quot; izeventExcludes=&quot;**/*Uninstaller*&quot; classpath-ext=&quot;@{classpath-ext}&quot;&gt;
+                 &lt;installer-fileset /&gt;
+             &lt;/build-listener&gt;
+         &lt;/sequential&gt;
+@@ -779,7 +781,12 @@
+          This also acts as a check to help limit dependancies.
+     --&gt;
+     &lt;target name=&quot;build.listeners&quot; depends=&quot;build.compiler,build.installer,build.listener-base&quot;&gt;
+-        &lt;build-installer-listener name=&quot;AntActionInstallerListener&quot;&gt;
++    	&lt;!-- This dependency is mandatory --&gt;
++    	&lt;build-installer-listener name=&quot;LateShortcutInstallListener&quot; classpath-ext=&quot;${bin.dir}/panels/ShortcutPanel.jar&quot;&gt;
++            &lt;include name=&quot;com/izforge/izpack/event/LateShortcutInstallListener.java&quot; /&gt;
++        &lt;/build-installer-listener&gt;
++
++    	&lt;build-installer-listener name=&quot;AntActionInstallerListener&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/event/AntActionInstallerListener.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/event/AntAction.java&quot; /&gt;
+         &lt;/build-installer-listener&gt;
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/event/LateShortcutInstallListener.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/event/LateShortcutInstallListener.java	2007-01-13 17:39:52 UTC (rev 1705)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/event/LateShortcutInstallListener.java	2007-01-13 18:02:49 UTC (rev 1706)
+@@ -0,0 +1,48 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Markus Schlegel
++ * Copyright 2007 Julien Ponge
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.event;
++
++import com.izforge.izpack.installer.*;
++import com.izforge.izpack.panels.ShortcutPanel;
++import com.izforge.izpack.util.AbstractUIProgressHandler;
++
++/**
++ * Creates the Shortcuts after files have been installed.
++ * Use this listener, if you place the ShortcutPanel before the Installation of the files.
++ * 
++ * @author Marcus Schlegel, Pulinco
++ */
++public class LateShortcutInstallListener extends SimpleInstallerListener {
++
++  public LateShortcutInstallListener()
++  {
++      ShortcutPanel.getInstance().createImmediately = false;
++  }
++  
++  public void afterPacks(AutomatedInstallData idata, AbstractUIProgressHandler handler)
++  throws Exception
++  {
++      //now it's time to write down the shortcuts...
++      ShortcutPanel.getInstance().createAndRegisterShortcuts();
++  }
++}
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-01-13 17:39:52 UTC (rev 1705)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-01-13 18:02:49 UTC (rev 1706)
+@@ -54,6 +54,8 @@
+  * a program group for shortcuts, accept the creation of desktop shortcuts and actually creates the
+  * shortcuts.
+  * 
++ * Use LateShortcutInstallListener to create the Shortcuts after the Files have been installed.
++ * 
+  * @version $Revision$
+  */
+ public class ShortcutPanel extends IzPanel implements ActionListener, ListSelectionListener // ,//
+@@ -146,6 +148,10 @@
+     // ------------------------------------------------------
+     /** SPEC_ATTRIBUTE_DEFAULT_GROUP = &quot;defaultName&quot; */
+     private static final String SPEC_ATTRIBUTE_DEFAULT_GROUP = &quot;defaultName&quot;;
++    
++    /** Support the InstallGroups like in Packs.
++     * SPEC_ATTRIBUTE_INSTALLGROUP = &quot;installGroup&quot; */
++    private static final String SPEC_ATTRIBUTE_INSTALLGROUP = &quot;installGroup&quot;;
+ 
+     /** SPEC_ATTRIBUTE_LOCATION = &quot;location&quot; */
+     private static final String SPEC_ATTRIBUTE_LOCATION = &quot;location&quot;;
+@@ -218,8 +224,6 @@
+     // automatic script section keys
+     // ------------------------------------------------------
+ 
+-    /**   */
+-
+     /** AUTO_KEY_PROGRAM_GROUP = SPEC_KEY_PROGRAM_GROUP = &quot;programGroup&quot; */
+     public static final String AUTO_KEY_PROGRAM_GROUP = SPEC_KEY_PROGRAM_GROUP;
+ 
+@@ -269,6 +273,13 @@
+ 
+     /** internal flag: create */
+     static boolean create;
++    
++    /** 
++     * May be switched by an installerlistener to false.
++     * Installerlistener may then perform the creation of the shortcuts after the files have been installed...
++     * Default is true.
++     */
++    public static boolean createImmediately = true;
+ 
+     /** internal flag isRootUser */
+     private static boolean isRootUser;
+@@ -565,11 +576,10 @@
+ 
+         create = createShortcuts.isSelected();
+ 
+-        createShortcuts();
++        if (createImmediately){
++            createAndRegisterShortcuts();
++        }
+ 
+-        // add files and directories to the uninstaller
+-        addToUninstaller();
+-
+         return (true);
+     }
+ 
+@@ -829,7 +839,29 @@
+         // be placed and where this program group should be
+         // located
+         // ----------------------------------------------------
+-        XMLElement group = spec.getFirstChildNamed(SPEC_KEY_PROGRAM_GROUP);
++        
++        XMLElement group = null;
++        Vector groupSpecs = spec.getChildrenNamed(SPEC_KEY_PROGRAM_GROUP);
++        String selectedInstallGroup = idata.getVariable(&quot;INSTALL_GROUP&quot;);
++        if (selectedInstallGroup!=null){
++            //The user selected an InstallGroup before.
++            //We may have some restrictions on the Installationgroup
++            //search all defined ProgramGroups for the given InstallGroup
++            for (int i = 0; i &lt; groupSpecs.size(); i++)
++            {
++                XMLElement g = (XMLElement)groupSpecs.get(i);
++                String instGrp = g.getAttribute(SPEC_ATTRIBUTE_INSTALLGROUP);
++                if (instGrp!=null &amp;&amp; selectedInstallGroup.equalsIgnoreCase(instGrp)){
++                    group = g;
++                    break;
++                }
++            }
++        }
++        if (group==null){
++            //default (old) behavior
++            group = spec.getFirstChildNamed(SPEC_KEY_PROGRAM_GROUP);
++        }
++        
+         String location = null;
+         hasDesktopShortcuts = false;
+ 
+@@ -1080,6 +1112,16 @@
+     /*--------------------------------------------------------------------------*/
+ 
+     /**
++     * Enables Shortcutcreation from outside, e.g. from an InstallerListener.
++     * The Installerlistener can switch the flag &quot;createImmediately&quot; to false on initialisation, and call this method when afterpacks is performed.
++     * This makes only sense, if the ShorcutPanel is displayed before the files are copied onto the disk.
++     */
++    public void createAndRegisterShortcuts(){
++      createShortcuts();
++      addToUninstaller();
++    }
++    
++    /**
+      * Creates all shortcuts based on the information in shortcuts.
+      */
+ 
+@@ -1089,6 +1131,9 @@
+         if (!create) { Debug.log( this.getClass().getName() + &quot;::createShortcuts():create=&quot; + create ); return; }
+ 
+         ShortcutData data;
++        
++        //fix: don't influence other shortcuts when altering group name...
++        String gn = groupName;
+ 
+         for (int i = 0; i &lt; shortcuts.size(); i++)
+         {
+@@ -1096,7 +1141,7 @@
+ 
+             try
+             {
+-                groupName = groupName + data.subgroup;
++                gn = groupName + data.subgroup;
+                 shortcut.setUserType(itsUserType);
+                 shortcut.setLinkName(data.name);
+                 shortcut.setLinkType(data.type);
+@@ -1124,7 +1169,7 @@
+ 
+                 if (data.addToGroup)
+                 {
+-                    shortcut.setProgramGroup(groupName);
++                    shortcut.setProgramGroup(gn);
+                 }
+                 else
+                 {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000450.html">[izpack-changes] r1705 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000452.html">[izpack-changes] r1707 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#451">[ date ]</a>
+              <a href="thread.html#451">[ thread ]</a>
+              <a href="subject.html#451">[ subject ]</a>
+              <a href="author.html#451">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

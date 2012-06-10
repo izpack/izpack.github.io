@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Clearing text when reload custom panel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Clearing%20text%20when%20reload%20custom%20panel&In-Reply-To=368C3CD47F40D043B5DD553E9035B49423D341%40ex1.eldat.local">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000404.html">
+   <LINK REL="Next"  HREF="000403.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Clearing text when reload custom panel</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Clearing%20text%20when%20reload%20custom%20panel&In-Reply-To=368C3CD47F40D043B5DD553E9035B49423D341%40ex1.eldat.local"
+       TITLE="[izpack-users] Clearing text when reload custom panel">bartzkau at gmx.net
+       </A><BR>
+    <I>Tue Mar 28 10:01:38 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000404.html">[izpack-users] izpack copies very slowly the files contained in a pack
+</A></li>
+        <LI>Next message: <A HREF="000403.html">[izpack-users] Running a process and using the results
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#291">[ date ]</a>
+              <a href="thread.html#291">[ thread ]</a>
+              <a href="subject.html#291">[ subject ]</a>
+              <a href="author.html#291">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Am 28.02.2006, 08:52 Uhr, schrieb Yossi Baram &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">yossiba at eldat.com</A>&gt;:
+&lt;snip&gt;
+&gt;<i> public class ValidityCheck extends IzPanel
+</I>
+Will be better if you use &quot;Panel&quot; at end of class name like
+ValidityCheckPanel
+Then it is easier to include the panel into the build rules of the
+ant script :-)
+
+You know, TargetPanel verifies also the space...
+It uses the method getFreeSpace of com.izforge.izpack.util.IOHelper.
+ From time to time it was expanded for some other OSs.
+
+&lt;snip&gt;
+&gt;<i> My problem here is, if the user get a message that he doesnt have enogh
+</I>&gt;<i> space for installation he should return and set a different target
+</I>&gt;<i> folder.
+</I>&gt;<i> When the ValidityCheck panel reload the previous string remains and a
+</I>&gt;<i> new one is added.
+</I>
+Will be nice if you use the source layout of IzPack. There is an layout
+file for eclipse in the source tree :-) Then we can see what you have
+implemented on the fly else we have to reformat your code.
+After I have loaded your class into eclipse and reformated the layout
+I have seen your problem...
+
+You create only the center panel in the constructor, not the labels
+and struts etc. Do this not in this manner with an IzPack panel, also
+there is one where it will be done (FinishPanel).
+In the constructor create all elements of layout; if you would change
+something use a class member to access the element later.
+In panelActivate change the contents of the already created layout elements
+like labels or text boxes or check boxes or what ever; e.g.
+sorryLabel.setText(&quot;my new sorry message&quot;);
+
+If you would change the layout of a panel at the secound view you
+have to remove the old layout elements and revalidate the panel. This
+can produce some trouble...
+IzPack do not use dynamic created panels else all panels should be created
+after language selection box (OK, FinishPanel is an exception; I do not
+know why...).
+
+If you need dynamic behavior use better an additional dialog like
+JOptionPane.showMessageDialog.
+
+&gt;<i> How can I make sure each time you go inside the panel, it has no past
+</I>&gt;<i> strings that will be added to the new one?
+</I>&gt;<i> Thanks
+</I>&gt;<i> Yossi
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+Cheers
+
+Klaus
+
+-- 
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000404.html">[izpack-users] izpack copies very slowly the files contained in a pack
+</A></li>
+	<LI>Next message: <A HREF="000403.html">[izpack-users] Running a process and using the results
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#291">[ date ]</a>
+              <a href="thread.html#291">[ thread ]</a>
+              <a href="subject.html#291">[ subject ]</a>
+              <a href="author.html#291">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

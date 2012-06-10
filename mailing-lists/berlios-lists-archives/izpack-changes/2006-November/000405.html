@@ -1,0 +1,803 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1660 - in izpack-src/trunk:	bin/langpacks/installer src/dtd src/lib/com/izforge/izpack	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1660%20-%20in%20izpack-src/trunk%3A%0A%09bin/langpacks/installer%20src/dtd%20src/lib/com/izforge/izpack%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000404.html">
+   <LINK REL="Next"  HREF="000406.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1660 - in izpack-src/trunk:	bin/langpacks/installer src/dtd src/lib/com/izforge/izpack	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1660%20-%20in%20izpack-src/trunk%3A%0A%09bin/langpacks/installer%20src/dtd%20src/lib/com/izforge/izpack%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1660 - in izpack-src/trunk:	bin/langpacks/installer src/dtd src/lib/com/izforge/izpack	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Wed Nov 29 18:03:02 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000404.html">[izpack-changes] r1659 - izpack-src/trunk/src
+</A></li>
+        <LI>Next message: <A HREF="000406.html">[izpack-changes] r1661 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#405">[ date ]</a>
+              <a href="thread.html#405">[ thread ]</a>
+              <a href="subject.html#405">[ subject ]</a>
+              <a href="author.html#405">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-11-29 18:03:01 +0100 (Wed, 29 Nov 2006)
+New Revision: 1660
+
+Modified:
+   izpack-src/trunk/bin/langpacks/installer/deu.xml
+   izpack-src/trunk/bin/langpacks/installer/eng.xml
+   izpack-src/trunk/src/dtd/installation.dtd
+   izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+Log:
+The mutually excluse packs patch with additional comments,
+I18N, etc.
+
+
+Modified: izpack-src/trunk/bin/langpacks/installer/deu.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/deu.xml	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/bin/langpacks/installer/deu.xml	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -96,8 +96,10 @@
+     &lt;str id=&quot;PacksPanel.freespace&quot; txt=&quot;Verf&#252;gbarer Speicherplatz: &quot;/&gt;
+     &lt;str id=&quot;PacksPanel.description&quot; txt=&quot;Beschreibung&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.dependencyList&quot; 
+-    	txt=&quot;Das Paket ist von folgenden Paketen abh&#228;ngig, bitte w&#228;hlen Sie diese zuerst aus:&quot;/&gt;
+-    &lt;str id=&quot;ImgPacksPanel.dependencyList&quot; txt=&quot;Abh&#228;ngigkeiten&quot;/&gt;
++    	txt=&quot;Das Paket hat folgende Abh&#228;ngigkeiten und/oder Ausschl&#252;sse:&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.dependencies&quot; txt=&quot;Abh&#228;ngigkeiten: &quot;/&gt;
++    &lt;str id=&quot;PacksPanel.excludes&quot; txt=&quot;Ausschl&#252;sse: &quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.dependencyList&quot; txt=&quot;Abh&#228;ngigkeiten und/oder Ausschl&#252;sse&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.notEnoughSpace&quot; 
+     	txt=&quot;Der erforderliche Festplattenplatz f&#252;r die Installation ist gr&#246;&#223;er als der zur Verf&#252;gung stehende Speicherplatz.&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.notAscertainable&quot; txt=&quot;nicht bestimmbar&quot;/&gt;
+
+Modified: izpack-src/trunk/bin/langpacks/installer/eng.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/eng.xml	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/bin/langpacks/installer/eng.xml	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -96,8 +96,10 @@
+     &lt;str id=&quot;PacksPanel.freespace&quot; txt=&quot;Available space: &quot;/&gt;
+     &lt;str id=&quot;PacksPanel.description&quot; txt=&quot;Description&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.dependencyList&quot; 
+-        txt=&quot;The selected package requires the following packs to be installed&quot;/&gt;
+-    &lt;str id=&quot;ImgPacksPanel.dependencyList&quot; txt=&quot;Dependencies&quot;/&gt;
++        txt=&quot;The selected package has the following dependencies and/or excludes&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.dependencies&quot; txt=&quot;Dependencies: &quot;/&gt;
++    &lt;str id=&quot;PacksPanel.excludes&quot; txt=&quot;Excludes: &quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.dependencyList&quot; txt=&quot;Dependencies and/or excludes&quot;/&gt;
+ 	&lt;str id=&quot;PacksPanel.notEnoughSpace&quot; 
+ 	    txt=&quot;Disk space required for the installation exceeds available disk space.&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.notAscertainable&quot; txt=&quot;not ascertainable&quot;/&gt;
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/src/dtd/installation.dtd	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -106,6 +106,7 @@
+         &lt;!ATTLIST pack loose (true|false) &quot;false&quot;&gt;
+         &lt;!ATTLIST pack group CDATA #IMPLIED&gt;
+         &lt;!ATTLIST pack installGroups CDATA #IMPLIED&gt;
++        &lt;!ATTLIST pack excludeGroup CDATA #IMPLIED&gt;
+         &lt;!ELEMENT description (#PCDATA)&gt;
+         &lt;!ELEMENT file (os*, additionaldata*)&gt;
+             &lt;!ATTLIST file src CDATA #REQUIRED&gt;
+@@ -156,7 +157,7 @@
+       &lt;!ELEMENT updatecheck (include*, exclude*)&gt;
+       &lt;!ELEMENT depends EMPTY&gt;
+           &lt;!ATTLIST depends packname CDATA #REQUIRED&gt;
+-
++          
+ &lt;!-- Allows the inclusion in the installer or uninstaller of a native library --&gt;
+ &lt;!ELEMENT native (os*)&gt;
+     &lt;!ATTLIST native type (izpack|3rdparty) #REQUIRED&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -38,6 +38,7 @@
+ 
+     static final long serialVersionUID = -5458360562175088671L;
+ 
++    /** Flag for store files of this pack outside the installation jar file */
+     public boolean loose;
+ 
+     /** The pack name. */
+@@ -52,6 +53,12 @@
+      * default, all.
+      */
+     public Set installGroups = new HashSet();
++    
++    /** All packs in the same excludeGroup are mutually exclusive. The excludeGroup
++     * is a string and serves are key identifying each group of mutually
++     * exclusive packs.
++     */
++    public String excludeGroup = new String();
+ 
+     /** The group the pack is associated with. The pack group identifies
+      * packs with common functionality to allow for grouping of packs in a
+@@ -70,7 +77,7 @@
+ 
+     /** Reverse dependencies(childs) */
+     public List revDependencies = null;
+-
++    
+     /** True if the pack is required. */
+     public boolean required;
+ 
+@@ -96,13 +103,17 @@
+      * The constructor.
+      * 
+      * @param name The pack name.
++     * @param id The id of the pack which is used e.g. for I18N
+      * @param description The pack description.
+      * @param osConstraints the OS constraint (or null for any OS)
++     * @param dependencies dependencies of this pack
+      * @param required Indicates wether the pack is required or not.
+      * @param preselected This pack will be selected automatically.
++     * @param loose Flag for store files of this pack outside the installation jar file
++     * @param excludegroup associated exclude group 
+      */
+     public Pack(String name, String id, String description, List osConstraints, List dependencies,
+-            boolean required, boolean preselected, boolean loose)
++            boolean required, boolean preselected, boolean loose, String excludegroup)
+     {
+         this.name = name;
+         this.id = id;
+@@ -112,6 +123,7 @@
+         this.required = required;
+         this.preselected = preselected;
+         this.loose = loose;
++        this.excludeGroup = excludegroup;
+         nbytes = 0;
+         color = PackInfo.WHITE;
+     }
+@@ -126,22 +138,24 @@
+         return name + &quot; (&quot; + description + &quot;)&quot;;
+     }
+ 
+-    /** getter method */
++    /** getter method for dependencies
++     * @return the dependencies list*/
+     public List getDependencies()
+     {
+         return dependencies;
+     }
+-
++    
++    
+     /**
+      * This adds a reverse dependency. With a reverse dependency we imply a child dependency or the
+      * dependents on this pack
+      * 
+-     * @param name The name of the pack that depents to this pack
++     * @param name0 The name of the pack that depents to this pack
+      */
+-    public void addRevDep(String name)
++    public void addRevDep(String name0)
+     {
+         if (revDependencies == null) revDependencies = new ArrayList();
+-        revDependencies.add(name);
++        revDependencies.add(name0);
+     }
+ 
+     /**
+@@ -153,14 +167,14 @@
+     {
+         String text = &quot;&quot;;
+         if (dependencies == null) return text;
+-        String name;
++        String name0;
+         for (int i = 0; i &lt; dependencies.size() - 1; i++)
+         {
+-            name = (String) dependencies.get(i);
+-            text += name + &quot;,&quot;;
++            name0 = (String) dependencies.get(i);
++            text += name0 + &quot;,&quot;;
+         }
+-        name = (String) dependencies.get(dependencies.size() - 1);
+-        text += name;
++        name0 = (String) dependencies.get(dependencies.size() - 1);
++        text += name0;
+         return text;
+ 
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -28,6 +28,7 @@
+ import com.izforge.izpack.CustomData;
+ import com.izforge.izpack.GUIPrefs;
+ import com.izforge.izpack.Info;
++import com.izforge.izpack.Pack;
+ import com.izforge.izpack.Panel;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.VariableSubstitutor;
+@@ -149,7 +150,8 @@
+ 
+     
+     /**
+-     * Retrieves the packager listener
++     * Returns the packager listener.
++     * @return the packager listener
+      */
+     public PackagerListener getPackagerListener()
+     {
+@@ -242,27 +244,45 @@
+         this.compileFailed = false;
+     }
+ 
++    /**
++     * Returns whether the installation was successful or not.
++     * @return whether the installation was successful or not
++     */
+     public boolean wasSuccessful()
+     {
+         return !this.compileFailed;
+     }
+ 
+-    public String replaceProperties(String value) throws CompilerException
++    /**
++     * Replaces placeholder in the given string with the associated strings.
++     * @param value to be substituted
++     * @return the substituted string
++     */
++    public String replaceProperties(String value)
+     {
+         return propertySubstitutor.substitute(value, &quot;at&quot;);
+     }
+ 
++    /**
++     * Sets GUI preferences to the packager.
++     * @param prefs preferences to be set
++     */
+     public void setGUIPrefs(GUIPrefs prefs)
+     {
+         packager.setGUIPrefs(prefs);
+     }
++    /**
++     * Sets an Info object to the packager.
++     * @param info Info object to be set
++     * @throws Exception
++     */
+     public void setInfo(Info info) throws Exception
+     {
+         packager.setInfo(info);
+     }
+ 
+     /**
+-     * Get the install packager.
++     * Returns the install packager.
+      * @return the install packager.
+      */
+     public Packager getPackager()
+@@ -270,7 +290,8 @@
+         return packager;
+     }
+     /**
+-     * Get the properties currently known to the compileer.
++     * Returns the properties currently known to the compileer.
++     * @return the properties currently known to the compileer
+      */
+     public Properties getProperties()
+     {
+@@ -331,16 +352,24 @@
+     {
+         packager.addJarContent(content);
+     }
++
+     /**
+-     * Add jar content to the installation.
+-     * @param content 
++     * Adds a jar file content to the installer. Package structure is maintained. Need mechanism to
++     * copy over signed entry information. If the given file list is null the hole contents of the
++     * jar file will be copied else only the listed.
++     * 
++     * @param content The url of the jar to add to the installer. We use a URL so the jar may be
++     * nested within another.
++     * @param files to be copied
+      */
+     public void addJarContent(URL content, List files)
+     {
+         packager.addJarContent(content, files);
+     }
++
+     /**
+      * Add a custom jar to the installation.
++     * 
+      * @param ca
+      * @param url
+      */
+@@ -407,16 +436,60 @@
+      * Checks whether the dependencies stated in the configuration file are correct. Specifically it
+      * checks that no pack point to a non existent pack and also that there are no circular
+      * dependencies in the packs.
++     * @throws CompilerException 
+      */
+     public void checkDependencies() throws CompilerException
+     {
+         checkDependencies(packager.getPacksList());
+     }
++    
+     /**
++     * Checks whether the excluded packs exist. (simply calles the other function)
++     * @throws CompilerException
++     */
++    public void checkExcludes() throws CompilerException
++    {
++       checkExcludes(packager.getPacksList());
++    }
++    
++    /**
++     * This checks if there are more than one preselected packs per excludeGroup.
++     * @param packs list of packs which should be checked
++     * @throws CompilerException 
++     */
++    public void checkExcludes(List packs) throws CompilerException
++    {
++        for(int q=0; q&lt;packs.size(); q++)
++        {
++            PackInfo packinfo1 = (PackInfo) packs.get(q);
++            Pack pack1 = packinfo1.getPack();
++            for(int w = 0; w &lt; q; w++)
++            {
++
++                PackInfo packinfo2 = (PackInfo) packs.get(w);
++                Pack pack2 = packinfo2.getPack();
++                if(pack1.excludeGroup != null &amp;&amp; pack2.excludeGroup != null)
++                {
++                    if(pack1.excludeGroup.equals(pack2.excludeGroup))
++                    {
++                        if(pack1.preselected &amp;&amp; pack2.preselected)
++                        {
++                            parseError(&quot;Packs &quot;+pack1.name+&quot; and &quot;+pack2.name+
++                                    &quot; belong to the same excludeGroup &quot;+pack1.excludeGroup+
++                            &quot; and are both preselected. This is not allowed.&quot;);
++                        }
++                    }
++                }
++            }
++            
++        }
++    }
++    /**
+      * Checks whether the dependencies among the given Packs. Specifically it
+      * checks that no pack point to a non existent pack and also that there are no circular
+      * dependencies in the packs.
+      * @param packs - List&lt;Pack&gt; representing the packs in the installation
++     * @throws CompilerException 
+      */
+     public void checkDependencies(List packs) throws CompilerException
+     {
+@@ -442,6 +515,7 @@
+      * 
+      * @param packs The graph
+      * @param names The name map
++     * @return -2 if back edges exist, else 0
+      */
+     private int dfs(List packs, Map names)
+     {
+@@ -460,6 +534,8 @@
+ 
+     /**
+      * This function checks for the existence of back edges.
++     * @param edges map to be checked
++     * @return -2 if back edges exist, else 0
+      */
+     private int checkBackEdges(Map edges)
+     {
+@@ -530,7 +606,7 @@
+      * @param override Overriding behaviour.
+      * @param pack Pack to be packed into
+      * @param additionals Map which contains additional data
+-     * @exception FileNotFoundException if the file does not exist
++     * @throws IOException 
+      */
+     protected void addRecursively(File file, String targetdir, List osList, int override,
+             PackInfo pack, Map additionals) throws IOException
+@@ -561,6 +637,7 @@
+      * @param path the relative path (using '/' as separator) to the resource.
+      * @param desc the description of the resource used to report errors
+      * @return a URL to the resource.
++     * @throws CompilerException 
+      */
+     public URL findIzPackResource(String path, String desc)
+             throws CompilerException
+@@ -592,12 +669,21 @@
+      * unknown.
+      * 
+      * @param message Brief message explaining error
++     * @throws CompilerException 
+      */
+     public void parseError(String message) throws CompilerException
+     {
+         this.compileFailed = true;
+         throw new CompilerException(message);
+     }
++    /**
++     * Create parse error with consistent messages. Includes file name. For use When parent is
++     * unknown.
++     * 
++     * @param message Brief message explaining error
++     * @param how throwable which was catched
++     * @throws CompilerException 
++     */
+     public void parseError(String message, Throwable how) throws CompilerException
+     {
+         this.compileFailed = true;
+@@ -726,6 +812,7 @@
+          * Print a message to the console at the specified priority.
+          * 
+          * @param info The information.
++         * @param priority priority to be used for the message prefix
+          */
+         public void packagerMsg(String info, int priority)
+         {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -528,16 +528,30 @@
+             // Trivial initialisations
+             String name = requireAttribute(el, &quot;name&quot;);
+             String id = el.getAttribute(&quot;id&quot;);
++            
+             boolean loose = &quot;true&quot;.equalsIgnoreCase(el.getAttribute(&quot;loose&quot;, &quot;false&quot;));
+             String description = requireChildNamed(el, &quot;description&quot;).getContent();
+             boolean required = requireYesNoAttribute(el, &quot;required&quot;);
+             String group = el.getAttribute(&quot;group&quot;);
+             String installGroups = el.getAttribute(&quot;installGroups&quot;);
+-
+-            PackInfo pack = new PackInfo(name, id, description, required, loose);
++            String excludeGroup = el.getAttribute(&quot;excludeGroup&quot;);
++            
++            if(required &amp;&amp; excludeGroup != null)
++            {
++                parseError(el, &quot;Pack, which has excludeGroup can not be required.&quot;, 
++                    new Exception(&quot;Pack, which has excludeGroup can not be required.&quot;));
++            }
++            
++            PackInfo pack = new PackInfo(name, id, description, required, loose, excludeGroup);
+             pack.setOsConstraints(OsConstraint.getOsList(el)); // TODO:
++            
+             // unverified
+-            pack.setPreselected(validateYesNoAttribute(el, &quot;preselected&quot;, YES));
++            // if the pack belongs to an excludeGroup it's not preselected by default
++            if(excludeGroup == null)
++                pack.setPreselected(validateYesNoAttribute(el, &quot;preselected&quot;, YES));
++            else
++                pack.setPreselected(validateYesNoAttribute(el, &quot;preselected&quot;, NO));
++            
+             // Set the pack group if specified
+             if (group != null)
+                 pack.setGroup(group);
+@@ -829,11 +843,12 @@
+                 pack.addDependency(depName);
+ 
+             }
+-
+             // We add the pack
+             compiler.addPack(pack);
+         }
++        
+         compiler.checkDependencies();
++        compiler.checkExcludes();
+ 
+         notifyCompilerListener(&quot;addPacks&quot;, CompilerListener.END, data);
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -71,10 +71,18 @@
+     /** Update check specifications in this Pack. */
+     private List updateChecks = new ArrayList();
+ 
+-    /** Constructor with required info. */
+-    protected PackInfo(String name, String id, String description, boolean required, boolean loose)
++    /** Constructor with required info. 
++     * @param name name of the pack
++     * @param id id of the pack e.g. to resolve I18N
++     * @param description descripton in English
++     * @param required pack is required or not
++     * @param loose files of pack should be stored separatly or not
++     * @param excludegroup name of the exclude group 
++     */
++    protected PackInfo(String name, String id, String description, boolean required, boolean loose, String excludegroup)
+     {
+-        pack = new Pack(name, id, description, null, null, required, true, loose);
++        boolean ispreselected = (excludegroup == null) ? true : false;
++        pack = new Pack(name, id, description, null, null, required, ispreselected, loose, excludegroup);
+         colour = PackInfo.WHITE;
+     }
+ 
+@@ -86,7 +94,16 @@
+     {
+         pack.dependencies = dependencies;
+     }
+-
++    
++    /**
++     * Set the name of the group which contains the packs which exludes mutual.
++     * @param group name of the mutal exclude group
++     */
++    public void setExcludeGroup(String group)
++    {
++        pack.excludeGroup = group;
++    }
++    
+     public void setOsConstraints(List osConstraints)
+     {
+         pack.osConstraints = osConstraints;
+@@ -266,12 +283,12 @@
+         }
+         pack.dependencies.add(dependency);
+     }
+-
++    
+     public List getDependencies()
+     {
+         return pack.dependencies;
+     }
+-
++    
+     public String toString()
+     {
+         return pack.name;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -394,12 +394,14 @@
+     {
+         addJarContent(jarURL, null);
+     }
+-   /**
++    /**
+      * Adds a jar file content to the installer. Package structure is maintained. Need mechanism to
+-     * copy over signed entry information.
++     * copy over signed entry information. If the given file list is null the hole contents of the
++     * jar file will be copied else only the listed.
+      * 
+      * @param jarURL The url of the jar to add to the installer. We use a URL so the jar may be
+      * nested within another.
++     * @param files to be copied
+      */
+     public void addJarContent(URL jarURL, List files)
+     {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -129,6 +129,23 @@
+                     checkValues[pos] = -2;
+                 }
+             }
++            // for mutual exclusion, uncheck uncompatible packs too
++            // (if available in the current installGroup)
++            
++            if(checkValues[i] &gt; 0 &amp;&amp; pack.excludeGroup != null)
++            {
++                for (int q = 0; q &lt; packs.size(); q++)
++                {
++                    if(q != i)
++                    {
++                        Pack otherpack = (Pack) packs.get(q);
++                        if(pack.excludeGroup.equals(otherpack.excludeGroup))
++                        {
++                            if (checkValues[q] == 1) checkValues[q] = 0;
++                        }
++                    }
++                }
++            }
+         }
+         // The required ones must propagate their required status to all the
+         // ones
+@@ -253,6 +270,7 @@
+                 if (((Integer) aValue).intValue() == 1)
+                 {
+                     checkValues[rowIndex] = 1;
++                    updateExcludes(rowIndex);
+                     updateDeps();
+ 
+                     int bytes = panel.getBytes();
+@@ -262,6 +280,7 @@
+                 else
+                 {
+                     checkValues[rowIndex] = 0;
++                    updateExcludes(rowIndex);
+                     updateDeps();
+ 
+                     int bytes = panel.getBytes();
+@@ -318,7 +337,45 @@
+         }
+ 
+     }
+-
++    /*
++     * Sees which packs (if any) should be unchecked and updates checkValues
++     */
++    private void updateExcludes(int rowindex)
++    {
++        int value = checkValues [rowindex];
++        Pack pack = (Pack) packs.get(rowindex);
++        if( value &gt; 0 &amp;&amp; pack.excludeGroup != null)
++        {
++            for( int q = 0; q &lt; packs.size(); q++)
++            {
++                if( rowindex != q )
++                {
++                    Pack otherpack = (Pack)packs.get(q);
++                    String name1 = otherpack.excludeGroup;
++                    String name2 = pack.excludeGroup;
++                    if( name2.equals(name1) )
++                    {
++                        if( checkValues [q] == 1) checkValues [q] = 0;
++                    }
++                }
++            }
++        }
++        this.UpdateBytes();
++    }
++    
++    private void UpdateBytes()
++    {
++        int bytes = 0;
++        for(int q=0; q&lt;packs.size(); q++)
++        {
++            if(Math.abs(checkValues[q]) == 1)
++            {
++                Pack pack = (Pack)packs.get(q);
++                bytes += pack.nbytes;
++            }
++        }
++        panel.setBytes(bytes);
++    }
+     /**
+      * We use a modified dfs graph search algorithm as described in: Thomas H. Cormen, Charles
+      * Leiserson, Ronald Rivest and Clifford Stein. Introduction to algorithms 2nd Edition
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2006-11-29 16:01:33 UTC (rev 1659)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2006-11-29 17:03:01 UTC (rev 1660)
+@@ -298,30 +298,70 @@
+             Pack pack = (Pack) idata.availablePacks.get(i);
+             List dep = pack.dependencies;
+             String list = &quot;&quot;;
++            if(dep != null  )
++            {
++                list += ( langpack == null ) ? &quot;Dependencies: &quot; : langpack.getString(&quot;PacksPanel.dependencies&quot;);
++            }
+             for (int j = 0; dep != null &amp;&amp; j &lt; dep.size(); j++)
+             {
+                 String name = (String) dep.get(j);
+-                // Internationalization code
+-                Pack childPack = (Pack) names.get(name);
+-                String childName = &quot;&quot;;
+-                String key = childPack.id;
+-                if (langpack != null &amp;&amp; childPack.id != null &amp;&amp; !&quot;&quot;.equals(childPack.id))
++                list += getI18NPackName((Pack) names.get(name));
++                if (j != dep.size() - 1) list += &quot;, &quot;;
++            }
++            
++            //add the list of the packs to be excluded
++            String excludeslist = (langpack == null) ?&quot;Excludes: &quot; : langpack.getString(&quot;PacksPanel.excludes&quot;);
++            int numexcludes = 0;
++            if(pack.excludeGroup != null)
++            {
++                for(int q=0; q&lt;idata.availablePacks.size(); q++)
+                 {
+-                    childName = langpack.getString(key);
++                    Pack otherpack = (Pack) idata.availablePacks.get(q);
++                    String exgroup = otherpack.excludeGroup;
++                    if(exgroup != null)
++                    {
++                        if( q != i &amp;&amp; pack.excludeGroup.equals(exgroup))
++                        {
++                            
++                            excludeslist += getI18NPackName(otherpack) + &quot;, &quot;;
++                            numexcludes ++;
++                        }
++                    }
+                 }
+-                if (&quot;&quot;.equals(childName) || key.equals(childName))
+-                {
+-                    childName = childPack.name;
+-                }
+-                // End internationalization
+-                list += childName;
+-                if (j != dep.size() - 1) list += &quot;, &quot;;
+             }
++            //concatenate
++            if(dep != null) excludeslist = &quot;    &quot; + excludeslist;
++            if(numexcludes &gt; 0) list += excludeslist;
++            if(list.endsWith(&quot;, &quot;)) list = list.substring(0, list.length()-2);
++            
++            //and display the result
+             dependencyArea.setText(list);
+         }
+     }
+ 
+     /**
++     * This method tries to resolve the localized name of the given pack.
++     * If this is not possible, the name given in the installation description
++     * file in ELEMENT &lt;pack&gt; will be used.
++     * @param pack for which the name should be resolved
++     * @return localized name of the pack
++     */
++    private String getI18NPackName(Pack pack)
++    {
++        // Internationalization code
++        String packName = pack.name;
++        String key = pack.id;
++        if (langpack != null &amp;&amp; pack.id != null &amp;&amp; !&quot;&quot;.equals(pack.id))
++        {
++            packName = langpack.getString(key);
++        }
++        if (&quot;&quot;.equals(packName) || key.equals(packName))
++        {
++            packName = pack.name;
++        }
++        return( packName );
++    }
++    /**
+      * Layout helper method:&lt;br&gt;
+      * Creates an label with a message given by msgId and an icon given by the iconId. If layout and
+      * constraints are not null, the label will be added to layout with the given constraints. The
+@@ -462,7 +502,7 @@
+         {
+             Pack pack = (Pack) packs.get(i);
+             names.put(pack.name, pack);
+-            if (pack.dependencies != null) dependenciesExist = true;
++            if (pack.dependencies != null || pack.excludeGroup != null) dependenciesExist = true;
+         }
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000404.html">[izpack-changes] r1659 - izpack-src/trunk/src
+</A></li>
+	<LI>Next message: <A HREF="000406.html">[izpack-changes] r1661 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#405">[ date ]</a>
+              <a href="thread.html#405">[ thread ]</a>
+              <a href="subject.html#405">[ subject ]</a>
+              <a href="author.html#405">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Patch-Again: Sortable InstallGroups
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch-Again%3A%20Sortable%20InstallGroups&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001185.html">
+   <LINK REL="Next"  HREF="001204.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Patch-Again: Sortable InstallGroups</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch-Again%3A%20Sortable%20InstallGroups&In-Reply-To="
+       TITLE="[izpack-devel] Patch-Again: Sortable InstallGroups">schlm3 at gmail.com
+       </A><BR>
+    <I>Mon Jul 16 11:56:42 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001185.html">No subject
+</A></li>
+        <LI>Next message: <A HREF="001204.html">[izpack-devel] Fwd: Patch-Again: Sortable InstallGroups
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1203">[ date ]</a>
+              <a href="thread.html#1203">[ thread ]</a>
+              <a href="subject.html#1203">[ subject ]</a>
+              <a href="author.html#1203">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi
+
+I am sending this patch once again, and I hope someone has time to include
+it into the 3.10 Branch.
+The patch allows InstallGroups to be sorted inside the InstallGroupPanel
+with a sortkey.
+
+Markus
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070716/ebb315f4/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070716/ebb315f4/attachment.html</A> 
+-------------- next part --------------
+Index: C:/deron/3rdParty/IzPack_3.10/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+===================================================================
+--- C:/deron/3rdParty/IzPack_3.10/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	(revision 1864)
++++ C:/deron/3rdParty/IzPack_3.10/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	(working copy)
+@@ -361,7 +361,8 @@
+                 if (data == null)
+                 {
+                     String description = getGroupDescription(group);
+-                    data = new GroupData(group, description);
++                    String sortKey = getGroupSortKey(group);
++                    data = new GroupData(group, description, sortKey);
+                     installGroups.put(group, data);
+                 }
+             }
+@@ -434,7 +435,32 @@
+ 
+         return description;
+     }
++    
++    /**
++     * Look for a key = InstallationGroupPanel.sortKey.[group] entry:
++     * by using idata.getVariable(key)
++     * if this variable is not defined, defaults to group
++     * @param group - the installation group name
++     * @return the group sortkey
++     */
++    protected String getGroupSortKey(String group)
++    {
++        String key = &quot;InstallationGroupPanel.sortKey.&quot; + group;
++        String sortKey = idata.getVariable(key);
++        if (sortKey == null)
++            sortKey = group;
++        try
++        {
++            sortKey = URLDecoder.decode(sortKey, &quot;UTF-8&quot;);
++        }
++        catch (UnsupportedEncodingException e)
++        {
++            emitWarning(&quot;Failed to convert sortKey&quot;, e.getMessage());
++        }
+ 
++        return sortKey;
++    }
++
+     protected TableModel getModel(HashMap groupData)
+     {
+         String c1 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameSelected&quot;);
+@@ -460,12 +486,12 @@
+                GroupData g1 = (GroupData) o1;
+                GroupData g2 = (GroupData) o2;
+ 
+-               if (g1.name == null || g2.name==null)
++               if (g1.sortKey == null || g2.sortKey==null)
+                {
+                    return 0;
+                }
+ 
+-               return g1.name.compareTo(g2.name);
++               return g1.sortKey.compareTo(g2.sortKey);
+            }
+         });
+ 
+@@ -521,13 +547,15 @@
+ 
+         String name;
+         String description;
++        String sortKey;
+         long size;
+         HashSet packNames = new HashSet();
+ 
+-        GroupData(String name, String description)
++        GroupData(String name, String description, String sortKey)
+         {
+             this.name = name;
+             this.description = description;
++            this.sortKey = sortKey;
+         }
+ 
+         String getSizeString()
+@@ -557,6 +585,8 @@
+             tmp.append(name);
+             tmp.append(&quot;){description=&quot;);
+             tmp.append(description);
++            tmp.append(&quot;, sortKey=&quot;);
++            tmp.append(sortKey);
+             tmp.append(&quot;, size=&quot;);
+             tmp.append(size);
+             tmp.append(&quot;, sizeString=&quot;);
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001185.html">No subject
+</A></li>
+	<LI>Next message: <A HREF="001204.html">[izpack-devel] Fwd: Patch-Again: Sortable InstallGroups
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1203">[ date ]</a>
+              <a href="thread.html#1203">[ thread ]</a>
+              <a href="subject.html#1203">[ subject ]</a>
+              <a href="author.html#1203">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

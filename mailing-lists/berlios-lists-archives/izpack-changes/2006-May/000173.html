@@ -1,0 +1,674 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r194 - in izpack-frontend/trunk/src: conf izpack/frontend/actions izpack/frontend/model izpack/frontend/model/stages izpack/frontend/view izpack/frontend/view/mode izpack/frontend/view/stages izpack/frontend/view/stages/configure/panels utils
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r194%20-%20in%20izpack-frontend/trunk/src%3A%20conf%20izpack/frontend/actions%20izpack/frontend/model%20izpack/frontend/model/stages%20izpack/frontend/view%20izpack/frontend/view/mode%20izpack/frontend/view/stages%20izpack/frontend/view/stages/configure/panels%20utils&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000174.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r194 - in izpack-frontend/trunk/src: conf izpack/frontend/actions izpack/frontend/model izpack/frontend/model/stages izpack/frontend/view izpack/frontend/view/mode izpack/frontend/view/stages izpack/frontend/view/stages/configure/panels utils</H1>
+    <B>gumbo at BerliOS</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r194%20-%20in%20izpack-frontend/trunk/src%3A%20conf%20izpack/frontend/actions%20izpack/frontend/model%20izpack/frontend/model/stages%20izpack/frontend/view%20izpack/frontend/view/mode%20izpack/frontend/view/stages%20izpack/frontend/view/stages/configure/panels%20utils&In-Reply-To="
+       TITLE="[izpack-changes] r194 - in izpack-frontend/trunk/src: conf izpack/frontend/actions izpack/frontend/model izpack/frontend/model/stages izpack/frontend/view izpack/frontend/view/mode izpack/frontend/view/stages izpack/frontend/view/stages/configure/panels utils">gumbo at berlios.de
+       </A><BR>
+    <I>Wed May  3 02:24:14 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000174.html">[izpack-changes] izpack-src/src/doc-ng/docbooks node4.xml,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#173">[ date ]</a>
+              <a href="thread.html#173">[ thread ]</a>
+              <a href="subject.html#173">[ subject ]</a>
+              <a href="author.html#173">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gumbo
+Date: 2006-05-03 02:22:57 +0200 (Wed, 03 May 2006)
+New Revision: 194
+
+Modified:
+   izpack-frontend/trunk/src/conf/app-config.xml
+   izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java
+   izpack-frontend/trunk/src/izpack/frontend/actions/CompileDisplay.java
+   izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java
+   izpack-frontend/trunk/src/izpack/frontend/model/AppConfiguration.java
+   izpack-frontend/trunk/src/izpack/frontend/model/stages/GeneralInformationModel.java
+   izpack-frontend/trunk/src/izpack/frontend/view/AppBase.java
+   izpack-frontend/trunk/src/izpack/frontend/view/IzPackFrame.java
+   izpack-frontend/trunk/src/izpack/frontend/view/mode/WelcomeScreen.java
+   izpack-frontend/trunk/src/izpack/frontend/view/mode/WizardMode.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/IzPackStage.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/IzPackPanel.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/IzPanel.java
+   izpack-frontend/trunk/src/utils/UI.java
+Log:
+Added IZPACK_HOME stuff for the compiler.  Also removed some of the unused dynamic lang update stuff, misc. bugfixes
+
+Modified: izpack-frontend/trunk/src/conf/app-config.xml
+===================================================================
+--- izpack-frontend/trunk/src/conf/app-config.xml	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/conf/app-config.xml	2006-05-03 00:22:57 UTC (rev 194)
+@@ -1,4 +1,4 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+ &lt;!--
+ 	$Id: izpack-frontend Feb 8, 2004 izpack-frontend
+ 	Copyright (C) 2001-2003 IzPack Development Group
+@@ -19,20 +19,18 @@
+ 	You should have received a copy of the GNU General Public License along with
+ 	this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ 	Place - Suite 330, Boston, MA 02111-1307, USA.
+---&gt;
+-
+-&lt;!-- IzPack frontend config file. --&gt;
+-&lt;izpack-frontend&gt;
+-	&lt;app-version&gt;0.1f&lt;/app-version&gt;
+-	&lt;app-name&gt;IzPack Frontend [prototype]&lt;/app-name&gt;
+-	&lt;i18n bundle-location=&quot;res/i18n/LangResources&quot; lang-code=&quot;en&quot;/&gt;
+-	
+-	&lt;user-interface&gt;
+-		&lt;panel name=&quot;PanelSelect&quot; class=&quot;izpack.frontend.view.stages.panelselect.PanelSelect&quot;/&gt;
+-		&lt;panel name=&quot;GeneralInfoPanel&quot; class=&quot;izpack.frontend.view.stages.geninfo.GeneralInfoPanel&quot;/&gt;
+-		
+-		&lt;stage name=&quot;WelcomeStage&quot; class=&quot;izpack.frontend.view.stages.Welcome&quot;/&gt;
+-		&lt;stage name=&quot;PanelSelectionStage&quot; class=&quot;izpack.frontend.view.stages.panelselect.PanelSelection&quot;/&gt;
+-		&lt;stage name=&quot;GeneralInfoStage&quot; class=&quot;izpack.frontend.view.stages.geninfo.GeneralInformation&quot;/&gt;
+-	&lt;/user-interface&gt;
++--&gt;
++&lt;!-- IzPack frontend config file. --&gt;
++&lt;izpack-frontend&gt;
++    &lt;app-version&gt;0.1f&lt;/app-version&gt;
++    &lt;app-name&gt;IzPack Frontend [prototype]&lt;/app-name&gt;
++    &lt;i18n bundle-location=&quot;res/i18n/LangResources&quot; lang-code=&quot;en&quot;/&gt;
++    &lt;izpack-home&gt;H:\izpack-src&lt;/izpack-home&gt;
++    &lt;user-interface&gt;
++        &lt;panel class=&quot;izpack.frontend.view.stages.panelselect.PanelSelect&quot; name=&quot;PanelSelect&quot;/&gt;
++        &lt;panel class=&quot;izpack.frontend.view.stages.geninfo.GeneralInfoPanel&quot; name=&quot;GeneralInfoPanel&quot;/&gt;
++        &lt;stage class=&quot;izpack.frontend.view.stages.Welcome&quot; name=&quot;WelcomeStage&quot;/&gt;
++        &lt;stage class=&quot;izpack.frontend.view.stages.panelselect.PanelSelection&quot; name=&quot;PanelSelectionStage&quot;/&gt;
++        &lt;stage class=&quot;izpack.frontend.view.stages.geninfo.GeneralInformation&quot; name=&quot;GeneralInfoStage&quot;/&gt;
++    &lt;/user-interface&gt;
+ &lt;/izpack-frontend&gt;
+\ No newline at end of file
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -62,15 +62,13 @@
+     }
+     
+     public void actionPerformed(ActionEvent e)
+-    {   
++    {           
+         String actionName = &quot;&quot;;
+         JButton button = null;
+         
+         if (e.getSource() instanceof JMenuItem)
+         {
+-            String menuItemName = ((JMenuItem) e.getSource()).getName();
+-            
+-            System.out.println(&quot;Menu Item: &quot; + menuItemName);            
++            String menuItemName = ((JMenuItem) e.getSource()).getName();            
+ 
+             if (menuItemName.equals(&quot;open&quot;))
+             {
+@@ -147,9 +145,7 @@
+                 displayer.addCompileListener(new CompileListener()
+                 {
+                     public void compileRequested(CompileEvent ce)
+-                    {
+-                        System.out.println(&quot;Compile requested&quot;);
+-                        
++                    {   
+                         displayer.next();
+                         
+                         CompileManager.compile(f.getAbsolutePath(), new String[] {
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/CompileDisplay.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/CompileDisplay.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/CompileDisplay.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -23,9 +23,11 @@
+ 
+ package izpack.frontend.actions;
+ 
++import izpack.frontend.controller.GUIController;
++import izpack.frontend.view.IzPackFrame;
++
+ import java.awt.CardLayout;
+ import java.awt.Component;
+-import java.awt.Container;
+ import java.awt.Window;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+@@ -63,15 +65,21 @@
+         console = getConsole();
+         
+         if (f != null)
++        {
+             baseDir.setText(f.getParent());
++            
++            String filename = f.getAbsolutePath();
++            output.setText(filename.substring(0, filename.length() - 3) + &quot;jar&quot;);
++        }
+         
++        homeDir.setText(GUIController.getInstance().appConfiguration().getIzpackHome());
++        
+         add(settingsPanel, SETTINGS_PANEL);
+         add(console, CONSOLE_PANEL);        
+     }
+     
+     public void next()
+-    {
+-        System.out.println(&quot;next&quot;);
++    {        
+         layout.next(this);
+     }
+     
+@@ -122,6 +130,20 @@
+                     }
+                 }
+         }
++        else if (e.getSource().equals(browseHome))
++        {
++            File homeDirFile = null;
++            
++            if (homeDir.getText() != null &amp;&amp; homeDir.getText().length() &gt; 0)
++                homeDirFile = new File(homeDir.getText());
++                
++            file = UI.getFile(UI.getApplicationFrame(), &quot;Select a directory...&quot;, homeDirFile, true);
++
++            if (file != null)
++            {                    
++                homeDir.setText(file.getAbsolutePath());                 
++            }
++        }
+         else
+         {
+             File outputFile = null;
+@@ -148,6 +170,7 @@
+                         &quot;pref, 3dlu, center:pref, 3dlu, pref&quot;,
+                         &quot;pref, 5dlu, pref, 5dlu, pref,&quot; //Installer type 
+                                         + &quot;10dlu, pref,&quot; //Base Directory                                        
++                                        + &quot;10dlu, pref,&quot; //Home Directory
+                                         + &quot;10dlu, pref&quot;); //OK/Cancel
+ 
+         DefaultFormBuilder builder = new DefaultFormBuilder(layout,
+@@ -195,6 +218,14 @@
+         builder.add(baseDir = new JTextField(30));
+         builder.nextColumn(2);
+         builder.add(browseBase = new JButton(&quot;Browse&quot;));
++        
++        builder.nextLine(2);
++        builder.setColumn(1);
++        builder.addLabel(&quot;IzPack Home directory&quot;);
++        builder.nextColumn(2);
++        builder.add(homeDir = new JTextField(30));
++        builder.nextColumn(2);
++        builder.add(browseHome = new JButton(&quot;Browse&quot;));
+ 
+         builder.nextLine(2);
+         builder.setColumn(1);
+@@ -205,6 +236,7 @@
+         builder.add(browseOutput = new JButton(&quot;Browse&quot;));
+ 
+         browseBase.addActionListener(this);
++        browseHome.addActionListener(this);
+         browseOutput.addActionListener(this);
+ 
+         builder.nextLine(2);
+@@ -214,9 +246,11 @@
+         {
+             public void actionPerformed(ActionEvent e)
+             {
++                GUIController.getInstance().appConfiguration().setIzpackHome(homeDir.getText());                
++                
+                 fireCompileEvent(new CompileEvent(bg.getSelection().getActionCommand(),
+                                 baseDir.getText(),
+-                                output.getText() ));                
++                                output.getText() ));
+             }
+         });
+         
+@@ -291,8 +325,8 @@
+         }
+     }
+ 
+-    private JTextField baseDir, output;
+-    private JButton browseBase, browseOutput;
++    private JTextField baseDir, homeDir, output;
++    private JButton browseBase, browseHome, browseOutput;
+     
+     private JPanel settingsPanel;
+     private CompileConsole console;
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -23,8 +23,11 @@
+ 
+ package izpack.frontend.actions;
+ 
++import izpack.frontend.controller.GUIController;
++
+ import java.io.StringWriter;
+ import java.lang.Thread.State;
++import java.util.Enumeration;
+ 
+ import javax.swing.SwingUtilities;
+ import javax.xml.transform.stream.StreamResult;
+@@ -83,14 +86,11 @@
+             packagerListener = pl;
+             
+             try
+-            {               
+-                System.out.println(&quot;basedir &quot; + installArgs[0]);
+-                System.out.println(&quot;kind &quot; + installArgs[1]);
+-                System.out.println(&quot;output &quot; + installArgs[2]);
++            {   
+                 compiler = new CompilerConfig(installArgs[0], installArgs[1], installArgs[2], 
+-                                pl, xmlData.toString());
++                                pl, xmlData);
+                 
+-                System.out.println(&quot;On EVT CT: &quot; + SwingUtilities.isEventDispatchThread());
++                compiler.setIzpackHome(GUIController.getInstance().appConfiguration().getIzpackHome());
+             }
+             catch (CompilerException e)
+             {                
+@@ -112,11 +112,7 @@
+                 return;
+             
+             try
+-            {            
+-                System.out.println(&quot;On EVT CTR: &quot; + SwingUtilities.isEventDispatchThread());
+-                
+-                System.out.println(compiler.getCompiler().getProperties().keys());
+-                
++            {   
+                 compiler.executeCompiler();
+         
+                 // Waits
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/model/AppConfiguration.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/model/AppConfiguration.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/model/AppConfiguration.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -31,6 +31,7 @@
+ import org.w3c.dom.Element;
+ import org.w3c.dom.NodeList;
+ 
++import utils.UI;
+ import utils.XML;
+ import exceptions.DocumentCreationException;
+ import exceptions.UnhandleableException;
+@@ -49,6 +50,7 @@
+ 	public final static String T_UI = &quot;user-interface&quot;;
+ 	public final static String T_APP_VERSION = &quot;app-version&quot;;
+ 	public final static String T_APP_NAME = &quot;app-name&quot;;
++    public final static String T_IZPACK_HOME = &quot;izpack-home&quot;;
+ 	
+ 	// Attributes used within the config file.
+ 	public final static String A_CLASS = &quot;class&quot;;
+@@ -113,6 +115,19 @@
+ 			return elem.getTextContent();
+ 		}
+ 	}
++    
++    public String getIzpackHome()
++    {   
++        return getElement(T_IZPACK_HOME).getTextContent();
++    }
++    
++    public void setIzpackHome(String izpackHome)
++    {       
++        Element homeElem = getElement(T_IZPACK_HOME);
++        homeElem.setTextContent(izpackHome);
++        
++        XML.writeXML(CONFIG_FILE, document);
++    }
+ 	
+ 	/**
+ 	 * Get the value of the &lt;code&gt;A_CLASS&lt;/code&gt; attribute of the &lt;code&gt;XMLElement&lt;/code&gt;
+@@ -161,8 +176,6 @@
+         {
+             throw new UnhandleableException(e);
+         }
+-        
+-	    System.out.println(&quot;configuration loaded&quot;);
+ 	}
+ 
+     public String getClass4Stage(String name)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/model/stages/GeneralInformationModel.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/model/stages/GeneralInformationModel.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/model/stages/GeneralInformationModel.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -238,14 +238,12 @@
+             
+             URL location = ClassLoader.getSystemResource(&quot;res/imgs/flags/&quot; + isoCode + &quot;.gif&quot;);
+             
++            //Handle a location if we don't know WTF it is
+             if (location == null)
+-            {
+-                System.out.println(&quot;Null location &quot; + isoCode);
++            {                
+                 location = ClassLoader.getSystemResource(&quot;res/imgs/flags/unknown.png&quot;);                
+             }
+             
+-            System.out.println(isoCode + &quot; &quot; + location);
+-            
+             LangModel lang = new LangModel(isoCode, location);
+             
+             this.langCodes.addElement(lang);
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/AppBase.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/AppBase.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/view/AppBase.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -40,7 +40,7 @@
+  * 
+  * @author Daniel Guggi
+  */
+-public interface AppBase extends Observer {
++public interface AppBase {
+ 	/**
+ 	 * Init the components for the base.
+ 	 */
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/IzPackFrame.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/IzPackFrame.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/view/IzPackFrame.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -56,9 +56,7 @@
+ 	private IzPackFrame() {
+ 		super();
+ 		this.setTitle(
+-			GUIController.getInstance().appConfiguration().getAppName(true));
+-		// i18n
+-		langResources().addObserver(this);
++			GUIController.getInstance().appConfiguration().getAppName(true));		
+ 		// configure
+ 		this.configureUI();
+ 		// init
+@@ -94,8 +92,7 @@
+ 			}
+ 		}
+ 		// we didnt find the page
+-		if (createFlag) {
+-		    System.out.println(&quot;Locating &quot; + name);
++		if (createFlag) {		    
+ 			String pageClass =
+ 				GUIController.getInstance().appConfiguration().getClass4Page(
+ 					name);		
+@@ -118,8 +115,8 @@
+ 					&quot;Error while creating Page '&quot; + name + &quot;'!&quot;,
+ 					e);
+ 			}
+-			System.out.println(&quot;page &quot; + name + &quot; created.&quot;);
+-			return page;
++			
++            return page;
+ 		} else {
+ 			// we should not create the page, so return null
+ 			return null;
+@@ -138,8 +135,7 @@
+         }
+         // we didnt find the page
+         if (createFlag)
+-        {
+-            System.out.println(&quot;Locating &quot; + name);
++        {            
+             String stageClass = GUIController.getInstance().appConfiguration()
+                     .getClass4Stage(name);
+             // create the page
+@@ -164,7 +160,7 @@
+                 throw new RuntimeException(&quot;Error while creating Page '&quot; + name
+                         + &quot;'!&quot;, e);
+             }
+-            System.out.println(&quot;stage &quot; + name + &quot; created.&quot;);
++            
+             return stage;
+         }
+         else
+@@ -206,18 +202,6 @@
+ 	}
+ 
+ 	/**
+-	 * Gets invoked if the &lt;code&gt;LangResources&lt;/code&gt; needs to update
+-	 * the frame. To provide this frame with different &lt;code&gt;Observable&lt;/code&gt; objects,
+-	 * someone has to override this method to take appropriate actions when updated
+-	 * by an observable object.
+-	 */
+-	public void update(Observable o, Object arg) {
+-		if (o instanceof LangResources) {
+-			this.updateStaticText();
+-		}
+-	}
+-
+-	/**
+ 	 * Initialize the frame. &lt;code&gt;CardLayout&lt;/code&gt; is used as the main display manager, because
+ 	 * its easy to display the single pages. Also adds the &lt;code&gt;izpack.frontend.FrameListener&lt;/code&gt;.
+ 	 */
+@@ -234,15 +218,7 @@
+ 	 */
+ 	public void configureUI() {
+ 	    
+-	}
+-	
+-	/**
+-	 * Update the static text for this frame. This method gets invoked if the &lt;code&gt;LangResources&lt;/code&gt; object
+-	 * invokes the &lt;code&gt;update(Observable o, Object arg)&lt;/code&gt; method.
+-	 */
+-	public void updateStaticText() {
+-		System.out.println(&quot;got update&quot;);
+-	}
++	}	
+ 
+ 	/**
+ 	 * Get the application configuration.
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/mode/WelcomeScreen.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/mode/WelcomeScreen.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/view/mode/WelcomeScreen.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -36,24 +36,29 @@
+ import javax.swing.JFrame;
+ import javax.swing.JLabel;
+ import javax.swing.JPanel;
++import javax.swing.UIManager;
++import javax.swing.UnsupportedLookAndFeelException;
+ 
+-import sun.security.krb5.internal.ac;
+ import utils.PersistanceShutdownHook;
+ 
+ import com.jgoodies.forms.builder.DefaultFormBuilder;
+ import com.jgoodies.forms.layout.CellConstraints;
+ import com.jgoodies.forms.layout.FormLayout;
++import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
+ 
+ public class WelcomeScreen extends JFrame
+ {
+ 
+     /**
+      * @param args
++     * @throws UnsupportedLookAndFeelException 
+      */
+-    public static void main(String[] args)
++    public static void main(String[] args) throws UnsupportedLookAndFeelException
+     {        
+         //Thread.setDefaultUncaughtExceptionHandler(new CrashHandler());
+         
++        //UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
++        
+         Runtime.getRuntime().addShutdownHook(new PersistanceShutdownHook());
+         
+         new WelcomeScreen().setVisible(true);
+@@ -62,14 +67,14 @@
+     public WelcomeScreen()
+     {   
+         actionHandler = new ActionHandler(this);        
++        
+         installerUI = new WizardMode(this);        
+         actionHandler.setInstallerUI(installerUI);
+         
+         
+         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);        
+-        setTitle(&quot;IzPack Frontend - alpha&quot;);
++        setTitle(&quot;IzPack Frontend - alpha&quot;);        
+         
+-        
+         FormLayout layout = new FormLayout(&quot;left:pref, 15dlu, left:pref&quot;,
+                         &quot;center:pref, 25dlu, pref, 10dlu, pref, 10dlu, pref, 10dlu, pref&quot;);
+         DefaultFormBuilder builder = new DefaultFormBuilder(layout, new JPanel());
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/mode/WizardMode.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/mode/WizardMode.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/view/mode/WizardMode.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -72,7 +72,7 @@
+     public WizardMode(WelcomeScreen launcherInstance)
+     {
+         launcher = launcherInstance;
+-        actionHandler = launcher.actionHandler;        
++        actionHandler = launcher.actionHandler;
+ 
+         long start = System.currentTimeMillis();
+ 
+@@ -123,7 +123,7 @@
+      *      create the navigation bar at the top. Perhaps not the best design
+      */
+     public void changeStage(StageChangeEvent e)
+-    {
++    {       
+         if (e.isConsumed()) return;
+ 
+         e.consume();
+@@ -148,6 +148,8 @@
+         pack();
+ 
+         layout.show(base, e.getStageClass().toString());
++        
++        repaint();
+     }
+ 
+     public void initializeFromXML(String xmlFile)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/IzPackStage.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/IzPackStage.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/IzPackStage.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -217,7 +217,8 @@
+ 	 */
+ 	public void addStageChangeListener(StageChangeListener stl)
+ 	{	 
+-	    changeListenerList.add(stl);
++        if (!changeListenerList.contains(stl))
++            changeListenerList.add(stl);
+ 	}
+ 	
+ 	public void removeStageChangeListener(StageChangeListener stl)
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/IzPackPanel.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/IzPackPanel.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/IzPackPanel.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -56,9 +56,8 @@
+ 	 *
+ 	 */
+ 	public IzPackPanel(IzPackStage parentStage) {
+-		super();		
+-		// i18n
+-		langResources().addObserver(this);
++		super();
++		
+ 		// set up the arraylist
+ 		elements = new ArrayList();
+ 		// init all components
+@@ -94,27 +93,6 @@
+ 	}
+ 	
+ 	/**
+-	 * Update the static text for this page. This method gets invoked if the &lt;code&gt;LangResources&lt;/code&gt; object
+-	 * invokes the &lt;code&gt;update(Observable o, Object arg)&lt;/code&gt; method.
+-	 */
+-	protected void updateStaticText() {
+-		System.out.println(&quot;update static text invoked!&quot;);
+-	}
+-	
+-	/**
+-	 * Gets invoked if the &lt;code&gt;LangResources&lt;/code&gt; needs to update
+-	 * the page. To provide this page with different &lt;code&gt;Observable&lt;/code&gt; objects,
+-	 * someone has to override this method to take appropriate actions when updated
+-	 * by an observable object.
+-	 */
+-	public void update(Observable o, Object arg) {
+-		// update language stuff
+-		if (o instanceof LangResources) {
+-			updateStaticText();
+-		}
+-	}
+-	
+-	/**
+ 	 * Get the lang-resources object.
+ 	 * @return The language resource model.
+ 	 */
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/IzPanel.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/IzPanel.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/IzPanel.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -29,7 +29,7 @@
+  * 
+  * @author Daniel Guggi
+  */
+-public interface IzPanel extends Observer {
++public interface IzPanel {
+ 	/**
+ 	 * Add a element to the private elements collection.
+ 	 * @param name The name of the element.
+
+Modified: izpack-frontend/trunk/src/utils/UI.java
+===================================================================
+--- izpack-frontend/trunk/src/utils/UI.java	2006-04-17 12:39:16 UTC (rev 193)
++++ izpack-frontend/trunk/src/utils/UI.java	2006-05-03 00:22:57 UTC (rev 194)
+@@ -60,7 +60,7 @@
+         if (directoriesOnly)
+             jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+         else
+-            jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
++            jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+         
+         if (jfc.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION)
+         {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000174.html">[izpack-changes] izpack-src/src/doc-ng/docbooks node4.xml,1.1,1.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#173">[ date ]</a>
+              <a href="thread.html#173">[ thread ]</a>
+              <a href="subject.html#173">[ subject ]</a>
+              <a href="author.html#173">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

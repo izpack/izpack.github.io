@@ -1,0 +1,884 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1567 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1567%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util/os&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000311.html">
+   <LINK REL="Next"  HREF="000313.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1567 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1567%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util/os&In-Reply-To="
+       TITLE="[izpack-changes] r1567 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:31:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000311.html">[izpack-changes] r1566 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000313.html">[izpack-changes] r1568 - in	izpack-src/trunk/src/lib/com/izforge/izpack/util/os: . unix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#312">[ date ]</a>
+              <a href="thread.html#312">[ thread ]</a>
+              <a href="subject.html#312">[ subject ]</a>
+              <a href="author.html#312">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:31:00 +0200 (Wed, 06 Sep 2006)
+New Revision: 1567
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Shortcut.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+Log:
+-implemented  the X-KDE subsitute user - shortcut attribute (see Unix_shortcutSpec.xml).
+-write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+-write common shortcuts  to the new freedesktop.org common &quot;/usr/share/applications&quot; 
+and &quot;/usr/share/pixmaps&quot; folders to display these in the commons [start].menu
+Here: added new fields and attributes
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Shortcut.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Shortcut.java	2006-09-06 20:30:11 UTC (rev 1566)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Shortcut.java	2006-09-06 20:31:00 UTC (rev 1567)
+@@ -24,6 +24,8 @@
+ import java.io.UnsupportedEncodingException;
+ import java.util.Vector;
+ 
++import com.izforge.izpack.installer.UninstallData;
++
+ /*---------------------------------------------------------------------------*/
+ /**
+  * This class represents a shortcut in a operating system independent way. OS specific subclasses
+@@ -43,10 +45,13 @@
+     // ------------------------------------------------------------------------
+     /** APPLICATIONS = 1 */
+     public static final int APPLICATIONS = 1;
++
+     /** START_MENU = 2 */
+     public static final int START_MENU = 2;
++
+     /** DESKTOP = 3 */
+     public static final int DESKTOP = 3;
++
+     /** START_UP = 4 */
+     public static final int START_UP = 4;
+ 
+@@ -54,11 +59,11 @@
+     public static final int HIDE = 0;
+ 
+     /**
+-     * NORMAL = 1
+-     * Show the window 'normal' when starting. Usually restores the window properties at the last
+-     * shut-down.
++     * NORMAL = 1 Show the window 'normal' when starting. Usually restores the window properties at
++     * the last shut-down.
+      */
+     public static final int NORMAL = 1;
++
+     /** MINIMIZED = 2 */
+     public static final int MINIMIZED = 2;
+ 
+@@ -68,12 +73,15 @@
+     /** CURRENT_USER = 1 (identifies the user type as the current user) */
+     public static final int CURRENT_USER = 1;
+ 
+-    /**  ALL_USERS = 2 (identifies the user type as valid for all users) */
++    /** ALL_USERS = 2 (identifies the user type as valid for all users) */
+     public static final int ALL_USERS = 2;
+ 
+-    /** indicates that this shortcut should be created for all users or only me **/
++    /** indicates that this shortcut should be created for all users or only me * */
+     private Boolean createForAll;
+ 
++    /** internal field UninstallData uninstaller */
++    protected UninstallData uninstaller;
++
+     /*--------------------------------------------------------------------------*/
+     /**
+      * This method initializes the object. It is used as a replacement for the contructor because of
+@@ -336,7 +344,7 @@
+      * &lt;/ul&gt;
+      * 
+      * @exception IllegalArgumentException if an an invalid type is passed
+-     * @throws UnsupportedEncodingException 
++     * @throws UnsupportedEncodingException
+      */
+     public void setLinkType(int type) throws IllegalArgumentException, UnsupportedEncodingException
+     {
+@@ -445,10 +453,19 @@
+     }
+ 
+     /**
+-     * This sets the KdeSubstUID
++     * This sets the KdeUserName
+      * 
+-     * @param string
++     * @param string The UserName
+      */
++    public void setKdeUserName(String string)
++    {
++    }
++
++    /**
++     * This sets the setKdeSubstUID
++     * 
++     * @param string exactly &amp;quot;true&amp;quot; or &amp;quot;false&amp;quot; or nothing
++     */
+     public void setKdeSubstUID(String string)
+     {
+     }
+@@ -462,40 +479,67 @@
+     {
+     }
+ 
+-    /** 
+-     * Gets the Programs Folder for the given User.     
+-     * This is where to create subfolders or to place or create shortcuts.   
+-     *
+-     * @param current_user one of current or all 
+-     *
++    /**
++     * Gets the Programs Folder for the given User. This is where to create subfolders or to place
++     * or create shortcuts.
++     * 
++     * @param current_user one of current or all
++     * 
+      * @return The Foldername or null on unsupported platforms.
+      */
+-    public String getProgramsFolder( int current_user )
++    public String getProgramsFolder(int current_user)
+     {
+-      return null;
++        return null;
+     }
+ 
+-    /** 
+-     * Sets the flag which indicates, that this should created for all. 
+-     *
++    /**
++     * Sets the flag which indicates, that this should created for all.
++     * 
+      * @param aCreateForAll A Flag - Set to true, if to create for All.
+      */
+-    public void setCreateForAll( Boolean aCreateForAll )
++    public void setCreateForAll(Boolean aCreateForAll)
+     {
+-      this.createForAll = Boolean.valueOf(aCreateForAll.booleanValue());
++        this.createForAll = Boolean.valueOf(aCreateForAll.booleanValue());
+     }
+ 
+-    /** 
++    /**
+      * Gets the create for All Flag
+-     *
++     * 
+      * @return Returns True if this should be for all.
+      */
+-    public Boolean getCreateForAll(  )
++    public Boolean getCreateForAll()
+     {
+-      return createForAll;
++        return createForAll;
+     }
+-    
+ 
++    /**
++     * Sets the Categories Field On Unixes
++     * 
++     * @param theCategories the categories
++     */
++    public void setCategories(String theCategories)
++    {
++    }
++
++    /**
++     * Sets the TryExecField on Unixes.
++     * 
++     * @param aTryExec the try exec command
++     */
++    public void setTryExec(String aTryExec)
++    {
++    }
++
++    /**
++     * Sets the Uninstaller field with the unique Uninstaller Instance.
++     * 
++     * @param theUninstaller the unique instance
++     */
++    public void setUninstaller(UninstallData theUninstaller)
++    {
++        uninstaller = theUninstaller;
++    }
++
+ }
+ /*---------------------------------------------------------------------------*/
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2006-09-06 20:30:11 UTC (rev 1566)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2006-09-06 20:31:00 UTC (rev 1567)
+@@ -1,17 +1,17 @@
+ /*
+  * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+- * 
++ *
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+- * 
++ *
+  * Copyright 2003 Marc Eppelmann
+- * 
++ *
+  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+- *     
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@@ -25,7 +25,7 @@
+  * &quot;Desktop Entry Standard&quot;
+  *  &quot;The format of .desktop files, supported by KDE and GNOME.&quot;
+  *  <A HREF="http://www.freedesktop.org/standards/desktop-entry-spec/">http://www.freedesktop.org/standards/desktop-entry-spec/</A>
+- * 
++ *
+  *  [Desktop Entry]
+  //  Comment=$Comment
+  //  Comment[de]=
+@@ -50,32 +50,41 @@
+  */
+ package com.izforge.izpack.util.os;
+ 
++import com.izforge.izpack.uninstaller.Uninstaller;
++import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.FileExecutor;
++import com.izforge.izpack.util.OsVersion;
++import com.izforge.izpack.util.StringTool;
++import com.izforge.izpack.util.os.unix.ShellScript;
++import com.izforge.izpack.util.os.unix.UnixHelper;
++import com.izforge.izpack.util.os.unix.UnixUser;
++import com.izforge.izpack.util.os.unix.UnixUsers;
++
+ import java.io.BufferedReader;
+ import java.io.BufferedWriter;
+ import java.io.File;
+ import java.io.FileReader;
+ import java.io.FileWriter;
+ import java.io.IOException;
++
++import java.util.ArrayList;
+ import java.util.Enumeration;
+ import java.util.Properties;
+ import java.util.StringTokenizer;
+ import java.util.Vector;
+ 
+-import com.izforge.izpack.util.FileExecutor;
+-import com.izforge.izpack.util.OsVersion;
+-import com.izforge.izpack.util.StringTool;
+-
+ /**
+  * This is the Implementation of the RFC-Based Desktop-Link. Used in KDE and GNOME.
+  * 
+- * @author marc.eppelmann&amp;#064;reddot.des
++ * @author marc.eppelmann&amp;#064;reddot.de
+  */
+ public class Unix_Shortcut extends Shortcut implements Unix_ShortcutConstants
+ {
+ 
+-    //~ Static fields/initializers
++    // ~ Static fields/initializers *********************************************************
++
++    // ~ Static fields/initializers
+     // *******************************************************************************************************************************
+-
+     /** version = &quot;$Id$&quot; */
+     private static String version = &quot;$Id$&quot;;
+ 
+@@ -99,13 +108,14 @@
+ 
+     /** C = Comment = H+S = &quot;# &quot; */
+     private final static String C = H + S;
+-    
++
+     /** QM = &quot;\&quot;&quot; : &lt;b&gt;Q&lt;/b&gt;uotation&lt;b&gt;M&lt;/b&gt;ark */
+     private final static String QM = &quot;\&quot;&quot;;
+ 
+-    //~ Instance fields
++    // ~ Instance fields ********************************************************************
++
++    // ~ Instance fields
+     // ******************************************************************************************************************************************
+-
+     /** internal String createdDirectory */
+     private String createdDirectory;
+ 
+@@ -127,28 +137,40 @@
+     /** internal Properties Set */
+     private Properties props;
+ 
+-    /** forAll = new Boolean(false): A flag to indicate that this should created for all users. */
++    /**
++     * forAll = new Boolean(false): A flag to indicate that this should created for all users.
++     */
+     private Boolean forAll = Boolean.FALSE;
+ 
+-    //~ Constructors
++    /** DOCUMENT ME! */
++    public StringBuffer hlp;
++
++    // ~ Constructors ***********************************************************************
++
++    // ~ Constructors
+     // *********************************************************************************************************************************************
+-
+     /**
+      * Creates a new Unix_Shortcut object.
+      */
+     public Unix_Shortcut()
+     {
+-        StringBuffer hlp = new StringBuffer();
++        hlp = new StringBuffer();
+ 
+         String userLanguage = System.getProperty(&quot;user.language&quot;, &quot;en&quot;);
+ 
+         hlp.append(&quot;[Desktop Entry]&quot; + N);
++        
++        // TODO implement Attribute: X-KDE-StartupNotify=true
+ 
++        hlp.append(&quot;Categories=&quot; + $Categories + N);
++
+         hlp.append(&quot;Comment=&quot; + $Comment + N);
+         hlp.append(&quot;Comment[&quot;).append(userLanguage).append(&quot;]=&quot; + $Comment + N);
+         hlp.append(&quot;Encoding=&quot; + $Encoding + N);
+-        
+-        hlp.append(&quot;Exec=&quot;+ $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
++
++        hlp.append(&quot;TryExec=&quot; + $TryExec + N);
++
++        hlp.append(&quot;Exec=&quot; + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
+         hlp.append(&quot;GenericName=&quot; + $GenericName + N);
+ 
+         hlp.append(&quot;GenericName[&quot;).append(userLanguage).append(&quot;]=&quot; + $GenericName + N);
+@@ -157,7 +179,7 @@
+         hlp.append(&quot;Name=&quot; + $Name + N);
+         hlp.append(&quot;Name[&quot;).append(userLanguage).append(&quot;]=&quot; + $Name + N);
+ 
+-        hlp.append(&quot;Path=&quot;+ $P_QUOT + $Path + $P_QUOT + N);
++        hlp.append(&quot;Path=&quot; + $P_QUOT + $Path + $P_QUOT + N);
+         hlp.append(&quot;ServiceTypes=&quot; + $ServiceTypes + N);
+         hlp.append(&quot;SwallowExec=&quot; + $SwallowExec + N);
+         hlp.append(&quot;SwallowTitle=&quot; + $SwallowTitle + N);
+@@ -169,7 +191,8 @@
+         hlp.append(&quot;X-KDE-SubstituteUID=&quot; + $X_KDE_SubstituteUID + N);
+         hlp.append(&quot;X-KDE-Username=&quot; + $X_KDE_Username + N);
+         hlp.append(N);
+-        hlp.append(C + &quot;created by&quot; + S).append(getClass().getName()).append(S).append(rev).append(N);
++        hlp.append(C + &quot;created by&quot; + S).append(getClass().getName()).append(S).append(rev).append(
++                N);
+         hlp.append(C).append(version);
+ 
+         template = hlp.toString();
+@@ -179,18 +202,20 @@
+         initProps();
+     }
+ 
+-    //~ Methods
++    // ~ Methods ****************************************************************************
++
++    // ~ Methods
+     // **************************************************************************************************************************************************
+-
+     /**
+-     * This initialisizes all Properties Values with null.
++     * This initialisizes all Properties Values with &amp;quot;&amp;quot;.
+      */
+     private void initProps()
+     {
+         String[] propsArray = { $Comment, $$LANG_Comment, $Encoding, $Exec, $Arguments,
+                 $GenericName, $$LANG_GenericName, $MimeType, $Name, $$LANG_Name, $Path,
+                 $ServiceTypes, $SwallowExec, $SwallowTitle, $Terminal, $Options_For_Terminal,
+-                $Type, $X_KDE_SubstituteUID, $X_KDE_Username, $Icon, $URL, $E_QUOT, $P_QUOT };
++                $Type, $X_KDE_SubstituteUID, $X_KDE_Username, $Icon, $URL, $E_QUOT, $P_QUOT,
++                $Categories, $TryExec};
+ 
+         for (int i = 0; i &lt; propsArray.length; i++)
+         {
+@@ -205,7 +230,6 @@
+      */
+     public void initialize(int aType, String aName) throws Exception
+     {
+-        int itsType = aType;
+         this.itsName = aName;
+         props.put($Name, aName);
+     }
+@@ -227,7 +251,7 @@
+      */
+     public String getDirectoryCreated()
+     {
+-        return this.createdDirectory; //while not stored...
++        return this.createdDirectory; // while not stored...
+     }
+ 
+     /**
+@@ -353,6 +377,7 @@
+         {
+             result = new File(System.getProperty(&quot;user.home&quot;) + File.separator + &quot;.kde&quot;);
+         }
++
+         return result;
+     }
+ 
+@@ -383,69 +408,174 @@
+ 
+         boolean rootUser4All = this.getUserType() == Shortcut.ALL_USERS;
+         boolean create4All = this.getCreateForAll().booleanValue();
+-        
+-        if (&quot;&quot;.equals(this.itsGroupName) &amp;&amp; this.getLinkType() == Shortcut.DESKTOP)
++
++        // Create The Desktop Shortcuts
++        if (&quot;&quot;.equals(this.itsGroupName) &amp;&amp; (this.getLinkType() == Shortcut.DESKTOP))
+         {
+             target = System.getProperty(&quot;user.home&quot;) + FS + &quot;Desktop&quot; + FS + this.itsName
+                     + DESKTOP_EXT;
+             this.itsFileName = target;
+ 
+-            File source = writeShortCut(target, shortCutDef);
++            // write my own ShortCut
++            File writtenDesktopFile = writeShortCut(target, shortCutDef);
+ 
++            // If I'm root and this Desktop.ShortCut should be for all other users
+             if (rootUser4All &amp;&amp; create4All)
+             {
+                 File dest = null;
+-                File[] userHomesList = new File(FS + &quot;home&quot; + FS).listFiles();
+ 
+-                File aHomePath = null;
++                // Create a tempFileName of this ShortCut
++                File tempFile = File.createTempFile(this.getClass().getName(), Long.toString(System
++                        .currentTimeMillis())
++                        + &quot;.tmp&quot;);
+ 
+-                if (userHomesList != null)
++                copyTo(writtenDesktopFile, tempFile);
++
++                Debug.log(&quot;Wrote Tempfile: &quot; + tempFile.toString());
++
++                String chmod = UnixHelper.getCustomCommand(&quot;chmod&quot;);
++                String chown = UnixHelper.getCustomCommand(&quot;chown&quot;);
++                String copy = UnixHelper.getCpCommand();
++                String su = UnixHelper.getSuCommand();
++
++                FileExecutor.getExecOutput(new String[] { chmod, &quot;uga+rwx&quot;, tempFile.toString()});
++
++                // su marc.eppelmann -c &quot;/bin/cp /home/marc.eppelmann/backup.job.out.txt
++                // /home/marc.eppelmann/backup.job.out2.txt&quot;
++                ArrayList users = UnixUsers.getUsersWithValidShellsExistingHomesAndDesktops();
++
++                for (int idx = 0; idx &lt; users.size(); idx++)
+                 {
+-                    for (int idx = 0; idx &lt; userHomesList.length; idx++)
++                    UnixUser user = ((UnixUser) users.get(idx));
++
++                    try
+                     {
+-                        if (userHomesList[idx].isDirectory())
+-                        {
++                        // aHomePath = userHomesList[idx];
++                        dest = new File(user.getHome() + FS + &quot;Desktop&quot; + FS
++                                + writtenDesktopFile.getName());
++                        //
++                        // I'm root and cannot write into Users Home as root;
++                        // But I'm Root and I can slip in every users skin :-)
++                        // 
++                        // by# su username
++                        //
++                        // This works as well
++                        // su username -c &quot;cp /tmp/desktopfile $HOME/Desktop/link.desktop&quot;
++                        //
++                        // copyTo(writtenDesktopFile, dest);
++                        Debug.log(&quot;Will Copy: &quot; + tempFile.toString() + &quot; to &quot; + dest.toString());
+ 
+-                            try
+-                            {
+-                                aHomePath = userHomesList[idx];
+-                                dest = new File(aHomePath.toString() + FS + &quot;Desktop&quot; + FS
+-                                        + source.getName());
++                        StringBuffer script = new StringBuffer();
+ 
+-                                copyTo(source, dest);
+-                            }
+-                            catch (Exception rex)
+-                            {
+-                                /* ignore */// most distros does not allow root to access any user
+-                                          // home (ls -la /home/user drwx------)
+-                                // But try it anyway...
+-                            }
++                        script.append(su);
++                        script.append(S);
++                        script.append(user.getName());
++                        script.append(S);
++                        script.append(&quot;-c&quot;);
++                        script.append(S);
++                        script.append('&quot;');
++                        script.append(copy);
++                        script.append(S);
++                        script.append(tempFile.toString());
++                        script.append(S);
++                        script.append(dest.toString());
++                        script.append('&quot;');
+ 
+-                            try
+-                            {
+-                                String[] output = new String[2];
+-                                FileExecutor fe = new FileExecutor();
+-                                int result = fe.executeCommand(new String[] { &quot;/bin/chown&quot;,
+-                                        aHomePath.getName(), aHomePath.toString()}, output);
+-                                if (result != 0)
+-                                {}
+-                            }
+-                            catch (RuntimeException rexx)
+-                            {}
++                        Debug.log(&quot;Executes: &quot; + script.toString());
++
++                        String result = ShellScript.execAndDelete(script, File.createTempFile(
++                                this.getClass().getName(),
++                                Long.toString(System.currentTimeMillis()) + &quot;.sh&quot;).toString());
++
++                        Debug.log(&quot;Result: &quot; + result);
++
++                        uninstaller.addRootAsUserFile(dest.toString(), user);
++
++                        /*
++                         * FileExecutor.getExecOutput(new String[] { su, user.getName(), &quot;-c&quot;, &quot;\&quot;&quot; +
++                         * copy + &quot; &quot; + tempFile.toString() + &quot; &quot; + dest.toString() + &quot;\&quot;&quot;});
++                         */
++                        Debug.log(&quot;Copied: &quot; + tempFile.toString() + &quot; to &quot; + dest.toString());
++                        
++                        try
++                        {
++                            FileExecutor.getExecOutput(new String[] { chown, user.getName(),
++                                    dest.toString()});
+                         }
++                        catch (RuntimeException rexx)
++                        {
++                            System.out.println(&quot;While Chown :&quot; + rexx.getLocalizedMessage());
++                            rexx.printStackTrace();
++                        }
+                     }
++                    catch (Exception rex)
++                    {
++                        System.out.println(&quot;While Su Copy:&quot; + rex.getLocalizedMessage());
++                        rex.printStackTrace();
++
++                        /* ignore */
++                        // most distros does not allow root to access any user
++                        // home (ls -la /home/user drwx------)
++                        // But try it anyway...
++                    }
++
++                    
+                 }
++                try
++                {
++                    tempFile.delete();
++                }
++                catch (Exception e)
++                {
++                    tempFile.deleteOnExit();
++                }
+             }
+         }
++
++        // This is - or should be only a Link in the [K?]-Menu
+         else
+         {
+             File kdeHomeShareApplnk = getKdeShareApplnkFolder(this.getUserType());
+             target = kdeHomeShareApplnk.toString() + FS + this.itsGroupName + FS + this.itsName
+                     + DESKTOP_EXT;
+             this.itsFileName = target;
++            writeShortCut(target, shortCutDef);
++            
++            if (rootUser4All)
++            {
++                if (create4All)
++                {
++                    // write the icon pixmaps into /usr/share/pixmaps
++                    
++                    File theIcon = new File( this.getIconLocation() );
++                    File commonIcon = new File( &quot;/usr/share/pixmaps/&quot; + theIcon.getName() );
++                    
++                    try
++                    {
++                      copyTo( theIcon, commonIcon  );
++                      uninstaller.addFile(commonIcon.toString());
++                    }
++                    catch(Exception cnc)
++                    {
++                        Debug.log(&quot;Could Not Copy: &quot; + theIcon + &quot; to &quot; + commonIcon + &quot;( &quot;+ cnc.getMessage() +&quot; )&quot; );                        
++                    }
+ 
+-            if (rootUser4All &amp;&amp; !create4All) { return; }
+-            writeShortCut(target, shortCutDef);
++                    // write *.desktop.file into /usr/share/applications
++
++                    String commonTarget = &quot;/usr/share/applications/&quot; + this.itsName
++                    + DESKTOP_EXT;
++                    this.itsFileName = target;
++                    File writtenFile = writeShortCut(commonTarget, shortCutDef);
++                    
++                    uninstaller.addFile(writtenFile.toString());
++                      
++                }
++                else
++                {
++                    // do nothing
++                }
++            }
++            
+         }
+     }
+ 
+@@ -477,18 +607,16 @@
+     }
+ 
+     /**
+-     * Writes the given Shortcutdefinition to the given Target.
+-     * Returns the written File.  
++     * Writes the given Shortcutdefinition to the given Target. Returns the written File.
+      * 
+      * @param target
+      * @param shortCutDef
+      * 
+-     * @return the File of the written shortcut. 
++     * @return the File of the written shortcut.
+      */
+     private File writeShortCut(String target, String shortCutDef)
+     {
+-        File targetPath = new File(target.substring(0,
+-                target.lastIndexOf(File.separatorChar)));
++        File targetPath = new File(target.substring(0, target.lastIndexOf(File.separatorChar)));
+ 
+         if (!targetPath.exists())
+         {
+@@ -496,30 +624,34 @@
+             this.createdDirectory = targetPath.toString();
+         }
+ 
+-        File targetFileName = new File( target );
+-        File backupFile = new File( targetPath + File.separator + &quot;.&quot; + targetFileName.getName() + System.currentTimeMillis() );
+-        if( targetFileName.exists() )
++        File targetFileName = new File(target);
++        File backupFile = new File(targetPath + File.separator + &quot;.&quot; + targetFileName.getName()
++                + System.currentTimeMillis());
++
++        if (targetFileName.exists())
+         {
+-          try
+-          {
+-            // create a hidden backup.file of the existing shortcut with a timestamp name.           
+-            copyTo( targetFileName, backupFile  );// + System.e );
+-            targetFileName.delete();
+-          }
+-          catch (IOException e3)
+-          {
+-            System.out.println(&quot;cannot create backup file &quot; + backupFile + &quot; of &quot; + targetFileName );//  e3.printStackTrace();
+-          }
++            try
++            {
++                // create a hidden backup.file of the existing shortcut with a timestamp name.
++                copyTo(targetFileName, backupFile); // + System.e );
++                targetFileName.delete();
++            }
++            catch (IOException e3)
++            {
++                System.out.println(&quot;cannot create backup file &quot; + backupFile + &quot; of &quot;
++                        + targetFileName); // e3.printStackTrace();
++            }
+         }
++
+         FileWriter fileWriter = null;
+ 
+         try
+         {
+-            fileWriter = new FileWriter( targetFileName );
++            fileWriter = new FileWriter(targetFileName);
+         }
+         catch (IOException e1)
+         {
+-            System.out.println( e1.getMessage() );
++            System.out.println(e1.getMessage());
+         }
+ 
+         try
+@@ -550,7 +682,6 @@
+      */
+     public void setArguments(String args)
+     {
+-        String itsArguments = args;
+         props.put($Arguments, args);
+     }
+ 
+@@ -561,7 +692,6 @@
+      */
+     public void setDescription(String description)
+     {
+-        String itsDescription = description;
+         props.put($Comment, description);
+     }
+ 
+@@ -572,11 +702,7 @@
+      */
+     public void setIconLocation(String path, int index)
+     {
+-        String itsIconPath = path;
+-        int itsIconIndex = index;
+         props.put($Icon, path);
+-
+-        //
+     }
+ 
+     /**
+@@ -597,7 +723,6 @@
+      */
+     public void setLinkType(int aType) throws IllegalArgumentException
+     {
+-        int itsType = aType;
+     }
+ 
+     /**
+@@ -617,7 +742,6 @@
+      */
+     public void setShowCommand(int show)
+     {
+-        int itsShow = show;
+     }
+ 
+     /**
+@@ -627,13 +751,13 @@
+      */
+     public void setTargetPath(String aPath)
+     {
+-        String itsTargetPath = aPath;
+-        
+-        StringTokenizer whiteSpaceTester = new StringTokenizer( aPath );
+-        
+-        if( whiteSpaceTester.countTokens() &gt; 1 )
+-          props.put( $E_QUOT,QM );
++        StringTokenizer whiteSpaceTester = new StringTokenizer(aPath);
+ 
++        if (whiteSpaceTester.countTokens() &gt; 1)
++        {
++            props.put($E_QUOT, QM);
++        }
++
+         props.put($Exec, aPath);
+     }
+ 
+@@ -654,13 +778,13 @@
+      */
+     public void setWorkingDirectory(String aDirectory)
+     {
+-        String itsWorkingDirectory = aDirectory;
+-        
+-        StringTokenizer whiteSpaceTester = new StringTokenizer( aDirectory );
+-        
+-        if( whiteSpaceTester.countTokens() &gt; 1 )
+-          props.put( $P_QUOT,QM );
++        StringTokenizer whiteSpaceTester = new StringTokenizer(aDirectory);
+ 
++        if (whiteSpaceTester.countTokens() &gt; 1)
++        {
++            props.put($P_QUOT, QM);
++        }
++
+         props.put($Path, aDirectory);
+     }
+ 
+@@ -762,12 +886,22 @@
+      * 
+      * @see com.izforge.izpack.util.os.Shortcut#setKdeSubstUID(java.lang.String)
+      */
+-    public void setKdeSubstUID(String aKDESubstUID)
++    public void setKdeSubstUID(String trueFalseOrNothing)
+     {
+-        props.put($X_KDE_SubstituteUID, aKDESubstUID);
++        props.put($X_KDE_SubstituteUID, trueFalseOrNothing);
+     }
+ 
+     /**
++     * Sets The KDE Specific subst UID property
++     * 
++     * @see com.izforge.izpack.util.os.Shortcut#setKdeSubstUID(java.lang.String)
++     */
++    public void setKdeUserName(String aUserName)
++    {
++        props.put($X_KDE_Username, aUserName);
++    }
++
++    /**
+      * Sets the MimeType
+      * 
+      * @see com.izforge.izpack.util.os.Shortcut#setMimetype(java.lang.String)
+@@ -826,4 +960,25 @@
+     {
+         return itsUserType;
+     }
++
++    /**
++     * Sets the Categories Field
++     * 
++     * @param theCategories the categories
++     */
++    public void setCategories(String theCategories)
++    {
++        props.put($Categories, theCategories);
++    }
++
++    /**
++     * Sets the TryExecField.
++     * 
++     * @param aTryExec the try exec command
++     */
++    public void setTryExec(String aTryExec)
++    {
++        props.put($TryExec, aTryExec);
++    }
++
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000311.html">[izpack-changes] r1566 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000313.html">[izpack-changes] r1568 - in	izpack-src/trunk/src/lib/com/izforge/izpack/util/os: . unix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#312">[ date ]</a>
+              <a href="thread.html#312">[ thread ]</a>
+              <a href="subject.html#312">[ subject ]</a>
+              <a href="author.html#312">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

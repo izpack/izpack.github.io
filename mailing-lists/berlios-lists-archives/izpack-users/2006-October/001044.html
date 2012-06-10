@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] &lt;executable&gt; timing
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20%3Cexecutable%3E%20timing&In-Reply-To=7003360.post%40talk.nabble.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001040.html">
+   <LINK REL="Next"  HREF="001045.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] &lt;executable&gt; timing</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20%3Cexecutable%3E%20timing&In-Reply-To=7003360.post%40talk.nabble.com"
+       TITLE="[izpack-users] &lt;executable&gt; timing">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Thu Oct 26 07:55:39 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001040.html">[izpack-users] &lt;executable&gt; timing
+</A></li>
+        <LI>Next message: <A HREF="001045.html">[izpack-users] Multiple ProcessPanels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1044">[ date ]</a>
+              <a href="thread.html#1044">[ thread ]</a>
+              <a href="subject.html#1044">[ subject ]</a>
+              <a href="author.html#1044">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> I'd like to install a file as part of a pack and execute that file before any
+</I>&gt;<i> other packs are installed.  Possible?  It seems like the answer is no.
+</I>Yes, but not out of the box ;-) 
+You'll have to implement a custom action by using an installer listener.
+This listener will be informed in the afterPack-method if a pack was
+finished. So that will be the place where to place your code. You can
+than use the FileExecutor-Class to execute the file.
+
+Regards,
+   Dennis
+
+&gt;<i> I have a related post from today that discusses multiple ProcessPanels. 
+</I>&gt;<i> This is related to that issue.
+</I>&gt;<i> 
+</I>&gt;<i> It's possible that I have servers running from a previous install of my
+</I>&gt;<i> product.  If so, I want to stop these servers before the install attempts to
+</I>&gt;<i> install new files.  I actually have this working by using the ProcessPanel
+</I>&gt;<i> to stop the servers and an &lt;executable&gt; tag for a file to start the servers.
+</I>&gt;<i> 
+</I>&gt;<i> The problem now is that it doesn't work on a fresh install because I have to
+</I>&gt;<i> have ProcessPanel before I install.  However, this fails on a fresh install
+</I>&gt;<i> because the ProcessPanel attempts to run a file that will not be installed
+</I>&gt;<i> until the packs are installed.
+</I>&gt;<i> 
+</I>&gt;<i> What I'd really like to see is support for stage=&quot;now&quot; for the exectuable
+</I>&gt;<i> which means, run this right after installing this pack, but before the rest
+</I>&gt;<i> of the packs are installed.  From my observations, it appears that all packs
+</I>&gt;<i> are installed and then all executable files are run.
+</I>&gt;<i> 
+</I>&gt;<i> This is what my first pack would look like:
+</I>&gt;<i> 
+</I>&gt;<i>  &lt;packs&gt;
+</I>&gt;<i>         &lt;pack name=&quot;Scripts&quot; required=&quot;yes&quot;&gt;
+</I>&gt;<i>            &lt;description&gt;Startup and test scripts&lt;/description&gt;
+</I>&gt;<i>     
+</I>&gt;<i>             &lt;executable
+</I>&gt;<i> targetfile=&quot;$INSTALL_PATH/$WD_SYS/scripts/stop-tomcats.bat&quot; 
+</I>&gt;<i> 	              stage=&quot;nowl&quot; 
+</I>&gt;<i> 		      keep=&quot;true&quot;/&gt;
+</I>&gt;<i> 	&lt;/pack&gt;
+</I>&gt;<i>      
+</I>&gt;<i>          rest of my packs
+</I>&gt;<i> 
+</I>&gt;<i> &lt;/packs&gt;
+</I>&gt;<i> 
+</I>&gt;<i> Are my observations correct?  Is there another way I could achieve what I
+</I>&gt;<i> want to do?
+</I>&gt;<i> 
+</I>&gt;<i> Thanks,
+</I>&gt;<i> 
+</I>&gt;<i> Jeff Schnitter
+</I>&gt;<i> 
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001040.html">[izpack-users] &lt;executable&gt; timing
+</A></li>
+	<LI>Next message: <A HREF="001045.html">[izpack-users] Multiple ProcessPanels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1044">[ date ]</a>
+              <a href="thread.html#1044">[ thread ]</a>
+              <a href="subject.html#1044">[ subject ]</a>
+              <a href="author.html#1044">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

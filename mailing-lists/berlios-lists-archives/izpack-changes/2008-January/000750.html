@@ -1,0 +1,925 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2004 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2004%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000749.html">
+   <LINK REL="Next"  HREF="000751.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2004 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2004%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r2004 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 24 20:22:56 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000749.html">[izpack-changes] r2003 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+        <LI>Next message: <A HREF="000751.html">[izpack-changes] r2005 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#750">[ date ]</a>
+              <a href="thread.html#750">[ thread ]</a>
+              <a href="subject.html#750">[ subject ]</a>
+              <a href="author.html#750">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-24 20:22:46 +0100 (Thu, 24 Jan 2008)
+New Revision: 2004
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathInputPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathSelectionPanel.java
+Log:
+Implemented copy of PathPanel as UserPathPanel (as alternative to dir type in UserInputPanel)
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathInputPanel.java	2008-01-24 19:21:23 UTC (rev 2003)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathInputPanel.java	2008-01-24 19:22:46 UTC (rev 2004)
+@@ -0,0 +1,422 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2004 Klaus Bartz
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.InputStreamReader;
++
++import com.izforge.izpack.gui.IzPanelLayout;
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.installer.ResourceNotFoundException;
++import com.izforge.izpack.util.AbstractUIHandler;
++import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.IoHelper;
++import com.izforge.izpack.util.OsVersion;
++import com.izforge.izpack.util.VariableSubstitutor;
++
++/**
++ * Base class for panels which asks for paths.
++ * 
++ * @author Klaus Bartz
++ * @author Jeff Gordon
++ * 
++ */
++public class UserPathInputPanel extends IzPanel implements ActionListener {
++
++  /**
++   * 
++   */
++  private InstallerFrame _parent; 
++  private InstallData _idata;
++  private static final long serialVersionUID = 3257566217698292531L;
++  /** Flag whether the choosen path must exist or not */
++  protected boolean _mustExist = false;
++  protected boolean _loadedDefaultDir = false;
++  /** Files which should be exist */
++  protected String[] _existFiles = null;
++  /** The path which was chosen */
++  // protected String chosenPath;
++  /** The path selection sub panel */
++  protected UserPathSelectionPanel _pathSelectionPanel;
++  protected String _error;
++  protected String _warn;
++  protected String _emptyTargetMsg;
++  protected String _warnMsg;
++  protected String _reqMsg;
++  protected String _notValidMsg;
++  protected String _notWritableMsg;
++  protected String _createDirMsg;
++  protected String _defaultDir = null;
++  protected String _thisPanel = &quot;UserPathInputPanel&quot;;
++  protected String _defaultPanelName = &quot;TargetPanel&quot;;
++  protected String _targetPanel = &quot;UserPathPanel&quot;;
++  protected String _variableName = &quot;pathVariable&quot;;
++
++  /**
++   * The constructor.
++   * 
++   * @param parent The parent window.
++   * @param idata The installation data.
++   */
++  public UserPathInputPanel(InstallerFrame parent, InstallData idata, String targetPanel, String variableName) {
++    super(parent, idata, new IzPanelLayout());
++    _parent = parent;
++    _idata = idata;
++    _targetPanel = targetPanel;
++    _variableName = variableName;
++    // Set default values
++    loadMessages();
++    String introText = getI18nStringForClass(&quot;extendedIntro&quot;, _thisPanel);
++    if (introText == null || introText.endsWith(&quot;extendedIntro&quot;) || introText.indexOf('$') &gt; -1) {
++      introText = getI18nStringForClass(&quot;intro&quot;, _thisPanel);
++      if (introText == null || introText.endsWith(&quot;intro&quot;)) {
++        introText = &quot;&quot;;
++      }
++    }
++    // Intro
++    // row 0 column 0
++    add(createMultiLineLabel(introText));
++    add(IzPanelLayout.createParagraphGap());
++    // Label for input
++    // row 1 column 0.
++    add(createLabel(&quot;info&quot;, _targetPanel, &quot;open&quot;, LEFT, true), NEXT_LINE);
++    // Create path selection components and add they to this panel.
++    _pathSelectionPanel = new UserPathSelectionPanel(this, idata, _targetPanel, _variableName);
++    add(_pathSelectionPanel, NEXT_LINE);
++    createLayoutBottom();
++    getLayoutHelper().completeLayout();
++  }
++
++  /**
++   * This method does nothing. It is called from ctor of UserPathInputPanel, to give in a derived
++   * class the possibility to add more components under the path input components.
++   */
++  public void createLayoutBottom() {
++  // Derived classes implements additional elements.
++  }
++
++  /**
++   * Actions-handling method.
++   * 
++   * @param e The event.
++   */
++  public void actionPerformed(ActionEvent e) {
++    Object source = e.getSource();
++    if (source == _pathSelectionPanel.getPathInputField()) {
++      parent.navigateNext();
++    }
++
++  }
++
++  private void loadMessages() {
++    _error = parent.langpack.getString(&quot;installer.error&quot;);
++    _warn = parent.langpack.getString(&quot;installer.warning&quot;);
++    _reqMsg = getMessage(&quot;required&quot;);
++    _emptyTargetMsg = getMessage(&quot;empty_target&quot;);
++    _warnMsg = getMessage(&quot;exists_warn&quot;);
++    _notValidMsg = getMessage(&quot;notValid&quot;);
++    _notWritableMsg = getMessage(&quot;notwritable&quot;);
++    _createDirMsg = getMessage(&quot;createdir&quot;);
++  }
++
++  private String getMessage(String type) {
++    String msg = null;
++    msg = getI18nStringForClass(type, _targetPanel);
++    if (msg == null) {
++      msg = getI18nStringForClass(type, _defaultPanelName);
++    }
++    return msg;
++  }
++
++  /**
++   * Indicates whether the panel has been validated or not.
++   * 
++   * @return Whether the panel has been validated or not.
++   */
++  public boolean isValidated() {
++    String chosenPath = _pathSelectionPanel.getPath();
++    boolean ok = true;
++    // We put a warning if the specified target is nameless
++    if (chosenPath.length() == 0) {
++      if (isMustExist()) {
++        emitError(_error, _reqMsg);
++        return false;
++      }
++      ok = emitWarning(_warn, _emptyTargetMsg);
++    }
++    if (!ok) {
++      return ok;
++    }
++    // Normalize the path
++    File path = new File(chosenPath).getAbsoluteFile();
++    chosenPath = path.toString();
++    _pathSelectionPanel.setPath(chosenPath);
++    if (isMustExist()) {
++      if (!path.exists()) {
++        emitError(_error, _reqMsg);
++        return false;
++      }
++      if (!pathIsValid()) {
++        emitError(_error, _notValidMsg);
++        return false;
++      }
++    } else {
++      // We assume, that we would install something into this dir
++      if (!isWriteable()) {
++        emitError(_error, _notWritableMsg);
++        return false;
++      }
++      // We put a warning if the directory exists else we warn
++      // that it will be created
++      if (path.exists()) {
++        int res = askQuestion(_warn, _warnMsg,
++                AbstractUIHandler.CHOICES_YES_NO, AbstractUIHandler.ANSWER_YES);
++        ok = res == AbstractUIHandler.ANSWER_YES;
++      } else {
++        ok = this.emitNotificationFeedback(_createDirMsg + &quot;\n&quot; + chosenPath);
++      }
++    }
++    return ok;
++  }
++
++  /**
++   * Returns whether the chosen path is true or not. If existFiles are not null, the existence of
++   * it under the choosen path are detected. This method can be also implemented in derived
++   * classes to handle special verification of the path.
++   * 
++   * @return true if existFiles are exist or not defined, else false
++   */
++  protected boolean pathIsValid() {
++    if (_existFiles == null) {
++      return true;
++    }
++    for (int i = 0; i &lt; _existFiles.length; ++i) {
++      File path = new File(_pathSelectionPanel.getPath(), _existFiles[i]).getAbsoluteFile();
++      if (!path.exists()) {
++        return false;
++      }
++    }
++    return true;
++  }
++
++  /**
++   * Returns the must exist state.
++   * 
++   * @return the must exist state
++   */
++  public boolean isMustExist() {
++    return _mustExist;
++  }
++
++  /**
++   * Sets the must exist state. If it is true, the path must exist.
++   * 
++   * @param b must exist state
++   */
++  public void setMustExist(boolean b) {
++    _mustExist = b;
++  }
++
++  /**
++   * Returns the array of strings which are described the files which must exist.
++   * 
++   * @return paths of files which must exist
++   */
++  public String[] getExistFiles() {
++    return _existFiles;
++  }
++
++  /**
++   * Sets the paths of files which must exist under the chosen path.
++   * 
++   * @param strings paths of files which must exist under the chosen path
++   */
++  public void setExistFiles(String[] strings) {
++    _existFiles = strings;
++  }
++
++  /**
++   * &quot;targetPanel&quot; is typically the class name of the implementing panel, such as
++   * &quot;UserPathPanel&quot; or &quot;TargetPanel&quot; set when the class is created, but can be set 
++   * with setDefaultDir().
++   * Loads up the &quot;dir&quot; resource associated with targetPanel. Acceptable dir resource names:
++   * &lt;code&gt;
++   *   targetPanel.dir.macosx
++   *   targetPanel.dir.mac
++   *   targetPanel.dir.windows
++   *   targetPanel.dir.unix
++   *   targetPanel.dir.xxx,
++   *     where xxx is the lower case version of System.getProperty(&quot;os.name&quot;),
++   *     with any spaces replace with underscores
++   *   targetPanel.dir (generic that will be applied if none of above is found)
++   *   &lt;/code&gt;
++   * As with all IzPack resources, each the above ids should be associated with a separate
++   * filename, which is set in the install.xml file at compile time.
++   */
++  private void loadDefaultDir() {
++    // Load only once ...
++    if (!(_loadedDefaultDir)) {
++      BufferedReader br = null;
++      try {
++        InputStream in = null;
++        if (OsVersion.IS_WINDOWS) {
++          try {
++            in = _parent.getResource(_targetPanel + &quot;.dir.windows&quot;);
++          } catch (ResourceNotFoundException rnfe) {
++          }//it's usual, that the resource does not exist
++        } else if (OsVersion.IS_OSX) {
++          try {
++            in = _parent.getResource(_targetPanel + &quot;.dir.macosx&quot;);
++          } catch (ResourceNotFoundException rnfe) {
++          }//it's usual, that the resource does not exist
++        } else {
++          String os = System.getProperty(&quot;os.name&quot;);
++          // first try to look up by specific os name
++          os = os.replace(' ', '_'); // avoid spaces in file names
++          os = os.toLowerCase(); // for consistency among targetPanel res files
++          try {
++            in = _parent.getResource(_targetPanel + &quot;.dir.&quot;.concat(os));
++          } catch (ResourceNotFoundException rnfe) {
++          }
++          // if not specific os, try getting generic 'unix' resource file
++          if (in == null) {
++            try {
++              in = _parent.getResource(_targetPanel + &quot;.dir.unix&quot;);
++            } catch (ResourceNotFoundException eee) {
++            }
++          }
++        }
++        // if all above tests failed, there is no resource file,
++        // so use system default
++        if (in == null) {
++          try {
++            in = _parent.getResource(_targetPanel + &quot;.dir&quot;);
++          } catch (ResourceNotFoundException eee) {
++          }
++        }
++        if (in != null) {
++          // now read the file, once we've identified which one to read
++          InputStreamReader isr = new InputStreamReader(in);
++          br = new BufferedReader(isr);
++          String line;
++          while ((line = br.readLine()) != null) {
++            line = line.trim();
++            // use the first non-blank line
++            if (!&quot;&quot;.equals(line)) {
++              break;
++            }
++          }
++          _defaultDir = line;
++          VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
++          _defaultDir = vs.substitute(_defaultDir, null);
++        }
++      } catch (Exception e) {
++        //mar: what's the common way to log an exception ?
++        e.printStackTrace();
++        _defaultDir = null;
++      // leave unset to take the system default set by Installer class
++      } finally {
++        try {
++          if (br != null) {
++            br.close();
++          }
++        } catch (IOException ignored) {
++        }
++      }
++    }
++    _loadedDefaultDir = true;
++  }
++
++  /**
++   * This method determines whether the chosen dir is writeable or not.
++   * 
++   * @return whether the chosen dir is writeable or not
++   */
++  public boolean isWriteable() {
++    File existParent = IoHelper.existingParent(new File(_pathSelectionPanel.getPath()));
++    if (existParent == null) {
++      return false;
++    }
++    // On windows we cannot use canWrite because
++    // it looks to the dos flags which are not valid
++    // on NT or 2k XP or ...
++    if (OsVersion.IS_WINDOWS) {
++      File tmpFile;
++      try {
++        tmpFile = File.createTempFile(&quot;izWrTe&quot;, &quot;.tmp&quot;, existParent);
++        tmpFile.deleteOnExit();
++      } catch (IOException e) {
++        Debug.trace(e.toString());
++        return false;
++      }
++      return true;
++    }
++    return existParent.canWrite();
++  }
++
++  /**
++   * Returns the default for the directory.
++   * 
++   * @return the default for the directory
++   */
++  public String getDefaultDir() {
++    if (_defaultDir == null &amp;&amp; (!(_loadedDefaultDir))) {
++      loadDefaultDir();
++    }
++    return _defaultDir;
++  }
++
++  /**
++   * Sets the default for the directory to the given string.
++   * 
++   * @param string path for default directory
++   */
++  public void setDefaultDir(String string) {
++    _defaultDir = string;
++  }
++
++  /**
++   * Returns the panel name extending this class.
++   * Used for looking up localized text and resources.
++   * 
++   * @return the default for the directory
++   */
++  public String getTargetPanel() {
++    return _targetPanel;
++  }
++
++  /**
++   * Sets the panel name extending this class.
++   * Used for looking up localized text and resources.
++   * 
++   * @param string path for default directory
++   */
++  public void setTargetPanel(String string) {
++    _targetPanel = string;
++  }
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathPanel.java	2008-01-24 19:21:23 UTC (rev 2003)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathPanel.java	2008-01-24 19:22:46 UTC (rev 2004)
+@@ -0,0 +1,138 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2004 Klaus Bartz
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import com.izforge.izpack.Pack;
++import net.n3.nanoxml.XMLElement;
++
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++import com.izforge.izpack.util.AbstractUIHandler;
++import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.OsConstraint;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.Iterator;
++
++/**
++ * The taget directory selection panel.
++ * 
++ * @author Julien Ponge
++ * @author Jeff Gordon
++ */
++public class UserPathPanel extends UserPathInputPanel {
++
++  /**
++   * 
++   */
++  private static final long serialVersionUID = 3256443616359429170L;
++  private static String thisName = &quot;UserPathPanel&quot;;
++  private boolean _skip = false;
++  public static String pathVariableName = &quot;UserPathPanelVariable&quot;;
++  public static String pathPackDependsName = &quot;UserPathPanelDependsName&quot;;
++  public static String pathElementName = &quot;UserPathPanelElement&quot;;
++  private XMLElement panelElement;
++
++  /**
++   * The constructor.
++   * 
++   * @param parent The parent window.
++   * @param idata The installation data.
++   */
++  public UserPathPanel(InstallerFrame parent, InstallData idata) {
++    super(parent, idata, thisName, parent.langpack.getString(thisName+&quot;.variableName&quot;));
++    // load the default directory info (if present)
++    if (getDefaultDir() != null) {
++      idata.setVariable(pathVariableName, getDefaultDir());
++    }
++  }
++
++  /** Called when the panel becomes active. */
++  public void panelActivate() {
++    boolean found = false;
++    System.out.println(thisName+&quot; looking for activation condition&quot;);
++    // Need to have a way to supress panel if not in selected packs.  
++    String dependsName = idata.getVariable(pathPackDependsName);
++    if (dependsName!=null &amp;&amp; !(dependsName.equalsIgnoreCase(&quot;&quot;))) {
++      System.out.println(&quot;Checking for pack dependency of &quot;+dependsName);
++      Iterator iter = idata.selectedPacks.iterator();
++      while (iter.hasNext()) {
++        Pack pack = (Pack)iter.next();
++        System.out.println(&quot;- Checking if &quot;+pack.name+&quot; equals &quot;+dependsName);
++        if (pack.name.equalsIgnoreCase(dependsName)) {
++          found = true;
++          System.out.println(&quot;-- Found &quot;+dependsName+&quot;, panel will be shown&quot;);
++          break;
++        }
++      }
++      _skip = !(found);
++    } else {
++      System.out.println(&quot;Not Checking for a pack dependency, panel will be shown&quot;);
++      _skip = false;
++    }
++    if (_skip) {
++      System.out.println(thisName+&quot; will not be shown&quot;);
++      parent.skipPanel();
++      return;
++    }
++    super.panelActivate();
++    // Set the default or old value to the path selection panel.
++    _pathSelectionPanel.setPath(idata.getVariable(pathVariableName));
++  }
++
++  /**
++   * Indicates whether the panel has been validated or not.
++   * 
++   * @return Whether the panel has been validated or not.
++   */
++  public boolean isValidated() {
++    // Standard behavior of PathInputPanel.
++    if (!super.isValidated()) {
++      return (false);
++    }
++    idata.setVariable(pathVariableName, _pathSelectionPanel.getPath());
++    return (true);
++  }
++
++  /**
++   * Asks to make the XML panel data.
++   * 
++   * @param panelRoot The tree to put the data in.
++   */
++  public void makeXMLData(XMLElement panelRoot) {
++    if (!(_skip)) {
++      new UserPathPanelAutomationHelper().makeXMLData(idata, panelRoot);
++    }
++  }
++
++  /*
++   * (non-Javadoc)
++   * 
++   * @see com.izforge.izpack.installer.IzPanel#getSummaryBody()
++   */
++  public String getSummaryBody() {
++    if (_skip) {
++      return null;
++    } else {
++      return (idata.getVariable(pathVariableName));
++    }
++  }
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathPanelAutomationHelper.java	2008-01-24 19:21:23 UTC (rev 2003)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathPanelAutomationHelper.java	2008-01-24 19:22:46 UTC (rev 2004)
+@@ -0,0 +1,77 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2003 Jonathan Halliday
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import net.n3.nanoxml.XMLElement;
++import com.izforge.izpack.installer.AutomatedInstallData;
++import com.izforge.izpack.installer.PanelAutomation;
++import com.izforge.izpack.util.VariableSubstitutor;
++
++/**
++ * Functions to support automated usage of the UserPathPanel
++ * 
++ * @author Jonathan Halliday
++ * @author Julien Ponge
++ * @author Jeff Gordon
++ */
++public class UserPathPanelAutomationHelper implements PanelAutomation {
++  
++  /**
++   * Asks to make the XML panel data.
++   * 
++   * @param idata The installation data.
++   * @param panelRoot The tree to put the data in.
++   */
++  public void makeXMLData(AutomatedInstallData idata, XMLElement panelRoot) {
++    // Installation path markup
++    XMLElement ipath = new XMLElement(UserPathPanel.pathElementName);
++    // check this writes even if value is the default,
++    // because without the constructor, default does not get set.
++    ipath.setContent(idata.getVariable(UserPathPanel.pathVariableName));
++
++    // Checkings to fix bug #1864
++    XMLElement prev = panelRoot.getFirstChildNamed(UserPathPanel.pathElementName);
++    if (prev != null) {
++      panelRoot.removeChild(prev);
++    }
++    panelRoot.addChild(ipath);
++  }
++
++  /**
++   * Asks to run in the automated mode.
++   * 
++   * @param idata The installation data.
++   * @param panelRoot The XML tree to read the data from.
++   * 
++   * @return always true.
++   */
++  public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot) {
++    // We set the installation path
++    XMLElement ipath = panelRoot.getFirstChildNamed(UserPathPanel.pathElementName);
++
++    // Allow for variable substitution of the installpath value
++    VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
++    String path = ipath.getContent();
++    path = vs.substitute(path, null);
++    idata.setVariable(UserPathPanel.pathVariableName, path);
++    return true;
++  }
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathSelectionPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathSelectionPanel.java	2008-01-24 19:21:23 UTC (rev 2003)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserPathSelectionPanel.java	2008-01-24 19:22:46 UTC (rev 2004)
+@@ -0,0 +1,197 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2004 Klaus Bartz
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import java.awt.Dimension;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++import java.io.File;
++
++import javax.swing.JButton;
++import javax.swing.JFileChooser;
++import javax.swing.JPanel;
++import javax.swing.JTextField;
++
++import com.izforge.izpack.gui.ButtonFactory;
++import com.izforge.izpack.gui.IzPanelConstraints;
++import com.izforge.izpack.gui.IzPanelLayout;
++import com.izforge.izpack.gui.LayoutConstants;
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.installer.LayoutHelper;
++
++/**
++ * This is a sub panel which contains a text field and a browse button for path selection. This is
++ * NOT an IzPanel, else it is made to use in an IzPanel for any path selection. If the IzPanel
++ * parent implements ActionListener, the ActionPerformed method will be called, if
++ * PathSelectionPanel.ActionPerformed was called with a source other than the browse button. This
++ * can be used to perform parentFrame.navigateNext in the IzPanel parent. An example implementation
++ * is done in com.izforge.izpack.panels.PathInputPanel.
++ * 
++ * @author Klaus Bartz
++ * @author Jeff Gordon
++ * 
++ */
++public class UserPathSelectionPanel extends JPanel implements ActionListener, LayoutConstants {
++
++  /**
++   * 
++   */
++  private static final long serialVersionUID = 3618700794577105718L;
++  /** The text field for the path. */
++  private JTextField textField;
++  /** The 'browse' button. */
++  private JButton browseButton;
++  /** IzPanel parent (not the InstallerFrame). */
++  private IzPanel parent;
++  /**
++   * The installer internal data.
++   */
++  private InstallData idata;
++  private String targetPanel;
++  private String variableName;
++  private String defaultPanelName = &quot;TargetPanel&quot;;
++
++  /**
++   * The constructor. Be aware, parent is the parent IzPanel, not the installer frame.
++   * 
++   * @param parent The parent IzPanel.
++   * @param idata The installer internal data.
++   */
++  public UserPathSelectionPanel(IzPanel parent, InstallData idata, String targetPanel, String variableName) {
++    super();
++    this.parent = parent;
++    this.idata = idata;
++    this.variableName = variableName;
++    this.targetPanel = targetPanel;
++    createLayout();
++  }
++
++  /**
++   * Creates the layout for this sub panel.
++   */
++  protected void createLayout() {
++    // We woulduse the IzPanelLayout also in this &quot;sub&quot;panel.
++    // In an IzPanel there are support of this layout manager at
++    // more than one places. In this panel not, therefore we have
++    // to make all things needed.
++    // First create a layout helper.
++    LayoutHelper layoutHelper = new LayoutHelper(this);
++    // Start the layout.
++    layoutHelper.startLayout(new IzPanelLayout());
++    // One of the rare points we need explicit a constraints.
++    IzPanelConstraints ipc = IzPanelLayout.getDefaultConstraint(TEXT_CONSTRAINT);
++    // The text field should be stretched.
++    ipc.setXStretch(1.0);
++    textField = new JTextField(idata.getVariable(variableName), 35);
++    textField.addActionListener(this);
++    parent.setInitialFocus(textField);
++    add(textField, ipc);
++    // We would have place between text field and button.
++    add(IzPanelLayout.createHorizontalFiller(3));
++    // No explicit constraints for the button (else implicit) because
++    // defaults are OK.
++    String buttonText = parent.getInstallerFrame().langpack.getString(targetPanel+&quot;.browse&quot;);
++    if (buttonText==null) {
++      buttonText = parent.getInstallerFrame().langpack.getString(defaultPanelName+&quot;.browse&quot;);
++    }
++    browseButton = ButtonFactory.createButton(buttonText, parent.getInstallerFrame().icons.getImageIcon(&quot;open&quot;), idata.buttonsHColor);
++    browseButton.addActionListener(this);
++    add(browseButton);
++  }
++
++  // There are problems with the size if no other component needs the
++  // full size. Sometimes directly, somtimes only after a back step.
++  public Dimension getMinimumSize() {
++    Dimension ss = super.getPreferredSize();
++    Dimension retval = parent.getSize();
++    retval.height = ss.height;
++    return (retval);
++  }
++
++  /**
++   * Actions-handling method.
++   * 
++   * @param e The event.
++   */
++  public void actionPerformed(ActionEvent e) {
++    Object source = e.getSource();
++
++    if (source == browseButton) {
++      // The user wants to browse its filesystem
++
++      // Prepares the file chooser
++      JFileChooser fc = new JFileChooser();
++      fc.setCurrentDirectory(new File(textField.getText()));
++      fc.setMultiSelectionEnabled(false);
++      fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
++      fc.addChoosableFileFilter(fc.getAcceptAllFileFilter());
++
++      // Shows it
++      if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
++        String path = fc.getSelectedFile().getAbsolutePath();
++        textField.setText(path);
++      }
++
++    } else {
++      if (parent instanceof ActionListener) {
++        ((ActionListener) parent).actionPerformed(e);
++      }
++    }
++  }
++
++  /**
++   * Returns the chosen path.
++   * 
++   * @return the chosen path
++   */
++  public String getPath() {
++    return (textField.getText());
++  }
++
++  /**
++   * Sets the contents of the text field to the given path.
++   * 
++   * @param path the path to be set
++   */
++  public void setPath(String path) {
++    textField.setText(path);
++  }
++
++  /**
++   * Returns the text input field for the path. This methode can be used to differ in a
++   * ActionPerformed method of the parent between the browse button and the text field.
++   * 
++   * @return the text input field for the path
++   */
++  public JTextField getPathInputField() {
++    return textField;
++  }
++
++  /**
++   * Returns the browse button object for modification or for use with a different ActionListener.
++   * 
++   * @return the browse button to open the JFileChooser
++   */
++  public JButton getBrowseButton() {
++    return browseButton;
++  }
++}
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000749.html">[izpack-changes] r2003 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+	<LI>Next message: <A HREF="000751.html">[izpack-changes] r2005 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#750">[ date ]</a>
+              <a href="thread.html#750">[ thread ]</a>
+              <a href="subject.html#750">[ subject ]</a>
+              <a href="author.html#750">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

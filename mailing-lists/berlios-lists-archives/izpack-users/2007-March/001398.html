@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Passing arguments to executable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001396.html">
+   <LINK REL="Next"  HREF="001399.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Passing arguments to executable</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To="
+       TITLE="[izpack-users] Passing arguments to executable">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Mar 29 11:46:59 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001396.html">[izpack-users] Passing arguments to executable
+</A></li>
+        <LI>Next message: <A HREF="001399.html">[izpack-users] Passing arguments to executable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1398">[ date ]</a>
+              <a href="thread.html#1398">[ thread ]</a>
+              <a href="subject.html#1398">[ subject ]</a>
+              <a href="author.html#1398">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Riaan,
+I do not know whether your problems can be triggert by using an inlined
+install.xml.
+My be writte an external install.xml and refer it in your IzPack call in
+the ant script.
+ 
+Call the installation in a cmd like
+java -DTRACE=TRUE -jar install.jar
+and look to the output. The call command will be written on stdout (and
+much more).
+ 
+Cheers
+ 
+Klaus
+ 
+ -----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Zycor.net
+Development Solutions
+Sent: Thursday, March 29, 2007 11:25 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Subject: Re: [izpack-users] Passing arguments to executable
+
+
+
+	Bartz, Klaus wrote: 
+
+		Hi Riaan,
+		in what config file do you have written the &lt;pack&gt; tag
+with the subtags?
+		 
+		Cheers
+		 
+		Klaus
+
+
+	Hi Klaus,
+	
+	I'm specifying it in my ant build script for my app:
+	
+	From Ant Script:
+	
+	....
+	&lt;taskdef name=&quot;izpack&quot;
+	
+classpath=&quot;${installerBasedir}/libs/standalone-compiler.jar&quot;
+	        classname=&quot;com.izforge.izpack.ant.IzPackTask&quot; /&gt;
+	...
+	&lt;/target&gt;
+	....
+	      &lt;izpack output=&quot;${installerOutputdir}/Installer.jar&quot;
+	            installerType=&quot;standard&quot;
+	            basedir=&quot;${installerBasedir}&quot;&gt;
+	            &lt;config&gt;&lt;![CDATA[
+	&lt;installation version=&quot;1.0&quot;&gt;
+	    &lt;variables&gt;
+	...
+	    &lt;/variables&gt;
+	    
+	    &lt;info&gt;
+	   ...
+	    &lt;/info&gt;
+	   ...
+	    &lt;packs&gt;
+	        ....
+	        &lt;pack name=&quot;MSDE 2005&quot; id=&quot;sqlExpress.package&quot;
+required=&quot;no&quot; 
+	                installGroups=&quot;Stand Alone (Vista),Network
+Server (Vista)&quot;
+	                loose=&quot;true&quot;&gt;
+	            &lt;description&gt;The MS SQL Server Express&lt;/description&gt;
+	                &lt;file src=&quot;serverExpress&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+	                &lt;executable 
+	
+targetfile=&quot;$INSTALL_PATH/serverExpress/setup.exe&quot; 
+	                            stage=&quot;postinstall&quot; keep=&quot;false&quot;
+failure=&quot;warn&quot;&gt;
+	                  &lt;args&gt;
+	                    &lt;arg value=&quot;/qb&quot; /&gt;
+	                    &lt;arg value=&quot;INSTANCENAME=CORETALK&quot; /&gt;
+	                    &lt;arg value=&quot;ADDLOCAL=ALL&quot; /&gt;
+	                    &lt;arg value=&quot;SQLAUTOSTART=1&quot; /&gt;
+	                    &lt;arg value=&quot;AGTAUTOSTART=1&quot; /&gt;
+	                    &lt;arg value=&quot;SECURITYMODE=SQL&quot; /&gt;
+	                    &lt;arg value=&quot;SAPWD=root&quot; /&gt;
+	                    &lt;arg value=&quot;DISABLENETWORKPROTOCOLS=0&quot; /&gt;
+	                  &lt;/args&gt;
+	                &lt;/executable&gt;
+	    &lt;/pack&gt;        
+	    &lt;/packs&gt;
+	    ...
+	&lt;/installation&gt;
+	            ]]&gt;&lt;/config&gt;
+	        &lt;/izpack&gt;
+	...
+	&lt;/target&gt;
+	
+	Cheers
+	Riaan
+	
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/e945e509/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/e945e509/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001396.html">[izpack-users] Passing arguments to executable
+</A></li>
+	<LI>Next message: <A HREF="001399.html">[izpack-users] Passing arguments to executable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1398">[ date ]</a>
+              <a href="thread.html#1398">[ thread ]</a>
+              <a href="subject.html#1398">[ subject ]</a>
+              <a href="author.html#1398">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

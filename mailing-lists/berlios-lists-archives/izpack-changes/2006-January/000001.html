@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] [Bug #5954] TargetPanel.dir is never used
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20%5BBug%20%235954%5D%20TargetPanel.dir%20is%20never%20used&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000003.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] [Bug #5954] TargetPanel.dir is never used</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20%5BBug%20%235954%5D%20TargetPanel.dir%20is%20never%20used&In-Reply-To="
+       TITLE="[izpack-changes] [Bug #5954] TargetPanel.dir is never used">noreply at berlios.de
+       </A><BR>
+    <I>Tue Jan  3 03:24:10 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[izpack-changes] [Bug #6004] how to validate directory path with IzPack
+</A></li>
+        <LI>Next message: <A HREF="000003.html">[izpack-changes] izpack-src Versions.txt,1.210.2.4,1.210.2.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #5954, was updated on 2005-Dec-22 03:23
+Here is a current snapshot of the bug.
+
+Project: IzPack
+Category: IzPack3
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: rastaman06
+Assigned to : none
+Summary: TargetPanel.dir is never used
+
+Details: Hi all,
+
+I began to create installers for all the projects in which i'm involved and test them on Win2K, Debian Sarge, Mac OS X Tiger. So for some of these installers i want to have only one target dir, which is os-independant. For doing this i have declared the &quot;TargetPanel.dir&quot; ressource, which map to a file. My problem is that the TargetPanel.dir ressource is never read because PathInputPanel.loadDefaultInstallDir quit after having not found a ressource for a specific OS [see 1 below].
+My current workaround is to declare a resssource for each OS, but i was wondering if we cannot catch the exception in loadDefaultInstallDir, so the algorithm can continue until it try to find the default ressource (TargetPanel.dir).
+
+So this code at the beginning of the method loadDefaultInstallDir (l. 302) :
+...
+            if (OsVersion.IS_WINDOWS)
+                in = parentFrame.getResource(&quot;TargetPanel.dir.windows&quot;);
+
+            else if (OsVersion.IS_OSX)
+                in = parentFrame.getResource(&quot;TargetPanel.dir.macosx&quot;);
+            else
+...
+could become :
+...
+            if (OsVersion.IS_WINDOWS)
+                try {
+                in = parentFrame.getResource(&quot;TargetPanel.dir.windows&quot;);
+                } catch (Exception ignored) {//ILB};
+            else if (OsVersion.IS_OSX)
+                try {
+                in = parentFrame.getResource(&quot;TargetPanel.dir.macosx&quot;);
+                } catch (Exception ignored) {//ILB};
+            else
+...
+And so allow to go to the end of the method, where is fetch the default target dir. 
+
+[1]     [java] com.izforge.izpack.installer.ResourceNotFoundException: Warning: Resource not found: TargetPanel.dir.macosx
+     [java] at com.izforge.izpack.installer.InstallerFrame.getResource(InstallerFrame.java:668)
+     [java] at com.izforge.izpack.panels.PathInputPanel.loadDefaultInstallDir(PathInputPanel.java:306)
+     [java] at com.izforge.izpack.panels.TargetPanel.&lt;init&gt;(TargetPanel.java:53)
+
+Follow-Ups:
+
+Date: 2006-Jan-02 21:24
+By: halvaughan
+
+Comment:
+I have not looked at the code, but in 3.8.0, this is working fine under Linux and Windows for me (and I'm specifying them by the OS family, as required).
+
+I created the file:
+
+$BASE/Resource/TargetPanel.dir.unix
+
+And, in install.xml, in the Resources section, I added the line:
+
+&lt;res id=&quot;TargetPanel.dir.unix&quot; src=&quot;Resource/TargetPanel.dir.unix&quot;/&gt;
+
+And I did the same for Windows and it worked fine for both of them.  I think the key is to specify the id for the resource, and not just the file.
+-------------------------------------------------------
+
+Date: 2005-Dec-22 03:23
+By: rastaman06
+
+Comment:
+I suppose that TargetPanel.dir is never used under OS X and Win32 only.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5954&amp;group_id=1408">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5954&amp;group_id=1408</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[izpack-changes] [Bug #6004] how to validate directory path with IzPack
+</A></li>
+	<LI>Next message: <A HREF="000003.html">[izpack-changes] izpack-src Versions.txt,1.210.2.4,1.210.2.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

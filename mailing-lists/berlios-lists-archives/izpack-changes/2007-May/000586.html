@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1840 -	izpack-src/trunk/src/lib/com/izforge/izpack/gui
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1840%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/gui&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000585.html">
+   <LINK REL="Next"  HREF="000587.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1840 -	izpack-src/trunk/src/lib/com/izforge/izpack/gui</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1840%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/gui&In-Reply-To="
+       TITLE="[izpack-changes] r1840 -	izpack-src/trunk/src/lib/com/izforge/izpack/gui">noreply at berlios.de
+       </A><BR>
+    <I>Tue May 22 09:58:10 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000585.html">[izpack-changes] r1839 - in izpack-src/trunk/src: . doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000587.html">[izpack-changes] r1841 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#586">[ date ]</a>
+              <a href="thread.html#586">[ thread ]</a>
+              <a href="subject.html#586">[ subject ]</a>
+              <a href="author.html#586">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2007-05-22 09:58:09 +0200 (Tue, 22 May 2007)
+New Revision: 1840
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java
+Log:
+Used width for stretched components changed.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2007-05-19 13:05:59 UTC (rev 1839)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2007-05-22 07:58:09 UTC (rev 1840)
+@@ -39,6 +39,7 @@
+ import javax.swing.text.JTextComponent;
+ 
+ import com.izforge.izpack.panels.PathSelectionPanel;
++import com.izforge.izpack.util.Log;
+ import com.izforge.izpack.util.MultiLineLabel;
+ 
+ /**
+@@ -704,6 +705,8 @@
+         prefLayoutDim = null;
+         preferredLayoutSize(parent);
+         Dimension realSizeDim = parent.getSize();
++        Log.getInstance().addDebugMessage(&quot;IzPanelLayout.layoutContainer parent size: {0}&quot;,
++                new String[] { parent.getSize().toString()}, &quot;LayoutTrace&quot;, null);
+         Insets insets = parent.getInsets();
+ 
+         int rowHeight = 0;
+@@ -771,6 +774,8 @@
+                     currentComp.setBounds(adaptedXPos + generellOffset[0], adaptedYPos
+                             + generellOffset[1], useWidth, useHeight);
+                     currentComp.getBounds(curRect);
++                    if(curRect.height &gt; 100)
++                        curRect.height = useHeight;
+                     if (!(currentComp instanceof FillerComponent))
+                     {
+                         if (curRect.x &lt; minWidth) minWidth = curRect.x;
+@@ -826,7 +831,21 @@
+                         int curPixel = (int) ((colConstraints[i].getXStretch() / rowStretch) * pixel);
+ 
+                         Rectangle curBounds = colConstraints[i].component.getBounds();
++                        // The width of some components differ from time to time. E.g. a JScrollPane
++                        // with a JEditorPane as viewport has sometimes the minimum column width and
++                        // some times the width of the scroll bar. Therefore we use the minimum
++                        // column width.
++                        int curWidth = this.minimumColumnWidth(i);
++                        if (curBounds.width &lt; curWidth) curBounds.width = curWidth;
+                         int newWidth = curPixel + curBounds.width;
++                        Log
++                                .getInstance()
++                                .addDebugMessage(
++                                        &quot;IzPanelLayout.layoutContainer resize bounds for {2}|{3} old width {0} new width {1}&quot;,
++                                        new String[] { Integer.toString(curBounds.width),
++                                                Integer.toString(newWidth), 
++                                                Integer.toString(row), Integer.toString(i)},
++                                        &quot;LayoutTrace&quot;, null);
+                         colConstraints[i].component.setBounds(curBounds.x + offset, curBounds.y,
+                                 newWidth, curBounds.height);
+                         colConstraints[i].component.getBounds(curRect);
+@@ -839,6 +858,24 @@
+ 
+                         if (curMax - minHeight &gt; overallHeight) overallHeight = curMax - minHeight;
+ 
++                        Log
++                                .getInstance()
++                                .addDebugMessage(
++                                        &quot;IzPanelLayout.layoutContainer resize bounds for {2}|{3} ({0}): {1}&quot;,
++                                        new String[] {
++                                                colConstraints[i].component.getClass().getName(),
++                                                curRect.toString(), Integer.toString(row),
++                                                Integer.toString(i)}, &quot;LayoutTrace&quot;, null);
++
++                        Log
++                                .getInstance()
++                                .addDebugMessage(
++                                        &quot;IzPanelLayout.layoutContainer resize bounds for {2}|{3}: maxWidth = {0} maxHeight = {1}&quot;,
++                                        new String[] {
++                                                Integer.toString(maxWidth),
++                                                Integer.toString(overallHeight), Integer.toString(row),
++                                                Integer.toString(i)}, &quot;LayoutTrace&quot;, null);
++
+                         offset += curPixel;
+                         if (needsReEvaluation(colConstraints[i].component))
+                         {
+@@ -869,7 +906,11 @@
+             {
+                 IzPanelConstraints currentConst = getConstraints(col, row);
+                 if (currentConst != null)
++                {
++                    Log.getInstance().addDebugMessage(&quot;IzPanelLayout.fastLayoutContainer bounds: {0}&quot;,
++                            new String[] { currentConst.getBounds().toString()}, &quot;LayoutTrace&quot;, null);
+                     currentConst.component.setBounds(currentConst.getBounds());
++                }
+ 
+             }
+ 
+@@ -882,7 +923,7 @@
+         Insets opi = oldParentInsets;
+         oldParentSize = parent.getSize();
+         oldParentInsets = parent.getInsets();
+-        if (opi == null || opi == null) return (true);
++        if (opi == null) return (true);
+         if (ops.equals(parent.getSize()) &amp;&amp; opi.equals(parent.getInsets())) return (false);
+         return (true);
+ 
+@@ -1192,6 +1233,9 @@
+     public static class FillerComponent extends Component
+     {
+ 
++        /**  */
++        private static final long serialVersionUID = 7270064864038287900L;
++
+         private Dimension size;
+ 
+         private IzPanelConstraints constraints;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000585.html">[izpack-changes] r1839 - in izpack-src/trunk/src: . doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000587.html">[izpack-changes] r1841 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#586">[ date ]</a>
+              <a href="thread.html#586">[ thread ]</a>
+              <a href="subject.html#586">[ subject ]</a>
+              <a href="author.html#586">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

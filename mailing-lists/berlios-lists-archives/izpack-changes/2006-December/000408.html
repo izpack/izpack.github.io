@@ -1,0 +1,694 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1663 - in izpack-src/trunk: . src	src/doc-ng/XHTML src/doc-ng/docbooks src/lib/com/izforge/izpack/ant	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1663%20-%20in%20izpack-src/trunk%3A%20.%20src%0A%09src/doc-ng/XHTML%20src/doc-ng/docbooks%20src/lib/com/izforge/izpack/ant%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000407.html">
+   <LINK REL="Next"  HREF="000409.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1663 - in izpack-src/trunk: . src	src/doc-ng/XHTML src/doc-ng/docbooks src/lib/com/izforge/izpack/ant	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1663%20-%20in%20izpack-src/trunk%3A%20.%20src%0A%09src/doc-ng/XHTML%20src/doc-ng/docbooks%20src/lib/com/izforge/izpack/ant%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1663 - in izpack-src/trunk: . src	src/doc-ng/XHTML src/doc-ng/docbooks src/lib/com/izforge/izpack/ant	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Mon Dec  4 20:16:56 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000407.html">[izpack-changes] r1662 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000409.html">[izpack-changes] r1664 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#408">[ date ]</a>
+              <a href="thread.html#408">[ thread ]</a>
+              <a href="subject.html#408">[ subject ]</a>
+              <a href="author.html#408">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-12-04 20:16:38 +0100 (Mon, 04 Dec 2006)
+New Revision: 1663
+
+Modified:
+   izpack-src/trunk/IzPack-head.iml
+   izpack-src/trunk/IzPack-head.ipr
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/doc-ng/XHTML/node4.html
+   izpack-src/trunk/src/doc-ng/XHTML/node5.html
+   izpack-src/trunk/src/doc-ng/docbooks/node4.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/ant/IzPackTask.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+Merged from branch-3.9 r1619:r1662
+
+Modified: izpack-src/trunk/IzPack-head.iml
+===================================================================
+--- izpack-src/trunk/IzPack-head.iml	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/IzPack-head.iml	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -1,7 +1,7 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+ &lt;module version=&quot;4&quot; relativePaths=&quot;true&quot; type=&quot;JAVA_MODULE&quot;&gt;
+   &lt;component name=&quot;ModuleRootManager&quot; /&gt;
+-  &lt;component name=&quot;NewModuleRootManager&quot;&gt;
++  &lt;component name=&quot;NewModuleRootManager&quot; inherit-compiler-output=&quot;false&quot;&gt;
+     &lt;output url=&quot;<A HREF="file://$MODULE_DIR$/.idea-classes&quot;">file://$MODULE_DIR$/.idea-classes&quot;</A> /&gt;
+     &lt;exclude-output /&gt;
+     &lt;content url=&quot;<A HREF="file://$MODULE_DIR$&quot;">file://$MODULE_DIR$&quot;</A>&gt;
+
+Modified: izpack-src/trunk/IzPack-head.ipr
+===================================================================
+--- izpack-src/trunk/IzPack-head.ipr	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/IzPack-head.ipr	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -10,13 +10,19 @@
+       &lt;properties /&gt;
+     &lt;/buildFile&gt;
+   &lt;/component&gt;
++  &lt;component name=&quot;BuildJarProjectSettings&quot;&gt;
++    &lt;option name=&quot;BUILD_JARS_ON_MAKE&quot; value=&quot;false&quot; /&gt;
++  &lt;/component&gt;
++  &lt;component name=&quot;CodeStyleProjectProfileManger&quot;&gt;
++    &lt;option name=&quot;PROJECT_PROFILE&quot; /&gt;
++    &lt;option name=&quot;USE_PROJECT_LEVEL_SETTINGS&quot; value=&quot;false&quot; /&gt;
++  &lt;/component&gt;
+   &lt;component name=&quot;CodeStyleSettingsManager&quot;&gt;
+     &lt;option name=&quot;PER_PROJECT_SETTINGS&quot; /&gt;
+     &lt;option name=&quot;USE_PER_PROJECT_SETTINGS&quot; value=&quot;false&quot; /&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;CompilerConfiguration&quot;&gt;
+     &lt;option name=&quot;DEFAULT_COMPILER&quot; value=&quot;Javac&quot; /&gt;
+-    &lt;option name=&quot;CLEAR_OUTPUT_DIRECTORY&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;DEPLOY_AFTER_MAKE&quot; value=&quot;0&quot; /&gt;
+     &lt;resourceExtensions&gt;
+       &lt;entry name=&quot;.+\.(properties|xml|html|dtd|tld)&quot; /&gt;
+@@ -39,6 +45,20 @@
+     &lt;option name=&quot;myForwardDirection&quot; value=&quot;false&quot; /&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;DependencyValidationManager&quot; /&gt;
++  &lt;component name=&quot;EclipseCompilerSettings&quot;&gt;
++    &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
++    &lt;option name=&quot;GENERATE_NO_WARNINGS&quot; value=&quot;true&quot; /&gt;
++    &lt;option name=&quot;DEPRECATION&quot; value=&quot;false&quot; /&gt;
++    &lt;option name=&quot;ADDITIONAL_OPTIONS_STRING&quot; value=&quot;&quot; /&gt;
++    &lt;option name=&quot;MAXIMUM_HEAP_SIZE&quot; value=&quot;128&quot; /&gt;
++  &lt;/component&gt;
++  &lt;component name=&quot;EclipseEmbeddedCompilerSettings&quot;&gt;
++    &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
++    &lt;option name=&quot;GENERATE_NO_WARNINGS&quot; value=&quot;true&quot; /&gt;
++    &lt;option name=&quot;DEPRECATION&quot; value=&quot;false&quot; /&gt;
++    &lt;option name=&quot;ADDITIONAL_OPTIONS_STRING&quot; value=&quot;&quot; /&gt;
++    &lt;option name=&quot;MAXIMUM_HEAP_SIZE&quot; value=&quot;128&quot; /&gt;
++  &lt;/component&gt;
+   &lt;component name=&quot;EntryPointsManager&quot;&gt;
+     &lt;entry_points /&gt;
+   &lt;/component&gt;
+@@ -48,6 +68,36 @@
+     &lt;option name=&quot;OUTPUT_DIRECTORY&quot; /&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;GUI Designer component loader factory&quot; /&gt;
++  &lt;component name=&quot;IdProvider&quot; IDEtalkID=&quot;F66F8E4B88443419F1E5C108B16FCE75&quot; /&gt;
++  &lt;component name=&quot;InspectionProjectProfileManager&quot;&gt;
++    &lt;option name=&quot;PROJECT_PROFILE&quot; value=&quot;Project Default&quot; /&gt;
++    &lt;option name=&quot;USE_PROJECT_LEVEL_SETTINGS&quot; value=&quot;false&quot; /&gt;
++    &lt;scopes /&gt;
++    &lt;profiles&gt;
++      &lt;profile version=&quot;1.0&quot; is_locked=&quot;false&quot;&gt;
++        &lt;option name=&quot;myName&quot; value=&quot;Project Default&quot; /&gt;
++        &lt;option name=&quot;myLocal&quot; value=&quot;false&quot; /&gt;
++        &lt;used_levels&gt;
++          &lt;error&gt;
++            &lt;option name=&quot;myName&quot; value=&quot;ERROR&quot; /&gt;
++            &lt;option name=&quot;myVal&quot; value=&quot;400&quot; /&gt;
++          &lt;/error&gt;
++          &lt;warning&gt;
++            &lt;option name=&quot;myName&quot; value=&quot;WARNING&quot; /&gt;
++            &lt;option name=&quot;myVal&quot; value=&quot;300&quot; /&gt;
++          &lt;/warning&gt;
++          &lt;information&gt;
++            &lt;option name=&quot;myName&quot; value=&quot;INFO&quot; /&gt;
++            &lt;option name=&quot;myVal&quot; value=&quot;200&quot; /&gt;
++          &lt;/information&gt;
++          &lt;server&gt;
++            &lt;option name=&quot;myName&quot; value=&quot;SERVER PROBLEM&quot; /&gt;
++            &lt;option name=&quot;myVal&quot; value=&quot;100&quot; /&gt;
++          &lt;/server&gt;
++        &lt;/used_levels&gt;
++      &lt;/profile&gt;
++    &lt;/profiles&gt;
++  &lt;/component&gt;
+   &lt;component name=&quot;JavacSettings&quot;&gt;
+     &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
+     &lt;option name=&quot;GENERATE_NO_WARNINGS&quot; value=&quot;false&quot; /&gt;
+@@ -69,6 +119,7 @@
+     &lt;option name=&quot;OPTION_DEPRECATED_LIST&quot; value=&quot;true&quot; /&gt;
+     &lt;option name=&quot;OTHER_OPTIONS&quot; value=&quot;&quot; /&gt;
+     &lt;option name=&quot;HEAP_SIZE&quot; /&gt;
++    &lt;option name=&quot;LOCALE&quot; /&gt;
+     &lt;option name=&quot;OPEN_IN_BROWSER&quot; value=&quot;true&quot; /&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;JikesSettings&quot;&gt;
+@@ -79,108 +130,131 @@
+     &lt;option name=&quot;IS_EMACS_ERRORS_MODE&quot; value=&quot;true&quot; /&gt;
+     &lt;option name=&quot;ADDITIONAL_OPTIONS_STRING&quot; value=&quot;&quot; /&gt;
+   &lt;/component&gt;
++  &lt;component name=&quot;LogConsolePreferences&quot;&gt;
++    &lt;option name=&quot;FILTER_ERRORS&quot; value=&quot;false&quot; /&gt;
++    &lt;option name=&quot;FILTER_WARNINGS&quot; value=&quot;false&quot; /&gt;
++    &lt;option name=&quot;FILTER_INFO&quot; value=&quot;true&quot; /&gt;
++    &lt;option name=&quot;CUSTOM_FILTER&quot; /&gt;
++  &lt;/component&gt;
+   &lt;component name=&quot;Palette2&quot;&gt;
+     &lt;group name=&quot;Swing&quot;&gt;
+-      &lt;item class=&quot;com.intellij.uiDesigner.HSpacer&quot; tooltip-text=&quot;Horizontal Spacer&quot; icon=&quot;/com/intellij/uiDesigner/icons/hspacer.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;com.intellij.uiDesigner.HSpacer&quot; tooltip-text=&quot;Horizontal Spacer&quot; icon=&quot;/com/intellij/uiDesigner/icons/hspacer.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;1&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;1&quot; /&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;com.intellij.uiDesigner.VSpacer&quot; tooltip-text=&quot;Vertical Spacer&quot; icon=&quot;/com/intellij/uiDesigner/icons/vspacer.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;com.intellij.uiDesigner.VSpacer&quot; tooltip-text=&quot;Vertical Spacer&quot; icon=&quot;/com/intellij/uiDesigner/icons/vspacer.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;1&quot; anchor=&quot;0&quot; fill=&quot;2&quot; /&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JPanel&quot; icon=&quot;/com/intellij/uiDesigner/icons/panel.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JPanel&quot; icon=&quot;/com/intellij/uiDesigner/icons/panel.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;3&quot; hsize-policy=&quot;3&quot; anchor=&quot;0&quot; fill=&quot;3&quot; /&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JScrollPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/scrollPane.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JScrollPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/scrollPane.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;7&quot; hsize-policy=&quot;7&quot; anchor=&quot;0&quot; fill=&quot;3&quot; /&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JButton&quot; icon=&quot;/com/intellij/uiDesigner/icons/button.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JButton&quot; icon=&quot;/com/intellij/uiDesigner/icons/button.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;3&quot; anchor=&quot;0&quot; fill=&quot;1&quot; /&gt;
+         &lt;initial-values&gt;
+           &lt;property name=&quot;text&quot; value=&quot;Button&quot; /&gt;
+         &lt;/initial-values&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JRadioButton&quot; icon=&quot;/com/intellij/uiDesigner/icons/radioButton.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JRadioButton&quot; icon=&quot;/com/intellij/uiDesigner/icons/radioButton.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;3&quot; anchor=&quot;8&quot; fill=&quot;0&quot; /&gt;
+         &lt;initial-values&gt;
+           &lt;property name=&quot;text&quot; value=&quot;RadioButton&quot; /&gt;
+         &lt;/initial-values&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JCheckBox&quot; icon=&quot;/com/intellij/uiDesigner/icons/checkBox.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JCheckBox&quot; icon=&quot;/com/intellij/uiDesigner/icons/checkBox.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;3&quot; anchor=&quot;8&quot; fill=&quot;0&quot; /&gt;
+         &lt;initial-values&gt;
+           &lt;property name=&quot;text&quot; value=&quot;CheckBox&quot; /&gt;
+         &lt;/initial-values&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JLabel&quot; icon=&quot;/com/intellij/uiDesigner/icons/label.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JLabel&quot; icon=&quot;/com/intellij/uiDesigner/icons/label.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;0&quot; anchor=&quot;8&quot; fill=&quot;0&quot; /&gt;
+         &lt;initial-values&gt;
+           &lt;property name=&quot;text&quot; value=&quot;Label&quot; /&gt;
+         &lt;/initial-values&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JTextField&quot; icon=&quot;/com/intellij/uiDesigner/icons/textField.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JTextField&quot; icon=&quot;/com/intellij/uiDesigner/icons/textField.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;6&quot; anchor=&quot;8&quot; fill=&quot;1&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;-1&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JPasswordField&quot; icon=&quot;/com/intellij/uiDesigner/icons/passwordField.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JPasswordField&quot; icon=&quot;/com/intellij/uiDesigner/icons/passwordField.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;6&quot; anchor=&quot;8&quot; fill=&quot;1&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;-1&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JFormattedTextField&quot; icon=&quot;/com/intellij/uiDesigner/icons/formattedTextField.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JFormattedTextField&quot; icon=&quot;/com/intellij/uiDesigner/icons/formattedTextField.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;6&quot; anchor=&quot;8&quot; fill=&quot;1&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;-1&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JTextArea&quot; icon=&quot;/com/intellij/uiDesigner/icons/textArea.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JTextArea&quot; icon=&quot;/com/intellij/uiDesigner/icons/textArea.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;3&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;50&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JTextPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/textPane.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JTextPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/textPane.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;3&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;50&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JEditorPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/editorPane.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JEditorPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/editorPane.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;3&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;50&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JComboBox&quot; icon=&quot;/com/intellij/uiDesigner/icons/comboBox.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JComboBox&quot; icon=&quot;/com/intellij/uiDesigner/icons/comboBox.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;2&quot; anchor=&quot;8&quot; fill=&quot;1&quot; /&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JTable&quot; icon=&quot;/com/intellij/uiDesigner/icons/table.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JTable&quot; icon=&quot;/com/intellij/uiDesigner/icons/table.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;3&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;50&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JList&quot; icon=&quot;/com/intellij/uiDesigner/icons/list.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JList&quot; icon=&quot;/com/intellij/uiDesigner/icons/list.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;2&quot; anchor=&quot;0&quot; fill=&quot;3&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;50&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JTree&quot; icon=&quot;/com/intellij/uiDesigner/icons/tree.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JTree&quot; icon=&quot;/com/intellij/uiDesigner/icons/tree.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;3&quot;&gt;
+           &lt;preferred-size width=&quot;150&quot; height=&quot;50&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JTabbedPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/tabbedPane.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JTabbedPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/tabbedPane.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;3&quot; hsize-policy=&quot;3&quot; anchor=&quot;0&quot; fill=&quot;3&quot;&gt;
+           &lt;preferred-size width=&quot;200&quot; height=&quot;200&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JSplitPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/splitPane.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JSplitPane&quot; icon=&quot;/com/intellij/uiDesigner/icons/splitPane.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;3&quot; hsize-policy=&quot;3&quot; anchor=&quot;0&quot; fill=&quot;3&quot;&gt;
+           &lt;preferred-size width=&quot;200&quot; height=&quot;200&quot; /&gt;
+         &lt;/default-constraints&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JSpinner&quot; icon=&quot;/com/intellij/uiDesigner/icons/spinner.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JSpinner&quot; icon=&quot;/com/intellij/uiDesigner/icons/spinner.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;true&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;6&quot; anchor=&quot;8&quot; fill=&quot;1&quot; /&gt;
+       &lt;/item&gt;
+-      &lt;item class=&quot;javax.swing.JSlider&quot; icon=&quot;/com/intellij/uiDesigner/icons/slider.png&quot; removable=&quot;false&quot;&gt;
++      &lt;item class=&quot;javax.swing.JSlider&quot; icon=&quot;/com/intellij/uiDesigner/icons/slider.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
+         &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;6&quot; anchor=&quot;8&quot; fill=&quot;1&quot; /&gt;
+       &lt;/item&gt;
++      &lt;item class=&quot;javax.swing.JSeparator&quot; icon=&quot;/com/intellij/uiDesigner/icons/separator.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;false&quot;&gt;
++        &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;3&quot; /&gt;
++      &lt;/item&gt;
++      &lt;item class=&quot;javax.swing.JProgressBar&quot; icon=&quot;/com/intellij/uiDesigner/icons/progressbar.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
++        &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;1&quot; /&gt;
++      &lt;/item&gt;
++      &lt;item class=&quot;javax.swing.JToolBar&quot; icon=&quot;/com/intellij/uiDesigner/icons/toolbar.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;false&quot;&gt;
++        &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;6&quot; anchor=&quot;0&quot; fill=&quot;1&quot;&gt;
++          &lt;preferred-size width=&quot;-1&quot; height=&quot;20&quot; /&gt;
++        &lt;/default-constraints&gt;
++      &lt;/item&gt;
++      &lt;item class=&quot;javax.swing.JToolBar$Separator&quot; icon=&quot;/com/intellij/uiDesigner/icons/toolbarSeparator.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;false&quot; can-attach-label=&quot;false&quot;&gt;
++        &lt;default-constraints vsize-policy=&quot;0&quot; hsize-policy=&quot;0&quot; anchor=&quot;0&quot; fill=&quot;1&quot; /&gt;
++      &lt;/item&gt;
++      &lt;item class=&quot;javax.swing.JScrollBar&quot; icon=&quot;/com/intellij/uiDesigner/icons/scrollbar.png&quot; removable=&quot;false&quot; auto-create-binding=&quot;true&quot; can-attach-label=&quot;false&quot;&gt;
++        &lt;default-constraints vsize-policy=&quot;6&quot; hsize-policy=&quot;0&quot; anchor=&quot;0&quot; fill=&quot;2&quot; /&gt;
++      &lt;/item&gt;
+     &lt;/group&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;ProjectModuleManager&quot;&gt;
+@@ -189,6 +263,7 @@
+     &lt;/modules&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;ProjectRootManager&quot; version=&quot;2&quot; assert-keyword=&quot;true&quot; jdk-15=&quot;false&quot; project-jdk-name=&quot;1.5&quot; /&gt;
++  &lt;component name=&quot;ProjectRunConfigurationManager&quot; /&gt;
+   &lt;component name=&quot;RmicSettings&quot;&gt;
+     &lt;option name=&quot;IS_EANABLED&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
+@@ -196,11 +271,21 @@
+     &lt;option name=&quot;GENERATE_IIOP_STUBS&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;ADDITIONAL_OPTIONS_STRING&quot; value=&quot;&quot; /&gt;
+   &lt;/component&gt;
++  &lt;component name=&quot;StarteamVcsAdapter&quot; /&gt;
++  &lt;component name=&quot;VssVcs&quot; /&gt;
+   &lt;component name=&quot;XSLT-Support.FileAssociationsManager&quot; /&gt;
++  &lt;component name=&quot;com.intellij.jsf.UserDefinedFacesConfigs&quot;&gt;
++    &lt;option name=&quot;USER_DEFINED_CONFIGS&quot;&gt;
++      &lt;value&gt;
++        &lt;list size=&quot;0&quot; /&gt;
++      &lt;/value&gt;
++    &lt;/option&gt;
++  &lt;/component&gt;
+   &lt;component name=&quot;libraryTable&quot; /&gt;
+   &lt;component name=&quot;uidesigner-configuration&quot;&gt;
+     &lt;option name=&quot;INSTRUMENT_CLASSES&quot; value=&quot;true&quot; /&gt;
+     &lt;option name=&quot;COPY_FORMS_RUNTIME_TO_OUTPUT&quot; value=&quot;true&quot; /&gt;
++    &lt;option name=&quot;DEFAULT_LAYOUT_MANAGER&quot; value=&quot;GridLayoutManager&quot; /&gt;
+   &lt;/component&gt;
+   &lt;UsedPathMacros /&gt;
+ &lt;/project&gt;
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/Versions.txt	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -1,6 +1,7 @@
+ [ The list of the different public versions of IzPack ]
+ 
+-	&gt; 3.9.1 (build xxxx.xx.xx)
++  &gt; Next release
++
+ - Added docu: executeForPack, executeclass,logfiledir  for ProcessPanel (Fabrice Mirabile)
+ - Added docu: createForUnselectedPack for UserInputPanel (Fabrice Mirabile)
+ - Added DataCheckPanel (Fabrice Mirabile &amp; Hal Vaughan)
+@@ -9,13 +10,20 @@
+ - Added Rulesengine, Conditions, panelconditions (Dennis Reil)
+ - Fix DestroyButton in UninstallerFrame clickable only once (Dennis Reil)
+ - Added conditions to UserInputPanel-fields (Dennis Reil)
+-- Heading panel strings can be depend on the panelid (Klaus Bartz, thangs
++- Heading panel strings can be depend on the panelid (Klaus Bartz, thanks
+   to Stefan Wachter).
+ - Added dtd for conditions (Dennis Reil)
+ - Added support for panelid in InstallerImage-Definition (Dennis Reil)
+ - Added support for customicons (Dennis Reil)
++- Fixed the DesktopShortcutCheckboxEnabled Builtin Variable in docu (Fabrice Mirabile)
++- Fixed build.xml (PathSelectionPanel without using TargetPanel) (Fabrice Mirabile)
++- UserInputPanel multiline label fix (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
++- Fix for calling the IzPack Ant task from Maven builds (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
++- Support for uncompressing archives and adding their content at the installer generation time (Nils Meier, via Julien Ponge)
+ 
+   &gt; 3.9.0 (build 2006.09.25)
++- Fix NullPointerException in CompilerConfig, if you specify a 
++	compiler listener and the compiler listener class can't be found (Dennis Reil)
+ - Fix Accents In French Langpack (Fabrice Mirabile)
+ - Update French Langpack (Julien Ponge)
+ - New Indonesian Langpack (Hans Aikema, thanks to Thomas Edwin Santosa)
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/build.xml	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -156,6 +156,9 @@
+       
+   19.10.2006: (Fabrice Mirabile &amp; Hal Vaughan)   
+       Added DataCheckPanel
++
++  10.10.2006: (Fabrice Mirabile)   
++	  Fixed target src.tar.gz and clean.src.tar.gz
+               
+   Mini-HowTo:
+ 
+@@ -360,6 +363,7 @@
+                deprecation=&quot;on&quot;
+                debug=&quot;${debug}&quot;
+                debuglevel=&quot;${debuglevel}&quot;&gt;
++            &lt;include name=&quot;com/izforge/izpack/panels/PathSelectionPanel.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/gui/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/installer/*.java&quot; /&gt;
+@@ -379,6 +383,7 @@
+                 &lt;attribute name=&quot;Main-Class&quot; value=&quot;${installer.class}&quot; /&gt;
+             &lt;/manifest&gt;
+             &lt;fileset dir=&quot;${build.dir}&quot;&gt;
++                &lt;include name=&quot;com/izforge/izpack/panels/PathSelectionPanel.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/gui/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/installer/*.class&quot; /&gt;
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node4.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node4.html	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/doc-ng/XHTML/node4.html	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -797,6 +797,9 @@
+ default value for non-interactive use. Another possible values is &lt;tt&gt;update&lt;/tt&gt;. It means that the new file is only installed if it's modification time is newer than the modification time of the
+ already existing file (note that this is not a reliable mechanism for updates - you cannot detect whether a file was altered after installation this way.) By default it is set to &lt;tt&gt;
+ update&lt;/tt&gt;.&lt;/li&gt;
++
++&lt;li&gt;&lt;tt&gt;unpack&lt;/tt&gt;: if &lt;tt&gt;true&lt;/tt&gt; and the file is an archive then its content will be unpacked and added as individual files&lt;/li&gt;
++
+ &lt;/ul&gt;
+ 
+ &lt;h4&gt;&lt;a name=&quot;SECTION00438610000000000000&quot;&gt;&lt;/a&gt;&lt;a name=&quot;tag:additionaldata&quot;&gt;&lt;/a&gt;&lt;br /&gt;
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node5.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node5.html	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/doc-ng/XHTML/node5.html	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -300,7 +300,7 @@
+         layout anchor for IzPanels. Valid are &quot;NORTH&quot;, &quot;NORTHWEST&quot;, &quot;SOUTHWEST&quot;, &quot;SOUTH&quot; and
+         &quot;CENTER&quot;. Only panels which are using the layout helper of IzPanels are
+         supported. These are not all standard panels. At developing custom panels it is
+-		recommended to use the layout helper with an IzPanelLayout.
++		recommended to use the layout helper with an IzPanelLayout. &lt;br /&gt;NOTE: The anchor definition will be used for all panels!
+       &lt;/li&gt;
+       &lt;li&gt;
+ 	    &lt;tt&gt;Gaps&lt;/tt&gt;:&lt;br /&gt;
+
+Modified: izpack-src/trunk/src/doc-ng/docbooks/node4.xml
+===================================================================
+--- izpack-src/trunk/src/doc-ng/docbooks/node4.xml	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/doc-ng/docbooks/node4.xml	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -413,7 +413,7 @@
+ &lt;itemizedlist spacing=&quot;compact&quot;&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;src&lt;/literal&gt;: the file location (relative path) - if this is a directory its content will be added recursively&lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;targetdir&lt;/literal&gt;: the destination directory, could be something like &lt;literal&gt;$INSTALL_PATH/subdirX&lt;/literal&gt;&lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;os&lt;/literal&gt;: can optionally specify a target operating system (&lt;literal&gt;unix, windows, mac&lt;/literal&gt;) - this means that the file will only be installed on its target operating system&lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;override&lt;/literal&gt;: if &lt;literal&gt;true&lt;/literal&gt; then if the file is already installed, it will be overwritten. Alternative values: &lt;literal&gt;asktrue&lt;/literal&gt; and &lt;literal&gt;askfalse&lt;/literal&gt; - ask the user what to do and supply
+ default value for non-interactive use. Another possible values is &lt;literal&gt;update&lt;/literal&gt;. It means that the new file is only installed if it's modification time is newer than the modification time of the
+ already existing file (note that this is not a reliable mechanism for updates - you cannot detect whether a file was altered after installation this way.) By default it is set to &lt;literal&gt;
+-update&lt;/literal&gt;.&lt;/para&gt;&lt;/listitem&gt;&lt;/itemizedlist&gt;
++update&lt;/literal&gt;.&lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;unpack&lt;/literal&gt;: if true and the file is an archive then its content will be unpacked and added as individual files&lt;/para&gt;&lt;/listitem&gt;&lt;/itemizedlist&gt;
+ 
+ &lt;para/&gt;&lt;section id=&quot;SECTION00438610000000000000&quot;&gt;&lt;title&gt;&lt;?db2html element=&quot;br&quot;?&gt;
+ &lt;literal&gt;&amp;lt;additionaldata&amp;gt;&lt;/literal&gt;&lt;/title&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/ant/IzPackTask.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/ant/IzPackTask.java	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/ant/IzPackTask.java	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -213,6 +213,7 @@
+             {
+                 String name = (String) e.nextElement();
+                 String value = properties.getProperty(name);
++                value = fixPathString(value);
+                 c.addProperty(name, value);
+             }
+         }
+@@ -225,6 +226,7 @@
+             {
+                 String name = (String) e.nextElement();
+                 String value = (String) projectProps.get(name);
++                value = fixPathString(value);
+                 c.addProperty(name, value);
+             }            
+         }
+@@ -239,7 +241,21 @@
+             // failed
+         }
+     }
+-
++    
++    private static String fixPathString(String path)
++    {
++       /*
++        * The following code fixes a bug in in codehaus classworlds loader,
++        * which can't handle mixed path strings like &quot;c:\test\../lib/mylib.jar&quot;.
++        * The bug is in org.codehaus.classworlds.UrlUtils.normalizeUrlPath().
++        */
++       StringBuffer fixpath = new StringBuffer(path);
++       for(int q=0; q&lt;fixpath.length(); q++)
++          if(fixpath.charAt(q) == '\\')
++             fixpath.setCharAt(q, '/');
++       return fixpath.toString();
++    }
++    
+     /**
+      * Setter for property input.
+      * 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -25,6 +25,21 @@
+ 
+ package com.izforge.izpack.compiler;
+ 
++import java.io.File;
++import java.io.IOException;
++import java.net.MalformedURLException;
++import java.net.URL;
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Map;
++import java.util.Properties;
++import java.util.Set;
++import java.util.jar.JarInputStream;
++import java.util.zip.ZipEntry;
++
+ import com.izforge.izpack.CustomData;
+ import com.izforge.izpack.GUIPrefs;
+ import com.izforge.izpack.Info;
+@@ -33,14 +48,6 @@
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
+-import java.io.File;
+-import java.io.IOException;
+-import java.net.MalformedURLException;
+-import java.net.URL;
+-import java.util.*;
+-import java.util.jar.JarInputStream;
+-import java.util.zip.ZipEntry;
+-
+ /**
+  * The IzPack compiler class. This is now a java bean style class that can be
+  * configured using the object representations of the install.xml
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -51,6 +51,7 @@
+ import java.util.Vector;
+ import java.util.jar.JarInputStream;
+ import java.util.zip.ZipEntry;
++import java.util.zip.ZipInputStream;
+ 
+ import org.apache.tools.ant.DirectoryScanner;
+ 
+@@ -643,13 +644,17 @@
+                 List osList = OsConstraint.getOsList(f); // TODO: unverified
+                 int override = getOverrideValue(f);
+                 Map additionals = getAdditionals(f);
++                boolean unpack = src.endsWith(&quot;.zip&quot;) &amp;&amp; &quot;true&quot;.equalsIgnoreCase(f.getAttribute(&quot;unpack&quot;));
+ 
+                 File file = new File(src);
+                 if (!file.isAbsolute()) file = new File(basedir, src);
+ 
+                 try
+                 {
+-                    addRecursively(file, targetdir, osList, override, pack, additionals);
++                    if (unpack)
++                        addArchiveContent(file, targetdir, osList, override, pack, additionals);
++                    else
++                        addRecursively(file, targetdir, osList, override, pack, additionals);
+                 }
+                 catch (Exception x)
+                 {
+@@ -673,7 +678,7 @@
+ 
+                 try
+                 {
+-                    pack.addFile(file, target, osList, override, additionals);
++                     pack.addFile(file, target, osList, override, additionals);
+                 }
+                 catch (FileNotFoundException x)
+                 {
+@@ -962,6 +967,37 @@
+     }
+ 
+     /**
++     * Add files in an archive to a pack
++     * @param archive the archive file to unpack
++     * @parm targetdir the target directory where the content of the archive will be installed
++     * @param osList The target OS constraints.
++     * @param override Overriding behaviour.
++     * @param pack Pack to be packed into
++     * @param additionals Map which contains additional data
++     */
++    protected void addArchiveContent(File archive, String targetdir, List osList, int override, PackInfo pack, Map additionals) throws IOException {
++      
++      FileInputStream fin = new FileInputStream(archive);
++      ZipInputStream zin = new ZipInputStream(fin);
++      while (true) {
++        ZipEntry zentry = zin.getNextEntry();
++        if (zentry==null) break;
++        if (zentry.isDirectory()) continue;
++        
++        File temp = File.createTempFile(&quot;izpack&quot;, null);
++        temp.deleteOnExit();
++        
++        FileOutputStream out = new FileOutputStream(temp);
++        compiler.getPackager().copyStream(zin, out);
++        out.close();
++        
++        pack.addFile(temp, targetdir + &quot;/&quot; + zentry.getName(), osList, override, additionals);
++        
++      }
++      fin.close();
++    }
++    
++    /**
+      * Recursive method to add files in a pack.
+      * 
+      * @param file The file to add.
+@@ -2069,6 +2105,10 @@
+             jarPath = &quot;bin/customActions/&quot; + className + &quot;.jar&quot;;
+         URL url = findIzPackResource(jarPath, &quot;CustomAction jar file&quot;, var);
+         String fullName = getFullClassName(url, className);
++        if (fullName == null){
++            // class not found
++            return null;
++        }
+         if (url != null)
+         {
+             if (getClass().getResource(&quot;/&quot; + jarPath) != null)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -733,7 +733,7 @@
+      * @return the total number of bytes copied
+      * @exception IOException if an I/O error occurs
+      */
+-    private long copyStream(InputStream in, OutputStream out) throws IOException
++    protected long copyStream(InputStream in, OutputStream out) throws IOException
+     {
+         byte[] buffer = new byte[5120];
+         long bytesCopied = 0;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-12-01 15:39:26 UTC (rev 1662)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-12-04 19:16:38 UTC (rev 1663)
+@@ -2151,8 +2151,21 @@
+                     }
+                 }
+ 
+-                MultiLineLabel label = new MultiLineLabel(description, justify);
+-
++                javax.swing.JTextPane label = new javax.swing.JTextPane();
++                
++                // Not editable, but still selectable.
++                label.setEditable(false);
++                
++                // If html tags are present enable html rendering, otherwise the JTextPane
++                // looks exactly like MultiLineLabel.
++                if(description.startsWith(&quot;&lt;html&gt;&quot;) &amp;&amp; description.endsWith(&quot;&lt;/html&gt;&quot;))
++                    label.setContentType(&quot;text/html&quot;);               
++                label.setText(description);
++                
++                // Background color and font to match the label's.
++                label.setBackground(javax.swing.UIManager.getColor(&quot;label.backgroud&quot;));
++                label.setMargin(new java.awt.Insets(3, 0, 3, 0));
++                    
+                 uiElements.add(new Object[] { null, DESCRIPTION, null, constraints, label,
+                         forPacks, forOs});
+             }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000407.html">[izpack-changes] r1662 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000409.html">[izpack-changes] r1664 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#408">[ date ]</a>
+              <a href="thread.html#408">[ thread ]</a>
+              <a href="subject.html#408">[ subject ]</a>
+              <a href="author.html#408">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

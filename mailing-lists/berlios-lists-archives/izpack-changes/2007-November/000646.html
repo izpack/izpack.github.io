@@ -1,0 +1,384 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1900 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1900%20-%20in%20izpack-src/trunk%3A%20.%20src/dtd%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000645.html">
+   <LINK REL="Next"  HREF="000647.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1900 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1900%20-%20in%20izpack-src/trunk%3A%20.%20src/dtd%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1900 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Wed Nov 14 14:12:17 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000645.html">[izpack-changes] r1899 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000647.html">[izpack-changes] r1901 - izpack-src/trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#646">[ date ]</a>
+              <a href="thread.html#646">[ thread ]</a>
+              <a href="subject.html#646">[ subject ]</a>
+              <a href="author.html#646">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-14 14:12:07 +0100 (Wed, 14 Nov 2007)
+New Revision: 1900
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/dtd/installation.dtd
+   izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/IUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+Log:
+Added condition to pack element in installation spec.
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/Versions.txt	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -55,6 +55,7 @@
+ - Fixed conditions in PacksPanel/PacksModel (Dennis Reil)
+ - Added conditions for jobs in ProcessPanel (Dennis Reil) 
+ - Fixed wrong required size of packs (Dennis Reil)
++- Added condition-attribute to pack element in installer.xml (Dennis Reil)
+   
+   &gt; 3.10.2 (build 2007.05.11)
+ 
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/src/dtd/installation.dtd	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -100,6 +100,7 @@
+     &lt;!ELEMENT pack (description, os*, file*, singlefile*, fileset*, updatecheck?, parsable*, executable*, depends*)&gt;
+         &lt;!ATTLIST pack name CDATA #REQUIRED&gt;
+         &lt;!ATTLIST pack id CDATA #IMPLIED&gt;
++        &lt;!ATTLIST pack condition CDATA #IMPLIED&gt;
+         &lt;!ATTLIST pack packImgId IDREF #IMPLIED&gt;
+         &lt;!ATTLIST pack required (yes|no) #REQUIRED&gt;
+         &lt;!ATTLIST pack preselected (yes|no) &quot;yes&quot;&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -77,6 +77,9 @@
+ 
+     /** The target operation system of this pack */
+     public List osConstraints = null;
++    
++    /** Condition for this pack **/
++    private String condition;
+ 
+     /** The list of packs this pack depends on */
+     public List dependencies = null;
+@@ -139,6 +142,7 @@
+         this.excludeGroup = excludegroup;
+         this.uninstall = uninstall;
+         this.packImgId = null;
++        this.condition = null;
+         nbytes = 0;
+         color = PackInfo.WHITE;
+     }
+@@ -232,4 +236,26 @@
+             return formatter.format(value) + &quot; GB&quot;;
+         }
+     }
++
++    
++    /**
++     * @return the condition
++     */
++    public String getCondition()
++    {
++        return this.condition;
++    }
++
++    
++    /**
++     * @param condition the condition to set
++     */
++    public void setCondition(String condition)
++    {
++        this.condition = condition;
++    }
++    
++    public boolean hasCondition() {
++        return this.condition != null;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -604,6 +604,11 @@
+             boolean uninstall = &quot;yes&quot;.equalsIgnoreCase(el.getAttribute(&quot;uninstall&quot;, &quot;yes&quot;));
+             String parent = el.getAttribute(&quot;parent&quot;);
+             
++            String conditionid = el.getAttribute(&quot;condition&quot;);
++            if ((conditionid != null) &amp;&amp; (id == null)) {
++                parseError(el,&quot;Pack, which has no id can not have conditions.&quot;);
++                new Exception(&quot;Pack, which has no id can not have conditions.&quot;);
++            }
+             if(required &amp;&amp; excludeGroup != null)
+             {
+                 parseError(el, &quot;Pack, which has excludeGroup can not be required.&quot;, 
+@@ -613,6 +618,7 @@
+             PackInfo pack = new PackInfo(name, id, description, required, loose, excludeGroup, uninstall);
+             pack.setOsConstraints(OsConstraint.getOsList(el)); // TODO:
+             pack.setParent(parent);
++            pack.setCondition(conditionid);
+             
+             // unverified
+             // if the pack belongs to an excludeGroup it's not preselected by default
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -70,7 +70,7 @@
+ 
+     /** Update check specifications in this Pack. */
+     private List updateChecks = new ArrayList();
+-
++        
+     /** Constructor with required info. 
+      * @param name name of the pack
+      * @param id id of the pack e.g. to resolve I18N
+@@ -309,4 +309,23 @@
+     {
+         pack.packImgId = packImgId;
+     }
++
++    
++    /**
++     * @return the condition
++     */
++    public String getCondition()
++    {
++        return this.pack.getCondition();
++    }
++
++    
++    /**
++     * @param condition the condition to set
++     */
++    public void setCondition(String condition)
++    {
++        this.pack.setCondition(condition);
++    }
++    
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/IUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/IUnpacker.java	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/IUnpacker.java	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -20,6 +20,8 @@
+  */
+ package com.izforge.izpack.installer;
+ 
++import com.izforge.izpack.rules.RulesEngine;
++
+ public interface IUnpacker extends Runnable
+ {
+     /**
+@@ -28,4 +30,11 @@
+      * @return true if the operation was successful, false otherwise.
+      */
+     public abstract boolean getResult();
++    
++    /**
++     * Called by the InstallerFrame to set a reference to the RulesEngine, which will
++     * be used to check conditions.
++     * @param rules - an instantiated RulesEngine
++     */
++    public void setRules(RulesEngine rules); 
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -1255,12 +1255,9 @@
+     public void install(AbstractUIProgressHandler listener)
+     {       
+         IUnpacker unpacker = UnpackerFactory.getUnpacker(this.installdata.info.getUnpackerClassName(), installdata, listener);
++        unpacker.setRules(this.rules);
+         Thread unpackerthread = new Thread(unpacker, &quot;IzPack - Unpacker thread&quot;);
+-        unpackerthread.start();
+-        /*
+-        Unpacker unpacker = new Unpacker(installdata, listener);
+-        unpacker.start();
+-        */
++        unpackerthread.start();        
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -54,17 +54,12 @@
+ import com.izforge.izpack.UpdateCheck;
+ import com.izforge.izpack.XPackFile;
+ import com.izforge.izpack.event.InstallerListener;
+-import com.izforge.izpack.installer.AutomatedInstallData;
+-import com.izforge.izpack.installer.InstallerFrame;
+-import com.izforge.izpack.installer.IzPanel;
+-import com.izforge.izpack.installer.ResourceManager;
+-import com.izforge.izpack.installer.ScriptParser;
+-import com.izforge.izpack.installer.UninstallData;
+ import com.izforge.izpack.io.CorruptVolumeException;
+ import com.izforge.izpack.io.FileSpanningInputStream;
+ import com.izforge.izpack.io.FileSpanningOutputStream;
+ import com.izforge.izpack.io.VolumeNotFoundException;
+ import com.izforge.izpack.panels.NextMediaDialog;
++import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.AbstractUIHandler;
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
+ import com.izforge.izpack.util.Debug;
+@@ -121,6 +116,8 @@
+     /** The result of the operation. */
+     private boolean result = true;
+ 
++    private RulesEngine rules;
++
+     /**
+      * The constructor.
+      * 
+@@ -422,6 +419,18 @@
+ 
+                 // We get the internationalized name of the pack
+                 final Pack pack = ((Pack) packs.get(i));
++                // evaluate condition
++                if (pack.hasCondition()) {
++                    if (rules != null) {
++                        if (!rules.isConditionTrue(pack.getCondition())) {
++                            // skip pack, condition is not fullfilled.
++                            continue;
++                        }
++                    }
++                    else {
++                        // TODO: skip pack, because condition can not be checked 
++                    }
++                }
+                 String stepname = pack.name;// the message to be passed to the
+                 // installpanel
+                 if (langpack != null &amp;&amp; !(pack.id == null || &quot;&quot;.equals(pack.id)))
+@@ -1363,4 +1372,9 @@
+     {
+         MultiVolumeUnpacker.interruptDesired = interruptDesired;
+     }
++
++    public void setRules(RulesEngine rules)
++    {
++        this.rules = rules;        
++    }
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-11-14 11:22:28 UTC (rev 1899)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-11-14 13:12:07 UTC (rev 1900)
+@@ -55,6 +55,7 @@
+ import com.izforge.izpack.ParsableFile;
+ import com.izforge.izpack.UpdateCheck;
+ import com.izforge.izpack.event.InstallerListener;
++import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.AbstractUIHandler;
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
+ import com.izforge.izpack.util.FileExecutor;
+@@ -112,6 +113,8 @@
+     
+     private static final String tempPath = &quot;$INSTALL_PATH/Uninstaller/IzpackWebTemp&quot;;
+     
++    private RulesEngine rules;
++    
+     /**
+      * The constructor.
+      * 
+@@ -300,14 +303,28 @@
+                     npacks), handler);
+             packs = idata.selectedPacks;
+             npacks = packs.size();
+-
++            
++            
+             // We unpack the selected packs
+             for (int i = 0; i &lt; npacks; i++)
+             {
+                 // We get the pack stream
+                 int n = idata.allPacks.indexOf(packs.get(i));
+                 Pack p = (Pack) packs.get(i);
+-
++                
++                // evaluate condition
++                if (p.hasCondition()) {
++                    if (rules != null) {
++                        if (!rules.isConditionTrue(p.getCondition())) {
++                            // skip pack, condition is not fullfilled.
++                            continue;
++                        }
++                    }
++                    else {
++                        // TODO: skip pack, because condition can not be checked 
++                    }
++                }
++                
+                 // Custom action listener stuff --- beforePack ----
+                 informListeners(customActions, InstallerListener.BEFORE_PACK, packs.get(i),
+                         new Integer(npacks), handler);
+@@ -1270,4 +1287,9 @@
+     {
+         Unpacker.interruptDesired = interruptDesired;
+     }
++
++    public void setRules(RulesEngine rules)
++    {        
++        this.rules = rules;        
++    }
+ }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000645.html">[izpack-changes] r1899 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000647.html">[izpack-changes] r1901 - izpack-src/trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#646">[ date ]</a>
+              <a href="thread.html#646">[ thread ]</a>
+              <a href="subject.html#646">[ subject ]</a>
+              <a href="author.html#646">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

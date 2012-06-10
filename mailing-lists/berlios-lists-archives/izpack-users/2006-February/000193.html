@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Creating shortcuts based on version of windows
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Creating%20shortcuts%20based%20on%20version%20of%20windows&In-Reply-To=006501c62e31%24c04af190%240c01a8c0%40OKTA">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000192.html">
+   <LINK REL="Next"  HREF="000194.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Creating shortcuts based on version of windows</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Creating%20shortcuts%20based%20on%20version%20of%20windows&In-Reply-To=006501c62e31%24c04af190%240c01a8c0%40OKTA"
+       TITLE="[izpack-users] Creating shortcuts based on version of windows">bartzkau at gmx.net
+       </A><BR>
+    <I>Fri Feb 10 13:51:32 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000192.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+        <LI>Next message: <A HREF="000194.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#193">[ date ]</a>
+              <a href="thread.html#193">[ thread ]</a>
+              <a href="subject.html#193">[ subject ]</a>
+              <a href="author.html#193">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Fabrice,
+thanks, I am OK. Writing only with left hand is a little bit
+unbeautiful but more easy as I thought before.
+In two weeks I will lost the cast around my rght wrist :-)
+Rest see context related...
+
+Cheers
+
+Klaus
+
+Am 10.02.2006, 12:04 Uhr, schrieb Miraodb &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">miraodb at hotmail.com</A>&gt;:
+
+&gt;<i> Hi klaus,
+</I>&gt;<i>
+</I>&gt;<i> Jeez, Good to see you again !
+</I>&gt;<i> I hope you're ok now and everything is cool !!!
+</I>&gt;<i>
+</I>
+&gt;&gt;<i> H Scott,
+</I>&gt;&gt;<i> if I look into the code, it seems so, that OS on the name or version
+</I>&gt;&gt;<i> will be supported also it is not written in the docu. May be I am  
+</I>&gt;&gt;<i> wrong...
+</I>&gt;&gt;<i> Do you have tested it analog to the usage in install.xml?
+</I>&gt;<i>
+</I>&gt;<i> I didn't see anything like that in the code... in which class did you see
+</I>&gt;<i> the check for specific version of operation system ?
+</I>&gt;<i>
+</I>
+It is a little bit hidden; the benefit of object orientated programming...
+
+At ShortcutPanel.jave line 810
+             if (!OsConstraint.oneMatchesCurrentSystem(shortcutSpec))  
+continue;
+makes all. All spec readers which uses this method will be support extended
+OS &quot;depending&quot;.
+
+The real work will be done in
+OsConstraint.getOsList(XMLElement element) which is called from
+OsConstraint.oneMatchesCurrentSystem(XMLElement el)
+
+I have tested it just with a test installation.
+------------------------- shortcutSpec.xml start -------------------
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+
+&lt;shortcuts&gt;
+
+   &lt;skipIfNotSupported /&gt;
+
+   &lt;programGroup defaultName=&quot;IzForge\test1&quot; location=&quot;applications&quot;/&gt;
+
+    &lt;shortcut
+      name=&quot;test1&quot;
+      programGroup=&quot;yes&quot;
+      desktop=&quot;no&quot;
+      applications=&quot;no&quot;
+      startMenu=&quot;no&quot;
+      startup=&quot;no&quot;
+      target=&quot;$INSTALL_PATH\Licence.txt&quot;
+      commandLine=&quot;&quot;
+      description=&quot;test shortcut for Windows XP exclusive&quot;&gt;
+
+      &lt;os family=&quot;windows&quot; name=&quot;Windows XP&quot; /&gt;
+      &lt;createForPack name=&quot;Base&quot; /&gt;
+    &lt;/shortcut&gt;
+
+    &lt;shortcut
+      name=&quot;test2&quot;
+      programGroup=&quot;yes&quot;
+      desktop=&quot;no&quot;
+      applications=&quot;no&quot;
+      startMenu=&quot;no&quot;
+      startup=&quot;no&quot;
+      target=&quot;$INSTALL_PATH\Licence.txt&quot;
+      commandLine=&quot;&quot;
+      description=&quot;test shortcut for Windows 2000 and  Windows XP&quot;&gt;
+
+      &lt;os family=&quot;windows&quot; name=&quot;Windows 2000&quot; /&gt;
+      &lt;os family=&quot;windows&quot; name=&quot;Windows XP&quot; /&gt;
+      &lt;createForPack name=&quot;Base&quot; /&gt;
+    &lt;/shortcut&gt;
+
+    &lt;shortcut
+      name=&quot;test3&quot;
+      programGroup=&quot;yes&quot;
+      desktop=&quot;no&quot;
+      applications=&quot;no&quot;
+      startMenu=&quot;no&quot;
+      startup=&quot;no&quot;
+      target=&quot;$INSTALL_PATH\Licence.txt&quot;
+      commandLine=&quot;&quot;
+      description=&quot;test shortcut for Windows 2000 exclusive&quot;&gt;
+
+      &lt;os family=&quot;windows&quot; name=&quot;Windows 2000&quot; /&gt;
+      &lt;createForPack name=&quot;Base&quot; /&gt;
+    &lt;/shortcut&gt;
+&lt;/shortcuts&gt;
+------------------------- shortcutSpec.xml end -------------------
+
+On my box (Windows XP) &quot;test1&quot; and &quot;test2&quot; will be installed, &quot;test3&quot; not.
+Seems, it works.
+Only question is, what OS names are valid. But this question we should
+not answer explicitly because it will change or expand in future. It
+is specified by the VM property os.name. Not more, not less...
+
+
+
+&gt;<i> Cheers,
+</I>&gt;<i> fabrice
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000192.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+	<LI>Next message: <A HREF="000194.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#193">[ date ]</a>
+              <a href="thread.html#193">[ thread ]</a>
+              <a href="subject.html#193">[ subject ]</a>
+              <a href="author.html#193">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

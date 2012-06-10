@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] skipping panels in conditions
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20skipping%20panels%20in%20conditions&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C8991020F2DF4%40svrexol1.ol.reddot.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001669.html">
+   <LINK REL="Next"  HREF="001670.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] skipping panels in conditions</H1>
+    <B>panneer selvam</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20skipping%20panels%20in%20conditions&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C8991020F2DF4%40svrexol1.ol.reddot.de"
+       TITLE="[izpack-users] skipping panels in conditions">panneer.mca at gmail.com
+       </A><BR>
+    <I>Wed Sep 19 06:50:47 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001669.html">[izpack-users] skipping panels in conditions
+</A></li>
+        <LI>Next message: <A HREF="001670.html">[izpack-users] Linux platform installation problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1671">[ date ]</a>
+              <a href="thread.html#1671">[ thread ]</a>
+              <a href="subject.html#1671">[ subject ]</a>
+              <a href="author.html#1671">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 9/18/07, Dennis Reil &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Dennis.Reil at reddot.de</A>&gt; wrote:
+&gt;<i> You'll have to define all your packs  and userinputpanel with an
+</I>&gt;<i> id-attribute.
+</I>&gt;<i>
+</I>&gt;<i> Then you'll write something like this in your conditions.xml:
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> &lt;conditions&gt;
+</I>&gt;<i>
+</I>&gt;<i>   &lt;condition type=&quot;packselection&quot; id=&quot;pack1selected&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i>     &lt;packid&gt;pack1&lt;/packid&gt;
+</I>&gt;<i>
+</I>&gt;<i>   &lt;/condition&gt;
+</I>&gt;<i>
+</I>&gt;<i>     &lt;panelcondition panelid=&quot;userinputpanel1&quot;
+</I>&gt;<i> conditionid=&quot;pack1selected&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>     &lt;panelcondition panelid=&quot;userinputpanel2&quot;
+</I>&gt;<i> conditionid=&quot;pack1selected&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i> &lt;/conditions&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> The conditions.xml has to be referenced as resource in you install.xml:
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> &lt;res id=&quot;conditions.xml&quot; src=&quot;PATH_TO_YOUR conditions.xml&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> So this means, that the panel with id userinputpanel1 and
+</I>&gt;<i> userinputpanel2 are only shown if condition with id pack1selected is
+</I>&gt;<i> evaluated to true.
+</I>&gt;<i>
+</I>&gt;<i> The type of this condition is packselection, which is true, if the pack
+</I>&gt;<i> with id pack1 is selected.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Regards,
+</I>&gt;<i>
+</I>&gt;<i>    Dennis
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von panneer
+</I>&gt;<i> selvam
+</I>&gt;<i> Gesendet: Dienstag, 18. September 2007 14:53
+</I>&gt;<i> An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Betreff: [izpack-users] skipping panels in conditions
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> i want to skip some custom panels according to the user's selection in
+</I>&gt;<i> PacksPanel.
+</I>&gt;<i>
+</I>&gt;<i> For ex: i have 3 UserInputPanels. In PacksPanel i'm displaying 2
+</I>&gt;<i> packages to install. pack1 is required and pack2 is optional. if user
+</I>&gt;<i> selected pack2 i want to go ahead with all the 3 UserInputPanels. In
+</I>&gt;<i> other case, (user deselected pack2) i want to skip UserInputPanel1 and
+</I>&gt;<i> 2, and directly i should trigger UserInputPanel3. can anyone help me how
+</I>&gt;<i> to do that?
+</I>&gt;<i>
+</I>&gt;<i> and i dont know how to use the conditions.xml,
+</I>&gt;<i> please anyone send the documents about conditions.............
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+Thank u very much Dennis......... Now it is working perfectly.......
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001669.html">[izpack-users] skipping panels in conditions
+</A></li>
+	<LI>Next message: <A HREF="001670.html">[izpack-users] Linux platform installation problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1671">[ date ]</a>
+              <a href="thread.html#1671">[ thread ]</a>
+              <a href="subject.html#1671">[ subject ]</a>
+              <a href="author.html#1671">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

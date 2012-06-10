@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1646 - in izpack-src/branches/branch-3.9: .	src/doc-ng/XHTML src/doc-ng/docbooks	src/lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1646%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/doc-ng/XHTML%20src/doc-ng/docbooks%0A%09src/lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000390.html">
+   <LINK REL="Next"  HREF="000392.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1646 - in izpack-src/branches/branch-3.9: .	src/doc-ng/XHTML src/doc-ng/docbooks	src/lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1646%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/doc-ng/XHTML%20src/doc-ng/docbooks%0A%09src/lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1646 - in izpack-src/branches/branch-3.9: .	src/doc-ng/XHTML src/doc-ng/docbooks	src/lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 21 18:28:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000390.html">[izpack-changes] r1645 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/ant
+</A></li>
+        <LI>Next message: <A HREF="000392.html">[izpack-changes] r1647 -	izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#391">[ date ]</a>
+              <a href="thread.html#391">[ thread ]</a>
+              <a href="subject.html#391">[ subject ]</a>
+              <a href="author.html#391">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-11-21 18:28:19 +0100 (Tue, 21 Nov 2006)
+New Revision: 1646
+
+Modified:
+   izpack-src/branches/branch-3.9/Versions.txt
+   izpack-src/branches/branch-3.9/src/doc-ng/XHTML/node4.html
+   izpack-src/branches/branch-3.9/src/doc-ng/docbooks/node4.xml
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/Compiler.java
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/Packager.java
+Log:
+Support for uncompressing archives and adding their content at the installer generation time (Nils Meier, via Julien Ponge)
+
+Modified: izpack-src/branches/branch-3.9/Versions.txt
+===================================================================
+--- izpack-src/branches/branch-3.9/Versions.txt	2006-11-21 10:01:42 UTC (rev 1645)
++++ izpack-src/branches/branch-3.9/Versions.txt	2006-11-21 17:28:19 UTC (rev 1646)
+@@ -6,6 +6,7 @@
+ - Fixed build.xml (PathSelectionPanel without using TargetPanel) (Fabrice Mirabile)
+ - UserInputPanel multiline label fix (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ - Fix for calling the IzPack Ant task from Maven builds (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
++- Support for uncompressing archives and adding their content at the installer generation time (Nils Meier, via Julien Ponge)
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+
+Modified: izpack-src/branches/branch-3.9/src/doc-ng/XHTML/node4.html
+===================================================================
+--- izpack-src/branches/branch-3.9/src/doc-ng/XHTML/node4.html	2006-11-21 10:01:42 UTC (rev 1645)
++++ izpack-src/branches/branch-3.9/src/doc-ng/XHTML/node4.html	2006-11-21 17:28:19 UTC (rev 1646)
+@@ -791,6 +791,9 @@
+ default value for non-interactive use. Another possible values is &lt;tt&gt;update&lt;/tt&gt;. It means that the new file is only installed if it's modification time is newer than the modification time of the
+ already existing file (note that this is not a reliable mechanism for updates - you cannot detect whether a file was altered after installation this way.) By default it is set to &lt;tt&gt;
+ update&lt;/tt&gt;.&lt;/li&gt;
++
++&lt;li&gt;&lt;tt&gt;unpack&lt;/tt&gt;: if &lt;tt&gt;true&lt;/tt&gt; and the file is an archive then its content will be unpacked and added as individual files&lt;/li&gt;
++
+ &lt;/ul&gt;
+ 
+ &lt;h4&gt;&lt;a name=&quot;SECTION00438610000000000000&quot;&gt;&lt;/a&gt;&lt;a name=&quot;tag:additionaldata&quot;&gt;&lt;/a&gt;&lt;br /&gt;
+
+Modified: izpack-src/branches/branch-3.9/src/doc-ng/docbooks/node4.xml
+===================================================================
+--- izpack-src/branches/branch-3.9/src/doc-ng/docbooks/node4.xml	2006-11-21 10:01:42 UTC (rev 1645)
++++ izpack-src/branches/branch-3.9/src/doc-ng/docbooks/node4.xml	2006-11-21 17:28:19 UTC (rev 1646)
+@@ -413,7 +413,7 @@
+ &lt;itemizedlist spacing=&quot;compact&quot;&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;src&lt;/literal&gt;: the file location (relative path) - if this is a directory its content will be added recursively&lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;targetdir&lt;/literal&gt;: the destination directory, could be something like &lt;literal&gt;$INSTALL_PATH/subdirX&lt;/literal&gt;&lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;os&lt;/literal&gt;: can optionally specify a target operating system (&lt;literal&gt;unix, windows, mac&lt;/literal&gt;) - this means that the file will only be installed on its target operating system&lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;override&lt;/literal&gt;: if &lt;literal&gt;true&lt;/literal&gt; then if the file is already installed, it will be overwritten. Alternative values: &lt;literal&gt;asktrue&lt;/literal&gt; and &lt;literal&gt;askfalse&lt;/literal&gt; - ask the user what to do and supply
+ default value for non-interactive use. Another possible values is &lt;literal&gt;update&lt;/literal&gt;. It means that the new file is only installed if it's modification time is newer than the modification time of the
+ already existing file (note that this is not a reliable mechanism for updates - you cannot detect whether a file was altered after installation this way.) By default it is set to &lt;literal&gt;
+-update&lt;/literal&gt;.&lt;/para&gt;&lt;/listitem&gt;&lt;/itemizedlist&gt;
++update&lt;/literal&gt;.&lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;&lt;literal&gt;unpack&lt;/literal&gt;: if true and the file is an archive then its content will be unpacked and added as individual files&lt;/para&gt;&lt;/listitem&gt;&lt;/itemizedlist&gt;
+ 
+ &lt;para/&gt;&lt;section id=&quot;SECTION00438610000000000000&quot;&gt;&lt;title&gt;&lt;?db2html element=&quot;br&quot;?&gt;
+ &lt;literal&gt;&amp;lt;additionaldata&amp;gt;&lt;/literal&gt;&lt;/title&gt;
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/Compiler.java	2006-11-21 10:01:42 UTC (rev 1645)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/Compiler.java	2006-11-21 17:28:19 UTC (rev 1646)
+@@ -25,6 +25,20 @@
+ 
+ package com.izforge.izpack.compiler;
+ 
++import java.io.File;
++import java.net.MalformedURLException;
++import java.net.URL;
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Map;
++import java.util.Properties;
++import java.util.Set;
++import java.util.jar.JarInputStream;
++import java.util.zip.ZipEntry;
++
+ import com.izforge.izpack.CustomData;
+ import com.izforge.izpack.GUIPrefs;
+ import com.izforge.izpack.Info;
+@@ -32,14 +46,6 @@
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
+-import java.io.File;
+-import java.io.IOException;
+-import java.net.MalformedURLException;
+-import java.net.URL;
+-import java.util.*;
+-import java.util.jar.JarInputStream;
+-import java.util.zip.ZipEntry;
+-
+ /**
+  * The IzPack compiler class. This is now a java bean style class that can be
+  * configured using the object representations of the install.xml
+@@ -522,37 +528,6 @@
+     }
+ 
+     /**
+-     * Recursive method to add files in a pack.
+-     * 
+-     * @param file The file to add.
+-     * @param targetdir The relative path to the parent.
+-     * @param osList The target OS constraints.
+-     * @param override Overriding behaviour.
+-     * @param pack Pack to be packed into
+-     * @param additionals Map which contains additional data
+-     * @exception FileNotFoundException if the file does not exist
+-     */
+-    protected void addRecursively(File file, String targetdir, List osList, int override,
+-            PackInfo pack, Map additionals) throws IOException
+-    {
+-        String targetfile = targetdir + &quot;/&quot; + file.getName();
+-        if (!file.isDirectory())
+-            pack.addFile(file, targetfile, osList, override, additionals);
+-        else
+-        {
+-            File[] files = file.listFiles();
+-            if (files.length == 0) // The directory is empty so must be added
+-                pack.addFile(file, targetfile, osList, override, additionals);
+-            else
+-            {
+-                // new targetdir = targetfile;
+-                for (int i = 0; i &lt; files.length; i++)
+-                    addRecursively(files[i], targetfile, osList, override, pack, additionals);
+-            }
+-        }
+-    }
+-
+-    /**
+      * Look for an IzPack resource either in the compiler jar, or within IZPACK_HOME. The path must
+      * not be absolute. The path must use '/' as the fileSeparator (it's used to access the jar
+      * file). If the resource is not found, a CompilerException is thrown indicating fault in the
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-11-21 10:01:42 UTC (rev 1645)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-11-21 17:28:19 UTC (rev 1646)
+@@ -51,6 +51,7 @@
+ import java.util.Vector;
+ import java.util.jar.JarInputStream;
+ import java.util.zip.ZipEntry;
++import java.util.zip.ZipInputStream;
+ 
+ import org.apache.tools.ant.DirectoryScanner;
+ 
+@@ -629,13 +630,17 @@
+                 List osList = OsConstraint.getOsList(f); // TODO: unverified
+                 int override = getOverrideValue(f);
+                 Map additionals = getAdditionals(f);
++                boolean unpack = src.endsWith(&quot;.zip&quot;) &amp;&amp; &quot;true&quot;.equalsIgnoreCase(f.getAttribute(&quot;unpack&quot;));
+ 
+                 File file = new File(src);
+                 if (!file.isAbsolute()) file = new File(basedir, src);
+ 
+                 try
+                 {
+-                    addRecursively(file, targetdir, osList, override, pack, additionals);
++                    if (unpack)
++                        addArchiveContent(file, targetdir, osList, override, pack, additionals);
++                    else
++                        addRecursively(file, targetdir, osList, override, pack, additionals);
+                 }
+                 catch (Exception x)
+                 {
+@@ -659,7 +664,7 @@
+ 
+                 try
+                 {
+-                    pack.addFile(file, target, osList, override, additionals);
++                     pack.addFile(file, target, osList, override, additionals);
+                 }
+                 catch (FileNotFoundException x)
+                 {
+@@ -947,6 +952,37 @@
+     }
+ 
+     /**
++     * Add files in an archive to a pack
++     * @param archive the archive file to unpack
++     * @parm targetdir the target directory where the content of the archive will be installed
++     * @param osList The target OS constraints.
++     * @param override Overriding behaviour.
++     * @param pack Pack to be packed into
++     * @param additionals Map which contains additional data
++     */
++    protected void addArchiveContent(File archive, String targetdir, List osList, int override, PackInfo pack, Map additionals) throws IOException {
++      
++      FileInputStream fin = new FileInputStream(archive);
++      ZipInputStream zin = new ZipInputStream(fin);
++      while (true) {
++        ZipEntry zentry = zin.getNextEntry();
++        if (zentry==null) break;
++        if (zentry.isDirectory()) continue;
++        
++        File temp = File.createTempFile(&quot;izpack&quot;, null);
++        temp.deleteOnExit();
++        
++        FileOutputStream out = new FileOutputStream(temp);
++        compiler.getPackager().copyStream(zin, out);
++        out.close();
++        
++        pack.addFile(temp, targetdir + &quot;/&quot; + zentry.getName(), osList, override, additionals);
++        
++      }
++      fin.close();
++    }
++    
++    /**
+      * Recursive method to add files in a pack.
+      * 
+      * @param file The file to add.
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/Packager.java	2006-11-21 10:01:42 UTC (rev 1645)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/compiler/Packager.java	2006-11-21 17:28:19 UTC (rev 1646)
+@@ -731,7 +731,7 @@
+      * @return the total number of bytes copied
+      * @exception IOException if an I/O error occurs
+      */
+-    private long copyStream(InputStream in, OutputStream out) throws IOException
++    protected long copyStream(InputStream in, OutputStream out) throws IOException
+     {
+         byte[] buffer = new byte[5120];
+         long bytesCopied = 0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000390.html">[izpack-changes] r1645 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/ant
+</A></li>
+	<LI>Next message: <A HREF="000392.html">[izpack-changes] r1647 -	izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#391">[ date ]</a>
+              <a href="thread.html#391">[ thread ]</a>
+              <a href="subject.html#391">[ subject ]</a>
+              <a href="author.html#391">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

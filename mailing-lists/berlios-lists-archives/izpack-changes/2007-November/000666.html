@@ -1,0 +1,457 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1920 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1920%20-%20in%20izpack-src/trunk%3A%20.%20src/dtd%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000665.html">
+   <LINK REL="Next"  HREF="000667.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1920 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1920%20-%20in%20izpack-src/trunk%3A%20.%20src/dtd%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1920 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Thu Nov 29 16:25:24 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000665.html">[izpack-changes] r1919 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000667.html">[izpack-changes] r1921 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#666">[ date ]</a>
+              <a href="thread.html#666">[ thread ]</a>
+              <a href="subject.html#666">[ subject ]</a>
+              <a href="author.html#666">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-29 16:25:13 +0100 (Thu, 29 Nov 2007)
+New Revision: 1920
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/DynamicVariable.java
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/dtd/installation.dtd
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+Added dynamic variables
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-11-29 14:58:55 UTC (rev 1919)
++++ izpack-src/trunk/Versions.txt	2007-11-29 15:25:13 UTC (rev 1920)
+@@ -59,6 +59,7 @@
+ - Spanish langpack update (Sergio Banos Calvo via Julien Ponge)
+ - Various fixes (Loic via Julien Ponge)
+ - Added conditions-definition to installer xml (Dennis Reil)
++- Added dynamic variables (Dennis Reil)
+ 
+   
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2007-11-29 14:58:55 UTC (rev 1919)
++++ izpack-src/trunk/src/dtd/installation.dtd	2007-11-29 15:25:13 UTC (rev 1920)
+@@ -10,7 +10,7 @@
+ --&gt;
+ 
+ &lt;!-- The root element --&gt;
+-&lt;!ELEMENT installation (preinstall?, info, packaging?, properties?, variables?,conditions?, 
++&lt;!ELEMENT installation (preinstall?, info, packaging?, properties?, variables?,dynamicvariables?,conditions?, 
+                         guiprefs?, locale, resources?, panels,
+                         listeners?, packs, jar*, native*, postinstall?)&gt;
+     &lt;!ATTLIST installation version CDATA #REQUIRED&gt;
+@@ -55,6 +55,7 @@
+     &lt;!ELEMENT variable EMPTY&gt;
+         &lt;!ATTLIST variable name CDATA #REQUIRED&gt;
+         &lt;!ATTLIST variable value CDATA #REQUIRED&gt;
++        &lt;!ATTLIST variable condition CDATA #IMPLIED&gt;
+ 
+ &lt;!-- The conditions markup (condition declarations) --&gt;
+ &lt;!ELEMENT conditions (condition*)&gt;
+@@ -62,7 +63,8 @@
+ &lt;!ELEMENT condition EMPTY&gt;
+ &lt;!ATTLIST condition type CDATA #REQUIRED&gt;
+ &lt;!ATTLIST condition id CDATA #REQUIRED&gt;
+-        
++
++&lt;!ELEMENT dynamicvariables (variables*)&gt;        
+ &lt;!-- The guiprefs markup (customizes the installer in GUI mode) --&gt;
+ &lt;!ELEMENT guiprefs (laf*, modifier*)&gt;
+     &lt;!ATTLIST guiprefs resizable (yes|no) #REQUIRED&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-11-29 14:58:55 UTC (rev 1919)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-11-29 15:25:13 UTC (rev 1920)
+@@ -882,5 +882,16 @@
+     {
+         this.packager.setRules(conditions);        
+     }
++    
++    public Map getDynamicVariables()
++    {
++        return this.packager.getDynamicVariables();
++    }
++    
++    
++    public void setDynamicVariables(Map dynamicvariables)
++    {
++        this.packager.setDynamicVariables(dynamicvariables);
++    }
+ 
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-29 14:58:55 UTC (rev 1919)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-29 15:25:13 UTC (rev 1920)
+@@ -321,6 +321,7 @@
+ 
+         // We add all the information
+         addVariables(data);
++        addDynamicVariables(data);
+         addConditions(data);
+         addInfo(data);
+         addGUIPrefs(data);
+@@ -1513,6 +1514,33 @@
+         notifyCompilerListener(&quot;addVariables&quot;, CompilerListener.END, data);
+     }
+     
++    protected void addDynamicVariables(XMLElement data) throws CompilerException
++    {
++        notifyCompilerListener(&quot;addDynamicVariables&quot;, CompilerListener.BEGIN, data);
++        // We get the dynamic variable list
++        XMLElement root = data.getFirstChildNamed(&quot;dynamicvariables&quot;);
++        if (root == null) return;
++
++        Map dynamicvariables = compiler.getDynamicVariables();
++
++        Iterator iter = root.getChildrenNamed(&quot;variable&quot;).iterator();
++        while (iter.hasNext())
++        {
++            XMLElement var = (XMLElement) iter.next();
++            String name = requireAttribute(var, &quot;name&quot;);
++            String value = requireAttribute(var, &quot;value&quot;);
++            String conditionid = var.getAttribute(&quot;condition&quot;);
++            if (dynamicvariables.containsKey(name))
++                parseWarn(var, &quot;DynamicVariable '&quot; + name + &quot;' being overwritten&quot;);
++            DynamicVariable dynvar = new DynamicVariable();
++            dynvar.setName(name);
++            dynvar.setValue(value);
++            dynvar.setConditionid(conditionid);
++            dynamicvariables.put(name, dynvar);
++        }
++        notifyCompilerListener(&quot;addDynamicVariables&quot;, CompilerListener.END, data);
++    }
++    
+     /**
+      * Parse conditions and add them to the compiler.
+      * @param data
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/DynamicVariable.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/DynamicVariable.java	2007-11-29 14:58:55 UTC (rev 1919)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/DynamicVariable.java	2007-11-29 15:25:13 UTC (rev 1920)
+@@ -0,0 +1,94 @@
++/*
++ * $Id: Compiler.java 1918 2007-11-29 14:02:17Z dreil $
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2007 Dennis Reil
++ *
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.compiler;
++
++import java.io.Serializable;
++
++
++/**
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class DynamicVariable implements Serializable
++{
++    private static final long serialVersionUID = -7985397187206803090L;
++    private String name;
++    private String value;
++    private String conditionid;
++    
++    public DynamicVariable() {
++        
++    }
++    
++    /**
++     * @return the name
++     */
++    public String getName()
++    {
++        return this.name;
++    }
++    
++    /**
++     * @param name the name to set
++     */
++    public void setName(String name)
++    {
++        this.name = name;
++    }
++    
++    /**
++     * @return the value
++     */
++    public String getValue()
++    {
++        return this.value;
++    }
++    
++    /**
++     * @param value the value to set
++     */
++    public void setValue(String value)
++    {
++        this.value = value;
++    }
++    
++    /**
++     * @return the conditionid
++     */
++    public String getConditionid()
++    {
++        return this.conditionid;
++    }
++    
++    /**
++     * @param conditionid the conditionid to set
++     */
++    public void setConditionid(String conditionid)
++    {
++        this.conditionid = conditionid;
++    }
++    
++    
++}
++
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java	2007-11-29 14:58:55 UTC (rev 1919)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java	2007-11-29 15:25:13 UTC (rev 1920)
+@@ -193,4 +193,16 @@
+      * @param rules the rules to set
+      */
+     public abstract void setRules(Map rules);
++    
++    /**
++     * Returns a map of dynamically refreshed variables
++     * @return
++     */
++    public abstract Map getDynamicVariables();
++    
++    /**
++     * 
++     * @param dynamicvariables
++     */
++    public abstract void setDynamicVariables(Map dynamicvariables);
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java	2007-11-29 14:58:55 UTC (rev 1919)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java	2007-11-29 15:25:13 UTC (rev 1920)
+@@ -85,6 +85,9 @@
+     
+     /** the conditions */
+     protected Map rules = new HashMap();
++    
++    /** dynamic variables */
++    protected Map dynamicvariables = new HashMap();
+ 
+     /** Jar file URLs who's contents will be copied into the installer. */
+     protected Set includedJarURLs = new HashSet();
+@@ -326,6 +329,7 @@
+         writeInstallerObject(&quot;customData&quot;, customDataList);
+         writeInstallerObject(&quot;langpacks.info&quot;, langpackNameList);
+         writeInstallerObject(&quot;rules&quot;, rules);
++        writeInstallerObject(&quot;dynvariables&quot;,dynamicvariables);
+         writeInstallerResources();
+         writeIncludedJars();
+ 
+@@ -338,4 +342,22 @@
+     protected abstract void writeInstallerResources() throws IOException;
+     protected abstract void writeIncludedJars() throws IOException;
+     protected abstract void writePacks() throws Exception;
++
++    
++    /**
++     * @return the dynamicvariables
++     */
++    public Map getDynamicVariables()
++    {
++        return this.dynamicvariables;
++    }
++
++    
++    /**
++     * @param dynamicvariables the dynamicvariables to set
++     */
++    public void setDynamicVariables(Map dynamicvariables)
++    {
++        this.dynamicvariables = dynamicvariables;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-11-29 14:58:55 UTC (rev 1919)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-11-29 15:25:13 UTC (rev 1920)
+@@ -93,6 +93,7 @@
+ import com.izforge.izpack.ExecutableFile;
+ import com.izforge.izpack.LocaleDatabase;
+ import com.izforge.izpack.Panel;
++import com.izforge.izpack.compiler.DynamicVariable;
+ import com.izforge.izpack.gui.ButtonFactory;
+ import com.izforge.izpack.gui.EtchedLineBorder;
+ import com.izforge.izpack.gui.IconsDatabase;
+@@ -230,6 +231,9 @@
+      * Resource name for custom icons
+      */
+     private static final String CUSTOM_ICONS_RESOURCEFILE = &quot;customicons.xml&quot;;
++    
++    private Map dynamicvariables;
++    private VariableSubstitutor substitutor;
+ 
+     /**
+      * The constructor (normal mode).
+@@ -241,6 +245,7 @@
+     public InstallerFrame(String title, InstallData installdata) throws Exception
+     {
+         super(title);
++        substitutor = new VariableSubstitutor(installdata.variables);
+         guiListener = new ArrayList();
+         visiblePanelMapping = new ArrayList();
+         this.installdata = installdata;
+@@ -253,6 +258,8 @@
+         // initialize rules by loading the conditions
+         loadConditions();
+ 
++        // load dynamic variables
++        loadDynamicVariables();
+         // Builds the GUI
+         loadIcons();
+         loadCustomIcons();
+@@ -263,7 +270,43 @@
+         showFrame();
+         switchPanel(0);
+     }
++    
++    private void refreshDynamicVariables() {
++        if (dynamicvariables != null) {
++            Iterator iter = dynamicvariables.keySet().iterator();
++            while (iter.hasNext()) {
++                DynamicVariable dynvar = (DynamicVariable) iter.next();
++                boolean refresh = false;
++                if (dynvar.getConditionid() != null) {
++                    if (rules.isConditionTrue(dynvar.getConditionid())) {
++                        // condition for this rule is true
++                        refresh = true;
++                    }                    
++                }
++                else {
++                    refresh = true;
++                }
++                if (refresh) {
++                    String newvalue = substitutor.substitute(dynvar.getValue(), null);
++                    installdata.variables.setProperty(dynvar.getName(), newvalue);
++                }
++            }
++        }
++    }
+ 
++    private void loadDynamicVariables()
++    {
++        try {
++            InputStream in = InstallerFrame.class.getResourceAsStream(&quot;/dynvariables&quot;);
++            ObjectInputStream objIn = new ObjectInputStream(in); 
++            dynamicvariables = (Map) objIn.readObject();
++            objIn.close();
++        }
++        catch (Exception e) {
++            Debug.trace(&quot;Can not find optional dynamic variables&quot;);           
++        }        
++    }
++
+     /**
+      * Reads the conditions specification file and initializes the rules engine.
+      */
+@@ -280,7 +323,7 @@
+             objIn.close();
+         }
+         catch (Exception e) {
+-            
++            Debug.trace(&quot;Can not find optional rules&quot;);            
+         }
+         if (rules != null) {
+             // rules already read
+@@ -740,6 +783,8 @@
+      */
+     protected void switchPanel(int last)
+     {
++        // refresh dynamic variables every time, a panel switch is done
++        refreshDynamicVariables();
+         try
+         {
+             if (installdata.curPanelNumber &lt; last)
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000665.html">[izpack-changes] r1919 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000667.html">[izpack-changes] r1921 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#666">[ date ]</a>
+              <a href="thread.html#666">[ thread ]</a>
+              <a href="subject.html#666">[ subject ]</a>
+              <a href="author.html#666">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Enhancements and fix to ShortcutPanel...
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Enhancements%20and%20fix%20to%20ShortcutPanel...&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000755.html">
+   <LINK REL="Next"  HREF="000758.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Enhancements and fix to ShortcutPanel...</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Enhancements%20and%20fix%20to%20ShortcutPanel...&In-Reply-To="
+       TITLE="[izpack-devel] Enhancements and fix to ShortcutPanel...">markus.schlegel at pulinco.com
+       </A><BR>
+    <I>Mon Jan  8 20:46:38 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000755.html">[izpack-devel] Next release will be 3.10.0
+</A></li>
+        <LI>Next message: <A HREF="000758.html">[izpack-devel] Enhancements and fix to ShortcutPanel...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#757">[ date ]</a>
+              <a href="thread.html#757">[ thread ]</a>
+              <a href="subject.html#757">[ subject ]</a>
+              <a href="author.html#757">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all
+ 
+Attached a patch (against the current trunk) for ShortcutPanel that does
+the following:
+ 
+1. Supports &quot;installGroup&quot;-Attribute for the &lt;programGroup&gt; Element of
+the shortcutSpec.xml.
+InstallGroups are used with Packs already. I have now implemented
+support for the Shortcut:
+Former, only one ProgramGroup could be defined in the shortcutSpec. With
+my change, you can define a different ProgramGroup for each
+InstallGroup.
+This allows to deliver a group of applications (sharing the same
+codebase) in one installer, where the user chooses the application to
+install by selecting an InstallGroup. Each Application's Shortcuts can
+then be installed into its own ProgramGroup.
+
+Example of shortcutSpec.xml:
+&lt;shortcuts&gt;
+  &lt;skipIfNotSupported /&gt;
+  &lt;programGroup installGroup=&quot;Client&quot; defaultName=&quot;Vendor\Client 6.1&quot;
+location=&quot;applications&quot;/&gt;
+  &lt;programGroup installGroup=&quot;Server&quot; defaultName=&quot;Vendor\Server 6.1&quot;
+location=&quot;applications&quot;/&gt;
+  &lt;programGroup installGroup=&quot;Admin&quot;  defaultName=&quot;Vendor\Server
+Administrator 6.1&quot; location=&quot;applications&quot;/&gt;
+  &lt;shortcut
+     name=&quot;Client&quot;
+     programGroup=&quot;yes&quot;
+     desktop=&quot;no&quot;
+     applications=&quot;no&quot;
+     startMenu=&quot;no&quot;
+     startup=&quot;no&quot;
+     target=&quot;$INSTALL_PATH\client.exe&quot;
+     commandLine=&quot;&quot;
+     description=&quot;Client Application&quot;
+     iconFile=&quot;$INSTALL_PATH\client.exe&quot;
+     iconIndex=&quot;0&quot;
+     initialState=&quot;normal&quot;&gt;
+     &lt;createForPack name=&quot;Client Base&quot;/&gt;
+   &lt;/shortcut&gt;
+  &lt;shortcut
+     name=&quot;Server Administrator&quot;
+     programGroup=&quot;yes&quot;
+     desktop=&quot;no&quot;
+     applications=&quot;no&quot;
+     startMenu=&quot;no&quot;
+     startup=&quot;no&quot;
+     target=&quot;$INSTALL_PATH\Server Administrator.exe&quot;
+     commandLine=&quot;&quot;
+     description=&quot;Server Administrator&quot;
+     iconFile=&quot;$INSTALL_PATH\Server Administrator.exe&quot;
+     iconIndex=&quot;0&quot;
+     initialState=&quot;normal&quot;&gt;
+   
+     &lt;createForPack name=&quot;Admin Base&quot;/&gt;
+   &lt;/shortcut&gt;
+....
+
+2. Late creation of shortcuts. Up to now, ShortcutPanel immediately
+creates the shortcuts when the user presses &quot;next&quot;. 
+This is ok, if the ShortcutPanel is placed after the InstallationPanel.
+But it's not ok if it is placed before.
+Normally (in most other installers) it's common to place that panel
+before any installation takes place (ask all questions first, then run
+the installation). While it's possible to create the Shortcuts before
+the files are installed, it takes a long time to do so (we create 4
+Shortcuts and it takes 5-8 seconds). The reason for this is, that the
+Shortcut creation checks for file existence, which in turn has
+relatively long timeouts for non existent files.
+
+I have now implemented a &quot;hook&quot; in ShortcutPanel that enables an
+InstallerListener (see &quot;LateShortcutInstallListener.java&quot;) to create the
+Shortcuts lately. This solution requires a minimum impact into the code.
+
+3. Fix a bug (this one was on the bugtracking system on Berlios too ;-),
+where each Shortcut-Subgroup influenced the remaining Shortcut creation,
+because the class member was altered during the loop...
+
+Regards
+ 
+Markus Schlegel
+Dipl. Ing. Wirtschaftsinformatik HTL,
+Senior Software Engineer
+__________________________________________
+pulinco
+Webergutstrasse 4
+CH-3052 Zollikofen, Switzerland
+
+Phone: +41 31 910 44 44
+Fax:     +41 31 910 44 49
+Email: mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">markus.schlegel at pulinco.com</A>
+&lt;blocked::mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">markus.schlegel at pulinco.com</A>&gt; 
+Web:     <A HREF="http://www.pulinco.com">http://www.pulinco.com</A> &lt;blocked::<A HREF="http://www.pulinco.com/">http://www.pulinco.com/</A>&gt; 
+
+*** pulinco - sustainable added value as an objective ***
+
+&gt;&gt;<i> CONTROL YOUR BUSINESS WITH TopEase(r) &lt;&lt;
+</I>
+*** email DISCLAIMER **************************************
+The information contained in this email and any of its attachments
+is intended solely for the addressee and may contain confidential,
+proprietary or legally privileged material. Access to this email by
+anyone else than the addressee is unauthorized. If you are not the
+intended recipient, any form of disclosure, reproduction, distribution
+or other use of, or any action taken or refrained from in reliance
+on it, is prohibited and may be unlawful. Please notify the sender
+immediately and destroy the email and its attachments from any
+computer.
+*************************************************************
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: LateShortcutInstallListener.txt
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070108/dd858059/attachment.txt">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070108/dd858059/attachment.txt</A> 
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: ShortcutPanel_patch_trunk.txt
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070108/dd858059/attachment-0001.txt">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070108/dd858059/attachment-0001.txt</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000755.html">[izpack-devel] Next release will be 3.10.0
+</A></li>
+	<LI>Next message: <A HREF="000758.html">[izpack-devel] Enhancements and fix to ShortcutPanel...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#757">[ date ]</a>
+              <a href="thread.html#757">[ thread ]</a>
+              <a href="subject.html#757">[ subject ]</a>
+              <a href="author.html#757">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,684 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1908 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1908%20-%20in%20izpack-src/trunk/src%3A%20.%0A%09lib/com/izforge/izpack/compiler%20lib/com/izforge/izpack/installer%0A%09lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000653.html">
+   <LINK REL="Next"  HREF="000655.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1908 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1908%20-%20in%20izpack-src/trunk/src%3A%20.%0A%09lib/com/izforge/izpack/compiler%20lib/com/izforge/izpack/installer%0A%09lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1908 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 20 09:02:31 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000653.html">[izpack-changes] r1907 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000655.html">[izpack-changes] r1909 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#654">[ date ]</a>
+              <a href="thread.html#654">[ thread ]</a>
+              <a href="subject.html#654">[ subject ]</a>
+              <a href="author.html#654">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-20 09:02:22 +0100 (Tue, 20 Nov 2007)
+New Revision: 1908
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationTypePanel.java
+Modified:
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerBase.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanel.java
+Log:
+added modify installation mode.
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/build.xml	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -680,6 +680,9 @@
+          &lt;include name=&quot;com/izforge/izpack/panels/PacksPanelBase.java&quot; /&gt;
+          &lt;include name=&quot;com/izforge/izpack/panels/PacksPanelInterface.java&quot; /&gt;
+         &lt;/build-panel&gt;
++    	&lt;build-panel name=&quot;InstallationTypePanel&quot;&gt;
++    		&lt;include name=&quot;com/izforge/izpack/panels/InstallationTypePanel.java&quot;/&gt;
++    	&lt;/build-panel&gt;    	
+     &lt;/target&gt;
+ 
+     &lt;!--
+@@ -914,7 +917,7 @@
+         &lt;/copy&gt;
+     &lt;/target&gt;
+ 
+-    &lt;target name=&quot;build.docu&quot; description=&quot;Builds the customer documentation&quot;&gt;
++    &lt;target name=&quot;build.docu&quot; description=&quot;Builds the customer documentation&quot;&gt;    	
+         &lt;exec executable=&quot;python&quot; dir=&quot;${basedir}/src/doc-reST&quot;&gt;
+             &lt;arg value=&quot;build.py&quot;/&gt;
+         &lt;/exec&gt;
+@@ -929,7 +932,7 @@
+             &lt;fileset dir=&quot;${basedir}/src/doc-reST/pdf&quot;&gt;
+                 &lt;include name=&quot;manual.pdf&quot; /&gt;
+             &lt;/fileset&gt;
+-        &lt;/copy&gt;
++        &lt;/copy&gt;    	
+     &lt;/target&gt;
+ 
+     &lt;target name=&quot;create.docu&quot;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -33,27 +33,17 @@
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+-import java.util.Properties;
+-import java.util.Set;
+ import java.util.zip.Deflater;
+ import java.util.zip.ZipEntry;
+ import java.util.zip.ZipException;
+-import java.util.zip.ZipFile;
+ import java.util.zip.ZipInputStream;
+ import java.util.zip.ZipOutputStream;
+ 
+ import net.n3.nanoxml.XMLElement;
+ 
+-import com.izforge.izpack.CustomData;
+-import com.izforge.izpack.GUIPrefs;
+-import com.izforge.izpack.Info;
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.PackFile;
+-import com.izforge.izpack.Panel;
+ import com.izforge.izpack.XPackFile;
+-import com.izforge.izpack.compressor.PackCompressor;
+-import com.izforge.izpack.compressor.PackCompressorFactory;
+-import com.izforge.izpack.io.FileSpanningInputStream;
+ import com.izforge.izpack.io.FileSpanningOutputStream;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.FileUtil;
+@@ -178,7 +168,8 @@
+     {
+         String classname = this.getClass().getName();
+         String sizeprop = classname + &quot;.volumesize&quot;;
+-        String freespaceprop = classname + &quot;.firstvolumefreespace&quot;;        
++        String freespaceprop = classname + &quot;.firstvolumefreespace&quot;; 
++        
+         if (this.configdata == null){
+             // no configdata given, set default values
+             this.variables.setProperty(sizeprop, Long.toString(FileSpanningOutputStream.DEFAULT_VOLUME_SIZE));
+@@ -371,10 +362,6 @@
+             Debug.trace(&quot;Writing Pack &quot; + packNumber + &quot;: &quot; + pack.name);
+             ZipEntry entry = new ZipEntry(&quot;packs/pack&quot; + packNumber);
+             // write the metadata as uncompressed object stream to primaryJarStream
+-            // ByteCountingOutputStream dos = new
+-            // ByteCountingOutputStream(comprStream);
+-            // ByteCountingOutputStream dos = new
+-            // ByteCountingOutputStream(primaryJarStream);
+             // first write a packs entry
+ 
+             primaryJarStream.putNextEntry(entry);
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -42,7 +42,9 @@
+ {
+ 
+     // --- Static members -------------------------------------------------
+-
++    public static final String MODIFY_INSTALLATION = &quot;modify.izpack.install&quot;;
++    public static final String INSTALLATION_INFORMATION = &quot;.installationinformation&quot;;
++    
+     /**
+      * Names of the custom actions types with which they are stored in the installer jar file. These
+      * names are also used to identify the type of custom action in the customData map. Slashes as
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -56,7 +56,7 @@
+ /**
+  * Unpacker class for a multi volume installation.
+  * 
+- * @author Dennis Reil
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">izpack at reil-online.de</A>&gt;
+  */
+ public class MultiVolumeUnpacker extends UnpackerBase
+ {             
+@@ -568,6 +568,10 @@
+             { // Interrupt was initiated; perform it.
+                 return;
+             }
++            
++            // write installation information
++            writeInstallationInformation();
++            
+             this.writeConfigInformation();
+             // The end :-)
+             handler.stopAction();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -451,6 +451,9 @@
+                 return;
+             }
+ 
++            // write installation information
++            writeInstallationInformation();
++            
+             // The end :-)
+             handler.stopAction();
+         }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerBase.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerBase.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -22,9 +22,12 @@
+ 
+ import java.io.BufferedOutputStream;
+ import java.io.File;
++import java.io.FileInputStream;
+ import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.io.InputStream;
++import java.io.ObjectInputStream;
++import java.io.ObjectOutputStream;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.HashSet;
+@@ -47,6 +50,7 @@
+ import com.izforge.izpack.event.InstallerListener;
+ import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
++import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.IoHelper;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
+@@ -803,7 +807,57 @@
+             }
+ 
+         }
+-
+     }
++    
++    /**
++     * Writes information about the installed packs and the variables at
++     * installation time.
++     * @throws IOException 
++     * @throws ClassNotFoundException 
++     */
++    public void writeInstallationInformation() throws IOException, ClassNotFoundException {
++        Debug.trace(&quot;writing installation information&quot;);
++        String installdir = idata.getInstallPath();
++        
++        List installedpacks = new ArrayList(idata.selectedPacks);
++        
++        File installationinfo = new File(installdir + File.separator + AutomatedInstallData.INSTALLATION_INFORMATION);
++        if (!installationinfo.exists()) {
++            Debug.trace(&quot;creating info file&quot; + installationinfo.getAbsolutePath());
++            installationinfo.createNewFile();
++        }
++        else {
++            Debug.trace(&quot;installation information found&quot;);
++            // read in old information and update
++            FileInputStream fin = new FileInputStream(installationinfo);
++            ObjectInputStream oin = new ObjectInputStream(fin);
++            
++            List packs = (List) oin.readObject();
++            for (Iterator iterator = packs.iterator(); iterator.hasNext();)
++            {
++                Pack pack = (Pack) iterator.next();
++                installedpacks.add(pack);
++            }
++            oin.close();
++            fin.close();
++            
++        }
++        
++        FileOutputStream fout = new FileOutputStream(installationinfo);
++        ObjectOutputStream oout = new ObjectOutputStream(fout);
++        oout.writeObject(installedpacks);
++        /*
++        int selectedpackscount = idata.selectedPacks.size();
++        for (int i = 0; i &lt; selectedpackscount; i++)
++        {
++            Pack pack = (Pack) idata.selectedPacks.get(i);
++            oout.writeObject(pack);
++        }
++        */
++        oout.writeObject(idata.variables);
++        Debug.trace(&quot;done.&quot;);
++        oout.close();
++        fout.close();
++    }
+ }
+ 
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationTypePanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationTypePanel.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationTypePanel.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -0,0 +1,83 @@
++/**
++ * 
++ */
++package com.izforge.izpack.panels;
++
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++
++import javax.swing.ButtonGroup;
++import javax.swing.JRadioButton;
++
++import com.izforge.izpack.gui.IzPanelLayout;
++import com.izforge.izpack.gui.LabelFactory;
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++import com.izforge.izpack.installer.IzPanel;
++
++
++/**
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class InstallationTypePanel extends IzPanel implements ActionListener
++{
++    private JRadioButton normalinstall;
++    private JRadioButton modifyinstall;      
++
++    public InstallationTypePanel(InstallerFrame parent, InstallData idata)
++    {
++        super(parent, idata, new IzPanelLayout());
++        
++    }
++    
++    private void buildGUI() {
++        // We put our components
++
++        add(LabelFactory.create(parent.langpack.getString(&quot;InstallationTypePanel.info&quot;),
++                parent.icons.getImageIcon(&quot;history&quot;),  LEADING), NEXT_LINE);
++        
++        
++        ButtonGroup group = new ButtonGroup();
++        
++        boolean modifyinstallation = Boolean.valueOf(idata.getVariable(InstallData.MODIFY_INSTALLATION)).booleanValue();
++
++        normalinstall = new JRadioButton(parent.langpack.getString(&quot;InstallationTypePanel.normal&quot;), !modifyinstallation);
++        normalinstall.addActionListener(this);
++        group.add(normalinstall);
++        add(normalinstall, NEXT_LINE);
++        
++        modifyinstall = new JRadioButton(parent.langpack.getString(&quot;InstallationTypePanel.modify&quot;), modifyinstallation);
++        modifyinstall.addActionListener(this);
++        group.add(modifyinstall);
++        add(modifyinstall, NEXT_LINE);
++                
++        setInitialFocus(normalinstall);
++        getLayoutHelper().completeLayout();
++    }
++
++    /**
++     * 
++     */
++    private static final long serialVersionUID = -8178770882900584122L; 
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.installer.IzPanel#panelActivate()
++     */
++    public void panelActivate()
++    {
++        buildGUI();
++    }
++   
++    public void actionPerformed(ActionEvent e)
++    {
++        if (normalinstall.isSelected()) {
++            idata.setVariable(InstallData.MODIFY_INSTALLATION, &quot;false&quot;);
++        }
++        else {
++            idata.setVariable(InstallData.MODIFY_INSTALLATION, &quot;true&quot;);
++        } 
++        
++    }
++}
++
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -24,7 +24,14 @@
+ 
+ package com.izforge.izpack.panels;
+ 
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.FileNotFoundException;
++import java.io.IOException;
++import java.io.ObjectInputStream;
++import java.util.ArrayList;
+ import java.util.HashMap;
++import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Properties;
+@@ -33,6 +40,7 @@
+ 
+ import com.izforge.izpack.LocaleDatabase;
+ import com.izforge.izpack.Pack;
++import com.izforge.izpack.installer.AutomatedInstallData;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.Debug;
+@@ -53,6 +61,10 @@
+     private List packs;
+ 
+     private List packsToInstall;
++    
++    private Map installedpacks;
++    private boolean modifyinstallation;
++    
+ 
+     private PacksPanelInterface panel;
+ 
+@@ -74,17 +86,55 @@
+     private Properties variables;
+ 
+     public PacksModel(PacksPanelInterface panel, InstallData idata, RulesEngine rules)
+-    {        
+-        this(idata.availablePacks, idata.selectedPacks, panel, rules, idata.getVariables());               
+-    }
+-
+-    public PacksModel(List packs, List packsToInstall, PacksPanelInterface panel, RulesEngine rules, Properties variables)
+-    {
++    {                
++        modifyinstallation = Boolean.valueOf(idata.getVariable(InstallData.MODIFY_INSTALLATION)).booleanValue();
++        this.installedpacks = new HashMap();
++        
++        if (modifyinstallation) {
++            // installation shall be modified
++            // load installation information
++            
++            try
++            {
++                FileInputStream fin = new FileInputStream(new File(idata.getInstallPath() + File.separator + AutomatedInstallData.INSTALLATION_INFORMATION));
++                ObjectInputStream oin = new ObjectInputStream(fin);
++                List packsinstalled = (List) oin.readObject();
++                for (int i = 0; i &lt; packsinstalled.size(); i++)
++                {
++                    Pack installedpack = (Pack) packsinstalled.get(i);
++                    if ((installedpack.id != null) &amp;&amp; (installedpack.id.length() &gt; 0)) {
++                        this.installedpacks.put(installedpack.id, installedpack);
++                    }
++                    else {
++                        this.installedpacks.put(installedpack.name, installedpack);
++                    }
++                }
++                this.removeAlreadyInstalledPacks(idata.selectedPacks);
++                Properties variables = (Properties) oin.readObject();
++                Debug.trace(&quot;Found &quot; + packsinstalled.size() + &quot; installed packs&quot;);                
++                fin.close();                
++            }
++            catch (FileNotFoundException e)
++            {
++                // TODO Auto-generated catch block
++                e.printStackTrace();
++            }
++            catch (IOException e)
++            {
++                // TODO Auto-generated catch block
++                e.printStackTrace();
++            }
++            catch (ClassNotFoundException e)
++            {
++                // TODO Auto-generated catch block
++                e.printStackTrace();
++            }
++        }                
+         this.rules = rules;
+-        this.packs = packs;
+-        this.packsToInstall = packsToInstall;
++        this.packs = idata.availablePacks;
++        this.packsToInstall = idata.selectedPacks;
+         this.panel = panel;
+-        this.variables = variables;
++        this.variables = idata.getVariables();
+         this.variables.setProperty(INITAL_PACKSELECTION,Boolean.toString(true));
+         langpack = panel.getLangpack();
+         checkValues = new int[packs.size()];
+@@ -93,6 +143,31 @@
+         this.updateConditions(true);
+         refreshPacksToInstall();
+         this.variables.setProperty(INITAL_PACKSELECTION,Boolean.toString(false));
++    }    
++    
++    private void removeAlreadyInstalledPacks(List selectedpacks) {
++        List removepacks = new ArrayList();
++        
++        for (Iterator iterator = selectedpacks.iterator(); iterator.hasNext();)
++        {
++            Pack selectedpack = (Pack) iterator.next();
++            String key = &quot;&quot;;
++            if ((selectedpack.id != null) &amp;&amp; (selectedpack.id.length() &gt; 0)){
++                key = selectedpack.id;
++            }
++            else {
++                key = selectedpack.name;
++            }
++            if (installedpacks.containsKey(key)) {
++                // pack is already installed, remove it
++                removepacks.add(selectedpack);
++            }
++        }
++        for (Iterator iterator = removepacks.iterator(); iterator.hasNext();)
++        {
++            Pack removepack = (Pack) iterator.next();
++            selectedpacks.remove(removepack);            
++        }
+     }
+ 
+     public void updateConditions()
+@@ -190,7 +265,8 @@
+         {
+             Pack pack = (Pack) packs.get(i);
+             if (packsToInstall.contains(pack)) checkValues[i] = 1;
+-        }
++        }               
++        
+         // Check out and disable the ones that are excluded by non fullfiled
+         // deps
+         for (int i = 0; i &lt; packs.size(); i++)
+@@ -230,8 +306,10 @@
+         for (int i = 0; i &lt; packs.size(); i++)
+         {
+             Pack pack = (Pack) packs.get(i);
++            
+             if (pack.required) propRequirement(pack.name);
+         }
++                        
+         refreshPacksToInstall();
+     }
+ 
+@@ -413,13 +491,36 @@
+         for (int i = 0; i &lt; packs.size(); i++)
+         {
+             Pack pack = (Pack) packs.get(i);
+-            if (Math.abs(checkValues[i]) == 1) {                               
++            String key = &quot;&quot;;
++            if ((pack.id != null) &amp;&amp; (pack.id.length() &gt; 0)) {
++                key = pack.id;
++            }
++            else {
++                key = pack.name;
++            }
++            if ((Math.abs(checkValues[i]) == 1) &amp;&amp; (!installedpacks.containsKey(key))) {                               
+                 packsToInstall.add(pack);               
+             }
+ 
+         }
+-
++        
++        for (int i=0; i &lt; packs.size(); i++) {
++            Pack pack = (Pack) packs.get(i);
++            
++            String key = &quot;&quot;;
++            if ((pack.id != null) &amp;&amp; (pack.id.length() &gt; 0)) {
++                key = pack.id;
++            }
++            else {
++                key = pack.name;
++            }
++            if (installedpacks.containsKey(key)) {
++                checkValues[i] = -3;
++            }
++        }
+     }
++    
++    
+ 
+     /**
+      * This function updates the checkboxes after a change by disabling packs that cannot be
+@@ -554,4 +655,21 @@
+         u.color = Pack.BLACK;
+         return 0;
+     }
++
++    
++    /**
++     * @return the installedpacks
++     */
++    public Map getInstalledpacks()
++    {
++        return this.installedpacks;
++    }        
++    
++    /**
++     * @return the modifyinstallation
++     */
++    public boolean isModifyinstallation()
++    {
++        return this.modifyinstallation;
++    }     
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -81,8 +81,8 @@
+  */
+ public abstract class PacksPanelBase extends IzPanel implements PacksPanelInterface,
+         ListSelectionListener
+-{
+-
++{    
++    
+     // Common used Swing fields
+     /**
+      * The free space label.
+@@ -529,7 +529,7 @@
+     public void panelActivate()
+     {
+         try
+-        {
++        {            
+             // TODO the PacksModel could be patched such that isCellEditable
+             // allows returns false. In that case the PacksModel must not be
+             // adapted here.
+@@ -601,6 +601,25 @@
+             else
+                 retval.append(pack.name);
+         }
++        if (packsModel.isModifyinstallation()) {
++            Map installedpacks = packsModel.getInstalledpacks();
++            iter = installedpacks.keySet().iterator();
++            retval.append(&quot;&lt;br&gt;&lt;b&gt;&quot;);           
++            retval.append(langpack.getString(&quot;PacksPanel.installedpacks.summarycaption&quot;));
++            retval.append(&quot;&lt;/b&gt;&quot;);
++            retval.append(&quot;&lt;br&gt;&quot;);
++            while (iter.hasNext()) {
++                Pack pack = (Pack) installedpacks.get(iter.next());
++                if (langpack != null &amp;&amp; pack.id != null &amp;&amp; !&quot;&quot;.equals(pack.id))
++                {
++                    retval.append(langpack.getString(pack.id));
++                }
++                else {
++                    retval.append(pack.name);
++                }
++                retval.append(&quot;&lt;br&gt;&quot;);
++            }
++        }
+         return (retval.toString());
+     }
+ 
+@@ -636,6 +655,12 @@
+                 display.setForeground(Color.GRAY);                
+             }
+             display.setSelected((value != null &amp;&amp; Math.abs(state) == 1));
++            
++            if (state == -3) {
++                display.setForeground(Color.RED);
++                display.setSelected(true);
++            }
++            
+             display.setEnabled(state &gt;= 0);
+             return display;
+         }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanel.java	2007-11-16 14:20:55 UTC (rev 1907)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanel.java	2007-11-20 08:02:22 UTC (rev 1908)
+@@ -130,4 +130,5 @@
+     {
+         return (idata.getInstallPath());
+     }
++
+ }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000653.html">[izpack-changes] r1907 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000655.html">[izpack-changes] r1909 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#654">[ date ]</a>
+              <a href="thread.html#654">[ thread ]</a>
+              <a href="subject.html#654">[ subject ]</a>
+              <a href="author.html#654">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

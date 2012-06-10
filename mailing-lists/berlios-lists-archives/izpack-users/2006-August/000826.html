@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Integrating Izpack with eclipse
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Integrating%20Izpack%20with%20eclipse&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000825.html">
+   <LINK REL="Next"  HREF="000827.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Integrating Izpack with eclipse</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Integrating%20Izpack%20with%20eclipse&In-Reply-To="
+       TITLE="[izpack-users] Integrating Izpack with eclipse">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Aug 30 09:27:00 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000825.html">[izpack-users] Integrating Izpack with eclipse
+</A></li>
+        <LI>Next message: <A HREF="000827.html">[izpack-users] Exception when adding an Uninstaller (was) Re: Re:	Integrating Izpack with eclipse
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#826">[ date ]</a>
+              <a href="thread.html#826">[ thread ]</a>
+              <a href="subject.html#826">[ subject ]</a>
+              <a href="author.html#826">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Jacobo,
+I think only izpackdir is missing in the task, but let us recapitulate:
+ 
+You need all contents of lib (except standalone-compiler.jar) and bin also including the sub dirs e.g. bin/panels.
+Panels jars should be exist there, the subdirs created at building are not needed.
+ 
+Alternate you can use the  standakine-compiler. Then you need nothing more because it should contain all.
+If you have custom panels/actions a rebuild will be needed.
+ 
+IzPack needs to know where are the bin and the lib directory. therefore the ant call should contain
+also izpackdir. My task (used since some years) seems like:
+...
+  &lt;taskdef name=&quot;izpack&quot; classpath=&quot;${izpack.home}/lib/compiler.jar&quot; 
+    classname=&quot;com.izforge.izpack.ant.IzPackTask&quot;/&gt;
+...
+  &lt;izpack input=&quot;${installersrc.root}/product/appl/install/IzPackProjects/${installer.subproject}/install.xml&quot; 
+    output=&quot;${installerdest.root}/${installer.subproject}/install.jar&quot; 
+    installertype=&quot;standard&quot; 
+    basedir=&quot;${installersrc.root}&quot; 
+    izpackdir=&quot;${izpack.home}/&quot;/&gt;
+ 
+Alternate:
+...
+  &lt;taskdef name=&quot;izpack&quot; classpath=&quot;${izpack.home}/lib/standalone_compiler.jar&quot; 
+    classname=&quot;com.izforge.izpack.ant.IzPackTask&quot;/&gt;
+...
+  &lt;izpack input=&quot;${installersrc.root}/product/appl/install/IzPackProjects/${installer.subproject}/install.xml&quot; 
+    output=&quot;${installerdest.root}/${installer.subproject}/install.jar&quot; 
+    installertype=&quot;standard&quot; 
+    basedir=&quot;${installersrc.root}&quot; /&gt;
+ 
+Ant vars are defined at the beginning of the ant script...
+ 
+If this not work, test with a full IzPack installation.
+ 
+Hope it helpes
+ 
+Klaus
+
+ 
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Jacobo Garc&#237;a
+Sent: Wednesday, August 30, 2006 1:41 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Subject: [izpack-users] Integrating Izpack with eclipse
+
+
+Hello, 
+
+I am developing an Eclipse plugin that creates an installer for Eclipse RCP applications.
+
+I have copied both lib and bin folders from my OS X Izpack (3.9.0. preview) installation into a folder called izpack that is in the root of my plugin folder.
+
+The plugin works this way:
+
+The user exports (to a folder, let's call it export folder) an Eclipse RCP application with other Eclipse wizard (not my plugin), usually Windows, Mac, and Linux exports are performed with &quot;Eclipse Delta Pack&quot;. 
+
+Then user runs the plugin I am developing, in this process he chooses the export folder, and other parameters like the authors or website.
+
+Then the plugin generates an ant script file and an izpack xml installer (named installer.xml). This file is located in a tmp folder located inside the export folder. The ant file contains izpack task, and the plugin launches the ant task inside the plugin with a specific Eclipse class called AntRunner. 
+
+Here is an example of the ant file.
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project name=&quot;Installer Generator&quot; default=&quot;default&quot; basedir=&quot;.&quot;&gt;
+    &lt;target name=&quot;default&quot; description=&quot;Main target&quot;&gt; 
+
+        &lt;izpack input=&quot;/Users/jacobo/Desktop/export/tmp/installer.xml&quot; output=&quot;/Users/jacobo/Desktop/jj- installer.jar&quot; installerType=&quot;standard&quot; basedir=&quot;/Users/jacobo/Desktop/export/tmp&quot;/&gt;
+
+    &lt;/target&gt;
+&lt;/project&gt;
+
+
+In eclipse you can register ant tasks in a file called plugin.xml, so you don't have to use  taskdef in order to define tasks, that's what I've done with the code shown above.
+
+The problem is that I am getting the famous - You have misspelt 'izpack'. - ant exception. I am wondering if I do have to register more izpack tasks that IzPackTask depends on. I looked at izpack sources and IzPackTask only depends on other classes that are inside compiler.jar. To be totally sure, I created a little test ant task jar file, and tried to add it to plugin.xml the same way I do with izpack ant tasks, and this worked fine. 
+
+Here it comes my first question, am I missing something? some izpack folder? some .jar? 
+
+
+
+Also I tried to add the taskdef code to my ant task, so right now ant task looks this way.
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; 
+&lt;project name=&quot;Installer Generator&quot; default=&quot;default&quot; basedir=&quot;.&quot;&gt;
+
+    &lt;taskdef name=&quot;izpack&quot;                classpath=&quot;/Users/jacobo/Documents/workspace/Eclipse Installer Generator/izpack/lib/compiler.jar&quot; classname=&quot; com.izforge.izpack.ant.IzPackTask&quot; /&gt;
+
+    &lt;target name=&quot;default&quot; description=&quot;Main target&quot;&gt; 
+
+        &lt;izpack input=&quot;/Users/jacobo/Desktop/export/tmp/installer.xml&quot; output=&quot;/Users/jacobo/Desktop/jacobo- installer.jar&quot; installerType=&quot;standard&quot; basedir=&quot;/Users/jacobo/Desktop/export/tmp&quot;/&gt;
+
+    &lt;/target&gt;
+&lt;/project&gt;
+
+This way I am getting this exception: A class needed by class com.izforge.izpack.ant.IzPackTask cannot be found:
+
+I am not sure what is wrong in this second file, something related to basedir?
+
+That's all, I can show you all the code if you find it necessary. 
+
+Thanks for your attention, and please accept my apologies about my bad english.
+
+-- 
+Jacobo Garc&#237;a L&#243;pez de Araujo 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060830/df5c125c/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060830/df5c125c/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000825.html">[izpack-users] Integrating Izpack with eclipse
+</A></li>
+	<LI>Next message: <A HREF="000827.html">[izpack-users] Exception when adding an Uninstaller (was) Re: Re:	Integrating Izpack with eclipse
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#826">[ date ]</a>
+              <a href="thread.html#826">[ thread ]</a>
+              <a href="subject.html#826">[ subject ]</a>
+              <a href="author.html#826">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

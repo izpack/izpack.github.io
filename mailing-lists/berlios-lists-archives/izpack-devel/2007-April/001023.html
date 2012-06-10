@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] IzPack exception generation/handling
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20IzPack%20exception%20generation/handling&In-Reply-To=46166DCF.6060109%40aikebah.net">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000988.html">
+   <LINK REL="Next"  HREF="000989.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] IzPack exception generation/handling</H1>
+    <B>Julien Ponge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20IzPack%20exception%20generation/handling&In-Reply-To=46166DCF.6060109%40aikebah.net"
+       TITLE="[izpack-devel] IzPack exception generation/handling">julien.ponge at gmail.com
+       </A><BR>
+    <I>Sat Apr 21 09:02:22 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000988.html">[izpack-devel] IzPack exception generation/handling
+</A></li>
+        <LI>Next message: <A HREF="000989.html">[izpack-devel] New file parsing type needed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1023">[ date ]</a>
+              <a href="thread.html#1023">[ thread ]</a>
+              <a href="subject.html#1023">[ subject ]</a>
+              <a href="author.html#1023">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>(I've been willing to answer to this one for some time now, sorry)
+
+&gt;<i> In general I tend to consider this bad coding habit since catching those
+</I>&gt;<i> in the caller would mean that caller also catches other Exceptions it
+</I>&gt;<i> never intended to catch (most significant being the RuntimeExceptions).
+</I>
+Yes, this is a bad way to handle exceptions.
+
+&gt;<i> Wouldn't it be better to introduce a few IzPack specific Exceptions
+</I>&gt;<i> instead of coding 'throws Exception' combined with 'if
+</I>&gt;<i> (somethinggoeswrong) { throw new Exception(&quot;tell what's wrong&quot;); } ?
+</I>
+It would be dawn better!
+
+&gt;<i> My first thoughts:
+</I>&gt;<i> -If IzPack-code decides there should be an exception we should
+</I>&gt;<i> preferably use either an appropriate Java 1.4 provided exception-class
+</I>&gt;<i> -When an appropriate class is not provided by Java 1.4 we should define
+</I>&gt;<i> our own exception class and throw an instance of that class
+</I>&gt;<i> -When IzPack code calls methods that (might) throw exceptions we don't
+</I>&gt;<i> want to catch we should explicitly declare all thrown exceptions rather
+</I>&gt;<i> than declaring only a shared parent-class for some of the specific
+</I>&gt;<i> exceptions.
+</I>&gt;<i> -When we don't want to burden our caller with a long list of exceptions
+</I>&gt;<i> we catch those exceptions and throw an IzPack defined exception instead
+</I>&gt;<i> which wraps to original exception rather than falling back to using a
+</I>&gt;<i> shared superclass (which might result in additional exceptions being
+</I>&gt;<i> forwarded to the caller unintended since javac never notifies us of the
+</I>&gt;<i> uncaught exception).
+</I>&gt;<i> -We never (well... almost never) catch a common superclass of
+</I>&gt;<i> encountered exceptions, but rather specify each seperate exception
+</I>&gt;<i> (optionally using a common private method to write handling code for
+</I>&gt;<i> similar errors only once in a class). The only exception being catching
+</I>&gt;<i> any exception in an external class/package beyond our control, where we
+</I>&gt;<i> might want to catch java.lang.Throwable, then figure out what to do with
+</I>&gt;<i> the error and handle the Throwable accordingly.
+</I>
+I fully agree with this. I would add that sometimes it can be worth
+wrapping non-fatal exceptions in RuntimeException, but not everybody
+agrees on this pattern.
+
+If you have some time to devote in for this cleanup work, then you
+have my green flag :-)
+
+Cheers
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000988.html">[izpack-devel] IzPack exception generation/handling
+</A></li>
+	<LI>Next message: <A HREF="000989.html">[izpack-devel] New file parsing type needed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1023">[ date ]</a>
+              <a href="thread.html#1023">[ thread ]</a>
+              <a href="subject.html#1023">[ subject ]</a>
+              <a href="author.html#1023">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

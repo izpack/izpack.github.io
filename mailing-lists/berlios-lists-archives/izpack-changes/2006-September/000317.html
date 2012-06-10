@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1572 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1572%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000316.html">
+   <LINK REL="Next"  HREF="000318.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1572 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1572%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1572 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:36:18 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000316.html">[izpack-changes] r1571 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000318.html">[izpack-changes] r1573 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#317">[ date ]</a>
+              <a href="thread.html#317">[ thread ]</a>
+              <a href="subject.html#317">[ subject ]</a>
+              <a href="author.html#317">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:36:17 +0200 (Wed, 06 Sep 2006)
+New Revision: 1572
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+-implemented  the X-KDE subsitute user - shortcut attribute (see Unix_shortcutSpec.xml).
+-write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+-write common shortcuts  to the new freedesktop.org common &quot;/usr/share/applications&quot; 
+and &quot;/usr/share/pixmaps&quot; folders to display these in the commons [start].menu
+Here: updated the uninstaller
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-09-06 20:35:36 UTC (rev 1571)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-09-06 20:36:17 UTC (rev 1572)
+@@ -54,7 +54,9 @@
+ import java.lang.reflect.Constructor;
+ import java.net.URL;
+ import java.util.ArrayList;
++import java.util.Enumeration;
+ import java.util.HashSet;
++import java.util.Hashtable;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+@@ -101,6 +103,7 @@
+ import com.izforge.izpack.util.IoHelper;
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.VariableSubstitutor;
++import com.izforge.izpack.util.os.unix.UnixUser;
+ 
+ /**
+  * The IzPack installer frame.
+@@ -788,6 +791,31 @@
+                     }
+                 }
+             }
++            // write the files which should be deleted by root for another user
++            
++            // TODO:
++            outJar.putNextEntry(new ZipEntry(UninstallData.RootFiles));
++            ObjectOutputStream rootStream = new ObjectOutputStream(outJar);
++            
++            Hashtable rootData = udata.getRootData();
++            
++            Enumeration e = rootData.keys();
++            
++            rootStream.writeInt(rootData.size());
++            
++            while (e.hasMoreElements())
++            {
++                //File file = iter.next();
++                String file = (String) e.nextElement();
++                
++                rootStream.writeObject(file);
++                
++                UnixUser uu = (UnixUser) rootData.get(file);
++                
++                rootStream.writeObject(uu);
++            }
++            rootStream.flush();
++            outJar.closeEntry();
+ 
+             // Cleanup
+             outJar.flush();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000316.html">[izpack-changes] r1571 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000318.html">[izpack-changes] r1573 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#317">[ date ]</a>
+              <a href="thread.html#317">[ thread ]</a>
+              <a href="subject.html#317">[ subject ]</a>
+              <a href="author.html#317">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

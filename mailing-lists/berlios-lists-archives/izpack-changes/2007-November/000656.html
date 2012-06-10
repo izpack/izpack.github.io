@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1910 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1910%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20compiler%20panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000655.html">
+   <LINK REL="Next"  HREF="000657.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1910 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1910%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20compiler%20panels&In-Reply-To="
+       TITLE="[izpack-changes] r1910 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler panels">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 20 15:32:38 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000655.html">[izpack-changes] r1909 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+        <LI>Next message: <A HREF="000657.html">[izpack-changes] r1911 - in izpack-src/trunk: . src/doc-reST	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#656">[ date ]</a>
+              <a href="thread.html#656">[ thread ]</a>
+              <a href="subject.html#656">[ subject ]</a>
+              <a href="author.html#656">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-20 15:32:36 +0100 (Tue, 20 Nov 2007)
+New Revision: 1910
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+Log:
+bugfix: packaging broken with empty pack.id
+added selfcontained refpacks
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-20 08:02:51 UTC (rev 1909)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-20 14:32:36 UTC (rev 1910)
+@@ -52,6 +52,7 @@
+ import java.util.Vector;
+ import java.util.jar.JarInputStream;
+ import java.util.zip.ZipEntry;
++import java.util.zip.ZipFile;
+ import java.util.zip.ZipInputStream;
+ 
+ import org.apache.tools.ant.DirectoryScanner;
+@@ -939,21 +940,52 @@
+ 
+             // get the name of reference xml file
+         	String refFileName = requireAttribute(el, &quot;file&quot;);
++        	String selfcontained = el.getAttribute(&quot;selfcontained&quot;);
++        	boolean isselfcontained = Boolean.valueOf(selfcontained).booleanValue();
+         	
+-        	// Load the reference XML file
+         	
+-        	// Initialises the parser
+-            IXMLReader refXMLReader = null;
+-            
+-            File refXMLFile = new File(refFileName);
++        	File refXMLFile = new File(refFileName);
+             if (!refXMLFile.isAbsolute()) refXMLFile = new File(basedir, refFileName);
+             if (!refXMLFile.canRead()) {
+                 throw new CompilerException(&quot;Invalid file: &quot; + refXMLFile);
+             }
+             
++            InputStream specin = null;
++            
++        	if (isselfcontained){
++        	    if (!refXMLFile.getAbsolutePath().endsWith(&quot;.zip&quot;)) {
++        	        throw new CompilerException(&quot;Invalid file: &quot; + refXMLFile + &quot;. Selfcontained files can only be of type zip.&quot;);
++        	    }
++        	    ZipFile zip;
++                try
++                {
++                    zip = new ZipFile(refXMLFile,ZipFile.OPEN_READ);
++                    ZipEntry specentry = zip.getEntry(&quot;META-INF/izpack.xml&quot;);
++                    specin = zip.getInputStream(specentry);
++                }
++                catch (IOException e)
++                {
++                    throw new CompilerException(&quot;Error reading META-INF/izpack.xml in &quot; + refXMLFile);
++                }        	    
++        	}
++        	else {
++        	    try
++                {
++                    specin = new FileInputStream(refXMLFile.getAbsolutePath());
++                }
++                catch (FileNotFoundException e)
++                {
++                    throw new CompilerException(&quot;FileNotFoundException exception while reading refXMLFile&quot;);
++                }
++        	}
++        	
++        	// Initialises the parser
++            IXMLReader refXMLReader = null;
++            
++            // Load the reference XML file                        
+             try
+             {
+-            	refXMLReader = new StdXMLReader(new FileInputStream(refXMLFile.getAbsolutePath()));
++            	refXMLReader = new StdXMLReader(specin);
+             }
+             catch (CompilerException c)
+             {
+@@ -974,6 +1006,7 @@
+             try
+             {
+                 refXMLData = (XMLElement) refXMLParser.parse();
++                
+             }
+             catch (XMLException x)
+             {
+@@ -995,6 +1028,15 @@
+             // call addResources to add the referenced XML resources to this installation
+             addResources(refXMLData);
+             
++            try
++            {
++                specin.close();
++            }
++            catch (IOException e)
++            {
++                // TODO Auto-generated catch block
++                e.printStackTrace();
++            }
+             // Recursively call myself to add all packs and refpacks from the reference XML
+             addPacksSingle(refXMLData);
+         }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-11-20 08:02:51 UTC (rev 1909)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-11-20 14:32:36 UTC (rev 1910)
+@@ -237,6 +237,9 @@
+             PackInfo packInfo = (PackInfo) packIter.next();
+             Pack pack = packInfo.getPack();
+             pack.nbytes = 0;
++            if ((pack.id == null) || (pack.id.length() == 0)) {
++                pack.id=pack.name;
++            }
+ 
+             // create a pack specific jar if required
+             com.izforge.izpack.util.JarOutputStream packStream = primaryJarStream;
+@@ -251,8 +254,7 @@
+             sendMsg(&quot;Writing Pack &quot; + packNumber + &quot;: &quot; + pack.name, PackagerListener.MSG_VERBOSE);
+ 
+             // Retrieve the correct output stream
+-            org.apache.tools.zip.ZipEntry entry = 
+-                new org.apache.tools.zip.ZipEntry(&quot;packs/pack-&quot; + pack.id);
++            org.apache.tools.zip.ZipEntry entry = new org.apache.tools.zip.ZipEntry(&quot;packs/pack-&quot; + pack.id);
+             if( ! compressor.useStandardCompression())
+             {
+                 entry.setMethod(ZipEntry.STORED);
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-11-20 08:02:51 UTC (rev 1909)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-11-20 14:32:36 UTC (rev 1910)
+@@ -110,8 +110,15 @@
+                     }
+                 }
+                 this.removeAlreadyInstalledPacks(idata.selectedPacks);
++                Debug.trace(&quot;Found &quot; + packsinstalled.size() + &quot; installed packs&quot;);
++                
+                 Properties variables = (Properties) oin.readObject();
+-                Debug.trace(&quot;Found &quot; + packsinstalled.size() + &quot; installed packs&quot;);                
++                
++                Iterator iter = variables.keySet().iterator();
++                while (iter.hasNext()) {
++                    Object key = iter.next();
++                    idata.setVariable((String) key, (String) variables.get(key));
++                }                                
+                 fin.close();                
+             }
+             catch (FileNotFoundException e)
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000655.html">[izpack-changes] r1909 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+	<LI>Next message: <A HREF="000657.html">[izpack-changes] r1911 - in izpack-src/trunk: . src/doc-reST	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#656">[ date ]</a>
+              <a href="thread.html#656">[ thread ]</a>
+              <a href="subject.html#656">[ subject ]</a>
+              <a href="author.html#656">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

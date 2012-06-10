@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] &quot;pseudo&quot; bug with shortcuts
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20%22pseudo%22%20bug%20with%20shortcuts&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001301.html">
+   <LINK REL="Next"  HREF="001303.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] &quot;pseudo&quot; bug with shortcuts</H1>
+    <B>Julien</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20%22pseudo%22%20bug%20with%20shortcuts&In-Reply-To="
+       TITLE="[izpack-devel] &quot;pseudo&quot; bug with shortcuts">ciryus432 at gmail.com
+       </A><BR>
+    <I>Tue Dec  4 22:32:30 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001301.html">[izpack-devel] setting a installgroup dependent variable
+</A></li>
+        <LI>Next message: <A HREF="001303.html">[izpack-devel] installation.dtd typo patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1302">[ date ]</a>
+              <a href="thread.html#1302">[ thread ]</a>
+              <a href="subject.html#1302">[ subject ]</a>
+              <a href="author.html#1302">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+
+I recently started to use IzPack (both the stable and last beta) for a 
+project I'm working on. I've been trying to add the shortcut panel for a 
+while, and I had issues. Each time the installer would get to that part, 
+it would freeze.
+
+I spent some time on it, and finally tracked it down. In 
+Unix_shortcut.java, at the very top, there is a static call to:
+
+   private static ArrayList users = 
+UnixUsers.getUsersWithValidShellsExistingHomesAndDesktops();
+
+The problem is that I work on a Linux machine where all accounts are 
+NFS+NIS, and there are several THOUSANDS accounts. So when this method 
+is called, it checks that every directory exists, which of course is 
+done over the network, and takes eons to do (at least way to long).
+
+For the time being, I'll make a dirty fix, since I don't need that list 
+of users. I'm not sure how this issue can be resolved in a clean way 
+since it's not really a bug per se, but I thought it was worth mentioning.
+
+Also the jGoodies &quot;looks&quot; style was much nicer in the stable version 
+than in the last beta, but well, that's just me ;)
+
+Otherwise, IzPack rocks!
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001301.html">[izpack-devel] setting a installgroup dependent variable
+</A></li>
+	<LI>Next message: <A HREF="001303.html">[izpack-devel] installation.dtd typo patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1302">[ date ]</a>
+              <a href="thread.html#1302">[ thread ]</a>
+              <a href="subject.html#1302">[ subject ]</a>
+              <a href="author.html#1302">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

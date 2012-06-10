@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] FW:  Logging -&gt; need feedback (API included)
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20FW%3A%20%20Logging%20-%3E%20need%20feedback%20%28API%20included%29&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000695.html">
+   <LINK REL="Next"  HREF="000698.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] FW:  Logging -&gt; need feedback (API included)</H1>
+    <B>Elmar Grom</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20FW%3A%20%20Logging%20-%3E%20need%20feedback%20%28API%20included%29&In-Reply-To="
+       TITLE="[izpack-devel] FW:  Logging -&gt; need feedback (API included)">elmar at grom.net
+       </A><BR>
+    <I>Tue Dec 12 18:59:59 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000695.html">[izpack-devel] UPDATED: Patch 5/6: Language From OS Switch
+</A></li>
+        <LI>Next message: <A HREF="000698.html">[izpack-devel] FW:  Logging -&gt; need feedback (API included)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#696">[ date ]</a>
+              <a href="thread.html#696">[ thread ]</a>
+              <a href="subject.html#696">[ subject ]</a>
+              <a href="author.html#696">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus,
+
+for reference I have included the code, so that you can have a look at the
+API.
+
+
+&gt;&gt;<i>4) it can build a localized text report and provides the
+</I>&gt;&gt;<i>necessary UI to save the report to a file of the users choice.
+</I>&gt;<i>
+</I>&gt;<i>May be configurable. Other installer writes logging also without
+</I>&gt;<i>asking the user. May be we can declare central a support directory
+</I>&gt;<i>where also other loggings can be stored (e.g. the summary).
+</I>
+Yes that could be done. Are you thinking about a fixed location and name, so
+that the configuration just turns this on/off or rather about specifying a
+path and name in the configuration?
+
+
+&gt;&gt;<i>5) there is special handling support for use of (4) in an automated
+</I>&gt;&gt;<i>installer. In this case a message dialog is popped up that
+</I>&gt;&gt;<i>also allows the
+</I>&gt;&gt;<i>user to save the report if there are any warning or error
+</I>&gt;&gt;<i>messages recorded.
+</I>&gt;<i>
+</I>&gt;<i>Have to be configurable because there are installations without
+</I>&gt;<i>user interaction.
+</I>
+Same as above.
+
+
+&gt;&gt;<i>1) the two finish panels need to be upgraded to display a
+</I>&gt;&gt;<i>generic message
+</I>&gt;&gt;<i>2) the two finish panels need to be upgraded to provide a
+</I>&gt;&gt;<i>button for saving
+</I>&gt;&gt;<i>the report
+</I>&gt;<i>
+</I>&gt;<i>I have to see the impl or the docu to see whether I understand
+</I>&gt;<i>the usage or not :-) If so, I can do 1) and 2).
+</I>
+OK, the code is included. Have a look at
+
+warningsRecorded ()
+errorsRecorded ()
+
+The finish panel would call these methods and display an appropriate message
+if either one returns true. This would also be the signal to make a button
+available for writing the report. If the button is clicked just call
+
+writeReport ()
+
+The complete user interface is already provided.
+
+The automated installer would simply call
+
+informUser ()
+
+This method also verifies if there are any error or warning messages. It
+provides the complete UI (pops up a dialog with a button to write the log
+etc.).
+
+
+&gt;&gt;<i>5) what should be done if the developer decides not to use a
+</I>&gt;&gt;<i>finish panel or
+</I>&gt;&gt;<i>wants to write his own?
+</I>&gt;<i>
+</I>&gt;<i>If some one will not say good by, he has bad luck. We should not
+</I>&gt;<i>support discourteousness with a hack from us for it :-)
+</I>
+Well, you are probably right. This would have to be made really clear in the
+documentation though.
+
+&gt;<i>May be this is a good reason to bring together FinishPPanel and
+</I>&gt;<i>SimpleFinishPanel. At upgrading the two panels create a base class
+</I>&gt;<i>which makes all common stuff. A developer which needs an own
+</I>&gt;<i>finish panel should be used then this base. If not, he has also bad luck...
+</I>
+I think this is a really good idea.
+
+
+&gt;&gt;<i>7) there are LOTS of messages to be translated ~:o)
+</I>&gt;<i>
+</I>&gt;<i>I assume that you make the English and the German. Therefore there is
+</I>&gt;<i>no part for me :-)
+</I>
+Well, up to a point. There is quite some text for the dialogs etc. and then
+there are headings and generic messages for the report. I have done all of
+those in English and German. Then there will be all the specific messages
+that folks will implement. Those are a different matter of course.
+
+There is a complete explanation on how to implement new messages in the
+documentation header for the Log class.
+
+
+&gt;<i>If system exist, I will do it in my stuff.
+</I>&gt;<i>What about to publish the panel list where developer will be insert
+</I>&gt;<i>his mnemonic.
+</I>
+This is my only worry at this point, that we have the log system but actual
+logging is only spotty. We should make sure that at least all the critical
+stuff has logging.
+
+I am not sure what you mean with the list. Can you please elaborate?
+
+Cheers
+
+	Elmar
+
+-----Original Message-----
+From: Bartz, Klaus [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>]
+Sent: Tuesday, December 12, 2006 12:37 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: RE: [izpack-devel] Logging -&gt; need feedback
+
+
+Hi Elmar,
+I am waiting for it :-)
+You know, I think it will be nice if there are &quot;slots&quot;
+additional to types of events to keep track of if there are
+many logs of type message. You know the situation where a
+log file containts a MB informations.
+But it is only a wish of me.
+Rest context related.
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Elmar Grom
+</I>&gt;<i>Sent: Tuesday, December 12, 2006 6:27 AM
+</I>&gt;<i>To: Izpack
+</I>&gt;<i>Subject: [izpack-devel] Logging -&gt; need feedback
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi everybody,
+</I>&gt;<i>
+</I>&gt;<i>sorry, I was spaced out for a bit, wanted to send this earlier
+</I>&gt;<i>but a lot was
+</I>&gt;<i>going on in my world... anyway, here we continue with logging
+</I>&gt;<i>
+</I>&gt;<i>Please send comments, proposals etc. and let me know if you can help a
+</I>&gt;<i>little with this project. There is still some work to be done on many
+</I>&gt;<i>fronts, though none of it should be a major amount.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>What has happened and what is implemented so far?
+</I>&gt;<i>=================================================
+</I>&gt;<i>
+</I>&gt;<i>So far I have implemented a logger class and modified it
+</I>&gt;<i>according to some
+</I>&gt;<i>feedback I received. This class can do the following:
+</I>&gt;<i>
+</I>&gt;<i>1) it can be used to log any event of interest during an installation
+</I>&gt;<i>2) depending on the types of events recorded
+</I>&gt;<i>(message/warning/error) the
+</I>&gt;<i>class provides flags for the GUI to present an appropriate
+</I>&gt;<i>generic message
+</I>&gt;<i>3) an exception can be attached to warning and error messages
+</I>&gt;<i>4) it can build a localized text report and provides the
+</I>&gt;<i>necessary UI to
+</I>&gt;<i>save the report to a file of the users choice.
+</I>
+
+May be configurable. Other installer writes logging also without
+asking the user. May be we can declare central a support directory
+where also other loggings can be stored (e.g. the summary).
+
+
+&gt;<i>5) there is special handling support for use of (4) in an automated
+</I>&gt;<i>installer. In this case a message dialog is popped up that
+</I>&gt;<i>also allows the
+</I>&gt;<i>user to save the report if there are any warning or error
+</I>&gt;<i>messages recorded.
+</I>
+
+Have to be configurable because there are installations without
+user interaction.
+
+
+&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>What needs to be decided and what is yet to be implemented?
+</I>&gt;<i>===========================================================
+</I>&gt;<i>
+</I>&gt;<i>1) the two finish panels need to be upgraded to display a
+</I>&gt;<i>generic message
+</I>&gt;<i>indicating installation success
+</I>&gt;<i>2) the two finish panels need to be upgraded to provide a
+</I>&gt;<i>button for saving
+</I>&gt;<i>the report
+</I>
+
+I have to see the impl or the docu to see whether I understand
+the usage or not :-) If so, I can do 1) and 2).
+
+&gt;<i>3) Log needs to integrated with the project (who can check the
+</I>&gt;<i>code in for
+</I>&gt;<i>me?)
+</I>&gt;<i>4) Julien has proposed to add a GUI element to the installer frame that
+</I>&gt;<i>displays a message if a warning or error was recorded. This
+</I>&gt;<i>would have to be
+</I>&gt;<i>implemented and wired with the logger for updating.
+</I>&gt;<i>5) what should be done if the developer decides not to use a
+</I>&gt;<i>finish panel or
+</I>&gt;<i>wants to write his own?
+</I>
+If some one will not say good by, he has bad luck. We should not
+support discourteousness with a hack from us for it :-)
+
+May be this is a good reason to bring together FinishPPanel and
+SimpleFinishPanel. At upgrading the two panels create a base class
+which makes all common stuff. A developer which needs an own
+finish panel should be used then this base. If not, he has also bad luck...
+
+
+&gt;<i>6) some re-factoring work is required surrounding InstallData
+</I>&gt;<i>7) there are LOTS of messages to be translated ~:o)
+</I>
+I assume that you make the English and the German. Therefore there is
+no part for me :-)
+
+&gt;<i>8) logging should be used -&gt; implement lots of logging all
+</I>&gt;<i>over the code!
+</I>&gt;<i>
+</I>
+If system exist, I will do it in my stuff.
+What about to publish the panel list where developer will be insert
+his mnemonic.
+
+&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>       Elmar
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: Log.java
+Type: application/octet-stream
+Size: 28393 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/a4f900c1/attachment.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/a4f900c1/attachment.obj</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: LogError.java
+Type: application/octet-stream
+Size: 1277 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/a4f900c1/attachment-0001.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/a4f900c1/attachment-0001.obj</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: LogMessage.java
+Type: application/octet-stream
+Size: 1042 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/a4f900c1/attachment-0002.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/a4f900c1/attachment-0002.obj</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: LogWarning.java
+Type: application/octet-stream
+Size: 1045 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/a4f900c1/attachment-0003.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/a4f900c1/attachment-0003.obj</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000695.html">[izpack-devel] UPDATED: Patch 5/6: Language From OS Switch
+</A></li>
+	<LI>Next message: <A HREF="000698.html">[izpack-devel] FW:  Logging -&gt; need feedback (API included)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#696">[ date ]</a>
+              <a href="thread.html#696">[ thread ]</a>
+              <a href="subject.html#696">[ subject ]</a>
+              <a href="author.html#696">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

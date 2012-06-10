@@ -1,0 +1,1678 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1778 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1778%20-%20in%20izpack-src/trunk%3A%20.%0A%09bin/langpacks/installer%20src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000523.html">
+   <LINK REL="Next"  HREF="000525.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1778 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1778%20-%20in%20izpack-src/trunk%3A%20.%0A%09bin/langpacks/installer%20src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1778 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sun Mar 11 17:07:05 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000523.html">[izpack-changes] r1777 -	izpack-src/branches/3.10/bin/langpacks/installer
+</A></li>
+        <LI>Next message: <A HREF="000525.html">[izpack-changes] r1779 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#524">[ date ]</a>
+              <a href="thread.html#524">[ thread ]</a>
+              <a href="subject.html#524">[ subject ]</a>
+              <a href="author.html#524">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-03-11 17:06:56 +0100 (Sun, 11 Mar 2007)
+New Revision: 1778
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/bin/langpacks/installer/deu.xml
+   izpack-src/trunk/bin/langpacks/installer/eng.xml
+   izpack-src/trunk/bin/langpacks/installer/fin.xml
+   izpack-src/trunk/bin/langpacks/installer/por.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+Log:
+Merged -r1741:1777 from branches/3.10
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-03-11 16:00:06 UTC (rev 1777)
++++ izpack-src/trunk/Versions.txt	2007-03-11 16:06:56 UTC (rev 1778)
+@@ -21,6 +21,13 @@
+   (Martina Angela Albrecht, via Fabrice Mirabile)
+ - FreeDesktop XDG standard support for Gnome and KDE shortcuts support
+   (Vladimir Ralev via Julien Ponge)
++- Workaround for a Sun bug in Java 6 which crashes the installer in some non-english locales,
++  see <A HREF="http://jira.jboss.com/jira/browse/JBINSTALL-232">http://jira.jboss.com/jira/browse/JBINSTALL-232</A> (Vladimir Ralev)
++- Replaced the default checkbox icons in Gnome/KDE since they do not grey-out when disabled
++  as notes in the helper label. This change is only effective for UNIX. (Vladimir Ralev)
++- Added localization support for column names in InstallationGroupPanel
++  (Markus Schlegel via Vladimir Ralev)
++- Finnish langpack update (Ari Voutilainen via Julien Ponge)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+
+Modified: izpack-src/trunk/bin/langpacks/installer/deu.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/deu.xml	2007-03-11 16:00:06 UTC (rev 1777)
++++ izpack-src/trunk/bin/langpacks/installer/deu.xml	2007-03-11 16:06:56 UTC (rev 1778)
+@@ -216,6 +216,7 @@
+ 	  &lt;str id=&quot;nextmedia.cancelbtn&quot; txt=&quot;Installation abbrechen&quot; /&gt;	
+     &lt;str id=&quot;nextmedia.choosertitle&quot; txt=&quot;Installationsmedium ausw&#228;hlen&quot; /&gt;
+     &lt;str id=&quot;nextmedia.filedesc&quot; txt=&quot;Installationspakete (.pak*)&quot; /&gt;
++
+     &lt;!-- Strings for the loggin/reporting system (Messenger) --&gt;
+ 
+     &lt;!-- This string defines the time stamp format in the installation report.
+@@ -252,5 +253,10 @@
+ 
+     &lt;str id=&quot;log.error_0&quot;                 txt=&quot;konnte die Datei ''{0}'' nicht schreiben&quot;/&gt;
+ 
++    
++    &lt;str id=&quot;InstallationGroupPanel.colNameSelected&quot; txt=&quot;Selektiert&quot; /&gt;
++    &lt;str id=&quot;InstallationGroupPanel.colNameInstallType&quot; txt=&quot;Installationstyp&quot; /&gt;
++    &lt;str id=&quot;InstallationGroupPanel.colNameSize&quot; txt=&quot;Gr&#246;sse&quot; /&gt;
++    
+ &lt;/langpack&gt;
+ 
+
+Modified: izpack-src/trunk/bin/langpacks/installer/eng.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/eng.xml	2007-03-11 16:00:06 UTC (rev 1777)
++++ izpack-src/trunk/bin/langpacks/installer/eng.xml	2007-03-11 16:06:56 UTC (rev 1778)
+@@ -216,6 +216,7 @@
+ 	  &lt;str id=&quot;nextmedia.cancelbtn&quot; txt=&quot;Cancel&quot; /&gt;	
+     &lt;str id=&quot;nextmedia.choosertitle&quot; txt=&quot;Choose install media&quot; /&gt;
+     &lt;str id=&quot;nextmedia.filedesc&quot; rdid=&quot;install packs (.pak*)&quot; /&gt;
++
+     &lt;!-- Strings for the loggin/reporting system (Messenger) --&gt;
+ 
+     &lt;!-- This string defines the time stamp format in the installation report.
+@@ -252,5 +253,9 @@
+     &lt;str id=&quot;log.warning_&quot;                txt=&quot;&quot;/&gt;
+ 
+     &lt;str id=&quot;log.error_0&quot;                 txt=&quot;unable to write ''{0}''&quot;/&gt;
++    
++    &lt;str id=&quot;InstallationGroupPanel.colNameSelected&quot; txt=&quot;Selected&quot; /&gt;
++    &lt;str id=&quot;InstallationGroupPanel.colNameInstallType&quot; txt=&quot;InstallType&quot; /&gt;
++    &lt;str id=&quot;InstallationGroupPanel.colNameSize&quot; txt=&quot;Size&quot; /&gt;
+ 
+ &lt;/langpack&gt;
+
+Modified: izpack-src/trunk/bin/langpacks/installer/fin.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/fin.xml	2007-03-11 16:00:06 UTC (rev 1777)
++++ izpack-src/trunk/bin/langpacks/installer/fin.xml	2007-03-11 16:06:56 UTC (rev 1778)
+@@ -215,5 +215,10 @@
+ 	  &lt;str id=&quot;nextmedia.cancelbtn&quot; txt=&quot;Peruuta&quot; /&gt;
+     &lt;str id=&quot;nextmedia.choosertitle&quot; txt=&quot;Valitse asennusmedia&quot; /&gt;
+     &lt;str id=&quot;nextmedia.filedesc&quot; rdid=&quot;asennuspaketit (.pak*)&quot; /&gt;
++
++    &lt;str id=&quot;InstallationGroupPanel.colNameSelected&quot; txt=&quot;Valittu&quot; /&gt;
++    &lt;str id=&quot;InstallationGroupPanel.colNameInstallType&quot; txt=&quot;Asennustyyppi&quot; /&gt;
++    &lt;str id=&quot;InstallationGroupPanel.colNameSize&quot; txt=&quot;Koko&quot; /&gt;
++
+ &lt;/langpack&gt;
+ 
+
+Modified: izpack-src/trunk/bin/langpacks/installer/por.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/por.xml	2007-03-11 16:00:06 UTC (rev 1777)
++++ izpack-src/trunk/bin/langpacks/installer/por.xml	2007-03-11 16:06:56 UTC (rev 1778)
+@@ -4,20 +4,46 @@
+ 
+ &lt;langpack&gt;
+ 	
+-    &lt;!-- General installer strings --&gt;
++    &lt;!-- Heading messages START --&gt;
++    &lt;str id=&quot;CheckedHelloPanel.headline&quot; txt=&quot;Bem vindo&quot;/&gt;
++    &lt;str id=&quot;CompilePanel.headline&quot; txt=&quot;Compilar c&#243;digos Java&quot;/&gt;
++    &lt;str id=&quot;ConditionalUserInputPanel.headline&quot; txt=&quot;Dados do usu&#225;rio&quot;/&gt;
++    &lt;str id=&quot;ExtendedInstallPanel.headline&quot; txt=&quot;Insatla&#231;&#227;o e configura&#231;&#227;o&quot;/&gt;
++    &lt;str id=&quot;FinishPanel.headline&quot; txt=&quot;Instala&#231;&#227;o terminada&quot;/&gt;
++    &lt;str id=&quot;HelloPanel.headline&quot; txt=&quot;Bem vindo&quot;/&gt;
++    &lt;str id=&quot;HTMLInfoPanel.headline&quot; txt=&quot;Informa&#231;&#245;es&quot;/&gt;
++    &lt;str id=&quot;HTMLLicencePanel.headline&quot; txt=&quot;Acordo de licen&#231;a&quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.headline&quot; txt=&quot;Selecione pacotes de instala&#231;&#227;o&quot;/&gt;
++    &lt;str id=&quot;InfoPanel.headline&quot; txt=&quot;Informa&#231;&#245;es&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.headline&quot; txt=&quot;Instala&#231;&#227;o&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.headline&quot; txt=&quot;Caminho do JDK&quot;/&gt;
++    &lt;str id=&quot;LicencePanel.headline&quot; txt=&quot;Acordo de licen&#231;a&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.headline&quot; txt=&quot;Selecione pacotes de instala&#231;&#227;o&quot;/&gt;
++    &lt;str id=&quot;ProcessPanel.headline&quot; txt=&quot;Executar processos externos&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.headline&quot; txt=&quot;Atalhos&quot;/&gt;
++    &lt;str id=&quot;SimpleFinishPanel.headline&quot; txt=&quot;Instala&#231;&#227;o terminada&quot;/&gt;
++    &lt;str id=&quot;SummaryPanel.headline&quot; txt=&quot;Resumo dos dados do usu&#225;rio&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.headline&quot; txt=&quot;Caminho de destino&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.headline&quot; txt=&quot;Dados do usu&#225;rio&quot;/&gt;
++	
++	&lt;!-- General installer strings --&gt;
+     &lt;str id=&quot;installer.title&quot; txt=&quot;IzPack - Instala&#231;&#227;o de &quot;/&gt;
+     &lt;str id=&quot;installer.next&quot; txt=&quot;Pr&#243;ximo&quot;/&gt;
+     &lt;str id=&quot;installer.prev&quot; txt=&quot;Anterior&quot;/&gt;
+     &lt;str id=&quot;installer.quit&quot; txt=&quot;Sair&quot;/&gt;
+     &lt;str id=&quot;installer.madewith&quot; txt=&quot;(Criado com IzPack - <A HREF="http://www.izforge.com/">http://www.izforge.com/</A>)&quot;/&gt;
+     &lt;str id=&quot;installer.quit.title&quot; txt=&quot;Tem certeza de que deseja sair ?&quot;/&gt;
+-    &lt;str id=&quot;installer.quit.message&quot; txt=&quot;Voc&#234; quer concelar a instala&#231;&#227;o?&quot;/&gt;
++    &lt;str id=&quot;installer.quit.message&quot; txt=&quot;Voc&#234; quer cancelar a instala&#231;&#227;o?&quot;/&gt;
+     &lt;str id=&quot;installer.warning&quot; txt=&quot;Aviso !&quot;/&gt;
+     &lt;str id=&quot;installer.yes&quot; txt=&quot;Sim&quot;/&gt;
+     &lt;str id=&quot;installer.no&quot; txt=&quot;N&#227;o&quot;/&gt;
+     &lt;str id=&quot;installer.cancel&quot; txt=&quot;Cancelar&quot;/&gt;
+     &lt;str id=&quot;installer.error&quot; txt=&quot;Erro&quot;/&gt;
+-    
++    &lt;str id=&quot;installer.help&quot; txt=&quot;Ajuda&quot;/&gt;
++    &lt;str id=&quot;installer.step&quot; txt=&quot;Passo&quot;/&gt;
++    &lt;str id=&quot;installer.of&quot; txt=&quot;de&quot;/&gt;
++    &lt;str id=&quot;installer.Message&quot; txt=&quot;Menssagem&quot;/&gt;
++	
+     &lt;!-- Uninstaller specific strings --&gt;
+     &lt;str id=&quot;uninstaller.warning&quot; txt=&quot;Isto remover&#225; o(s) aplicativo(s) instalado(s) !&quot;/&gt;
+     &lt;str id=&quot;uninstaller.destroytarget&quot; txt=&quot; For&#231;ar a remo&#231;&#227;o de &quot;/&gt;
+@@ -26,10 +52,16 @@
+     &lt;!-- The strings for the 'official' IzPack plugins --&gt;
+     &lt;str id=&quot;HelloPanel.welcome1&quot; txt=&quot;Bem vindo &#224; instala&#231;&#227;o de &quot;/&gt;
+     &lt;str id=&quot;HelloPanel.welcome2&quot; txt=&quot; !&quot;/&gt;
+-    &lt;str id=&quot;HelloPanel.authors&quot; txt=&quot;O(s) autor(es) deste programa &#233;(s&#227;o) : &quot;/&gt;
++    &lt;str id=&quot;HelloPanel.authors&quot; txt=&quot;Este programa foi desenvolvido por : &quot;/&gt;
+     &lt;str id=&quot;HelloPanel.url&quot; txt=&quot;A p&#225;gina do programa &#233; : &quot;/&gt;
+     
+-    &lt;str id=&quot;LicencePanel.info&quot; txt=&quot;Por favor, leia o seguinte contrato de licen&#231;a :&quot;/&gt;
++    &lt;str id=&quot;PrinterSelectPanel.select_printer&quot; txt=&quot;Selecione a impressora para utilizar na configura&#231;&#227;o inicial e teste.&quot; /&gt;
++
++    &lt;str id=&quot;CheckedHelloPanel.productAlreadyExist0&quot; txt=&quot;Este produto j&#225; se encontra instalado neste computador em &quot;/&gt;
++    &lt;str id=&quot;CheckedHelloPanel.productAlreadyExist1&quot; txt=&quot; . Voc&#234; tem certeza de que quer instalar outra c&#243;pia?&quot;/&gt;
++    &lt;str id=&quot;CheckedHelloPanel.infoOverUninstallKey&quot; txt=&quot;A chave de desinstala&#231;&#227;o ser&#225; chamada: &quot; /&gt;
++	
++	&lt;str id=&quot;LicencePanel.info&quot; txt=&quot;Por favor, leia o seguinte contrato de licen&#231;a :&quot;/&gt;
+     &lt;str id=&quot;LicencePanel.agree&quot; txt=&quot;Eu concordo com este contrato de licen&#231;a.&quot;/&gt;
+ 	&lt;str id=&quot;LicencePanel.notagree&quot; txt=&quot;Eu n&#227;o concordo com este contrato de licen&#231;a.&quot;/&gt;
+     &lt;str id=&quot;LicencePanel.yes&quot; txt=&quot;Sim&quot;/&gt;
+@@ -37,20 +69,43 @@
+     
+     &lt;str id=&quot;InfoPanel.info&quot; txt=&quot;Por favor, leia a seguinte informa&#231;&#227;o :&quot;/&gt;
+     
+-    &lt;str id=&quot;TargetPanel.info&quot; txt=&quot;Selecione o caminho para instala&#231;&#227;o :&quot;/&gt;
++    &lt;str id=&quot;PathInputPanel.required&quot; txt=&quot;O diret&#243;rio escolhido deve existir.&quot;/&gt;
++    &lt;str id=&quot;PathInputPanel.notValid&quot; txt=&quot;O diret&#243;rio escolhido n&#227;o cont&#233;m o produto requerido.&quot;/&gt;
++	
++	&lt;str id=&quot;TargetPanel.info&quot; txt=&quot;Selecione o caminho para instala&#231;&#227;o :&quot;/&gt;
+     &lt;str id=&quot;TargetPanel.browse&quot; txt=&quot;Procurar ...&quot;/&gt;
+     &lt;str id=&quot;TargetPanel.warn&quot; 
+          txt=&quot;O diret&#243;rio j&#225; existe ! Tem certeza de que quer instalar neste diret&#243;rio e possivelmente sobrescrever arquivos existentes?&quot;/&gt;
+     &lt;str id=&quot;TargetPanel.empty_target&quot;
+          txt=&quot;Voc&#234; n&#227;o especificou um local! Isto est&#225; correto?&quot;/&gt;
+ 	&lt;str id=&quot;TargetPanel.createdir&quot; txt=&quot;O diret&#243;rio especificado ser&#225; criado :&quot; /&gt;
++	&lt;str id=&quot;TargetPanel.nodir&quot; 
++         txt=&quot;Este arquivo n&#227;o &#233; um diret&#243;rio! Por favor, selecione um diret&#243;rio!&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.notwritable&quot; 
++         txt=&quot;Este diret&#243;rio n&#227;o pode ser escrito! Por favor, escolha outro diret&#243;rio!&quot;/&gt;
++		 
++    &lt;str id=&quot;JDKPathPanel.extendedIntro&quot; txt=&quot;O programa instalado necessita um JDK com vers&#227;o entre ${JDKPathPanel.minVersion} e ${JDKPathPanel.maxVersion}. Um &amp;quot;Java Runtime Environment&amp;quot; (JRE) n&#227;o &#233; suficiente.&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.intro&quot; txt=&quot;O programa instalado necessita um JDK. Um &amp;quot;Java Runtime Environment&amp;quot; (JRE) n&#227;o &#233; suficiente.&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.info&quot; txt=&quot;Selecione o caminho do JDK:&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.badVersion1&quot; txt=&quot;O JDK escolhido tem vers&#227;o n&#227;o recomendada (Dispon&#237;vel: &quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.badVersion2&quot; txt=&quot; Necess&#225;rio: &quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.badVersion3&quot; txt=&quot;). Usar esse JDK mesmo assim?&quot;/&gt;
+ 	
+-    &lt;str id=&quot;PacksPanel.info&quot; txt=&quot;Selecione os pacotes que deseja instalar :&quot;/&gt;
++	&lt;str id=&quot;PacksPanel.info&quot; txt=&quot;Selecione os pacotes que deseja instalar :&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.tip&quot; txt=&quot;Nota: pacotes cinzas s&#227;o requeridos.&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.space&quot; txt=&quot;Espa&#231;o total requerido: &quot;/&gt;
++	&lt;str id=&quot;PacksPanel.freespace&quot; txt=&quot;Espa&#231;o dispon&#237;vel: &quot;/&gt;
+ 	&lt;str id=&quot;PacksPanel.description&quot; txt=&quot;Descri&#231;&#227;o&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.dependencyList&quot; 
++        txt=&quot;O pacote escolhido tem as seguintes depend&#234;ncias e/ou exclui&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.dependencies&quot; txt=&quot;Depend&#234;ncias: &quot;/&gt;
++    &lt;str id=&quot;PacksPanel.excludes&quot; txt=&quot;Exclui: &quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.dependencyList&quot; txt=&quot;Depend&#234;ncias e/ou exclui&quot;/&gt;
++	&lt;str id=&quot;PacksPanel.notEnoughSpace&quot; 
++	    txt=&quot;O espa&#231;o em disco requerido para a instala&#231;&#227;o &#233; maior que o espa&#231;o em disco dispon&#237;vel.&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.notAscertainable&quot; txt=&quot;n&#227;o dedut&#237;vel&quot;/&gt;
+     
+-    &lt;str id=&quot;InstallPanel.info&quot; txt=&quot;Clique 'Instalar !' para iniciar o processo de instala&#231;&#227;o&quot;/&gt;
++	&lt;str id=&quot;InstallPanel.info&quot; txt=&quot;Clique 'Instalar !' para iniciar o processo de instala&#231;&#227;o&quot;/&gt;
+     &lt;str id=&quot;InstallPanel.install&quot; txt=&quot;Instalar !&quot;/&gt;
+     &lt;str id=&quot;InstallPanel.tip&quot; txt=&quot;Progresso da instala&#231;&#227;o :&quot;/&gt;
+     &lt;str id=&quot;InstallPanel.begin&quot; txt=&quot;[Nada]&quot;/&gt;
+@@ -60,7 +115,7 @@
+     &lt;str id=&quot;InstallPanel.overwrite.question&quot; txt=&quot;O seguinte arquivo j&#225; existe. Sobrescrev&#234;-lo?&quot;/&gt;
+     
+     &lt;str id=&quot;FinishPanel.success&quot; txt=&quot;Instala&#231;&#227;o realizada com sucesso.&quot;/&gt;
+-    &lt;str id=&quot;FinishPanel.done&quot; txt=&quot;Feito&quot;/&gt;
++    &lt;str id=&quot;FinishPanel.done&quot; txt=&quot;Pronto&quot;/&gt;
+     &lt;str id=&quot;FinishPanel.fail&quot; txt=&quot;A instala&#231;&#227;o falhou!&quot;/&gt;
+     &lt;str id=&quot;FinishPanel.uninst.info&quot; txt=&quot;Um programa desinstalador foi criado em:&quot;/&gt;
+     &lt;str id=&quot;FinishPanel.auto&quot; txt=&quot;Gerar um script para instala&#231;&#227;o autom&#225;tica&quot;/&gt;
+@@ -71,10 +126,14 @@
+     &lt;str id=&quot;ImgPacksPanel.snap&quot; txt=&quot;Visualiza&#231;&#227;o da tela do pacote  :&quot;/&gt;
+     &lt;str id=&quot;ImgPacksPanel.checkbox&quot; txt=&quot; Instalar este pacote&quot;/&gt;
+     
+-    &lt;str id=&quot;ShortcutPanel.regular.list&quot; txt=&quot;Selecione uma Categoria de Programas para os Atalhos:&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.default&quot; txt=&quot;Limpar&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.desktop&quot; txt=&quot;Criar os atalhos no desktop&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.create&quot; txt=&quot;Criar Atalhos&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.headline&quot; txt=&quot;Configurar atalhos&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.list&quot; txt=&quot;Selecione um grupo para os atalhos:&quot;/&gt;
++		&lt;str id=&quot;ShortcutPanel.regular.default&quot; txt=&quot;Padr&#227;o&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.desktop&quot; txt=&quot;Criar atalhos adicionais na &#193;rea de Trabalho&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.StartMenu:Start-Menu&quot; txt=&quot;Start-Menu&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.StartMenu:K-Menu&quot; txt=&quot;K-Menu&quot;/&gt;
++	                                                          &lt;!-- &quot;StartMenu&quot; is a placeholder will be replaced at runtime --&gt;
++	&lt;str id=&quot;ShortcutPanel.regular.create&quot; txt=&quot;Criar Atalhos&quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.regular.userIntro&quot; txt=&quot;criar atalho para:&quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.regular.currentUser&quot; txt=&quot;usu&#225;rio atual&quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.regular.allUsers&quot; txt=&quot;todos usu&#225;rios&quot;/&gt;
+@@ -85,8 +144,7 @@
+     &lt;str id=&quot;ShortcutPanel.alternate.saveButton&quot; txt=&quot;Salvar Arquivo de Texto&quot;/&gt;
+ 	
+     &lt;str id=&quot;ShortcutPanel.textFile.header&quot; txt=&quot;Informa&#231;&#227;o Sobre Atalhos\n====================\n\nA seguinte &#233; uma listagem de toda informa&#231;&#227;o relevante sobre os atalhos\ndesejados. Esta informa&#231;&#227;o deve possibilitar a cria&#231;&#227;o manual de atalhos.\n&quot;/&gt;
+-    
+-    &lt;str id=&quot;ShortcutPanel.textFile.name&quot;         txt=&quot;Atalho                : &quot;/&gt;
++        &lt;str id=&quot;ShortcutPanel.textFile.name&quot;         txt=&quot;Atalho                : &quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.textFile.location&quot;     txt=&quot;Local Desejado        : &quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.textFile.description&quot;  txt=&quot;Descri&#231;&#227;o             : &quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.textFile.target&quot;       txt=&quot;Arquivo Execut&#225;vel    : &quot;/&gt;
+@@ -135,6 +193,27 @@
+ 	
+     &lt;str id=&quot;ProcessPanel.heading&quot; txt=&quot;Processando&quot; /&gt;
+ 	
+-    &lt;!-- Add your own panels specific strings here if you need --&gt;
++    &lt;!-- Strings for the summary of panels - START --&gt;
++    &lt;str id=&quot;SummaryPanel.info&quot; txt=&quot;Pronto para instalar. Os dados importantes s&#227;o listados abaixo. Clique &amp;quot;Pr&#243;ximo&amp;quot; para iniciar a instala&#231;&#227;o, &quot;/&gt;
++    &lt;str id=&quot;TargetPanel.summaryCaption&quot; txt=&quot;Caminho da instala&#231;&#227;o&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.summaryCaption&quot; txt=&quot;Caminho do JDK&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.summaryCaption&quot; txt=&quot;Pacotes de instala&#231;&#227;o escolhidos&quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.summaryCaption&quot; txt=&quot;Pacotes de instala&#231;&#227;o escolhidos&quot;/&gt;
++    &lt;!-- Strings for the summary of panels - END --&gt;
++
++    &lt;!-- Strings for the Registry --&gt;
++    &lt;str id=&quot;functionFailed.RegOpenKeyEx&quot; txt=&quot;N&#227;o foi poss&#237;vel abrir a chave do registro {0}\\{1}.&quot;/&gt;
++    
++    &lt;!-- Add your own panels specific strings here if you need or use a custom
++         langpack with the same syntax referred as resoure CustomLangpack.xml_[ISO3]&quot;
++    --&gt;     
++
++    &lt;str id=&quot;nextmedia.title&quot; txt=&quot;Pr&#243;xima m&#237;dia de instala&#231;&#227;o&quot;/&gt;
++  	&lt;str id=&quot;nextmedia.msg&quot; txt=&quot;Escolha a pr&#243;xima m&#237;dia de instala&#231;&#227;o.&quot; /&gt;
++	  &lt;str id=&quot;nextmedia.browsebtn&quot; txt=&quot;Explorar&quot; /&gt;
++  	&lt;str id=&quot;nextmedia.okbtn&quot; txt=&quot;Aplicar&quot; /&gt;
++	  &lt;str id=&quot;nextmedia.cancelbtn&quot; txt=&quot;Cancelar&quot; /&gt;	
++    &lt;str id=&quot;nextmedia.choosertitle&quot; txt=&quot;Escolha a m&#237;dia de instala&#231;&#227;o&quot; /&gt;
++    &lt;str id=&quot;nextmedia.filedesc&quot; rdid=&quot;pacotes de instala&#231;&#227;o (.pak*)&quot; /&gt;
+ 	
+ &lt;/langpack&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	2007-03-11 16:00:06 UTC (rev 1777)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	2007-03-11 16:06:56 UTC (rev 1778)
+@@ -1,598 +1,601 @@
+-/*
+- * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
+- * 
+- * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+- * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+- * 
+- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- * 
+- *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+- *     
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-package com.izforge.izpack.panels;
+-
+-import java.awt.Component;
+-import java.awt.Dimension;
+-import java.awt.GridBagConstraints;
+-import java.awt.GridBagLayout;
+-import java.awt.Insets;
+-import java.awt.event.ItemEvent;
+-import java.awt.event.ItemListener;
+-import java.util.Collections;
+-import java.util.Comparator;
+-import java.util.HashMap;
+-import java.util.Iterator;
+-import java.util.Set;
+-import java.util.List;
+-import java.util.HashSet;
+-
+-import javax.swing.AbstractCellEditor;
+-import javax.swing.BorderFactory;
+-import javax.swing.ButtonGroup;
+-import javax.swing.JRadioButton;
+-import javax.swing.JScrollPane;
+-import javax.swing.JTable;
+-import javax.swing.ListSelectionModel;
+-import javax.swing.JTextPane;
+-import javax.swing.border.EmptyBorder;
+-import javax.swing.border.TitledBorder;
+-import javax.swing.event.ListSelectionEvent;
+-import javax.swing.event.ListSelectionListener;
+-import javax.swing.table.DefaultTableModel;
+-import javax.swing.table.TableCellEditor;
+-import javax.swing.table.TableCellRenderer;
+-import javax.swing.table.TableColumnModel;
+-import javax.swing.table.TableModel;
+-
+-import net.n3.nanoxml.XMLElement;
+-
+-import com.izforge.izpack.Pack;
+-import com.izforge.izpack.installer.InstallData;
+-import com.izforge.izpack.installer.InstallerFrame;
+-import com.izforge.izpack.installer.IzPanel;
+-import com.izforge.izpack.util.Debug;
+-import com.izforge.izpack.util.AbstractUIHandler;
+-
+-import java.util.ArrayList;
+-import java.net.URLDecoder;
+-import java.io.UnsupportedEncodingException;
+-
+-
+-/**
+- * A panel which displays the available installGroups found on the packs to
+- * allow the user to select a subset of the packs based on the pack
+- * installGroups attribute. This panel will be skipped if there are no
+- * pack elements with an installGroups attribute.
+- * 
+- * @author <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Scott.Stark at jboss.org</A>
+- * @version $Revision: 1.1.1.1 $
+- */
+-public class InstallationGroupPanel extends IzPanel
+-    implements ListSelectionListener
+-{
+-    private static final long serialVersionUID = 1L;
+-
+-    /** HashMap&lt;String, Pack&gt; of the InstallData.availablePacks */
+-    private HashMap packsByName;
+-    private TableModel groupTableModel;
+-    private JTextPane descriptionField;
+-    private JScrollPane groupScrollPane;
+-    private JTable groupsTable;
+-    private GroupData[] rows;
+-    private int selectedGroup = -1;
+-
+-    public InstallationGroupPanel(InstallerFrame parent, InstallData idata)
+-    {
+-        super(parent, idata);
+-        buildLayout();
+-    }
+-
+-    /**
+-     * If there are no packs with an installGroups attribute, this panel is
+-     * skipped. Otherwise, the unique installGroups are displayed in a table.
+-     */
+-    public void panelActivate()
+-    {
+-        // Set/restore availablePacks from allPacks
+-        idata.availablePacks = new ArrayList(idata.allPacks);
+-
+-        Debug.trace(&quot;InstallationGroupPanel.panelActivate, selectedGroup=&quot;+selectedGroup);
+-        // If there are no groups, skip this panel
+-        HashMap installGroups = getInstallGroups(idata);
+-        if (installGroups.size() == 0)
+-        {
+-            super.askQuestion(&quot;Skip InstallGroup selection&quot;,
+-                &quot;Skip InstallGroup selection&quot;, AbstractUIHandler.CHOICES_YES_NO);
+-            parent.skipPanel();
+-            return;
+-        }
+-
+-        // Build the table model from the unique groups
+-        groupTableModel = getModel(installGroups);
+-        groupsTable.setModel(groupTableModel);
+-        TableColumnModel tcm = groupsTable.getColumnModel();
+-        tcm.getColumn(0).setCellRenderer(new RadioButtonRenderer());
+-        tcm.getColumn(0).setCellEditor(new RadioButtonEditor());
+-        //groupsTable.setColumnSelectionAllowed(false);
+-        //groupsTable.setRowSelectionAllowed(true);
+-        groupsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+-        groupsTable.getSelectionModel().addListSelectionListener (this);
+-        groupsTable.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
+-        groupsTable.setIntercellSpacing(new Dimension(0, 0));
+-        groupsTable.setShowGrid(false);
+-        if( selectedGroup &gt;= 0 )
+-        {
+-            groupsTable.getSelectionModel().setSelectionInterval(selectedGroup, selectedGroup);
+-            descriptionField.setText(rows[selectedGroup].description);
+-        }
+-        else
+-        {
+-            descriptionField.setText(rows[0].description);
+-        }
+-    }
+-
+-    /**
+-     * Remove all packs from the InstallData availablePacks and selectedPacks
+-     * that do not list the selected installation group. Packs without any
+-     * installGroups are always included.
+-     */
+-    public void panelDeactivate()
+-    {
+-
+-        Debug.trace(&quot;InstallationGroupPanel.panelDeactivate, selectedGroup=&quot;+selectedGroup);
+-        if( selectedGroup &gt;= 0 )
+-        {
+-            removeUnusedPacks();
+-            GroupData group = this.rows[selectedGroup];
+-            idata.setVariable(&quot;INSTALL_GROUP&quot;, group.name);
+-            Debug.trace(&quot;Added variable INSTALL_GROUP=&quot;+group.name);
+-        }
+-    }
+-
+-    /**
+-     * There needs to be a valid selectedGroup to go to the next panel
+-     * @return true if selectedGroup &gt;= 0, false otherwise
+-     */
+-    public boolean isValidated()
+-    {
+-        Debug.trace(&quot;InstallationGroupPanel.isValidated, selectedGroup=&quot;+selectedGroup);
+-        return selectedGroup &gt;= 0;
+-    }
+-
+-    /**
+-     * Update the current selected install group index.
+-     * @param e
+-     */
+-    public void valueChanged(ListSelectionEvent e)
+-    {
+-        Debug.trace(&quot;valueChanged: &quot; + e);
+-        if (e.getValueIsAdjusting() == false)
+-        {
+-            ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+-            if( lsm.isSelectionEmpty()  )
+-            {
+-                descriptionField.setText(&quot;&quot;);
+-            }
+-            else
+-            {
+-                selectedGroup = lsm.getMinSelectionIndex();
+-                if( selectedGroup &gt;= 0 )
+-                {
+-                    GroupData data = rows[selectedGroup];
+-                    descriptionField.setText(data.description);
+-                }
+-                Debug.trace(&quot;selectedGroup set to: &quot;+selectedGroup);
+-            }
+-        }
+-    }
+-
+-    /* Add the installation group to pack mappings
+-	 * @see com.izforge.izpack.installer.IzPanel#makeXMLData(net.n3.nanoxml.XMLElement)
+-	 */
+-	public void makeXMLData(XMLElement panelRoot)
+-	{
+-		InstallationGroupPanelAutomationHelper helper = new InstallationGroupPanelAutomationHelper();
+-		idata.setAttribute(&quot;GroupData&quot;, rows);
+-		idata.setAttribute(&quot;packsByName&quot;, packsByName);
+-		helper.makeXMLData(idata, panelRoot);
+-	}
+-
+-	/**
+-     * Create the panel ui.
+-     */
+-    protected void buildLayout()
+-    {
+-        GridBagConstraints gridBagConstraints;
+-
+-        descriptionField = new JTextPane();
+-        groupScrollPane = new JScrollPane();
+-        groupsTable = new JTable();
+-
+-        setLayout(new GridBagLayout());
+-
+-        descriptionField.setMargin(new Insets(2, 2, 2, 2));
+-        descriptionField.setAlignmentX(LEFT_ALIGNMENT);
+-        descriptionField.setCaretPosition(0);
+-        descriptionField.setEditable(false);
+-        descriptionField.setOpaque(false);
+-        descriptionField.setText(&quot;&lt;b&gt;Install group description text&lt;/b&gt;&quot;);
+-        descriptionField.setContentType(&quot;text/html&quot;);
+-        descriptionField.setBorder(new TitledBorder(&quot;Description&quot;));
+-        gridBagConstraints = new java.awt.GridBagConstraints();
+-        gridBagConstraints.gridy = 2;
+-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+-        gridBagConstraints.weightx = 1.0;
+-        gridBagConstraints.weighty = 0.3;
+-        add(descriptionField, gridBagConstraints);
+-
+-        groupScrollPane.setBorder(new EmptyBorder(1, 1, 1, 1));
+-        groupScrollPane.setViewportView(groupsTable);
+-
+-        gridBagConstraints = new java.awt.GridBagConstraints();
+-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+-        gridBagConstraints.weightx = 1.0;
+-        gridBagConstraints.weighty = 1.0;
+-        add(groupScrollPane, gridBagConstraints);
+-    }
+-
+-    protected void removeUnusedPacks()
+-    {
+-        GroupData data = rows[selectedGroup];
+-        Debug.trace(&quot;InstallationGroupPanel.removeUnusedPacks, GroupData=&quot;+data.name);
+-
+-        // Now remove the packs not in groupPackNames
+-        idata.selectedPacks.clear();
+-        idata.selectedPacks.addAll(idata.availablePacks);
+-        Iterator iter = idata.availablePacks.iterator();
+-        while( iter.hasNext() )
+-        {
+-            Pack p = (Pack) iter.next();
+-
+-            //reverse dependencies must be reset in case the user is going
+-            //back and forth between the group selection panel and the packs selection panel
+-            p.revDependencies = null;
+-
+-            if( data.packNames.contains(p.name) == false )
+-            {
+-                iter.remove();
+-                Debug.trace(&quot;Removed AvailablePack: &quot;+p.name);
+-            }
+-        }
+-
+-        List selectedPacks = idata.selectedPacks;
+-        iter = selectedPacks.iterator();
+-        while( iter.hasNext() )
+-        {
+-            Pack p = (Pack) iter.next();
+-            if( data.packNames.contains(p.name) == false || !p.preselected)
+-            {
+-                iter.remove();
+-                Debug.trace(&quot;Removed selectedPack: &quot;+p.name);
+-            }
+-        }
+-    }
+-    protected void addDependents(Pack p, HashMap packsByName, GroupData data)
+-    {
+-        data.packNames.add(p.name);
+-        data.size += p.nbytes;
+-        Debug.trace(&quot;addDependents, added pack: &quot;+p.name);
+-        if( p.dependencies == null || p.dependencies.size() == 0 )
+-            return;
+-
+-        Iterator iter = p.dependencies.iterator();
+-        Debug.trace(p.name+&quot; dependencies: &quot;+p.dependencies);
+-        while( iter.hasNext() )
+-        {
+-            String dependent = (String) iter.next();
+-            if( data.packNames.contains(dependent) == false )
+-            {
+-                Debug.trace(&quot;Need dependent: &quot;+dependent);
+-                Pack dependentPack = (Pack) packsByName.get(dependent);
+-                addDependents(dependentPack, packsByName, data);
+-            }
+-        }
+-    }
+-
+-    /**
+-     * Build the set of unique installGroups data. The GroupData description
+-     * is taken from the InstallationGroupPanel.description.[name] property
+-     * where [name] is the installGroup name. The GroupData size is built
+-     * from the Pack.nbytes sum.
+-     * 
+-     * @param idata - the panel install data
+-     * @return HashMap&lt;String, GroupData&gt; of unique install group names
+-     */
+-    protected HashMap getInstallGroups(InstallData idata)
+-    {
+-        /* First create a packsByName&lt;String, Pack&gt; of all packs and identify
+-        the unique install group names.
+-        */
+-        packsByName = new HashMap();
+-        HashMap installGroups = new HashMap();
+-        for (int n = 0; n &lt; idata.availablePacks.size(); n++)
+-        {
+-            Pack p = (Pack) idata.availablePacks.get(n);
+-            packsByName.put(p.name, p);
+-            Set groups = p.installGroups;
+-            Iterator iter = groups.iterator();
+-            Debug.trace(&quot;Pack: &quot;+p.name+&quot;, installGroups: &quot;+groups);
+-            while (iter.hasNext())
+-            {
+-                String group = (String) iter.next();
+-                GroupData data = (GroupData) installGroups.get(group);
+-                if (data == null)
+-                {
+-                    String description = getGroupDescription(group);
+-                    data = new GroupData(group, description);
+-                    installGroups.put(group, data);
+-                }
+-            }
+-        }
+-        Debug.trace(&quot;Found installGroups: &quot; + installGroups.keySet());
+-
+-        /* Build up a set of the packs to include in the installation by finding
+-        all packs in the selected group, and then include their dependencies.
+-        */
+-        Iterator gditer = installGroups.values().iterator();
+-        while( gditer.hasNext() )
+-        {
+-            GroupData data = (GroupData) gditer.next();
+-            Debug.trace(&quot;Adding dependents for: &quot;+data.name);
+-            Iterator iter = idata.availablePacks.iterator();
+-            while( iter.hasNext() )
+-            {
+-                Pack p = (Pack) iter.next();
+-                Set groups = p.installGroups;
+-                if( groups.size() == 0 || groups.contains(data.name) == true )
+-                {
+-                    // The pack may have already been added while traversing dependencies
+-                    if( data.packNames.contains(p.name) == false )
+-                        addDependents(p, packsByName, data);
+-                }
+-            }
+-            Debug.trace(&quot;Completed dependents for: &quot;+data);
+-            if( Debug.tracing() )
+-                Debug.trace(data);
+-        }
+-
+-        return installGroups;
+-    }
+-
+-    /**
+-     * Look for a key = InstallationGroupPanel.description.[group] entry:
+-     * first using idata.langpack.getString(key+&quot;.html&quot;)
+-     * next using idata.langpack.getString(key)
+-     * next using idata.getVariable(key)
+-     * lastly, defaulting to group + &quot; installation&quot;
+-     * @param group - the installation group name
+-     * @return the group description
+-     */
+-    protected String getGroupDescription(String group)
+-    {
+-        String description = null;
+-        String key = &quot;InstallationGroupPanel.description.&quot; + group;
+-        if( idata.langpack != null )
+-        {
+-            String htmlKey = key+&quot;.html&quot;;
+-            String html = idata.langpack.getString(htmlKey);
+-            // This will equal the key if there is no entry
+-            if( htmlKey.equalsIgnoreCase(html) )
+-                description = idata.langpack.getString(key);
+-            else
+-                description = html;
+-        }
+-        if (description == null || key.equalsIgnoreCase(description))
+-            description = idata.getVariable(key);
+-        if (description == null)
+-            description = group + &quot; installation&quot;;
+-        try
+-        {
+-            description = URLDecoder.decode(description, &quot;UTF-8&quot;);
+-        }
+-        catch (UnsupportedEncodingException e)
+-        {
+-            emitWarning(&quot;Failed to convert description&quot;, e.getMessage());
+-        }
+-
+-        return description;
+-    }
+-
+-    protected TableModel getModel(HashMap groupData)
+-    {
+-        String[] columns = { &quot;Selected&quot;, &quot;InstallType&quot;, &quot;Size&quot;};
+-         DefaultTableModel model = new DefaultTableModel (columns, 0)
+-         {
+-            public boolean isCellEditable (int row, int column)
+-            {
+-               return column == 0;
+-            }
+-        };
+-        rows = new GroupData[groupData.size()];
+-        // The name of the group to select if there is no current selection
+-        String defaultGroup = idata.getVariable(&quot;InstallationGroupPanel.defaultGroup&quot;);
+-         Debug.trace(&quot;InstallationGroupPanel.defaultGroup=&quot;+defaultGroup+&quot;, selectedGroup=&quot;+selectedGroup);
+-         List values = new ArrayList(groupData.values());
+-         Collections.sort(values, new Comparator()
+-         {
+-           public int compare(Object o1, Object o2)
+-           {
+-               GroupData g1 = (GroupData) o1;
+-               GroupData g2 = (GroupData) o2;
+-
+-               if (g1.name == null || g2.name==null)
+-               {
+-                   return 0;
+-               }
+-
+-               return g1.name.compareTo(g2.name);
+-           }
+-        });
+-
+-        Iterator iter = values.iterator();
+-        ButtonGroup buttonGroup = new ButtonGroup();
+-        boolean madeSelection = false;
+-        int count = 0;
+-        while (iter.hasNext())
+-        {
+-            GroupData gd = (GroupData) iter.next();
+-            rows[count] = gd;
+-            Debug.trace(&quot;Creating button#&quot;+count+&quot;, group=&quot;+gd.name);
+-            JRadioButton btn = new JRadioButton(gd.name);
+-            if( selectedGroup == count )
+-            {
+-                btn.setSelected(true);
+-                Debug.trace(&quot;Selected button#&quot;+count);
+-            }
+-            else if ( selectedGroup &lt; 0 &amp;&amp; madeSelection == false )
+-            {
+-                if( defaultGroup != null )
+-                {
+-                   if( defaultGroup.equals(gd.name) )
+-                     madeSelection = true;
+-                }
+-                else if( count == 0 )
+-                    madeSelection = true;
+-                if( madeSelection )
+-                {
+-                    btn.setSelected(true);
+-                    Debug.trace(&quot;Selected button#&quot;+count);
+-                    selectedGroup = count;
+-                }
+-            }
+-            else
+-            {
+-                btn.setSelected(false);
+-            }
+-            buttonGroup.add(btn);
+-            String sizeText = gd.getSizeString();
+-            Object[] data = { btn, gd.description, sizeText};
+-            model.addRow(data);
+-            count ++;
+-        }
+-        return model;
+-    }
+-
+-    protected static class GroupData
+-    {
+-        static final long ONEK = 1024;
+-        static final long ONEM = 1024 * 1024;
+-        static final long ONEG = 1024 * 1024 * 1024;
+-
+-        String name;
+-        String description;
+-        long size;
+-        HashSet packNames = new HashSet();
+-
+-        GroupData(String name, String description)
+-        {
+-            this.name = name;
+-            this.description = description;
+-        }
+-
+-        String getSizeString()
+-        {
+-            String s;
+-            if (size &lt; ONEK)
+-            {
+-                s = size + &quot; bytes&quot;;
+-            }
+-            else if (size &lt; ONEM)
+-            {
+-                s = size / ONEK + &quot; KBytes&quot;;
+-            }
+-            else if (size &lt; ONEG)
+-            {
+-                s = size / ONEM + &quot; MBytes&quot;;
+-            }
+-            else
+-            {
+-                s = size / ONEG + &quot; GBytes&quot;;
+-            }
+-            return s;
+-        }
+-        public String toString()
+-        {
+-            StringBuffer tmp = new StringBuffer(&quot;GroupData(&quot;);
+-            tmp.append(name);
+-            tmp.append(&quot;){description=&quot;);
+-            tmp.append(description);
+-            tmp.append(&quot;, size=&quot;);
+-            tmp.append(size);
+-            tmp.append(&quot;, sizeString=&quot;);
+-            tmp.append(getSizeString());
+-            tmp.append(&quot;, packNames=&quot;);
+-            tmp.append(packNames);
+-            tmp.append(&quot;}&quot;);
+-            return tmp.toString();
+-        }
+-    }
+-
+-    class RadioButtonRenderer implements TableCellRenderer
+-    {
+-        public Component getTableCellRendererComponent (JTable table, Object value,
+-                                                        boolean isSelected, boolean hasFocus,
+-                                                        int row, int column)
+-        {
+-            if (value==null) {
+-                return null;
+-            }
+-
+-            JRadioButton button = (JRadioButton) value;
+-
+-            button.setForeground(isSelected ?
+-                                 table.getSelectionForeground() : table.getForeground());
+-            button.setBackground(isSelected ?
+-                                 table.getSelectionBackground() : table.getBackground());
+-
+-            return button;
+-        }
+-    }
+-
+-    class RadioButtonEditor
+-        extends AbstractCellEditor
+-        implements ItemListener,
+-                   TableCellEditor
+-    {
+-        private JRadioButton button;
+-
+-        public Component getTableCellEditorComponent (JTable table, Object value,
+-                                                      boolean isSelected, int row, int column)
+-        {
+-            Debug.trace(&quot;getTableCellEditorComponent, row=&quot;+row);
+-            if (value==null) {
+-                return null;
+-            }
+-
+-            button = (JRadioButton) value;
+-            button.addItemListener(this);
+-
+-            button.setForeground(isSelected ?
+-                                 table.getSelectionForeground() : table.getForeground());
+-            button.setBackground(isSelected ?
+-                                 table.getSelectionBackground() : table.getBackground());
+-
+-            return button;
+-        }
+-
+-        public Object getCellEditorValue ()
+-        {
+-            button.removeItemListener (this);
+-            return button;
+-        }
+-
+-        public void itemStateChanged (ItemEvent e)
+-        {
+-            Debug.trace(&quot;itemStateChanged, e=&quot;+e);
+-            super.fireEditingStopped ();
+-            groupsTable.repaint();
+-        }
+-    }
+-
+-}
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import java.awt.Component;
++import java.awt.Dimension;
++import java.awt.GridBagConstraints;
++import java.awt.GridBagLayout;
++import java.awt.Insets;
++import java.awt.event.ItemEvent;
++import java.awt.event.ItemListener;
++import java.util.Collections;
++import java.util.Comparator;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.Set;
++import java.util.List;
++import java.util.HashSet;
++
++import javax.swing.AbstractCellEditor;
++import javax.swing.BorderFactory;
++import javax.swing.ButtonGroup;
++import javax.swing.JRadioButton;
++import javax.swing.JScrollPane;
++import javax.swing.JTable;
++import javax.swing.ListSelectionModel;
++import javax.swing.JTextPane;
++import javax.swing.border.EmptyBorder;
++import javax.swing.border.TitledBorder;
++import javax.swing.event.ListSelectionEvent;
++import javax.swing.event.ListSelectionListener;
++import javax.swing.table.DefaultTableModel;
++import javax.swing.table.TableCellEditor;
++import javax.swing.table.TableCellRenderer;
++import javax.swing.table.TableColumnModel;
++import javax.swing.table.TableModel;
++
++import net.n3.nanoxml.XMLElement;
++
++import com.izforge.izpack.Pack;
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.AbstractUIHandler;
++
++import java.util.ArrayList;
++import java.net.URLDecoder;
++import java.io.UnsupportedEncodingException;
++
++
++/**
++ * A panel which displays the available installGroups found on the packs to
++ * allow the user to select a subset of the packs based on the pack
++ * installGroups attribute. This panel will be skipped if there are no
++ * pack elements with an installGroups attribute.
++ * 
++ * @author <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Scott.Stark at jboss.org</A>
++ * @version $Revision: 1.1.1.1 $
++ */
++public class InstallationGroupPanel extends IzPanel
++    implements ListSelectionListener
++{
++    private static final long serialVersionUID = 1L;
++
++    /** HashMap&lt;String, Pack&gt; of the InstallData.availablePacks */
++    private HashMap packsByName;
++    private TableModel groupTableModel;
++    private JTextPane descriptionField;
++    private JScrollPane groupScrollPane;
++    private JTable groupsTable;
++    private GroupData[] rows;
++    private int selectedGroup = -1;
++
++    public InstallationGroupPanel(InstallerFrame parent, InstallData idata)
++    {
++        super(parent, idata);
++        buildLayout();
++    }
++
++    /**
++     * If there are no packs with an installGroups attribute, this panel is
++     * skipped. Otherwise, the unique installGroups are displayed in a table.
++     */
++    public void panelActivate()
++    {
++        // Set/restore availablePacks from allPacks
++        idata.availablePacks = new ArrayList(idata.allPacks);
++
++        Debug.trace(&quot;InstallationGroupPanel.panelActivate, selectedGroup=&quot;+selectedGroup);
++        // If there are no groups, skip this panel
++        HashMap installGroups = getInstallGroups(idata);
++        if (installGroups.size() == 0)
++        {
++            super.askQuestion(&quot;Skip InstallGroup selection&quot;,
++                &quot;Skip InstallGroup selection&quot;, AbstractUIHandler.CHOICES_YES_NO);
++            parent.skipPanel();
++            return;
++        }
++
++        // Build the table model from the unique groups
++        groupTableModel = getModel(installGroups);
++        groupsTable.setModel(groupTableModel);
++        TableColumnModel tcm = groupsTable.getColumnModel();
++        tcm.getColumn(0).setCellRenderer(new RadioButtonRenderer());
++        tcm.getColumn(0).setCellEditor(new RadioButtonEditor());
++        //groupsTable.setColumnSelectionAllowed(false);
++        //groupsTable.setRowSelectionAllowed(true);
++        groupsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
++        groupsTable.getSelectionModel().addListSelectionListener (this);
++        groupsTable.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
++        groupsTable.setIntercellSpacing(new Dimension(0, 0));
++        groupsTable.setShowGrid(false);
++        if( selectedGroup &gt;= 0 )
++        {
++            groupsTable.getSelectionModel().setSelectionInterval(selectedGroup, selectedGroup);
++            descriptionField.setText(rows[selectedGroup].description);
++        }
++        else
++        {
++            descriptionField.setText(rows[0].description);
++        }
++    }
++
++    /**
++     * Remove all packs from the InstallData availablePacks and selectedPacks
++     * that do not list the selected installation group. Packs without any
++     * installGroups are always included.
++     */
++    public void panelDeactivate()
++    {
++
++        Debug.trace(&quot;InstallationGroupPanel.panelDeactivate, selectedGroup=&quot;+selectedGroup);
++        if( selectedGroup &gt;= 0 )
++        {
++            removeUnusedPacks();
++            GroupData group = this.rows[selectedGroup];
++            idata.setVariable(&quot;INSTALL_GROUP&quot;, group.name);
++            Debug.trace(&quot;Added variable INSTALL_GROUP=&quot;+group.name);
++        }
++    }
++
++    /**
++     * There needs to be a valid selectedGroup to go to the next panel
++     * @return true if selectedGroup &gt;= 0, false otherwise
++     */
++    public boolean isValidated()
++    {
++        Debug.trace(&quot;InstallationGroupPanel.isValidated, selectedGroup=&quot;+selectedGroup);
++        return selectedGroup &gt;= 0;
++    }
++
++    /**
++     * Update the current selected install group index.
++     * @param e
++     */
++    public void valueChanged(ListSelectionEvent e)
++    {
++        Debug.trace(&quot;valueChanged: &quot; + e);
++        if (e.getValueIsAdjusting() == false)
++        {
++            ListSelectionModel lsm = (ListSelectionModel) e.getSource();
++            if( lsm.isSelectionEmpty()  )
++            {
++                descriptionField.setText(&quot;&quot;);
++            }
++            else
++            {
++                selectedGroup = lsm.getMinSelectionIndex();
++                if( selectedGroup &gt;= 0 )
++                {
++                    GroupData data = rows[selectedGroup];
++                    descriptionField.setText(data.description);
++                }
++                Debug.trace(&quot;selectedGroup set to: &quot;+selectedGroup);
++            }
++        }
++    }
++
++    /* Add the installation group to pack mappings
++	 * @see com.izforge.izpack.installer.IzPanel#makeXMLData(net.n3.nanoxml.XMLElement)
++	 */
++	public void makeXMLData(XMLElement panelRoot)
++	{
++		InstallationGroupPanelAutomationHelper helper = new InstallationGroupPanelAutomationHelper();
++		idata.setAttribute(&quot;GroupData&quot;, rows);
++		idata.setAttribute(&quot;packsByName&quot;, packsByName);
++		helper.makeXMLData(idata, panelRoot);
++	}
++
++	/**
++     * Create the panel ui.
++     */
++    protected void buildLayout()
++    {
++        GridBagConstraints gridBagConstraints;
++
++        descriptionField = new JTextPane();
++        groupScrollPane = new JScrollPane();
++        groupsTable = new JTable();
++
++        setLayout(new GridBagLayout());
++
++        descriptionField.setMargin(new Insets(2, 2, 2, 2));
++        descriptionField.setAlignmentX(LEFT_ALIGNMENT);
++        descriptionField.setCaretPosition(0);
++        descriptionField.setEditable(false);
++        descriptionField.setOpaque(false);
++        descriptionField.setText(&quot;&lt;b&gt;Install group description text&lt;/b&gt;&quot;);
++        descriptionField.setContentType(&quot;text/html&quot;);
++        descriptionField.setBorder(new TitledBorder(idata.langpack.getString(&quot;PacksPanel.description&quot;)));
++        gridBagConstraints = new java.awt.GridBagConstraints();
++        gridBagConstraints.gridy = 2;
++        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
++        gridBagConstraints.weightx = 1.0;
++        gridBagConstraints.weighty = 0.3;
++        add(descriptionField, gridBagConstraints);
++
++        groupScrollPane.setBorder(new EmptyBorder(1, 1, 1, 1));
++        groupScrollPane.setViewportView(groupsTable);
++
++        gridBagConstraints = new java.awt.GridBagConstraints();
++        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
++        gridBagConstraints.weightx = 1.0;
++        gridBagConstraints.weighty = 1.0;
++        add(groupScrollPane, gridBagConstraints);
++    }
++
++    protected void removeUnusedPacks()
++    {
++        GroupData data = rows[selectedGroup];
++        Debug.trace(&quot;InstallationGroupPanel.removeUnusedPacks, GroupData=&quot;+data.name);
++
++        // Now remove the packs not in groupPackNames
++        idata.selectedPacks.clear();
++        idata.selectedPacks.addAll(idata.availablePacks);
++        Iterator iter = idata.availablePacks.iterator();
++        while( iter.hasNext() )
++        {
++            Pack p = (Pack) iter.next();
++
++            //reverse dependencies must be reset in case the user is going
++            //back and forth between the group selection panel and the packs selection panel
++            p.revDependencies = null;
++
++            if( data.packNames.contains(p.name) == false )
++            {
++                iter.remove();
++                Debug.trace(&quot;Removed AvailablePack: &quot;+p.name);
++            }
++        }
++
++        List selectedPacks = idata.selectedPacks;
++        iter = selectedPacks.iterator();
++        while( iter.hasNext() )
++        {
++            Pack p = (Pack) iter.next();
++            if( data.packNames.contains(p.name) == false || !p.preselected)
++            {
++                iter.remove();
++                Debug.trace(&quot;Removed selectedPack: &quot;+p.name);
++            }
++        }
++    }
++    protected void addDependents(Pack p, HashMap packsByName, GroupData data)
++    {
++        data.packNames.add(p.name);
++        data.size += p.nbytes;
++        Debug.trace(&quot;addDependents, added pack: &quot;+p.name);
++        if( p.dependencies == null || p.dependencies.size() == 0 )
++            return;
++
++        Iterator iter = p.dependencies.iterator();
++        Debug.trace(p.name+&quot; dependencies: &quot;+p.dependencies);
++        while( iter.hasNext() )
++        {
++            String dependent = (String) iter.next();
++            if( data.packNames.contains(dependent) == false )
++            {
++                Debug.trace(&quot;Need dependent: &quot;+dependent);
++                Pack dependentPack = (Pack) packsByName.get(dependent);
++                addDependents(dependentPack, packsByName, data);
++            }
++        }
++    }
++
++    /**
++     * Build the set of unique installGroups data. The GroupData description
++     * is taken from the InstallationGroupPanel.description.[name] property
++     * where [name] is the installGroup name. The GroupData size is built
++     * from the Pack.nbytes sum.
++     * 
++     * @param idata - the panel install data
++     * @return HashMap&lt;String, GroupData&gt; of unique install group names
++     */
++    protected HashMap getInstallGroups(InstallData idata)
++    {
++        /* First create a packsByName&lt;String, Pack&gt; of all packs and identify
++        the unique install group names.
++        */
++        packsByName = new HashMap();
++        HashMap installGroups = new HashMap();
++        for (int n = 0; n &lt; idata.availablePacks.size(); n++)
++        {
++            Pack p = (Pack) idata.availablePacks.get(n);
++            packsByName.put(p.name, p);
++            Set groups = p.installGroups;
++            Iterator iter = groups.iterator();
++            Debug.trace(&quot;Pack: &quot;+p.name+&quot;, installGroups: &quot;+groups);
++            while (iter.hasNext())
++            {
++                String group = (String) iter.next();
++                GroupData data = (GroupData) installGroups.get(group);
++                if (data == null)
++                {
++                    String description = getGroupDescription(group);
++                    data = new GroupData(group, description);
++                    installGroups.put(group, data);
++                }
++            }
++        }
++        Debug.trace(&quot;Found installGroups: &quot; + installGroups.keySet());
++
++        /* Build up a set of the packs to include in the installation by finding
++        all packs in the selected group, and then include their dependencies.
++        */
++        Iterator gditer = installGroups.values().iterator();
++        while( gditer.hasNext() )
++        {
++            GroupData data = (GroupData) gditer.next();
++            Debug.trace(&quot;Adding dependents for: &quot;+data.name);
++            Iterator iter = idata.availablePacks.iterator();
++            while( iter.hasNext() )
++            {
++                Pack p = (Pack) iter.next();
++                Set groups = p.installGroups;
++                if( groups.size() == 0 || groups.contains(data.name) == true )
++                {
++                    // The pack may have already been added while traversing dependencies
++                    if( data.packNames.contains(p.name) == false )
++                        addDependents(p, packsByName, data);
++                }
++            }
++            Debug.trace(&quot;Completed dependents for: &quot;+data);
++            if( Debug.tracing() )
++                Debug.trace(data);
++        }
++
++        return installGroups;
++    }
++
++    /**
++     * Look for a key = InstallationGroupPanel.description.[group] entry:
++     * first using idata.langpack.getString(key+&quot;.html&quot;)
++     * next using idata.langpack.getString(key)
++     * next using idata.getVariable(key)
++     * lastly, defaulting to group + &quot; installation&quot;
++     * @param group - the installation group name
++     * @return the group description
++     */
++    protected String getGroupDescription(String group)
++    {
++        String description = null;
++        String key = &quot;InstallationGroupPanel.description.&quot; + group;
++        if( idata.langpack != null )
++        {
++            String htmlKey = key+&quot;.html&quot;;
++            String html = idata.langpack.getString(htmlKey);
++            // This will equal the key if there is no entry
++            if( htmlKey.equalsIgnoreCase(html) )
++                description = idata.langpack.getString(key);
++            else
++                description = html;
++        }
++        if (description == null || key.equalsIgnoreCase(description))
++            description = idata.getVariable(key);
++        if (description == null)
++            description = group + &quot; installation&quot;;
++        try
++        {
++            description = URLDecoder.decode(description, &quot;UTF-8&quot;);
++        }
++        catch (UnsupportedEncodingException e)
++        {
++            emitWarning(&quot;Failed to convert description&quot;, e.getMessage());
++        }
++
++        return description;
++    }
++
++    protected TableModel getModel(HashMap groupData)
++    {
++        String c1 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameSelected&quot;);
++        String c2 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameInstallType&quot;);
++        String c3 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameSize&quot;);
++        String[] columns = {c1, c2, c3};
++         DefaultTableModel model = new DefaultTableModel (columns, 0)
++         {
++            public boolean isCellEditable (int row, int column)
++            {
++               return column == 0;
++            }
++        };
++        rows = new GroupData[groupData.size()];
++        // The name of the group to select if there is no current selection
++        String defaultGroup = idata.getVariable(&quot;InstallationGroupPanel.defaultGroup&quot;);
++         Debug.trace(&quot;InstallationGroupPanel.defaultGroup=&quot;+defaultGroup+&quot;, selectedGroup=&quot;+selectedGroup);
++         List values = new ArrayList(groupData.values());
++         Collections.sort(values, new Comparator()
++         {
++           public int compare(Object o1, Object o2)
++           {
++               GroupData g1 = (GroupData) o1;
++               GroupData g2 = (GroupData) o2;
++
++               if (g1.name == null || g2.name==null)
++               {
++                   return 0;
++               }
++
++               return g1.name.compareTo(g2.name);
++           }
++        });
++
++        Iterator iter = values.iterator();
++        ButtonGroup buttonGroup = new ButtonGroup();
++        boolean madeSelection = false;
++        int count = 0;
++        while (iter.hasNext())
++        {
++            GroupData gd = (GroupData) iter.next();
++            rows[count] = gd;
++            Debug.trace(&quot;Creating button#&quot;+count+&quot;, group=&quot;+gd.name);
++            JRadioButton btn = new JRadioButton(gd.name);
++            if( selectedGroup == count )
++            {
++                btn.setSelected(true);
++                Debug.trace(&quot;Selected button#&quot;+count);
++            }
++            else if ( selectedGroup &lt; 0 &amp;&amp; madeSelection == false )
++            {
++                if( defaultGroup != null )
++                {
++                   if( defaultGroup.equals(gd.name) )
++                     madeSelection = true;
++                }
++                else if( count == 0 )
++                    madeSelection = true;
++                if( madeSelection )
++                {
++                    btn.setSelected(true);
++                    Debug.trace(&quot;Selected button#&quot;+count);
++                    selectedGroup = count;
++                }
++            }
++            else
++            {
++                btn.setSelected(false);
++            }
++            buttonGroup.add(btn);
++            String sizeText = gd.getSizeString();
++            Object[] data = { btn, gd.description, sizeText};
++            model.addRow(data);
++            count ++;
++        }
++        return model;
++    }
++
++    protected static class GroupData
++    {
++        static final long ONEK = 1024;
++        static final long ONEM = 1024 * 1024;
++        static final long ONEG = 1024 * 1024 * 1024;
++
++        String name;
++        String description;
++        long size;
++        HashSet packNames = new HashSet();
++
++        GroupData(String name, String description)
++        {
++            this.name = name;
++            this.description = description;
++        }
++
++        String getSizeString()
++        {
++            String s;
++            if (size &lt; ONEK)
++            {
++                s = size + &quot; bytes&quot;;
++            }
++            else if (size &lt; ONEM)
++            {
++                s = size / ONEK + &quot; KBytes&quot;;
++            }
++            else if (size &lt; ONEG)
++            {
++                s = size / ONEM + &quot; MBytes&quot;;
++            }
++            else
++            {
++                s = size / ONEG + &quot; GBytes&quot;;
++            }
++            return s;
++        }
++        public String toString()
++        {
++            StringBuffer tmp = new StringBuffer(&quot;GroupData(&quot;);
++            tmp.append(name);
++            tmp.append(&quot;){description=&quot;);
++            tmp.append(description);
++            tmp.append(&quot;, size=&quot;);
++            tmp.append(size);
++            tmp.append(&quot;, sizeString=&quot;);
++            tmp.append(getSizeString());
++            tmp.append(&quot;, packNames=&quot;);
++            tmp.append(packNames);
++            tmp.append(&quot;}&quot;);
++            return tmp.toString();
++        }
++    }
++
++    class RadioButtonRenderer implements TableCellRenderer
++    {
++        public Component getTableCellRendererComponent (JTable table, Object value,
++                                                        boolean isSelected, boolean hasFocus,
++                                                        int row, int column)
++        {
++            if (value==null) {
++                return null;
++            }
++
++            JRadioButton button = (JRadioButton) value;
++
++            button.setForeground(isSelected ?
++                                 table.getSelectionForeground() : table.getForeground());
++            button.setBackground(isSelected ?
++                                 table.getSelectionBackground() : table.getBackground());
++
++            return button;
++        }
++    }
++
++    class RadioButtonEditor
++        extends AbstractCellEditor
++        implements ItemListener,
++                   TableCellEditor
++    {
++        private JRadioButton button;
++
++        public Component getTableCellEditorComponent (JTable table, Object value,
++                                                      boolean isSelected, int row, int column)
++        {
++            Debug.trace(&quot;getTableCellEditorComponent, row=&quot;+row);
++            if (value==null) {
++                return null;
++            }
++
++            button = (JRadioButton) value;
++            button.addItemListener(this);
++
++            button.setForeground(isSelected ?
++                                 table.getSelectionForeground() : table.getForeground());
++            button.setBackground(isSelected ?
++                                 table.getSelectionBackground() : table.getBackground());
++
++            return button;
++        }
++
++        public Object getCellEditorValue ()
++        {
++            button.removeItemListener (this);
++            return button;
++        }
++
++        public void itemStateChanged (ItemEvent e)
++        {
++            Debug.trace(&quot;itemStateChanged, e=&quot;+e);
++            super.fireEditingStopped ();
++            groupsTable.repaint();
++        }
++    }
++
++}
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-03-11 16:00:06 UTC (rev 1777)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-03-11 16:06:56 UTC (rev 1778)
+@@ -27,6 +27,7 @@
+ import java.awt.Color;
+ import java.awt.Component;
+ import java.awt.Dimension;
++import java.awt.Graphics;
+ import java.awt.GridBagConstraints;
+ import java.awt.GridBagLayout;
+ import java.awt.event.ActionEvent;
+@@ -42,6 +43,8 @@
+ import javax.swing.BorderFactory;
+ import javax.swing.Box;
+ import javax.swing.BoxLayout;
++import javax.swing.ButtonModel;
++import javax.swing.Icon;
+ import javax.swing.JCheckBox;
+ import javax.swing.JLabel;
+ import javax.swing.JOptionPane;
+@@ -53,6 +56,7 @@
+ import javax.swing.border.Border;
+ import javax.swing.event.ListSelectionEvent;
+ import javax.swing.event.ListSelectionListener;
++import javax.swing.plaf.metal.MetalLookAndFeel;
+ import javax.swing.table.DefaultTableCellRenderer;
+ import javax.swing.table.TableCellEditor;
+ import javax.swing.table.TableCellRenderer;
+@@ -608,6 +612,13 @@
+         public CheckBoxEditorRenderer(boolean useAsEditor)
+         {
+             display = new JCheckBox();
++            if(com.izforge.izpack.util.OsVersion.IS_UNIX)
++            {
++                display.setIcon(new LFIndependentIcon());
++                display.setDisabledIcon(new LFIndependentIcon());
++                display.setSelectedIcon(new LFIndependentIcon());
++                display.setDisabledSelectedIcon(new LFIndependentIcon());
++            }
+             display.setHorizontalAlignment(CENTER);
+             if (useAsEditor) display.addActionListener(this);
+ 
+@@ -657,7 +668,88 @@
+             stopCellEditing();
+         }
+     }
++    
++    public static class LFIndependentIcon implements Icon
++    {
++       ButtonModel buttonModel = null;
++       protected int getControlSize() { return 13; }
++       public void paintIcon(Component c, Graphics g, int x, int y)
++       {
++          ButtonModel model = ((JCheckBox)c).getModel();
++          buttonModel = model;
++          int controlSize = getControlSize();
++          if (model.isPressed() &amp;&amp; model.isArmed())
++          {
++             g.setColor( MetalLookAndFeel.getControlShadow() );
++             if(model.isEnabled()) g.setColor(Color.green); else g.setColor(Color.gray);
++             g.fillRect( x, y, controlSize-1, controlSize-1);
++             drawPressedBorder(g, x, y, controlSize, controlSize, model);
++          }
++          else
++          {
++             drawBorder(g, x, y, controlSize, controlSize, model);
++          }
++          g.setColor( Color.green );
++          if (model.isSelected())
++          {
++             drawCheck(c,g,x,y);
++          }
++       }
++       private void drawBorder(Graphics g, int x, int y, int w, int h, ButtonModel model)
++       {
++          g.translate(x, y);
+ 
++          // outer frame rectangle
++          g.setColor(MetalLookAndFeel.getControlDarkShadow());
++          if(!model.isEnabled()) g.setColor(new Color(0.4f, 0.4f, 0.4f));
++          g.drawRect(0, 0, w-2, h-2);
++
++          // middle frame
++          g.setColor(MetalLookAndFeel.getControlHighlight());
++          if(!model.isEnabled()) g.setColor(new Color(0.6f, 0.6f, 0.6f));
++          g.drawRect(1, 1, w-2, h-2);
++
++          // background
++          if(model.isEnabled()) g.setColor(Color.white); else g.setColor(new Color(0.8f, 0.8f, 0.8f));
++          g.fillRect(2, 2, w-3, h-3);
++
++          //some extra lines for FX
++          g.setColor(MetalLookAndFeel.getControl());
++          g.drawLine(0, h-1, 1, h-2);
++          g.drawLine(w-1, 0, w-2, 1);
++          g.translate(-x, -y);
++       }
++       private void drawPressedBorder(Graphics g, int x, int y, int w, int h, ButtonModel model)
++       {
++          g.translate(x, y);
++          drawBorder(g, 0, 0, w, h, model);
++          g.setColor(MetalLookAndFeel.getControlShadow());
++          g.drawLine(1, 1, 1, h-2);
++          g.drawLine(1, 1, w-2, 1);
++          g.drawLine(2, 2, 2, h-3);
++          g.drawLine(2, 2, w-3, 2);
++          g.translate(-x, -y);
++       }
++       protected void drawCheck(Component c, Graphics g, int x, int y)
++       {
++          int controlSize = getControlSize();
++          if(buttonModel!=null)
++             if(buttonModel.isEnabled())
++                g.setColor(new Color(0.0f,0.6f,0.0f));
++             else g.setColor(new Color(0.1f,0.1f,0.1f));
++
++          g.drawLine( x+(controlSize-4), y+2, x+(controlSize-4)-4, y+2+4 );
++          g.drawLine( x+(controlSize-4), y+3, x+(controlSize-4)-4, y+3+4 );
++          g.drawLine( x+(controlSize-4), y+4, x+(controlSize-4)-4, y+4+4 );
++
++          g.drawLine( x+(controlSize-4)-4, y+2+4, x+(controlSize-4)-4-2, y+2+4-2 );
++          g.drawLine( x+(controlSize-4)-4, y+3+4, x+(controlSize-4)-4-2, y+3+4-2 );
++          g.drawLine( x+(controlSize-4)-4, y+4+4, x+(controlSize-4)-4-2, y+4+4-2 );
++       }
++       public int getIconWidth() {return getControlSize();}
++       public int getIconHeight() {return getControlSize();}
++    }
++    
+     static class PacksPanelTableCellRenderer extends DefaultTableCellRenderer
+     {
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000523.html">[izpack-changes] r1777 -	izpack-src/branches/3.10/bin/langpacks/installer
+</A></li>
+	<LI>Next message: <A HREF="000525.html">[izpack-changes] r1779 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#524">[ date ]</a>
+              <a href="thread.html#524">[ thread ]</a>
+              <a href="subject.html#524">[ subject ]</a>
+              <a href="author.html#524">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

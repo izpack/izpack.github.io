@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1833 - in izpack-src/trunk: . src/dist-files
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1833%20-%20in%20izpack-src/trunk%3A%20.%20src/dist-files&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000578.html">
+   <LINK REL="Next"  HREF="000580.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1833 - in izpack-src/trunk: . src/dist-files</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1833%20-%20in%20izpack-src/trunk%3A%20.%20src/dist-files&In-Reply-To="
+       TITLE="[izpack-changes] r1833 - in izpack-src/trunk: . src/dist-files">noreply at berlios.de
+       </A><BR>
+    <I>Sat May 12 23:43:02 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000578.html">[izpack-changes] r1832 - in izpack-src/trunk/src: doc-ng/XHTML dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000580.html">[izpack-changes] r1834 - in izpack-src/trunk: .	bin/langpacks/installer src src/dist-files src/doc-ng/XHTML	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#579">[ date ]</a>
+              <a href="thread.html#579">[ thread ]</a>
+              <a href="subject.html#579">[ subject ]</a>
+              <a href="author.html#579">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: aikebah
+Date: 2007-05-12 23:42:52 +0200 (Sat, 12 May 2007)
+New Revision: 1833
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/dist-files/IzPack-install.xml
+Log:
+Enabling externalized pack-configurations based on a patch proposed by Syed Khadeer
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-05-12 13:30:52 UTC (rev 1832)
++++ izpack-src/trunk/Versions.txt	2007-05-12 21:42:52 UTC (rev 1833)
+@@ -16,6 +16,7 @@
+ - New Farsi langpack (Parastou Kohvaei via Klaus Bartz)
+ - Dynamic control validation on radio and checkbox selection events (Vladimir Ralev)
+ - Locale support of Shortcut specification file (Klaus Bartz using a hint of Loic)
++- Enabled distributed pack-definitions (Hans Aikema based on patch by Syed Khadeer)
+ 
+   &gt; 3.10.2
+ 
+
+Modified: izpack-src/trunk/src/dist-files/IzPack-install.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install.xml	2007-05-12 13:30:52 UTC (rev 1832)
++++ izpack-src/trunk/src/dist-files/IzPack-install.xml	2007-05-12 21:42:52 UTC (rev 1833)
+@@ -155,7 +155,7 @@
+     &lt;packs&gt;
+ 
+         &lt;!-- The core files --&gt;
+-        &lt;pack name=&quot;Core&quot; required=&quot;yes&quot;&gt;
++        &lt;pack name=&quot;Core&quot; required=&quot;yes&quot; packImgId=&quot;ImgPacksPanel.img.0&quot;&gt;
+             &lt;description&gt;The IzPack core files.&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+                 &lt;include name=&quot;*.txt&quot;/&gt;
+@@ -168,13 +168,13 @@
+         &lt;/pack&gt;
+ 
+         &lt;!-- The documentation --&gt;
+-        &lt;pack name=&quot;XHTML Documentation&quot; required=&quot;no&quot;&gt;
++        &lt;pack name=&quot;XHTML Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.1&quot;&gt;
+             &lt;description&gt;The IzPack documentation (XHTML version).&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+                 &lt;include name=&quot;doc/izpack/xhtml/**/*&quot;/&gt;
+             &lt;/fileset&gt;
+         &lt;/pack&gt;
+-        &lt;pack name=&quot;Java Documentation&quot; required=&quot;no&quot;&gt;
++        &lt;pack name=&quot;Java Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.2&quot;&gt;
+             &lt;description&gt;
+                 The IzPack Java documentation (Javadocs for IzPack developers).
+             &lt;/description&gt;
+@@ -192,7 +192,7 @@
+             &lt;/fileset&gt;
+             &lt;/pack&gt;
+         --&gt;
+-        &lt;pack name=&quot;NanoXML Documentation&quot; required=&quot;no&quot;&gt;
++        &lt;pack name=&quot;NanoXML Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.3&quot;&gt;
+             &lt;description&gt;NanoXML documentation (for IzPack developers).&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+                 &lt;include name=&quot;doc/nanoxml/**/*&quot;/&gt;
+@@ -201,7 +201,7 @@
+ 
+ 
+         &lt;!-- A trivial sample to get started --&gt;
+-        &lt;pack name=&quot;Sample&quot; required=&quot;no&quot;&gt;
++        &lt;pack name=&quot;Sample&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.4&quot;&gt;
+             &lt;description&gt;A sample installation.&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+                 &lt;include name=&quot;sample/**/*&quot;/&gt;
+@@ -209,7 +209,7 @@
+         &lt;/pack&gt;
+ 
+         &lt;!-- The source code of this version --&gt;
+-        &lt;pack name=&quot;Sources&quot; required=&quot;no&quot;&gt;
++        &lt;pack name=&quot;Sources&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.5&quot;&gt;
+             &lt;description&gt;The full IzPack source code.&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+                 &lt;include name=&quot;src/**/*&quot;/&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000578.html">[izpack-changes] r1832 - in izpack-src/trunk/src: doc-ng/XHTML dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000580.html">[izpack-changes] r1834 - in izpack-src/trunk: .	bin/langpacks/installer src src/dist-files src/doc-ng/XHTML	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#579">[ date ]</a>
+              <a href="thread.html#579">[ thread ]</a>
+              <a href="subject.html#579">[ subject ]</a>
+              <a href="author.html#579">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

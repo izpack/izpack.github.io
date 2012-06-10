@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Help text for the userInputPanel Fields
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Help%20text%20for%20the%20userInputPanel%20Fields&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC50%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001545.html">
+   <LINK REL="Next"  HREF="001547.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Help text for the userInputPanel Fields</H1>
+    <B>Mandeep Saini</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Help%20text%20for%20the%20userInputPanel%20Fields&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC50%40coi11.coi.com"
+       TITLE="[izpack-users] Help text for the userInputPanel Fields">Mandeep.Saini at dante.org.uk
+       </A><BR>
+    <I>Fri Jun 15 15:56:02 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001545.html">[izpack-users] Help text for the userInputPanel Fields
+</A></li>
+        <LI>Next message: <A HREF="001547.html">[izpack-users] Uninstaller generation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1550">[ date ]</a>
+              <a href="thread.html#1550">[ thread ]</a>
+              <a href="subject.html#1550">[ subject ]</a>
+              <a href="author.html#1550">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Bartz,
+
+
+Thanks a lot for the detailed reply.
+
+The way you suggested is absolutely fine and its working fine but I am 
+thinking that it would be better to introduce this feature through 
+userInputSpec.xml file.
+
+For example, We can introduce a field 'Help Button' for UserInputPanel 
+and as a attribute of this field we can have 'helpTextFile'. As a value 
+of this attribute we can specify path to the help text file. When user 
+will click on the help button the text in the file will be displayed in 
+the separate window.
+
+I am ready to write this piece of code but if I write, will it be 
+possible to merge the code in next Izpack release. Actually, we don't 
+want to change the izpack core such that whenever a new release will 
+happen, we have to merge the our changes with the new release. Rather, 
+we want to stick with the standard izpack as far as possible.
+
+Thanks
+Mandeep
+
+
+&gt;<i> Hi Mandeep,
+</I>&gt;<i> some installer tools (e.g. MSI) means that a separated help will
+</I>&gt;<i> be not state of the art...
+</I>&gt;<i> But you can add tool tips to your components (buttons etc.), 
+</I>&gt;<i> if you write custom panels. And you can also add your own button 
+</I>&gt;<i> into the navigation panel of IzPack.
+</I>&gt;<i> 
+</I>&gt;<i> How to add a button into the navigation panel:
+</I>&gt;<i> you can implement a hidden IzPanel which implements the interface
+</I>&gt;<i> GUIListener and ActionListener. Place it at first panel. 
+</I>&gt;<i> Call parent.addGuiListener(this) in the constructor.
+</I>&gt;<i> Create the help button in guiActionPerformed if the flag is GUI_BUILDED.
+</I>&gt;<i> Add the button to the given navigation panel.
+</I>&gt;<i> Do not forget to add &quot;this&quot; as ActionListener of the help button.
+</I>&gt;<i> Do your help work in actionPerformed.
+</I>&gt;<i> 
+</I>&gt;<i> Cheers 
+</I>&gt;<i> 
+</I>&gt;<i> Klaus
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> public class HelpFeaturePanel extends IzPanel implements GUIListener,
+</I>&gt;<i> ActionListener
+</I>&gt;<i> {
+</I>&gt;<i>     // Other class specific variables.
+</I>&gt;<i>     /** The help button. */
+</I>&gt;<i>     protected JButton helpButton;
+</I>&gt;<i> 
+</I>&gt;<i>     /**
+</I>&gt;<i>      * The constructor.
+</I>&gt;<i>      * 
+</I>&gt;<i>      * @param parent The parent IzPack installer frame.
+</I>&gt;<i>      * @param idata The installer internal data.
+</I>&gt;<i>      */
+</I>&gt;<i>     public HelpFeaturePanel(InstallerFrame parent, InstallData idata)
+</I>&gt;<i>     {
+</I>&gt;<i>         super(parent, idata);
+</I>&gt;<i>         setHidden(true);
+</I>&gt;<i>         parent.addGuiListener(this);
+</I>&gt;<i> 
+</I>&gt;<i>     }
+</I>&gt;<i> 
+</I>&gt;<i>     /** Called when the panel becomes active. */
+</I>&gt;<i>     public void panelActivate()
+</I>&gt;<i>     {
+</I>&gt;<i>         parent.skipPanel();
+</I>&gt;<i>     }
+</I>&gt;<i> 
+</I>&gt;<i>     /*
+</I>&gt;<i>      * (non-Javadoc)
+</I>&gt;<i>      * 
+</I>&gt;<i>      * @see
+</I>&gt;<i> com.izforge.izpack.installer.GUIListener#guiActionPerformed(int,
+</I>&gt;<i> java.lang.Object)
+</I>&gt;<i>      */
+</I>&gt;<i>     public void guiActionPerformed(int what, Object param)
+</I>&gt;<i>     {
+</I>&gt;<i>         if (what == GUI_BUILDED)
+</I>&gt;<i>         {
+</I>&gt;<i>             JPanel navPanel = (JPanel) param;
+</I>&gt;<i>             helpButton =
+</I>&gt;<i> ButtonFactory.createButton(parent.langpack.getString(&quot;installer.help&quot;),
+</I>&gt;<i>                     parent.icons.getImageIcon(&quot;help&quot;),
+</I>&gt;<i> idata.buttonsHColor);
+</I>&gt;<i>             navPanel.add(helpButton, 0);
+</I>&gt;<i>             helpButton.addActionListener(this);
+</I>&gt;<i>         }
+</I>&gt;<i> 
+</I>&gt;<i>     }
+</I>&gt;<i> 
+</I>&gt;<i>     /*
+</I>&gt;<i>      * (non-Javadoc)
+</I>&gt;<i>      * 
+</I>&gt;<i>      * @see
+</I>&gt;<i> java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
+</I>&gt;<i> )
+</I>&gt;<i>      */
+</I>&gt;<i>     public void actionPerformed(ActionEvent e)
+</I>&gt;<i>     {
+</I>&gt;<i>         // Your help implementation.
+</I>&gt;<i>     }
+</I>&gt;<i> }
+</I>&gt;<i> 
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> 
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of 
+</I>&gt;&gt;<i> Mandeep Saini
+</I>&gt;&gt;<i> Sent: Thursday, June 14, 2007 7:02 PM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: [izpack-users] Help text for the userInputPanel Fields
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Hi all,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Is there any way to give help text for user Input Panel 
+</I>&gt;&gt;<i> fields, may be 
+</I>&gt;&gt;<i> by using a button or by tool tip on mouse over? Or I have to write my 
+</I>&gt;&gt;<i> own code to do this?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> If right now this functionality is not available then are there any 
+</I>&gt;&gt;<i> plans for such feature in the future?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Regards
+</I>&gt;&gt;<i> Mandeep
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> -- 
+</I>&gt;&gt;<i> ______________________________________________________________________
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Mandeep Saini	
+</I>&gt;&gt;<i> System Engineer
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> DANTE - www.dante.net
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Tel: +44 (0) 1223 371 300 (Ext. 349)
+</I>&gt;&gt;<i> Fax: +44 (0) 1223 371 371
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> City House, 126-130 Hills Road
+</I>&gt;&gt;<i> Cambridge CB2 1PQ
+</I>&gt;&gt;<i> UK 
+</I>&gt;&gt;<i> _____________________________________________________________________
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A> 
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+-- 
+______________________________________________________________________
+
+Mandeep Saini	
+System Engineer
+
+DANTE - www.dante.net
+
+Tel: +44 (0) 1223 371 300 (Ext. 349)
+Fax: +44 (0) 1223 371 371
+
+City House, 126-130 Hills Road
+Cambridge CB2 1PQ
+UK
+_____________________________________________________________________
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001545.html">[izpack-users] Help text for the userInputPanel Fields
+</A></li>
+	<LI>Next message: <A HREF="001547.html">[izpack-users] Uninstaller generation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1550">[ date ]</a>
+              <a href="thread.html#1550">[ thread ]</a>
+              <a href="subject.html#1550">[ subject ]</a>
+              <a href="author.html#1550">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1502 - in izpack-launcher/trunk: . src
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1502%20-%20in%20izpack-launcher/trunk%3A%20.%20src&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000245.html">
+   <LINK REL="Next"  HREF="000247.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1502 - in izpack-launcher/trunk: . src</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1502%20-%20in%20izpack-launcher/trunk%3A%20.%20src&In-Reply-To="
+       TITLE="[izpack-changes] r1502 - in izpack-launcher/trunk: . src">noreply at berlios.de
+       </A><BR>
+    <I>Sun Jul 23 07:38:21 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000245.html">[izpack-changes] r1501 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000247.html">[izpack-changes] r1503 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#246">[ date ]</a>
+              <a href="thread.html#246">[ thread ]</a>
+              <a href="subject.html#246">[ subject ]</a>
+              <a href="author.html#246">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-07-23 07:38:09 +0200 (Sun, 23 Jul 2006)
+New Revision: 1502
+
+Added:
+   izpack-launcher/trunk/src/macosx-embed-qtlibs.sh
+Modified:
+   izpack-launcher/trunk/Changes
+   izpack-launcher/trunk/src/launcher.cpp
+   izpack-launcher/trunk/src/launcher.pro
+   izpack-launcher/trunk/src/main.cpp
+Log:
+* launcher.cpp, main.cpp: fixes on the interpretation of the QProcess:execute()
+  return values. The launcher should be running fine now.
+* Mac OS X: build universal binaries.
+* Mac OS X: script to embed the Qt libraries inside the application bundle.
+
+
+Modified: izpack-launcher/trunk/Changes
+===================================================================
+--- izpack-launcher/trunk/Changes	2006-07-22 20:57:35 UTC (rev 1501)
++++ izpack-launcher/trunk/Changes	2006-07-23 05:38:09 UTC (rev 1502)
+@@ -1,3 +1,9 @@
++2006.07.23 (Julien Ponge)
++* launcher.cpp, main.cpp: fixes on the interpretation of the QProcess:execute()
++  return values. The launcher should be running fine now.
++* Mac OS X: build universal binaries.
++* Mac OS X: script to embed the Qt libraries inside the application bundle.
++
+ 2006.07.22 (Julien Ponge)
+ * main.cpp: fix for stupid error that disables the JRE radio button if a JRE
+   is provider, and enables it when it is not.
+
+Modified: izpack-launcher/trunk/src/launcher.cpp
+===================================================================
+--- izpack-launcher/trunk/src/launcher.cpp	2006-07-22 20:57:35 UTC (rev 1501)
++++ izpack-launcher/trunk/src/launcher.cpp	2006-07-23 05:38:09 UTC (rev 1502)
+@@ -162,8 +162,21 @@
+         }
+     }
+ 
++#ifdef Q_WS_MAC
++	
++	// Mac OS X
++	QString pathOnOSX = &quot;/System/Library/Frameworks/JavaVM.framework/&quot;
++						&quot;Versions/CurrentJDK/Commands/java&quot;;
++	if (QProcess::execute(pathOnOSX, QStringList(&quot;-version&quot;)) == 0)
++	{
++		javaExecPath = pathOnOSX;
++		return true;
++	}
++	
++#endif
++
+     // Last chance, lucky trial
+-    if (QProcess::execute(&quot;java&quot;, QStringList(&quot;-version&quot;)))
++    if (QProcess::execute(&quot;java&quot;, QStringList(&quot;-version&quot;)) == 0)
+     {
+         javaExecPath = &quot;java&quot;;
+         return true;
+
+Modified: izpack-launcher/trunk/src/launcher.pro
+===================================================================
+--- izpack-launcher/trunk/src/launcher.pro	2006-07-22 20:57:35 UTC (rev 1501)
++++ izpack-launcher/trunk/src/launcher.pro	2006-07-23 05:38:09 UTC (rev 1502)
+@@ -1,5 +1,9 @@
+ TEMPLATE = app
+ CONFIG += warn_on release qt
++macx {
++    QMAKE_MAC_SDK=/Developer/SDKs/MacOSX10.4u.sdk
++    CONFIG += x86 ppc
++}
+ QT = core gui
+ FORMS = resolve-dialog.ui
+ HEADERS = launcher.h resolve-dialog.h
+@@ -10,3 +14,6 @@
+ win32 {
+     RC_FILE = win32.rc
+ }
++macx {
++    RC_FILE = img/mac.icns
++}
+
+Added: izpack-launcher/trunk/src/macosx-embed-qtlibs.sh
+===================================================================
+--- izpack-launcher/trunk/src/macosx-embed-qtlibs.sh	2006-07-22 20:57:35 UTC (rev 1501)
++++ izpack-launcher/trunk/src/macosx-embed-qtlibs.sh	2006-07-23 05:38:09 UTC (rev 1502)
+@@ -0,0 +1,28 @@
++#!/bin/bash
++#
++# Embeds the Qt libraries inside the application bundle, allowing it to be redistributed
++# to any Mac without Qt installed.
++# 
++# -- Julien Ponge &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">julien at izforge.com</A>&gt;
++
++mkdir launcher.app/Contents/Frameworks
++cp -R $1/QtCore.framework launcher.app/Contents/Frameworks
++cp -R $1/QtGui.framework launcher.app/Contents/Frameworks
++
++install_name_tool -id @executable_path/../Frameworks/QtCore.framework/Versions/4.0/QtCore \
++launcher.app/Contents/Frameworks/QtCore.framework/Versions/4.0/QtCore
++
++install_name_tool -id @executable_path/../Frameworks/QtGui.framework/Versions/4.0/QtGui \
++launcher.app/Contents/Frameworks/QtGui.framework/Versions/4.0/QtGui
++
++install_name_tool -change $1/QtCore.framework/Versions/4.0/QtCore \
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">+ at executable_path</A>/../Frameworks/QtCore.framework/Versions/4.0/QtCore \
++launcher.app/Contents/MacOs/launcher
++
++install_name_tool -change $1/QtGui.framework/Versions/4.0/QtGui \
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">+ at executable_path</A>/../Frameworks/QtGui.framework/Versions/4.0/QtGui \
++launcher.app/Contents/MacOs/launcher
++
++install_name_tool -change path/to/Qt/lib/QtCore.framework/Versions/4.0/QtCore \
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">+ at executable_path</A>/../Frameworks/QtCore.framework/Versions/4.0/QtCore \
++launcher.app/Contents/Frameworks/QtGui.framework/Versions/4.0/QtGui
+
+
+Property changes on: izpack-launcher/trunk/src/macosx-embed-qtlibs.sh
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Modified: izpack-launcher/trunk/src/main.cpp
+===================================================================
+--- izpack-launcher/trunk/src/main.cpp	2006-07-22 20:57:35 UTC (rev 1501)
++++ izpack-launcher/trunk/src/main.cpp	2006-07-23 05:38:09 UTC (rev 1502)
+@@ -55,7 +55,7 @@
+ detect:
+     if (launcher.detectJRE())
+     {
+-        if (!launcher.launch())
++        if (launcher.launch() != 0)
+         {
+             show_launch_error_message();
+             return 1;   
+@@ -75,8 +75,8 @@
+         switch (dlg-&gt;getResolveChoice())
+         {
+         case MANUAL:
+-            if (!launcher.launch(QFileDialog::getOpenFileName(0,
+-                QT_TR_NOOP(&quot;Please select the 'java' executable program.&quot;))))
++            if (launcher.launch(QFileDialog::getOpenFileName(0,
++                QT_TR_NOOP(&quot;Please select the 'java' executable program.&quot;))) != 0)
+             {
+                 show_launch_error_message();
+                 return 1; 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000245.html">[izpack-changes] r1501 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000247.html">[izpack-changes] r1503 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#246">[ date ]</a>
+              <a href="thread.html#246">[ thread ]</a>
+              <a href="subject.html#246">[ subject ]</a>
+              <a href="author.html#246">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

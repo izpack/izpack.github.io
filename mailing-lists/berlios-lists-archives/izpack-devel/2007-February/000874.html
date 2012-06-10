@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] UserInputPanel / type 'search'
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20UserInputPanel%20/%20type%20%27search%27&In-Reply-To=45D08C53.1050607%40gmx.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000872.html">
+   <LINK REL="Next"  HREF="000876.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] UserInputPanel / type 'search'</H1>
+    <B>Michael Hagedorn</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20UserInputPanel%20/%20type%20%27search%27&In-Reply-To=45D08C53.1050607%40gmx.de"
+       TITLE="[izpack-devel] UserInputPanel / type 'search'">michael.hagedorn at gmx.de
+       </A><BR>
+    <I>Fri Feb 16 11:05:05 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000872.html">[izpack-devel] UserInputPanel / type 'search'
+</A></li>
+        <LI>Next message: <A HREF="000876.html">[izpack-devel] UserInputPanel / type 'search'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#874">[ date ]</a>
+              <a href="thread.html#874">[ thread ]</a>
+              <a href="subject.html#874">[ subject ]</a>
+              <a href="author.html#874">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>How the things are going?
+Will someone commit this?
+
+Michael
+
+Michael Hagedorn wrote:
+&gt;<i> Hello Dev,
+</I>&gt;<i>
+</I>&gt;<i> I guess no feedback means silent acceptance of this improvement :)
+</I>&gt;<i>
+</I>&gt;<i> I've checked behavior on XP and Suse 10, it works. NextButton will be
+</I>&gt;<i> enabled if and only if an existing directory or file is chosen, typed or
+</I>&gt;<i> pasted by user.
+</I>&gt;<i> Please can someone double check and apply attached patches?
+</I>&gt;<i>
+</I>&gt;<i> Thanks,
+</I>&gt;<i> Michael
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Michael Hagedorn wrote:
+</I>&gt;<i>   
+</I>&gt;&gt;<i> Hello Dev,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> my favorite missed feature is to force users to select an existing
+</I>&gt;&gt;<i> directory or file within UserInputPanel. At least this is what I expect.
+</I>&gt;&gt;<i> But this is not the way UserInputPanel works.
+</I>&gt;&gt;<i> I will patch my own UserInputPanel to lock/unlock &lt;Next&gt; button to get this.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Is there a public interest concerning this?
+</I>&gt;&gt;<i> Should I supply this patch?
+</I>&gt;&gt;<i> (Depending on feedback my implementation will be more or less carefully...)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Thanks,
+</I>&gt;&gt;<i> Michael
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>   
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;<i> ------------------------------------------------------------------------
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 1365a1366,1374
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;&gt;<i>         unlockNextButton(true);
+</I>&gt;&gt;&gt;<i>     }
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>     /**
+</I>&gt;&gt;&gt;<i>      * Unlocks the 'next' button.
+</I>&gt;&gt;&gt;<i>      * @param requestFocus if &lt;code&gt;true&lt;/code&gt; focus goes to &lt;code&gt;nextButton&lt;/code&gt; 
+</I>&gt;&gt;&gt;<i>      */
+</I>&gt;&gt;&gt;<i>     public void unlockNextButton(boolean requestFocus)
+</I>&gt;&gt;&gt;<i>     {
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;<i> 1367c1376,1377
+</I>&gt;&gt;<i> &lt;         nextButton.requestFocus();
+</I>&gt;&gt;<i> ---
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;&gt;<i>         if (requestFocus)
+</I>&gt;&gt;&gt;<i>             nextButton.requestFocus();
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;<i> ------------------------------------------------------------------------
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> 47a48,51
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;<i> import javax.swing.event.DocumentEvent;
+</I>&gt;&gt;&gt;&gt;<i> import javax.swing.event.DocumentListener;
+</I>&gt;&gt;&gt;&gt;<i> import javax.swing.text.BadLocationException;
+</I>&gt;&gt;&gt;&gt;<i> import javax.swing.text.Document;
+</I>&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;<i> 2684a2689,2717
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;<i>             /*
+</I>&gt;&gt;&gt;&gt;<i>              * add DocumentListener to manage nextButton if user enters input
+</I>&gt;&gt;&gt;&gt;<i>              */
+</I>&gt;&gt;&gt;&gt;<i>             ((JTextField)this.pathComboBox.getEditor().getEditorComponent()).getDocument().addDocumentListener(new DocumentListener()
+</I>&gt;&gt;&gt;&gt;<i>             {
+</I>&gt;&gt;&gt;&gt;<i>                 public void changedUpdate(DocumentEvent e)
+</I>&gt;&gt;&gt;&gt;<i>                 {
+</I>&gt;&gt;&gt;&gt;<i>                     checkNextButtonState();
+</I>&gt;&gt;&gt;&gt;<i>                 }
+</I>&gt;&gt;&gt;&gt;<i>                 public void insertUpdate(DocumentEvent e)
+</I>&gt;&gt;&gt;&gt;<i>                 {
+</I>&gt;&gt;&gt;&gt;<i>                     checkNextButtonState();
+</I>&gt;&gt;&gt;&gt;<i>                 }
+</I>&gt;&gt;&gt;&gt;<i>                 public void removeUpdate(DocumentEvent e)
+</I>&gt;&gt;&gt;&gt;<i>                 {
+</I>&gt;&gt;&gt;&gt;<i>                     checkNextButtonState();
+</I>&gt;&gt;&gt;&gt;<i>                 }
+</I>&gt;&gt;&gt;&gt;<i>                 private void checkNextButtonState()
+</I>&gt;&gt;&gt;&gt;<i>                 {
+</I>&gt;&gt;&gt;&gt;<i>                     Document doc = ((JTextField)pathComboBox.getEditor().getEditorComponent()).getDocument();
+</I>&gt;&gt;&gt;&gt;<i>                     try {
+</I>&gt;&gt;&gt;&gt;<i>                         if (pathMatches(doc.getText(0, doc.getLength())))
+</I>&gt;&gt;&gt;&gt;<i>                             getInstallerFrame().unlockNextButton(false);
+</I>&gt;&gt;&gt;&gt;<i>                         else    
+</I>&gt;&gt;&gt;&gt;<i>                             getInstallerFrame().lockNextButton();
+</I>&gt;&gt;&gt;&gt;<i>                     } catch (BadLocationException e) {/*ignore, it not happens*/}
+</I>&gt;&gt;&gt;&gt;<i>                 }
+</I>&gt;&gt;&gt;&gt;<i>             });
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;<i> 2686a2720,2726
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;<i>         /**
+</I>&gt;&gt;&gt;&gt;<i>          * convenient method
+</I>&gt;&gt;&gt;&gt;<i>          */
+</I>&gt;&gt;&gt;&gt;<i>         private InstallerFrame getInstallerFrame() {
+</I>&gt;&gt;&gt;&gt;<i>             return parent;
+</I>&gt;&gt;&gt;&gt;<i>         }
+</I>&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;<i> 2745c2785,2788
+</I>&gt;&gt;&gt;<i> &lt;             if (selected == null) { return false; }
+</I>&gt;&gt;&gt;<i> ---
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;<i>             if (selected == null) {
+</I>&gt;&gt;&gt;&gt;<i>                 parent.lockNextButton();
+</I>&gt;&gt;&gt;&gt;<i>                 return false;
+</I>&gt;&gt;&gt;&gt;<i>             }
+</I>&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;<i> 2813a2857
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;<i>                     parent.unlockNextButton();
+</I>&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;<i> 2820,2821c2864,2869
+</I>&gt;&gt;&gt;<i> &lt;             return this.pathMatches((String) this.pathComboBox.getSelectedItem());
+</I>&gt;&gt;&gt;<i> &lt; 
+</I>&gt;&gt;&gt;<i> ---
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;<i>             if (this.pathMatches((String) this.pathComboBox.getSelectedItem())) {
+</I>&gt;&gt;&gt;&gt;<i>                 parent.unlockNextButton();
+</I>&gt;&gt;&gt;&gt;<i>                 return true;
+</I>&gt;&gt;&gt;&gt;<i>             }
+</I>&gt;&gt;&gt;&gt;<i>             parent.lockNextButton();
+</I>&gt;&gt;&gt;&gt;<i>             return false;
+</I>&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;<i> ------------------------------------------------------------------------
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;&gt;&gt;<i>         
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000872.html">[izpack-devel] UserInputPanel / type 'search'
+</A></li>
+	<LI>Next message: <A HREF="000876.html">[izpack-devel] UserInputPanel / type 'search'
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#874">[ date ]</a>
+              <a href="thread.html#874">[ thread ]</a>
+              <a href="subject.html#874">[ subject ]</a>
+              <a href="author.html#874">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

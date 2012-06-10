@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Backup for the installed files and	the	wipeAbortproblem
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Backup%20for%20the%20installed%20files%0A%20and%09the%09wipeAbortproblem&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891705%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000414.html">
+   <LINK REL="Next"  HREF="000416.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Backup for the installed files and	the	wipeAbortproblem</H1>
+    <B>Michael Scherer</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Backup%20for%20the%20installed%20files%0A%20and%09the%09wipeAbortproblem&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891705%40coi11.coi.com"
+       TITLE="[izpack-devel] Backup for the installed files and	the	wipeAbortproblem">michi at buks-island.org
+       </A><BR>
+    <I>Mon Aug 21 12:51:30 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000414.html">[izpack-devel] Backup for the installed files and	the	wipeAbortproblem
+</A></li>
+        <LI>Next message: <A HREF="000416.html">[izpack-devel] The icon for the done button
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#415">[ date ]</a>
+              <a href="thread.html#415">[ thread ]</a>
+              <a href="subject.html#415">[ subject ]</a>
+              <a href="author.html#415">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Mahlzeit.
+
+-- On Montag, 21. August 2006 11:31 +0200 &quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>&gt; 
+wrote:
+
+&gt;<i> Hi Michael,
+</I>&gt;<i> OK, it seems so, that you do not need maintenance. It is possible
+</I>&gt;<i> to implement an update mechanism for your requirements which works
+</I>&gt;<i> fine for you. May be it will be not enough for my requirements...
+</I>Yes, my requirements are pretty simple.
+
+&gt;&gt;<i> So uninstall just a pack isn't possible. Solution is to roll back
+</I>&gt;&gt;<i> completely and install again with
+</I>&gt;&gt;<i> the right packs selected.
+</I>&gt;&gt;<i> I don't see a problem here.
+</I>&gt;<i>
+</I>&gt;<i> There are customers which knows MSI and asks why our installation
+</I>&gt;<i> do not support maintenance. What do you would do if the program
+</I>&gt;<i> creates many data (many means TBs)?
+</I>a) What is this &quot;maintenance&quot; what you are talking about? Adjusting parameters?
+b) No matter if its a 2MB or 2TB installation, either I need/want a backup, 
+than I enable it or I don't want one. All of our customers make a backup of the 
+installation before updating anything.
+
+&gt;&gt;&gt;<i> E.g. I think there should be a data base independant from one
+</I>&gt;&gt;&gt;<i> installation to store e.g. what packs are installed in what
+</I>&gt;&gt;&gt;<i> version etc.
+</I>&gt;&gt;<i> Uh oh, what do you mean with &quot;independent&quot; from an installation?
+</I>&gt;&gt;<i> Sounds like &quot;pack some stuff in the registry&quot;, which isn't available
+</I>&gt;&gt;<i> everywhere.
+</I>&gt;<i>
+</I>&gt;<i> On principle it is marginal where data are stored. If possible
+</I>&gt;<i> I will delegate this question to the VM. Why not use
+</I>&gt;<i> java.util.prefs.Preferences?
+</I>Uhm, that makes backups pretty easy cause every admin knows what that referes 
+to in the filesystem. ;-(
+
+&gt;&gt;<i> An idea here would be to have a &quot;versions.db&quot; file in the uninstaller
+</I>&gt;&gt;<i> subdirectory to save such data. Which would be installation/application
+</I>&gt;&gt;<i> dependant which is what it should be IMHO.
+</I>&gt;<i>
+</I>&gt;<i> Yes, if your application uses no system resouces. At the point
+</I>&gt;<i> it uses e.g. ports, a dependant database is not enough. State of fixed
+</I>&gt;<i> ports you should check. This will be not always trivial. If you need
+</I>&gt;<i> more than one installations of your product of one machine and if you use
+</I>&gt;<i> dynamic ports it can be necessary to calibrate both applications.
+</I>&gt;<i> This is not a pipe dream else reality for some applications.
+</I>Are you talking about an installer or a configurator?
+IMHO an Installer (at least its &quot;core&quot;) should not fiddle with any 
+configurations.
+If it needs to do so there's one solution for it:
+ custom panels
+At least that's the way we are going here.
+I implemented a panel that keeps a file (ReleaseInfo.log) up to date, when you 
+need to get User-Input I guess there's already a User-Input panel for that, 
+isnt it?
+Getting back to the (my?) main problem, rolling back such an installation is 
+pretty easy too, just make sure you backup the configfile in the Uninstaller as 
+well.
+
+=&gt; Should there be an option to just select single files from the 
+&quot;Uninstaller&quot;? Sound like we are going to implement a complete backup-solution 
+into the Installer.
+
+Something else when it comes to fiddling with configuration and system 
+resources.
+I bet your software uses a totally different approach of maintaining its 
+configuration.
+We have some xml-file down in the &quot;etc&quot; subdirectory of our installationpath.
+
+
+&gt;&gt;<i> Using the word &quot;version&quot; raises the next problem, what pattern
+</I>&gt;&gt;<i> do you use for versions?
+</I>&gt;&gt;<i> 1.0? 1.0.1.2?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> We use something like &lt;release&gt;-&lt;patchlevel&gt; here which looks like
+</I>&gt;&gt;<i> &quot;JUL06-02&quot;.
+</I>&gt;&gt;<i> July-2006 release, patchlevel 2.
+</I>&gt;<i>
+</I>&gt;<i> Oh yes...
+</I>&gt;<i> We use only numbers (and at some points chars for fun like Oracle),
+</I>&gt;<i> no dates for identifying our version.
+</I>&gt;<i> &lt;major release&gt;.&lt;minor release&gt;.&lt;patch&gt;.&lt;hotfix&gt;
+</I>&gt;<i> e.g. 1.4.001.003
+</I>And I guess there are many people out the using another pattern for it.
+Maybe adding a &quot;VersionHandler&quot; that presents a certain Interface where one can 
+code his own VersionHandler against would be an option here.
+But handling versions within IzPack for &quot;everyone&quot; is simply impossible and 
+therefor IzPack shouldn't deal with it.
+
+&gt;<i> Seems so we have really different requirements where different
+</I>&gt;<i> solutions can be used or are required.
+</I>Correct.
+And we are just two out of ... many. :)
+
+IzPack should just deal with files, not configuration or anything else. If 
+theres need for such customized stuff we/you/someone can provide customized 
+panels handling such actions.
+
+Your turn. ;)
+
+Greetings,
+ Michael
+
+
+
+-- 
+  I love deadlines, especially the sound they make as they go whooshing by.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000414.html">[izpack-devel] Backup for the installed files and	the	wipeAbortproblem
+</A></li>
+	<LI>Next message: <A HREF="000416.html">[izpack-devel] The icon for the done button
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#415">[ date ]</a>
+              <a href="thread.html#415">[ thread ]</a>
+              <a href="subject.html#415">[ subject ]</a>
+              <a href="author.html#415">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

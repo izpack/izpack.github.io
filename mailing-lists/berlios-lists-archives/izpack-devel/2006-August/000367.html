@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Issues while reading data from packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Issues%20while%20reading%20data%20from%20packs&In-Reply-To=591E33C080D2E5449BB1791B70D66B288916E6%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000366.html">
+   <LINK REL="Next"  HREF="000368.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Issues while reading data from packs</H1>
+    <B>Michael Scherer</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Issues%20while%20reading%20data%20from%20packs&In-Reply-To=591E33C080D2E5449BB1791B70D66B288916E6%40coi11.coi.com"
+       TITLE="[izpack-devel] Issues while reading data from packs">mscherer at gis-systemhaus.de
+       </A><BR>
+    <I>Fri Aug  4 12:35:56 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000366.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+        <LI>Next message: <A HREF="000368.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#367">[ date ]</a>
+              <a href="thread.html#367">[ thread ]</a>
+              <a href="subject.html#367">[ subject ]</a>
+              <a href="author.html#367">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus, thanks for the quick answer.
+Though I have a few points to discuss, see below.
+
+Bartz, Klaus schrieb:
+
+&gt;&gt;<i> While doing this I'm trying to find all filenames by reading them
+</I>&gt;&gt;<i>from the packs like the InstallPanel does ...
+</I>&gt;<i> 
+</I>&gt;<i> ?? The Unpacker reads the pack &quot;files&quot; (entries in the jar file).
+</I>Exactly, thats what I &quot;copied&quot;.
+
+&gt;&gt;<i> Now when doing &quot;PackFile packFile = 
+</I>&gt;&gt;<i> (PackFile)packStream.readObject();&quot; I get
+</I>&gt;&gt;<i> java.io.OptionalDataException
+</I>&gt;&gt;<i>         at java.io.ObjectInputStream.readObject0(Unknown Source)
+</I>&gt;&gt;<i>         at java.io.ObjectInputStream.readObject(Unknown Source)
+</I>&gt;&gt;<i>         at 
+</I>&gt;<i> 
+</I>&gt;<i> The structure of a pack is really specific. There are ints, packs
+</I>&gt;<i> and the data in a well (not documented) order. If you would read the
+</I>&gt;<i> hole pack file you have to skip the &quot;to be installed part&quot;. 
+</I>&gt;<i> That's what you NOT DO. 
+</I>&gt;<i> Seems so, you think that the pack file only
+</I>&gt;<i> contains the information of a pack. No, it contains the hole pack.
+</I>Ok, if you say so. :)
+Though I still wonder why my source breaks.
+
+Unpacker.java:
+for (int i = 0; i &lt; npacks; i++)
+{
+	// We get the pack stream
+	int n = idata.allPacks.indexOf(packs.get(i));
+
+	// Custom action listener stuff --- beforePack ----
+	informListeners(customActions, InstallerListener.BEFORE_PACK, packs.get(i),
+		new Integer(npacks), handler);
+	ObjectInputStream objIn = new ObjectInputStream(getPackAsStream(n));
+
+	// We unpack the files
+	int nfiles = objIn.readInt();  // &lt;&lt;&lt;&lt; FIRST ACCESS to stream
+
+	// We get the internationalized name of the pack
+	final Pack pack = ((Pack) packs.get(i));
+	String stepname = pack.name;// the message to be passed to the
+	// installpanel
+
+	[...] Skips langpack stuff [...]
+
+	for (int j = 0; j &lt; nfiles; j++)
+	{
+		// We read the header
+		PackFile pf = (PackFile) objIn.readObject(); // &lt;&lt;&lt;&lt; SECOND ACCESS to stream
+	[...]
+}
+
+OpenBackupPanel.java
+for(int i = 0; i &lt; packs.size(); i++)
+{
+	// get the pack for later usage
+	final Pack p = (Pack)packs.get(i);
+	System.err.println(&quot;&gt;&gt;&gt; PackName: &quot; + p.name);
+
+	// position of pack in packs
+	int n = idata.allPacks.indexOf(packs.get(i));
+
+	ObjectInputStream packStream =
+		new ObjectInputStream(getPackAsStream(idata, 	
+	// get the number of files in the pack
+	int nfiles = packStream.readInt(); // &lt;&lt;&lt;&lt; FIRST ACCESS, works
+
+	// iterate over file entries
+	for(int j = 0; j &lt; nfiles; j++)
+	{
+		PackFile packFile = (PackFile)packStream.readObject(); &lt;&lt;&lt;&lt; SECOND ACCESS, 
+same as in the Unpacker.java, though borks with an Exception
+	[...]
+}
+
+Now if I'm right the Unpacker doesn't skip anything as well.
+
+You are for sure right about the performance stuff but to be honest, I'd 
+prefer a backup instead of a faster installer.
+
+&gt;<i> If I have to implement something like this, I think I will implement
+</I>&gt;<i> an InstallListener which implements isFileListener and
+</I>&gt;<i> beforeFile.
+</I>&gt;<i> isFileListener returns true,
+</I>&gt;<i> beforeFile makes the backup.
+</I>&gt;<i> See as example 
+</I>&gt;<i> %IZ_HOME%\sample\src\myCompany\tools\install\listener\ChmodInstallerListener.java
+</I>&gt;<i> 
+</I>&gt;<i> You conserve about the real hard job to find the files which are
+</I>&gt;<i> selected for installation. That's with &quot;selected&quot; is not to much simple,
+</I>&gt;<i> the Unpacker needs over 150 lines of code to handle it.
+</I>&gt;<i> beforeFile will be called from the Unpacker before a file will be installed. 
+</I>Correct, I'd save a load of work but lose the ability to display the backup on 
+a separate panel. Though not everyone would need that, I'd prefer it.
+
+
+Right, hope you can give me a hint for the above code.
+
+Greeetings,
+  Michael
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000366.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+	<LI>Next message: <A HREF="000368.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#367">[ date ]</a>
+              <a href="thread.html#367">[ thread ]</a>
+              <a href="subject.html#367">[ subject ]</a>
+              <a href="author.html#367">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

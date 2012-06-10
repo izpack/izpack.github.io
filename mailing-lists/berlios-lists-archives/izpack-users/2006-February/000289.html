@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Clearing text when reload custom panel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Clearing%20text%20when%20reload%20custom%20panel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000290.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Clearing text when reload custom panel</H1>
+    <B>Yossi Baram</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Clearing%20text%20when%20reload%20custom%20panel&In-Reply-To="
+       TITLE="[izpack-users] Clearing text when reload custom panel">yossiba at eldat.com
+       </A><BR>
+    <I>Tue Feb 28 08:52:19 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000290.html">[izpack-users] Re: [izpack-users] Martina Albrecht/Curiavant ist au&#223;er Haus.
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#289">[ date ]</a>
+              <a href="thread.html#289">[ thread ]</a>
+              <a href="subject.html#289">[ subject ]</a>
+              <a href="author.html#289">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi guys,
+I have created a custom panel that do a validity check for memory space.
+I run it right after the TargetPanel.
+ 
+package com.izforge.izpack.panels;
+import com.izforge.izpack.gui.ButtonFactory;
+import com.izforge.izpack.gui.LabelFactory;
+import com.izforge.izpack.installer.InstallData;
+import com.izforge.izpack.installer.InstallerFrame;
+import com.izforge.izpack.installer.IzPanel;
+import com.izforge.izpack.util.VariableSubstitutor;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.*;
+import java.io.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+ 
+// This class check available space for installation on Windows and
+Linux as well
+ 
+public class ValidityCheck extends IzPanel
+{
+ private boolean EnoughFreeSpace = true;
+ /** The center panel. */
+ private JPanel centerPanel;
+    /** The variables substitutor. */
+    private VariableSubstitutor vs;
+    /** The layout. */
+    private BoxLayout layout;
+     
+  public ValidityCheck(InstallerFrame parent, InstallData idata)
+  {
+    super(parent, idata);
+ vs = new VariableSubstitutor(idata.getVariables());
+ 
+ // The 'super' layout
+ GridBagLayout superLayout = new GridBagLayout();
+ setLayout(superLayout);
+ GridBagConstraints gbConstraints = new GridBagConstraints();
+ gbConstraints.insets = new Insets(0, 0, 0, 0);
+ gbConstraints.fill = GridBagConstraints.NONE;
+ gbConstraints.anchor = GridBagConstraints.CENTER;
+ 
+ // We initialize our 'real' layout
+ centerPanel = new JPanel();
+ layout = new BoxLayout(centerPanel, BoxLayout.Y_AXIS);
+ centerPanel.setLayout(layout);
+ superLayout.addLayoutComponent(centerPanel, gbConstraints);
+ add(centerPanel);
+  }
+ 
+  public boolean isValidated()
+  {
+ 
+    return( EnoughFreeSpace );
+  }
+ 
+  public void panelActivate()
+  {
+    super.panelActivate();
+  
+    try{
+     long minCapacity=3000; // 1.5 GB
+ 
+centerPanel.add(LabelFactory.create(parent.langpack.getString(&quot;ValidityC
+heck.head&quot;),
+            null, JLabel.TRAILING));
+      centerPanel.add(Box.createVerticalStrut(20));
+     if(getFreeSpace(idata.getInstallPath().toString())/1000000&lt;
+minCapacity){
+ 
+ 
+centerPanel.add(LabelFactory.create(parent.langpack.getString(&quot;ValidityC
+heck.fail1&quot;),
+            parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING));
+      centerPanel.add(Box.createVerticalStrut(20));
+ 
+centerPanel.add(LabelFactory.create(parent.langpack.getString(&quot;ValidityC
+heck.fail2&quot;),
+            parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING));
+      centerPanel.add(Box.createVerticalStrut(20));
+      EnoughFreeSpace = false;
+  }
+  else{
+ 
+ 
+centerPanel.add(LabelFactory.create(parent.langpack.getString(&quot;ValidityC
+heck.success&quot;),
+            parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING));
+      centerPanel.add(Box.createVerticalStrut(20));
+      EnoughFreeSpace = true;
+  }
+    
+    }
+    catch(Exception ex)
+ {
+  EnoughFreeSpace = false;
+ }
+ 
+  }
+ public long getFreeSpace(String path) throws Exception
+ {
+  if (System.getProperty(&quot;os.name&quot;).startsWith(&quot;Windows&quot;)) {
+  return getFreeSpaceOnWindows(path);
+  }
+  if (System.getProperty(&quot;os.name&quot;).startsWith(&quot;Linux&quot;)) {
+  return getFreeSpaceOnLinux(path);
+  }
+ 
+  throw new UnsupportedOperationException(
+  &quot;The method getFreeSpace(String path) has not been implemented for
+this operating system.&quot;);
+  }
+ 
+ private long getFreeSpaceOnWindows(String path) throws Exception
+ {
+  long bytesFree = -1;
+ 
+  File script = new File(System.getProperty(&quot;java.io.tmpdir&quot;),
+  &quot;script.bat&quot;);
+  PrintWriter writer = new PrintWriter(new FileWriter(script, false));
+  writer.println(&quot;dir \&quot;&quot; + path + &quot;\&quot;&quot;);
+  writer.close();
+ 
+  //  get the output from running the .bat file
+  Process p = Runtime.getRuntime().exec(script.getAbsolutePath());
+  InputStream reader = new BufferedInputStream(p.getInputStream());
+  StringBuffer buffer = new StringBuffer();
+  for (; ; ) {
+   int c = reader.read();
+   if (c == -1)
+   break;
+   buffer.append( (char) c);
+  }
+  String outputText = buffer.toString();
+  reader.close();
+ 
+  //  parse the output text for the bytes free info
+  StringTokenizer tokenizer = new StringTokenizer(outputText, &quot;\n&quot;);
+  while (tokenizer.hasMoreTokens()) {
+   String line = tokenizer.nextToken().trim();
+   //  see if line contains the bytes free information
+   if (line.endsWith(&quot;bytes free&quot;)) {
+   tokenizer = new StringTokenizer(line, &quot; &quot;);
+   tokenizer.nextToken();
+   tokenizer.nextToken();
+   bytesFree = Long.parseLong(tokenizer.nextToken().replaceAll(
+   &quot;,&quot;, &quot;&quot;));
+  }
+ }
+ return bytesFree;
+ }
+ 
+ private long getFreeSpaceOnLinux(String path) throws Exception
+ {
+  long bytesFree = -1;
+ 
+  Process p = Runtime.getRuntime().exec(&quot;df &quot; + &quot;/&quot; + path);
+  p.waitFor();
+  InputStream reader = new BufferedInputStream(p.getInputStream());
+  StringBuffer buffer = new StringBuffer();
+  for (; ; ) {
+   int c = reader.read();
+   if (c == -1)
+   break;
+   buffer.append( (char) c);
+  }
+  String outputText = buffer.toString();
+  reader.close();
+ 
+  //  parse the output text for the bytes free info
+  StringTokenizer tokenizer = new StringTokenizer(outputText, &quot;\n&quot;);
+  tokenizer.nextToken();
+  if(tokenizer.hasMoreTokens())
+  {
+   String line2 = tokenizer.nextToken();
+   StringTokenizer tokenizer2 = new StringTokenizer(line2, &quot; &quot;);
+   if(tokenizer2.countTokens()&gt;=4)
+   {
+    tokenizer2.nextToken();
+    tokenizer2.nextToken();
+    tokenizer2.nextToken();
+    bytesFree = Long.parseLong(tokenizer2.nextToken());
+    return bytesFree;
+   }
+ 
+  return bytesFree;
+  }
+  throw new Exception(&quot;Can not read the free space of &quot; + path + &quot;
+path&quot;);
+ }
+ 
+}
+ 
+ 
+It works great.
+My problem here is, if the user get a message that he doesnt have enogh
+space for installation he should return and set a different target
+folder.
+When the ValidityCheck panel reload the previous string remains and a
+new one is added.
+How can I make sure each time you go inside the panel, it has no past
+strings that will be added to the new one?
+Thanks
+Yossi
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060228/436fa8ed/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060228/436fa8ed/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000290.html">[izpack-users] Re: [izpack-users] Martina Albrecht/Curiavant ist au&#223;er Haus.
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#289">[ date ]</a>
+              <a href="thread.html#289">[ thread ]</a>
+              <a href="subject.html#289">[ subject ]</a>
+              <a href="author.html#289">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

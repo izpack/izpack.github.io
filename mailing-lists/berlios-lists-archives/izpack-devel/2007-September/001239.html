@@ -1,0 +1,196 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] How can i Implement Add/Remove Program entry in	IzPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20How%20can%20i%20Implement%20Add/Remove%20Program%20entry%20in%0A%09IzPack&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001238.html">
+   <LINK REL="Next"  HREF="001241.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] How can i Implement Add/Remove Program entry in	IzPack</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20How%20can%20i%20Implement%20Add/Remove%20Program%20entry%20in%0A%09IzPack&In-Reply-To="
+       TITLE="[izpack-devel] How can i Implement Add/Remove Program entry in	IzPack">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue Sep 25 12:37:54 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001238.html">[izpack-devel] How can i incress font size in panels
+</A></li>
+        <LI>Next message: <A HREF="001241.html">[izpack-devel] How can i Implement Add/Remove Program entry in IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1239">[ date ]</a>
+              <a href="thread.html#1239">[ thread ]</a>
+              <a href="subject.html#1239">[ subject ]</a>
+              <a href="author.html#1239">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Jujay,
+that's the right way to add basics for Windows software managment.
+Additional you need the native part of the registry stuff; write in your
+install.xml
+
+...
+    &lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+        &lt;os family=&quot;windows&quot;/&gt;
+    &lt;/native&gt;
+...
+
+If you need more (e.g. present your support email address or your
+webpage) see
+%IZHOME%\src\dist-files\RegistrySpec.xml
+It is the regfile of the IzPack installation self.
+In the first &quot;section&quot; named &quot;UninstallStuff&quot; there are some entries
+for additional data using also special IzPack variables. Read the
+comment
+there.
+
+I hope it helps
+
+Klaus
+
+PS: Do not wonder if your editor is a little bit confused about some 
+Kyrillic letters. You must not write it, in this file it is a play
+to demonstrate the full UTF-8 support.
+
+&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of Sujay Kher
+</I>&gt;<i> Sent: Tuesday, September 25, 2007 12:15 PM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Subject: Re: [izpack-devel] How can i Implement Add/Remove 
+</I>&gt;<i> Program entry in IzPack
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Hi Klaus,
+</I>&gt;<i> 
+</I>&gt;<i> It's Sujay ,
+</I>&gt;<i> 
+</I>&gt;<i> Thank you for your response. ya your understanding is correct. 
+</I>&gt;<i> 
+</I>&gt;<i> now i am able to add entry in Add/Remove program dialouge box 
+</I>&gt;<i> in control panel, after adding following code into install.xml
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;!-- The listeners section for CustomActions --&gt;
+</I>&gt;<i>     &lt;listeners&gt;
+</I>&gt;<i>         &lt;listener installer=&quot;RegistryInstallerListener&quot;
+</I>&gt;<i>                   uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
+</I>&gt;<i>             &lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;<i>         &lt;/listener&gt;
+</I>&gt;<i>     &lt;/listeners&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Once again thank you for your response.
+</I>&gt;<i> 
+</I>&gt;<i> Best Regards,
+</I>&gt;<i> 
+</I>&gt;<i> Sujay Kher
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Bartz, Klaus wrote:
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Hi Sujar,
+</I>&gt;<i> &gt; Do you mean into the &quot;software management window&quot; from the OS where 
+</I>&gt;<i> &gt; you normaly starts the uninstaller of an installed program 
+</I>&gt;<i> (or change 
+</I>&gt;<i> &gt; installation if supported)? If you have installed IzPack on your 
+</I>&gt;<i> &gt; Windowsbox, is the entry &quot;IzPack 3.10.2&quot; that what you wont?
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Cheers
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Klaus
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;&gt; -----Original Message-----
+</I>&gt;<i> &gt;&gt; From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt; [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf 
+</I>&gt;<i> Of Sujay Kher
+</I>&gt;<i> &gt;&gt; Sent: Tuesday, September 25, 2007 8:07 AM
+</I>&gt;<i> &gt;&gt; To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt; Subject: Re: [izpack-devel] How can i Implement Add/Remove 
+</I>&gt;<i> &gt;&gt; Program entry in IzPack
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt;  Just littel more clear with my post,
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt; I want to add entry of my install program in Add/Remove
+</I>&gt;<i> &gt;&gt; program dialoge box in control panel in window using IzPack. 
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt; - Sujay Kher
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt; Sujay Kher wrote:
+</I>&gt;<i> &gt;&gt; &gt; 
+</I>&gt;<i> &gt;&gt; &gt; Hi All,
+</I>&gt;<i> &gt;&gt; &gt; 
+</I>&gt;<i> &gt;&gt; &gt; I want to add entry of my install program in add/remove
+</I>&gt;<i> &gt;&gt; program list
+</I>&gt;<i> &gt;&gt; &gt; in window using IzPack.
+</I>&gt;<i> &gt;&gt; &gt; 
+</I>&gt;<i> &gt;&gt; &gt; can any one help me to out of this problem.
+</I>&gt;<i> &gt;&gt; &gt; 
+</I>&gt;<i> &gt;&gt; &gt; 
+</I>&gt;<i> &gt;&gt; &gt; Best Regards,
+</I>&gt;<i> &gt;&gt; &gt; 
+</I>&gt;<i> &gt;&gt; &gt; Sujay Kher
+</I>&gt;<i> &gt;&gt; &gt; 
+</I>&gt;<i> &gt;&gt; 
+</I>&gt;<i> &gt;&gt; --
+</I>&gt;<i> &gt;&gt; View this message in context: 
+</I>&gt;<i> &gt;&gt; <A HREF="http://www.nabble.com/How-can-i-Implement-Add-Remove-Program-e">http://www.nabble.com/How-can-i-Implement-Add-Remove-Program-e</A>
+</I>&gt;<i> &gt; ntry-in-IzPack-tf4487363.html#a12796674
+</I>&gt;<i> &gt; Sent from the izpack devel mailing list archive at Nabble.com.
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-devel mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A> 
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-devel mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A> 
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; 
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i> View this message in context: 
+</I>&gt;<i> <A HREF="http://www.nabble.com/How-can-i-Implement-Add-Remove-Program-e">http://www.nabble.com/How-can-i-Implement-Add-Remove-Program-e</A>
+</I>ntry-in-IzPack-tf4487363.html#a12876681
+Sent from the izpack devel mailing list archive at Nabble.com.
+
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001238.html">[izpack-devel] How can i incress font size in panels
+</A></li>
+	<LI>Next message: <A HREF="001241.html">[izpack-devel] How can i Implement Add/Remove Program entry in IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1239">[ date ]</a>
+              <a href="thread.html#1239">[ thread ]</a>
+              <a href="subject.html#1239">[ subject ]</a>
+              <a href="author.html#1239">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

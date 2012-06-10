@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] New logging stuff
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20New%20logging%20stuff&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139AC63%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000772.html">
+   <LINK REL="Next"  HREF="000770.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] New logging stuff</H1>
+    <B>Elmar Grom</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20New%20logging%20stuff&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139AC63%40coi11.coi.com"
+       TITLE="[izpack-devel] New logging stuff">elmar at grom.net
+       </A><BR>
+    <I>Wed Jan 10 18:57:14 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000772.html">[izpack-devel] New logging stuff
+</A></li>
+        <LI>Next message: <A HREF="000770.html">[izpack-devel] Updating to latest version of NanoXML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#776">[ date ]</a>
+              <a href="thread.html#776">[ thread ]</a>
+              <a href="subject.html#776">[ subject ]</a>
+              <a href="author.html#776">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+
+I was struggling a bit to find a way for turning on specific debug channels.
+I like Klaus' suggestion to use the -D command line switch of the VM to do
+this.
+
+This approach allows us avoiding special code for command line parsing. I
+think that is good, because we don't want to operate IzPack with command
+line switches for regular use. At the same time it gives us a simple way of
+feeding this information to the logger.
+
+
+Since we are on the topic, I think it is a good idea to explain how writing
+debug messages in the new implementation works. Most developers are probably
+not familiar with the concepts employed, since this was a suggestion from
+Klaus, that he told me about in an off-line conversation.
+
+To write a debug message, you simply call Log.addDebugMessage(). This method
+then writes your message straight to stdout. The call parameters include an
+optional Exception, the message template (a String) and an optional array of
+detail information, that will be inserted into the template. Debug messages
+are not localized.
+
+In addition to these parameters, there is one more string that is used as
+identifier for a debug channel.
+
+The idea of debug channels is based on the following:
+
+1) Often one wants to insert debug output (System.out.println()). This is
+not always just for the moment, but might also be of interest in the future.
+The tendency is then to just comment such statements out when done
+debugging. We want to avoid this for a variety of reasons.
+
+2) Given that debug messages are wide spread in the application and are
+never commented out, we have to expect a veritable flood of debug messages,
+which makes it very hard to find the specific messages you are looking for.
+
+3) Debug messages would be produced all the time, even for the end user,
+which is not desirable.
+
+For these reasons debug needs to be specifically turned on to produce
+output. By listing the names of desired channels, the Log class can filter
+the incoming debug messages and only output the requested ones.
+
+	Elmar
+
+P.S. Klaus, I'll implement the switch as suggested and send you the updated
+code. Should we decide on a different course, I can easily change it.
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Bartz, Klaus
+Sent: Wednesday, January 10, 2007 2:49 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: [izpack-devel] New logging stuff
+
+
+Hi all,
+Elmar has written a new logging stuff which supports
+different languages, presents a message to the end user
+and so on. Elmar has send the first version of the sources
+last December.
+There are different slots for errors, warnings and messages.
+The message box calling wether the contents should be
+written into a file or not will be presented at end of installation.
+Now there is additional a debug message slot using different
+channels.
+In opposite to other slots I think the debug messages
+should be written to stdout or stderr at the time they
+will be created. If I debug, I will see messages from step
+to step. One question is additional log them later with
+the hole stuff or not.
+An other question is how to manage the debugging channels.
+I think we can use two ways. As first an xml file in the
+installer which can configure it. Experts can then simple
+use a spical file at the tests or edit it in the jar file.
+As second a commandline option like
+-DTRACE=DebugSymbol1,DebugSymbol2,DebugSymbol3
+and so on. I remember that I have voted not to use
+commandline options to configure the installation. Yes,
+that's my meaning, but debugging is not a normal usage
+of the installation and I have no lust to explain more
+than four times how to edit an xml file in a jar file...
+
+I think it will be good to use it.if exist I will change
+the loggings of the classes I have written to this new
+stuff.
+But we have also an existent logging system with
+com.izforge.izpack.util.Debug
+Marc has added and changed something in it last time.
+Good for debugging, only channels missing.
+My question is, whether we should change all debugging
+output to the new one or not. Else we have two classes
+for the same thing.
+
+Please comments
+
+Cheers
+
+Klaus
+
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000772.html">[izpack-devel] New logging stuff
+</A></li>
+	<LI>Next message: <A HREF="000770.html">[izpack-devel] Updating to latest version of NanoXML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#776">[ date ]</a>
+              <a href="thread.html#776">[ thread ]</a>
+              <a href="subject.html#776">[ subject ]</a>
+              <a href="author.html#776">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

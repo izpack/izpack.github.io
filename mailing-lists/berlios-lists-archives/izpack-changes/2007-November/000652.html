@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1906 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1906%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000651.html">
+   <LINK REL="Next"  HREF="000653.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1906 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1906%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1906 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Fri Nov 16 14:42:30 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000651.html">[izpack-changes] r1905 - in izpack-src/trunk/src: dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000653.html">[izpack-changes] r1907 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#652">[ date ]</a>
+              <a href="thread.html#652">[ thread ]</a>
+              <a href="subject.html#652">[ subject ]</a>
+              <a href="author.html#652">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-16 14:42:26 +0100 (Fri, 16 Nov 2007)
+New Revision: 1906
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+Log:
+added condition support in installation.xml
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-11-16 12:58:42 UTC (rev 1905)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-11-16 13:42:26 UTC (rev 1906)
+@@ -420,16 +420,11 @@
+                 // We get the internationalized name of the pack
+                 final Pack pack = ((Pack) packs.get(i));
+                 // evaluate condition
+-                if (pack.hasCondition()) {
+-                    if (rules != null) {
+-                        if (!rules.isConditionTrue(pack.getCondition())) {
+-                            // skip pack, condition is not fullfilled.
+-                            continue;
+-                        }
+-                    }
+-                    else {
+-                        // TODO: skip pack, because condition can not be checked 
+-                    }
++                if (pack.hasCondition() &amp;&amp; (rules != null)) {                    
++                    if (!rules.isConditionTrue(pack.getCondition())) {
++                        // skip pack, condition is not fullfilled.
++                        continue;
++                    }                    
+                 }
+                 String stepname = pack.name;// the message to be passed to the
+                 // installpanel
+@@ -447,7 +442,12 @@
+                 {
+                     // We read the header
+                     XPackFile pf = (XPackFile) objIn.readObject();
+-
++                    if (pf.hasCondition() &amp;&amp; (rules != null)) {
++                        if (!rules.isConditionTrue(pf.getCondition())) {
++                            // skip file, condition is false
++                            continue;
++                        }
++                    }
+                     if (OsConstraint.oneMatchesCurrentSystem(pf.osConstraints()))
+                     {
+                         // We translate &amp; build the path
+@@ -676,6 +676,12 @@
+                             fin.setVolumename(nextmedia.getAbsolutePath());
+                         }
+                     }
++                    if (pf.hasCondition() &amp;&amp; (rules != null)) {
++                        if (!rules.isConditionTrue(pf.getCondition())) {
++                            // skip parsable, condition is false
++                            continue;
++                        }
++                    }
+                     pf.path = IoHelper.translatePath(pf.path, vs);
+                     Debug.trace(&quot;Found parsable: &quot; + pf.path);
+                     parsables.add(pf);
+@@ -687,7 +693,12 @@
+                 for (int k = 0; k &lt; numExecutables; k++)
+                 {
+                     ExecutableFile ef = (ExecutableFile) objIn.readObject();
+-
++                    if (ef.hasCondition() &amp;&amp; (rules != null)) {
++                        if (!rules.isConditionTrue(ef.getCondition())) {
++                            // skip, condition is false
++                            continue;
++                        }
++                    }
+                     ef.path = IoHelper.translatePath(ef.path, vs);
+                     if (null != ef.argList &amp;&amp; !ef.argList.isEmpty())
+                     {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-11-16 12:58:42 UTC (rev 1905)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-11-16 13:42:26 UTC (rev 1906)
+@@ -351,7 +351,13 @@
+                 {
+                     // We read the header
+                     PackFile pf = (PackFile) objIn.readObject();
+-
++                    // TODO: reaction if condition can not be checked
++                    if (pf.hasCondition() &amp;&amp; (rules != null)) {
++                        if (!rules.isConditionTrue(pf.getCondition())) {
++                            // skip, condition is not fulfilled
++                            continue;
++                        }
++                    }
+                     if (OsConstraint.oneMatchesCurrentSystem(pf.osConstraints()))
+                     {
+                         // We translate &amp; build the path
+@@ -552,6 +558,12 @@
+                 for (int k = 0; k &lt; numParsables; k++)
+                 {
+                     ParsableFile pf = (ParsableFile) objIn.readObject();
++                    if (pf.hasCondition() &amp;&amp; (rules != null)) {
++                        if (!rules.isConditionTrue(pf.getCondition())) {
++                            // skip, condition is not fulfilled
++                            continue;
++                        }
++                    }
+                     pf.path = IoHelper.translatePath(pf.path, vs);
+                     parsables.add(pf);
+                 }
+@@ -561,6 +573,12 @@
+                 for (int k = 0; k &lt; numExecutables; k++)
+                 {
+                     ExecutableFile ef = (ExecutableFile) objIn.readObject();
++                    if (ef.hasCondition() &amp;&amp; (rules != null)) {
++                        if (!rules.isConditionTrue(ef.getCondition())) {
++                            // skip, condition is false
++                            continue;
++                        }
++                    }
+                     ef.path = IoHelper.translatePath(ef.path, vs);
+                     if (null != ef.argList &amp;&amp; !ef.argList.isEmpty())
+                     {
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000651.html">[izpack-changes] r1905 - in izpack-src/trunk/src: dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000653.html">[izpack-changes] r1907 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#652">[ date ]</a>
+              <a href="thread.html#652">[ thread ]</a>
+              <a href="subject.html#652">[ subject ]</a>
+              <a href="author.html#652">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Generating Applications uninstalls
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Generating%20Applications%20uninstalls&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001017.html">
+   <LINK REL="Next"  HREF="001019.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Generating Applications uninstalls</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Generating%20Applications%20uninstalls&In-Reply-To="
+       TITLE="[izpack-users] Generating Applications uninstalls">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Mon Oct 23 10:19:59 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001017.html">[izpack-users] Program Install Folders Removal
+</A></li>
+        <LI>Next message: <A HREF="001019.html">[izpack-users] Alignment/Size problem with TargetPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1018">[ date ]</a>
+              <a href="thread.html#1018">[ thread ]</a>
+              <a href="subject.html#1018">[ subject ]</a>
+              <a href="author.html#1018">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Jurii,
+see context related.
+
+Cheers Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of J-Pro
+</I>&gt;<i>Sent: Friday, October 20, 2006 8:34 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-users] Generating Applications uninstalls
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi, Klaus.
+</I>&gt;<i>
+</I>&gt;<i>Thanks for the answer.
+</I>&gt;<i>
+</I>&gt;<i>First, I should say that english is not my native language 
+</I>
+My too not.
+
+
+&gt;<i>so some things 
+</I>&gt;<i>are hard to understand. Can I ask you some questions please?
+</I>&gt;<i>
+</I>&gt;<i>I've found two &quot;uninstall&quot; occurrences in IzPack doc.
+</I>&gt;<i>
+</I>&gt;<i>1. Ant Actions (InstallerListener and UninstallerListener)
+</I>&gt;<i>2. Custom Actions at Uninstallation Time (UninstallerListener)
+</I>&gt;<i>
+</I>&gt;<i>1. As I've understood - it's only for developers who uses Ant and for 
+</I>&gt;<i>developers who want to customize their application uninstall 
+</I>&gt;<i>by changing 
+</I>&gt;<i>IzPack source code, right?
+</I>&gt;<i>
+</I>
+A custom action is an action which will by added by a user to the
+default behavior of IzPack. You should not change the standard
+IzPack code self, else you write some java code which follows the
+given rules. Custom actions are implemented as listener. Therefore
+the name is (for uninstallation) &lt;CustomName&gt;UninstallerListener. 
+
+AntActionUninstallerListener is one implementation of an 
+UninstallerListener. I have done it to give a little bit complicated
+example for users. Secondary it is full functional. 
+An other full functional example is RegistryUninstallerListener.
+
+&gt;<i>But I use Intellij IDEA 6.0 to compile IzPack sources. I don't 
+</I>&gt;<i>use Ant. Can 
+</I>&gt;<i>this part(Ant Actions (InstallerListener and 
+</I>&gt;<i>UninstallerListener)) still 
+</I>&gt;<i>help me to add custom acts while uninstalling like remove 
+</I>&gt;<i>custom files, 
+</I>&gt;<i>other than installed packs?
+</I>&gt;<i>
+</I>
+You can use the ant stuff for your problem. But may be to use
+ant for some delete jobs in the uninstaller will be a little bit
+over sized. On the other hand, if you are firm with ant it can
+be the fastest implementation (only configuration files are neede).
+Be aware, that a AntActionInstallerListener will be needed also 
+no action should be done at installation. It creates the
+informations for the uninstaller and put it into the uninstaller.jar.
+
+&gt;<i>
+</I>&gt;<i>2. As I've understood - I should  extend 
+</I>&gt;<i>com.izforge.izpack.event.SimpleUninstallerListener in a newly 
+</I>&gt;<i>created class 
+</I>&gt;<i>[IzPackRoot]/src/lib/[MyPackagePath]/MyUninstallerListener.java
+</I>
+Have not to be (path and source can be elsewhere) but the simplest
+is to use package
+com.izforge.izpack.event.&lt;MyClassPraefix&gt;UninstallerListener
+others are for java (and IzPack) experts.
+
+&gt;<i>. Then I 
+</I>&gt;<i>should add some custom actions in the code, right? So this is 
+</I>&gt;<i>the only one 
+</I>&gt;<i>way to make custom actions while uninstalling(like remove 
+</I>&gt;<i>custom files, other than installed packs)?
+</I>&gt;<i>
+</I>&gt;<i>So, as I've understood - there is no way to make custom actions while 
+</I>&gt;<i>uninstalling(like remove custom files, other than installed 
+</I>&gt;<i>packs) but the 
+</I>&gt;<i>way of RE-compiling IzPack source, right? I mean I can't just 
+</I>&gt;<i>write some 
+</I>&gt;<i>uninstall.xml file and write there some file executions like 
+</I>&gt;<i>in install.xml 
+</I>&gt;<i>or ProcessPanel.Spec.xml?
+</I>&gt;<i>
+</I>
+
+An UninstallerListener is one way todo it. But it is not the only one.
+An alternative is to write a batch or shell script and add it as
+&lt;executable&gt; with stage=&quot;uninstall&quot;.
+If you need the installation (or other system dependant) path in it,
+you can use IzPack variables and use the &lt;parseable&gt; tag to revise.
+May be this will be easier for you.
+If needed, I have made an example last week to verify problems 
+Hans-Georg have had.
+
+
+
+&gt;<i>Please unswer these questions, it's very important to me... I 
+</I>&gt;<i>really try to 
+</I>&gt;<i>understand it by myself, using the doc, but not all things are 
+</I>&gt;<i>so easy for 
+</I>&gt;<i>me.
+</I>&gt;<i>
+</I>&gt;<i>Thank you very much in advance!
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> ----- Original Message ----- 
+</I>&gt;<i>
+</I>&gt;&gt;<i> From: &quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt;
+</I>&gt;&gt;<i> Subject: Re: [izpack-users] Generating Applications uninstalls
+</I>&gt;&gt;<i> To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+</I>&gt;&gt;<i> Message-ID: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">591E33C080D2E5449BB1791B70D66B2889174B at coi11.coi.com</A>&gt;
+</I>&gt;&gt;<i> Content-Type: text/plain; charset=&quot;iso-8859-1&quot;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Hi Yurii,
+</I>&gt;&gt;<i> the &quot;normal&quot; uninstaller will be created automatically as
+</I>&gt;&gt;<i> %INSTALL_DIR%\Uninstaller\Uninstaller.jar.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> There are more than one entries for uninstaller in the docu.
+</I>&gt;&gt;<i> If you would search for it, you can grep or search for it.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> If you would register the uninstallation on windows see also
+</I>&gt;&gt;<i> the docu and the entries in
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> \src\dist-files\IzPack-install.xml
+</I>&gt;&gt;<i> \src\dist-files\RegistrySpec.xml
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Hope it helps
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>________________________________
+</I>&gt;<i>With respect,
+</I>&gt;<i>
+</I>&gt;<i>Yurii Kartsev,
+</I>&gt;<i>Soft IT 
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001017.html">[izpack-users] Program Install Folders Removal
+</A></li>
+	<LI>Next message: <A HREF="001019.html">[izpack-users] Alignment/Size problem with TargetPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1018">[ date ]</a>
+              <a href="thread.html#1018">[ thread ]</a>
+              <a href="subject.html#1018">[ subject ]</a>
+              <a href="author.html#1018">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

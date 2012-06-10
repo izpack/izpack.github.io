@@ -1,0 +1,178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Adding XInclude support
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Adding%20XInclude%20support&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001311.html">
+   <LINK REL="Next"  HREF="001316.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Adding XInclude support</H1>
+    <B>Matthew Fudge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Adding%20XInclude%20support&In-Reply-To="
+       TITLE="[izpack-devel] Adding XInclude support">matfud at yahoo.com
+       </A><BR>
+    <I>Wed Dec 12 09:50:14 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001311.html">[izpack-devel] Adding XInclude support
+</A></li>
+        <LI>Next message: <A HREF="001316.html">[izpack-devel] Adding XInclude support
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1315">[ date ]</a>
+              <a href="thread.html#1315">[ thread ]</a>
+              <a href="subject.html#1315">[ subject ]</a>
+              <a href="author.html#1315">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Dennis,
+
+I wasn't aware of the ref-pack feature. It appears to do part of what I need however I also need to be able to include panels/fields into the userInputSpec.xml (does IzPack use nanoXML to parse this (I haven't checked yet)) and to perform other insertions into the install.xml.
+
+Basically the software consists of a number of products that, ideally, should each know how to install themselves. However I need to be able to build  &quot;meta&quot; installers that can grab information (packs, User input, licenses etc) from these individual products and assemble them into a single multi-product installer where each product ends up as one or more packs in the final installer.
+
+I'm not sure if XInclude is the best way to do this but at the moment it seems to meet many of my requirements.
+
+Cheers
+
+Matt
+
+----- Original Message ----
+From: Dennis Reil &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Dennis.Reil at reddot.de</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Sent: Wednesday, 12 December, 2007 7:04:54 AM
+Subject: Re: [izpack-devel] Adding XInclude support
+
+I'm not really sure, but we already have this refpack-feature, which
+ gives us the possibility to reference packs which are described in
+ separate xml files.
+What would be the great benefit of a XInclude implementation?
+
+Regards, 
+
+   Dennis
+
+-----Urspr&#252;ngliche Nachricht-----
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+ [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] Im Auftrag von Matthew Fudge
+Gesendet: Mittwoch, 12. Dezember 2007 00:33
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Betreff: Re: [izpack-devel] Adding XInclude support
+
+Hmm that wasn't particularly clear,
+
+I'm not asking anyone to add the support for me, I've been given time
+ at work to do that. The company I work for (www.volantis.com) is in the
+ process of making a large chunk of their code open source. As part of
+ this we are changing the installer we use from InstallAnywhere to IzPack
+ (generating the installer is part of the build process of the code
+ being opened).
+
+I've pretty much finished an implementation of XInclude but would like
+ someone from the IzPack developers community to answer the questions I
+ posted previously so the addition will cause the least offence.
+
+cheers
+
+Matt
+
+
+
+----- Original Message ----
+From: Matthew Fudge &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">matfud at yahoo.com</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Sent: Tuesday, 11 December, 2007 11:47:59 AM
+Subject: Adding XInclude support
+
+Hi all,
+
+I'm looking at adding support for a subset of the XInclude
+ specification (<A HREF="http://www.w3.org/TR/xinclude/">http://www.w3.org/TR/xinclude/</A>) to IzPack. 
+
+To make a few projects of mine a bit more modular and maintainable I
+ think it would be useful to allow parts of the 
+xml files used by IzPack to be included from other files (and yes I've
+ tried using external entities but they are a bit limited
+for my needs)
+
+The current code is based on a copy of the StdXMLBuilder class that has
+ been modified to allow extending classes access to its internal state.
+
+Note that this will not be a full implementation of the XInclude spec
+ (I don't have time right now to handle the XPointer stuff properly)
+
+So some questions: 
+
+a) Is a change like this likely to be accepted?
+b) namespace support seems really limited in nanoxml when used in
+ IzPack. I'm not seeing any. Am I missing something?
+c) Is it preferable to make changes to the nanoxml packages or the
+ izPack packages. I'm asking because it makes little difference to the
+code and many people prefer to keep third party source as original as
+ possible.
+
+
+Cheers
+
+Matt
+
+
+
+
+      ___________________________________________________________
+Yahoo! Answers - Got a question? Someone out there knows the answer.
+ Try it
+now.
+<A HREF="http://uk.answers.yahoo.com/">http://uk.answers.yahoo.com/</A>
+
+
+
+
+
+      ___________________________________________________________
+Support the World Aids Awareness campaign this month with Yahoo! For
+ Good <A HREF="http://uk.promotions.yahoo.com/forgood/">http://uk.promotions.yahoo.com/forgood/</A>
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+
+
+
+      __________________________________________________________
+Sent from Yahoo! Mail - a smarter inbox <A HREF="http://uk.mail.yahoo.com">http://uk.mail.yahoo.com</A>
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001311.html">[izpack-devel] Adding XInclude support
+</A></li>
+	<LI>Next message: <A HREF="001316.html">[izpack-devel] Adding XInclude support
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1315">[ date ]</a>
+              <a href="thread.html#1315">[ thread ]</a>
+              <a href="subject.html#1315">[ subject ]</a>
+              <a href="author.html#1315">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

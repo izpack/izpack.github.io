@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1585 - izpack-src/branches/branch-3.9/src
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1585%20-%20izpack-src/branches/branch-3.9/src&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000329.html">
+   <LINK REL="Next"  HREF="000331.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1585 - izpack-src/branches/branch-3.9/src</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1585%20-%20izpack-src/branches/branch-3.9/src&In-Reply-To="
+       TITLE="[izpack-changes] r1585 - izpack-src/branches/branch-3.9/src">noreply at berlios.de
+       </A><BR>
+    <I>Sun Sep 10 10:47:42 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000329.html">[izpack-changes] r1584 - izpack-src/branches/branch-3.9/src
+</A></li>
+        <LI>Next message: <A HREF="000331.html">[izpack-changes] r1586 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#330">[ date ]</a>
+              <a href="thread.html#330">[ thread ]</a>
+              <a href="subject.html#330">[ subject ]</a>
+              <a href="author.html#330">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-10 10:47:41 +0200 (Sun, 10 Sep 2006)
+New Revision: 1585
+
+Modified:
+   izpack-src/branches/branch-3.9/src/build.xml
+Log:
+changed the release placeholder from 'preview' to 'M1' and made also small generalizations for the uninstaller-build.
+
+Modified: izpack-src/branches/branch-3.9/src/build.xml
+===================================================================
+--- izpack-src/branches/branch-3.9/src/build.xml	2006-09-08 13:37:14 UTC (rev 1584)
++++ izpack-src/branches/branch-3.9/src/build.xml	2006-09-10 08:47:41 UTC (rev 1585)
+@@ -190,7 +190,7 @@
+ 
+     &lt;property file=&quot;src/ant.properties&quot; /&gt;
+     &lt;property name=&quot;ver&quot; value=&quot;3.9&quot; /&gt;
+-    &lt;property name=&quot;rel&quot; value=&quot;0-preview1&quot; /&gt;
++    &lt;property name=&quot;rel&quot; value=&quot;0-M1&quot; /&gt;
+     &lt;property name=&quot;build.number&quot; value=&quot;${ver}.${rel}&quot; /&gt;
+ 
+     &lt;property name=&quot;src.dir&quot; value=&quot;${basedir}/src/lib&quot; /&gt;
+@@ -427,13 +427,15 @@
+                 &lt;include name=&quot;com/izforge/izpack/gui/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/uninstaller/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/ExecutableFile.class&quot; /&gt;                
+-                &lt;include name=&quot;com/izforge/izpack/util/*.class&quot;/&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/os/*.class&quot;/&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/os/unix/*.class&quot;/&gt;
+                 &lt;exclude name=&quot;com/izforge/izpack/gui/IzPackKMetalTheme.class&quot; /&gt;
+                 &lt;include name=&quot;net/n3/nanoxml/*.class&quot; /&gt;
+             &lt;/fileset&gt;
+-            &lt;fileset dir=&quot;${img.dir}/uninstaller&quot; /&gt;
++            &lt;fileset dir=&quot;${build.dir}/com/izforge/izpack/util&quot;&gt;
++               &lt;include name=&quot;**/*.class&quot;/&gt;
++            &lt;/fileset&gt;
++            &lt;fileset dir=&quot;${img.dir}/uninstaller&quot;&gt;
++              &lt;include name=&quot;**/*&quot;/&gt;
++            &lt;/fileset&gt;
+         &lt;/jar&gt;
+     &lt;/target&gt;
+ 
+@@ -447,7 +449,11 @@
+                deprecation=&quot;on&quot;
+                debug=&quot;${debug}&quot;
+                debuglevel=&quot;${debuglevel}&quot;&gt;
+-            &lt;include name=&quot;com/izforge/izpack/util/os/*.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/util/*.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/util/os/*.java&quot;/&gt;
++            &lt;include name=&quot;com/izforge/izpack/util/os/unix/*.java&quot;/&gt;
++            &lt;include name=&quot;com/izforge/izpack/util/xml/*.java&quot;/&gt;
++          
+             &lt;exclude name=&quot;com/izforge/izpack/gui/IzPackKMetalTheme.java&quot; /&gt;
+             &lt;include name=&quot;net/n3/nanoxml/*.java&quot; /&gt;
+         &lt;/javac&gt;
+@@ -457,13 +463,7 @@
+     &lt;target name=&quot;build.uninstaller-ext&quot; depends=&quot;compile.uninstaller-ext&quot;&gt;
+         &lt;jar jarfile=&quot;${uninstaller-ext.jar}&quot;&gt;
+             &lt;fileset dir=&quot;${build.dir}&quot;&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/Librarian.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/Housekeeper.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/TargetFactory.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/FreeThread.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/CleanupClient.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/NativeLibraryClient.class&quot; /&gt;
+-                &lt;!-- Add helper etc. you need for uninstallation --&gt;
++                &lt;include name=&quot;com/izforge/izpack/util/**/*.class&quot; /&gt;
+             &lt;/fileset&gt;
+         &lt;/jar&gt;
+     &lt;/target&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000329.html">[izpack-changes] r1584 - izpack-src/branches/branch-3.9/src
+</A></li>
+	<LI>Next message: <A HREF="000331.html">[izpack-changes] r1586 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#330">[ date ]</a>
+              <a href="thread.html#330">[ thread ]</a>
+              <a href="subject.html#330">[ subject ]</a>
+              <a href="author.html#330">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

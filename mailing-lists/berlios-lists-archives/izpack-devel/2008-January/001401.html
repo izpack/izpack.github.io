@@ -1,0 +1,736 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Text-field validator + variable substitutor for staticText filed
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Text-field%20validator%20%2B%20variable%20substitutor%20for%0A%20staticText%20filed&In-Reply-To=478C9E68.5040205%40skowro.net">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001400.html">
+   <LINK REL="Next"  HREF="001402.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Text-field validator + variable substitutor for staticText filed</H1>
+    <B>Piotr Skowronek</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Text-field%20validator%20%2B%20variable%20substitutor%20for%0A%20staticText%20filed&In-Reply-To=478C9E68.5040205%40skowro.net"
+       TITLE="[izpack-devel] Text-field validator + variable substitutor for staticText filed">piotr at skowro.net
+       </A><BR>
+    <I>Tue Jan 15 14:33:51 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001400.html">[izpack-devel] Text-field validator + variable substitutor for	staticText filed
+</A></li>
+        <LI>Next message: <A HREF="001402.html">[izpack-devel] Text-field validator + variable substitutor for	staticText filed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1401">[ date ]</a>
+              <a href="thread.html#1401">[ thread ]</a>
+              <a href="subject.html#1401">[ subject ]</a>
+              <a href="author.html#1401">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Updated diff in the attachment.
+
+R's
+Piotr Skowronek
+-------------- next part --------------
+Index: lib/com/izforge/izpack/panels/TextInputField.java
+===================================================================
+--- lib/com/izforge/izpack/panels/TextInputField.java	(revision 0)
++++ lib/com/izforge/izpack/panels/TextInputField.java	(revision 0)
+@@ -0,0 +1,199 @@
++/*
++ * IzPack - Copyright 2001-2008 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2008 Piotr Skowronek
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.panels;
++
++import java.util.Map;
++
++import javax.swing.JComponent;
++import javax.swing.JTextField;
++
++import com.izforge.izpack.util.Debug;
++
++/*---------------------------------------------------------------------------*/
++/**
++ * This class is a wrapper for JTextField to allow field validation.
++ * Based on RuleInputField.
++ * 
++ * @author Piotr Skowronek
++ */
++/*---------------------------------------------------------------------------*/
++public class TextInputField extends JComponent implements ProcessingClient
++{
++
++    /**
++     * 
++     */
++    private static final long serialVersionUID = 8611515659787697087L;
++
++    /**
++     * Validator parameters.
++     */
++    private Map validatorParams;
++
++    /**
++     * Holds an instance of the &lt;code&gt;Validator&lt;/code&gt; if one was specified and available
++     */
++    private Validator validationService;
++
++    /**
++     * This composite can only contain one component ie JTextField
++     */
++    private JTextField field;
++    
++    /**
++     * Do we have parameters for validator?
++     */
++    private boolean hasParams = false;
++
++    /*--------------------------------------------------------------------------*/
++    /**
++     * Constructs a text input field.
++     *
++     * @param default value for field.
++     * @param the size of the field.
++     * @param validator A string that specifies a class to perform validation services. The string
++     * must completely identify the class, so that it can be instantiated. The class must implement
++     * the &lt;code&gt;RuleValidator&lt;/code&gt; interface. If an attempt to instantiate this class fails, no
++     * validation will be performed.
++     * @param validator parameters.
++     */
++    /*--------------------------------------------------------------------------*/
++    public TextInputField(String set, int size, String validator, Map validatorParams) {
++        this(set, size, validator);
++        this.validatorParams = validatorParams;
++        this.hasParams = true;
++    }
++    
++
++    /*--------------------------------------------------------------------------*/
++    /**
++     * Constructs a text input field.
++     *
++     * @param default value for field.
++     * @param the size of the field.
++     * @param validator A string that specifies a class to perform validation services. The string
++     * must completely identify the class, so that it can be instantiated. The class must implement
++     * the &lt;code&gt;RuleValidator&lt;/code&gt; interface. If an attempt to instantiate this class fails, no
++     * validation will be performed.
++     */
++    /*--------------------------------------------------------------------------*/
++    public TextInputField(String set, int size, String validator)
++    {
++        // ----------------------------------------------------
++        // attempt to create an instance of the Validator
++        // ----------------------------------------------------
++        try
++        {
++            if (validator != null)
++            {
++                validationService = (Validator) Class.forName(validator).newInstance();
++            }
++        }
++        catch (Throwable exception)
++        {
++            validationService = null;            
++            Debug.trace(exception);
++        }
++        
++        com.izforge.izpack.gui.FlowLayout layout = new com.izforge.izpack.gui.FlowLayout();
++        layout.setAlignment(com.izforge.izpack.gui.FlowLayout.LEFT);
++        setLayout(layout);
++        
++        // ----------------------------------------------------
++        // construct the UI element and add it to the composite
++        // ----------------------------------------------------
++        field = new JTextField(set, size);
++        field.setCaretPosition(0);
++        add(field);
++    }
++
++
++    /*--------------------------------------------------------------------------*/
++    /**
++     * Returns the validator parameters, if any. The caller should check for the existence of
++     * validator parameters via the &lt;code&gt;hasParams()&lt;/code&gt; method prior to invoking this method.
++     * 
++     * @return a java.util.Map containing the validator parameters.
++     */
++    public Map getValidatorParams()
++    {
++        return validatorParams;
++    }
++
++    /*---------------------------------------------------------------------------*/
++    /**
++     * Returns the field contents, assembled acording to the encryption and separator rules.
++     * 
++     * @return the field contents
++     */
++    /*--------------------------------------------------------------------------*/
++    public String getText()
++    {
++        return (field.getText());
++    }
++
++    // javadoc inherited
++    public void setText(String value)
++    {
++        field.setText(value);
++    }
++
++    public String getFieldContents(int index) {
++        return field.getText();
++    }
++
++
++    public int getNumFields() {
++        // We've got only one field
++        return 1;
++    }
++
++    /*--------------------------------------------------------------------------*/
++    /**
++     * This method validates the field content. Validating is performed through a user supplied
++     * service class that provides the validation rules.
++     * 
++     * @return &lt;code&gt;true&lt;/code&gt; if the validation passes or no implementation of a validation
++     * rule exists. Otherwise &lt;code&gt;false&lt;/code&gt; is returned.
++     */
++    /*--------------------------------------------------------------------------*/
++    public boolean validateContents()
++    {
++        if (validationService != null)
++        {
++            return (validationService.validate(this));
++        }
++        else
++        {
++            return (true);
++        }
++    }
++
++
++    // javadoc inherited
++    public boolean hasParams() {
++        return hasParams;
++    }
++    
++    // ----------------------------------------------------------------------------
++}
++/*---------------------------------------------------------------------------*/
+Index: lib/com/izforge/izpack/panels/RuleInputField.java
+===================================================================
+--- lib/com/izforge/izpack/panels/RuleInputField.java	(revision 1986)
++++ lib/com/izforge/izpack/panels/RuleInputField.java	(working copy)
+@@ -152,9 +152,8 @@
+      */
+     private Processor encryptionService;
+ 
+-    /**
+-     * @return true if this instance has any parameters to pass to the Validator instance.
+-     */
++    /*--------------------------------------------------------------------------*/
++    // javadoc inherited
+     public boolean hasParams()
+     {
+         return hasParams;
+@@ -319,12 +318,7 @@
+     }
+ 
+     /*--------------------------------------------------------------------------*/
+-    /**
+-     * Returns the validator parameters, if any. The caller should check for the existence of
+-     * validator parameters via the &lt;code&gt;hasParams()&lt;/code&gt; method prior to invoking this method.
+-     * 
+-     * @return a java.util.Map containing the validator parameters.
+-     */
++    // javadoc inherited
+     public Map getValidatorParams()
+     {
+         return validatorParams;
+Index: lib/com/izforge/izpack/panels/ProcessingClient.java
+===================================================================
+--- lib/com/izforge/izpack/panels/ProcessingClient.java	(revision 1986)
++++ lib/com/izforge/izpack/panels/ProcessingClient.java	(working copy)
+@@ -21,6 +21,8 @@
+ 
+ package com.izforge.izpack.panels;
+ 
++import java.util.Map;
++
+ /*---------------------------------------------------------------------------*/
+ /**
+  * Implement this interface in any class that wants to use processing or validation services.
+@@ -56,5 +58,32 @@
+      */
+     /*--------------------------------------------------------------------------*/
+     public String getFieldContents(int index);
++
++    /*---------------------------------------------------------------------------*/
++    /**
++     * Returns the field contents.
++     * 
++     * @return the field contents
++     */
++    /*--------------------------------------------------------------------------*/
++    public String getText();
++
++    /*--------------------------------------------------------------------------*/
++    /**
++     * @return true if this instance has any parameters to pass to the Validator instance.
++     */
++    /*--------------------------------------------------------------------------*/
++    public boolean hasParams();
++
++    /*--------------------------------------------------------------------------*/
++    /**
++     * Returns the validator parameters, if any. The caller should check for the existence of
++     * validator parameters via the &lt;code&gt;hasParams()&lt;/code&gt; method prior to invoking this method.
++     * 
++     * @return a java.util.Map containing the validator parameters.
++     */
++    /*--------------------------------------------------------------------------*/
++    public Map getValidatorParams();
++
+ }
+ /*---------------------------------------------------------------------------*/
+Index: lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- lib/com/izforge/izpack/panels/UserInputPanel.java	(revision 1986)
++++ lib/com/izforge/izpack/panels/UserInputPanel.java	(working copy)
+@@ -780,9 +780,8 @@
+             else if (TEXT_FIELD.equals(element[POS_TYPE]))
+             {
+                 // update TextField
+-                JTextField textf = (JTextField) element[POS_FIELD];
++                TextInputField textf = (TextInputField) element[POS_FIELD];
+ 
+-                // System.out.println(&quot;Textfield: &quot; + value);
+                 if (value == null)
+                 {
+                     value = textf.getText();
+@@ -1419,11 +1418,13 @@
+     {
+         RuleInputField ruleField = null;
+         String variable = null;
++	String message = null;
+ 
+         try
+         {
+             ruleField = (RuleInputField) field[POS_FIELD];
+             variable = (String) field[POS_VARIABLE];
++            message = (String) field[POS_MESSAGE]; 
+         }
+         catch (Throwable exception)
+         {
+@@ -1431,24 +1432,11 @@
+         }
+         if ((variable == null) || (ruleField == null)) { return (true); }
+ 
++
+         boolean success = !validating || ruleField.validateContents();
+         if (!success)
+         {
+-            String message = &quot;&quot;;
+-            try
+-            {
+-                message = langpack.getString((String) field[POS_MESSAGE]);
+-                if (&quot;&quot;.equals(message))
+-                {
+-                    message = (String) field[POS_MESSAGE];
+-                }
+-            }
+-            catch (Throwable t)
+-            {
+-                message = (String) field[POS_MESSAGE];
+-            }
+-            JOptionPane.showMessageDialog(parentFrame, message, parentFrame.langpack
+-                    .getString(&quot;UserInputPanel.error.caption&quot;), JOptionPane.WARNING_MESSAGE);
++            showWarningMessageDialog(parentFrame, message);
+             return (false);
+         }
+ 
+@@ -1472,7 +1460,14 @@
+         JLabel label;
+         String set;
+         int size;
++        HashMap validateParamMap = null;
++        Vector validateParams = null;
++        String validator = null;
++        String message = null;
++        boolean hasParams = false;
++        TextInputField inputField;
+ 
++
+         String variable = spec.getAttribute(VARIABLE);
+         if ((variable == null) || (variable.length() == 0)) { return; }
+ 
+@@ -1519,6 +1514,37 @@
+         }
+ 
+         // ----------------------------------------------------
++        // get the validator if was defined
++        // ----------------------------------------------------
++        element = spec.getFirstChildNamed(VALIDATOR);
++        if (element != null)
++        {
++            validator = element.getAttribute(CLASS);
++            message = getText(element);
++            // ----------------------------------------------------------
++            // check and see if we have any parameters for this validator.
++            // If so, then add them to validateParamMap.
++            // ----------------------------------------------------------
++            validateParams = element.getChildrenNamed(RULE_PARAM);
++            if (validateParams != null &amp;&amp; validateParams.size() &gt; 0)
++            {
++                hasParams = true;
++
++                if (validateParamMap == null) validateParamMap = new HashMap();
++
++                for (Iterator it = validateParams.iterator(); it.hasNext();)
++                {
++                    element = (XMLElement) it.next();
++                    String paramName = element.getAttribute(RULE_PARAM_NAME);
++                    String paramValue = element.getAttribute(RULE_PARAM_VALUE);
++                    validateParamMap.put(paramName, paramValue);
++                }
++
++            }
++
++        }
++
++        // ----------------------------------------------------
+         // get the description and add it to the list UI
+         // elements if it exists.
+         // ----------------------------------------------------
+@@ -1528,9 +1554,15 @@
+         // ----------------------------------------------------
+         // construct the UI element and add it to the list
+         // ----------------------------------------------------
+-        JTextField field = new JTextField(set, size);
+-        field.setCaretPosition(0);
++        if (hasParams)
++        {
++            inputField = new TextInputField(set, size, validator, validateParamMap);
++        } else 
++        {
++            inputField = new TextInputField(set, size, validator);
++        }
+ 
++
+         TwoColumnConstraints constraints = new TwoColumnConstraints();
+         constraints.position = TwoColumnConstraints.WEST;
+ 
+@@ -1540,8 +1572,8 @@
+         TwoColumnConstraints constraints2 = new TwoColumnConstraints();
+         constraints2.position = TwoColumnConstraints.EAST;
+ 
+-        uiElements.add(new Object[] { null, TEXT_FIELD, variable, constraints2, field, forPacks,
+-                forOs});
++        uiElements.add(new Object[] { null, TEXT_FIELD, variable, constraints2, inputField, forPacks,
++                forOs, null, null, message});
+     }
+ 
+     /*--------------------------------------------------------------------------*/
+@@ -1557,14 +1589,16 @@
+     /*--------------------------------------------------------------------------*/
+     private boolean readTextField(Object[] field)
+     {
+-        JTextField textField = null;
++        TextInputField textField = null;
+         String variable = null;
+         String value = null;
++	String message = null;
+ 
+         try
+         {
+-            textField = (JTextField) field[POS_FIELD];
++            textField = (TextInputField) field[POS_FIELD];
+             variable = (String) field[POS_VARIABLE];
++            message = (String) field[POS_MESSAGE]; 
+             value = textField.getText();
+         }
+         catch (Throwable exception)
+@@ -1573,6 +1607,14 @@
+         }
+         if ((variable == null) || (value == null)) { return (true); }
+ 
++        // validate the input
++        boolean success = textField.validateContents();
++        if (!success)
++        {
++            showWarningMessageDialog(parentFrame, message);
++            return (false);
++        }
++
+         idata.setVariable(variable, value);
+         entries.add(new TextValuePair(variable, value));
+         return (true);
+@@ -2065,11 +2107,9 @@
+         passwordGroups.add(group);
+ 
+         boolean success = !validating || group.validateContents();
+-
+         if (!success)
+         {
+-            JOptionPane.showMessageDialog(parentFrame, message, parentFrame.langpack
+-                    .getString(&quot;UserInputPanel.error.caption&quot;), JOptionPane.WARNING_MESSAGE);
++            showWarningMessageDialog(parentFrame, message);
+             return (false);
+         }
+ 
+@@ -2543,6 +2583,7 @@
+             if (description != null)
+             {
+                 String alignment = spec.getAttribute(ALIGNMENT);
++                // FIX needed: where do we use this variable at all? i dont think so... 
+                 int justify = MultiLineLabel.LEFT;
+ 
+                 if (alignment != null)
+@@ -2725,8 +2766,11 @@
+         {
+             text = element.getAttribute(TEXT);
+         }
++        
++        // try to parse the text, and substitute any variable it finds
++        VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+ 
+-        return (text);
++        return (vs.substitute(text, null));
+     }
+ 
+     /*--------------------------------------------------------------------------*/
+@@ -3268,7 +3312,7 @@
+ 
+         /*--------------------------------------------------------------------------*/
+         /**
+-         * This is called if one of the buttons has bee pressed.
++         * This is called if one of the buttons has been pressed.
+          * 
+          * It checks, which button caused the action and acts accordingly.
+          */
+@@ -3280,10 +3324,8 @@
+             if (event.getSource() == this.autodetectButton)
+             {
+                 if (!autodetect())
+-                    JOptionPane.showMessageDialog(parent, parent.langpack
+-                            .getString(&quot;UserInputPanel.search.autodetect.failed.message&quot;),
+-                            parent.langpack
+-                                    .getString(&quot;UserInputPanel.search.autodetect.failed.caption&quot;),
++                    showMessageDialog(parent, &quot;UserInputPanel.search.autodetect.failed.message&quot;, 
++                            &quot;UserInputPanel.search.autodetect.failed.caption&quot;, 
+                             JOptionPane.WARNING_MESSAGE);
+             }
+             else if (event.getSource() == this.browseButton)
+@@ -3304,11 +3346,10 @@
+                     // use any given directory directly
+                     if (this.resultType != TYPE_FILE &amp;&amp; !this.pathMatches(f.getAbsolutePath()))
+                     {
+-                        JOptionPane.showMessageDialog(parent, parent.langpack
+-                                .getString(&quot;UserInputPanel.search.wrongselection.message&quot;),
+-                                parent.langpack
+-                                        .getString(&quot;UserInputPanel.search.wrongselection.caption&quot;),
++                        showMessageDialog(parent, &quot;UserInputPanel.search.wrongselection.message&quot;, 
++                                &quot;UserInputPanel.search.wrongselection.caption&quot;, 
+                                 JOptionPane.WARNING_MESSAGE);
++
+                     }
+                 }
+ 
+@@ -3435,7 +3476,40 @@
+        validating = true;
+    }
+ 
++    /*--------------------------------------------------------------------------*/
++    /**
++     * Show localized message dialog basing on given parameters.
++     * 
++     * @param parent frame.
++     * @param the message to print out in dialog box.
++     * @param the caption of dialog box.
++     */
++    /*--------------------------------------------------------------------------*/
++    private void showMessageDialog(InstallerFrame parentFrame, String message, String caption, int messageType) {
++        String localizedMessage = langpack.getString(message);
++        if (&quot;&quot;.equals(localizedMessage))
++        {
++            localizedMessage = message;
++        }
++        JOptionPane.showMessageDialog(parentFrame, localizedMessage, caption, messageType);
++    }
++
++    /*--------------------------------------------------------------------------*/
++    /**
++     * Show localized warning message dialog basing on given parameters.
++     * 
++     * @param parent frame.
++     * @param the message to print out in dialog box.
++     */
++    /*--------------------------------------------------------------------------*/
++    private void showWarningMessageDialog(InstallerFrame parentFrame, String message) {
++        showMessageDialog(parentFrame, message, 
++                parentFrame.langpack.getString(&quot;UserInputPanel.error.caption&quot;), 
++                JOptionPane.WARNING_MESSAGE);    
++    }
++
+ } // public class UserInputPanel
++
+ /*---------------------------------------------------------------------------*/
+ class UserInputFileFilter extends FileFilter{
+     String fileext = &quot;&quot;;
+Index: lib/com/izforge/izpack/panels/PasswordGroup.java
+===================================================================
+--- lib/com/izforge/izpack/panels/PasswordGroup.java	(revision 1986)
++++ lib/com/izforge/izpack/panels/PasswordGroup.java	(working copy)
+@@ -21,6 +21,7 @@
+ 
+ package com.izforge.izpack.panels;
+ 
++import java.util.Map;
+ import java.util.Vector;
+ 
+ import javax.swing.JPasswordField;
+@@ -177,11 +178,29 @@
+ 
+             if (fields.size() &gt; 0)
+             {
+-                contents = new String(((JPasswordField) fields.elementAt(0)).getPassword());
++                contents = getText();
+             }
+ 
+             return (contents);
+         }
+     }
++
++    // javadoc inherited
++    public String getText()
++    {
++        return new String(((JPasswordField) fields.elementAt(0)).getPassword());
++    }
++
++    // javadoc inherited
++    public Map getValidatorParams()
++    {
++        return null;
++    }
++
++    // javadoc inherited
++    public boolean hasParams()
++    {
++        return false;
++    }
+ }
+ /*---------------------------------------------------------------------------*/
+Index: lib/com/izforge/izpack/util/RegularExpressionValidator.java
+===================================================================
+--- lib/com/izforge/izpack/util/RegularExpressionValidator.java	(revision 1986)
++++ lib/com/izforge/izpack/util/RegularExpressionValidator.java	(working copy)
+@@ -23,7 +23,6 @@
+ import java.util.regex.Pattern;
+ 
+ import com.izforge.izpack.panels.ProcessingClient;
+-import com.izforge.izpack.panels.RuleInputField;
+ import com.izforge.izpack.panels.Validator;
+ 
+ /**
+@@ -46,12 +45,10 @@
+ 
+         String patternString;
+ 
+-        RuleInputField field = (RuleInputField) client;
+-        if (field.hasParams())
++        if (client.hasParams())
+         {
+-            Map paramMap = field.getValidatorParams();
++            Map paramMap = client.getValidatorParams();
+             patternString = (String) paramMap.get(PATTERN_PARAM);
+-
+         }
+         else
+         {
+@@ -59,7 +56,7 @@
+         }
+ 
+         Pattern pattern = Pattern.compile(patternString);
+-        return pattern.matcher(((RuleInputField) client).getText()).matches();
++        return pattern.matcher(client.getText()).matches();
+     }
+ 
+ }
+Index: build.xml
+===================================================================
+--- build.xml	(revision 1986)
++++ build.xml	(working copy)
+@@ -644,6 +644,7 @@
+             &lt;include name=&quot;com/izforge/izpack/panels/Processor.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/RuleInputField.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/RuleTextField.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/panels/TextInputField.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/UserInputPanel.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/UserInputPanelAutomationHelper.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/Validator.java&quot; /&gt;
+@@ -655,6 +656,7 @@
+             &lt;include name=&quot;com/izforge/izpack/panels/Processor.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/RuleInputField.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/RuleTextField.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/panels/TextInputField.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/UserInputPanel.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/UserInputPanelAutomationHelper.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/Validator.java&quot; /&gt;
+</PRE>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001400.html">[izpack-devel] Text-field validator + variable substitutor for	staticText filed
+</A></li>
+	<LI>Next message: <A HREF="001402.html">[izpack-devel] Text-field validator + variable substitutor for	staticText filed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1401">[ date ]</a>
+              <a href="thread.html#1401">[ thread ]</a>
+              <a href="subject.html#1401">[ subject ]</a>
+              <a href="author.html#1401">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

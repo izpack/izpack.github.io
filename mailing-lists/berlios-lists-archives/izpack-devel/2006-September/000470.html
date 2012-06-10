@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] FW:  private to protected -&gt; Objection
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20FW%3A%20%20private%20to%20protected%20-%3E%20Objection&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000469.html">
+   <LINK REL="Next"  HREF="000471.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] FW:  private to protected -&gt; Objection</H1>
+    <B>Elmar Grom</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20FW%3A%20%20private%20to%20protected%20-%3E%20Objection&In-Reply-To="
+       TITLE="[izpack-devel] FW:  private to protected -&gt; Objection">elmar at grom.net
+       </A><BR>
+    <I>Sat Sep  2 17:47:47 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000469.html">[izpack-devel] private to protected -&gt; Objection
+</A></li>
+        <LI>Next message: <A HREF="000471.html">[izpack-devel] Reminder: features freeze next wednesday
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#470">[ date ]</a>
+              <a href="thread.html#470">[ thread ]</a>
+              <a href="subject.html#470">[ subject ]</a>
+              <a href="author.html#470">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sorry, I just noticed that I only sent this to Ryan, not to the list...
+
+	Elmar
+
+-----Original Message-----
+From: Elmar Grom [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>]
+Sent: Friday, September 01, 2006 3:25 PM
+To: Ryan Shillington
+Subject: RE: [izpack-devel] private to protected -&gt; Objection
+
+
+Ryan,
+
+I agree that we talk about case a) here, this is inherent in the meaning of
+deriving classes. However I do not agree about the conclusions from this
+fact. ExtendedUserInputPanel is a UserInputPanel by the simple fact that it
+is derived form UserInputPanel. But this does in no way mandate that it
+therefore should also know about the inner workings of UserInputPanel. Even
+setters and getters if used without clean interface specification can be too
+much knowledge.
+
+Setters and getters isolate the using class (derived or otherwise) to some
+degree from the implementation. For one thing the variables you set and get
+don't actually have to exist in the way suggested by the interface. The
+remaining problem is, that the using class may make wrong assumptions about
+situations when the contents of those fields changes or should change and
+which values are legal. These assumptions may be wrong at the time of
+writing of the derived class or they may become wrong because of a change in
+the implementation of the base class. As a result, interfaces should be as
+unspecific as possible to avoid trouble down the road. Simply replacing
+direct variable access with setters and getter is often not sufficient.
+
+If it appears necessary to get involved in the inner workings of the base
+class, then it is rather questionable if we still talk about case a). I
+don't think we can say ExtendedUserInputPanel is a UserInputPanel and find
+at the same time that the inner works of UserInputPanel need to be muddled
+with in some way. This would mean that it is actually not.
+
+In such cases I find it useful to ask these questions:
+
+1) is the derived class really only a more specialized Version of the base
+class or is it only similar? Even though there might be similarities, it
+does not necessarily follow that extension is the proper approach. A
+parallel implementation might still be called for.
+
+2) if the answer to the above question is yes, but it still appears that we
+need to get involved in the inner works of the base class, then I would
+assert that the base class has some sort design problem. Perhaps its code
+should be distributed in some way among different classes. Actual
+implementations of the extended classes might become assemblies of classes
+and become an instance of the base class primarily be sharing an interface,
+rather than inheriting...
+
+In summary, I find it valuable to understand the Problems Marc is dealing
+with. With this knowledge it should be possible to identify design problems
+in UserInputPanel and redesign it as necessary to solve the problem. This
+tends to be a better approach than hiding a problem by building another one
+on top of it.
+
+	Elmar
+
+-----Original Message-----
+From: Ryan Shillington [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Ryan.Shillington at troux.com</A>]
+Sent: Friday, September 01, 2006 2:21 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: RE: [izpack-devel] private to protected -&gt; Objection
+
+
+Hello team,
+
+I've been mulling this over for a while now too.
+
+As I'm sure many of you know, whenever you're considering delegation
+over polymorphism, the question always comes down to whether you would
+put the words &quot;is a&quot; or &quot;uses&quot; in between the class names.
+
+Hence, which one is more correct?
+    a) ExtendedUserInputPanel is a UserInputPanel
+ or b) ExtendedUserInputPanel uses UserInputPanel
+
+I think the answer is a), and if so then it'll be very hard to write a
+new ExtendedUserInputPanel without being closely coupled with
+UserInputPanel.  Even if we provide getters and setters instead of
+protected member variables, the implementation in ExtendedUserInputPanel
+is still going to greatly depend on the implementation of UserInputPanel
+because ExtendedUserInputPanel will expect UserInputPanel to be using
+them internally.
+
+One of IzPack's great strengths is that it is open source, meaning that
+you can find a panel that does 80% of what you want it to do, and
+override it to remove/add what you need.   Hence, especially because
+we're in the installer business here, I'm leaning towards making our
+variables protected.  Unfortunately your point is very, very valid - we
+will be making it easier for people to write installers at the cost of
+making it difficult for them to upgrade to the next great version of
+IzPack.
+
+But I digress... :-)
+
+Ryan
+&lt;/soapbox&gt;
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of Elmar Grom
+Sent: Friday, September 01, 2006 2:54 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: Re: [izpack-devel] private to protected -&gt; Objection
+
+Hi Marc,
+
+I do object. This is against the very important principles of
+information
+hiding.
+
+I am not sure which fields you want to access from your subclass. I
+would
+strongly advise to find other approaches to solve your problem. Writing
+subclasses with detailed knowledge of the inside workings of the super
+class, such as data fields, is never a good idea. This is particularly
+true
+in such a disconnected case as you present. If we ever make changes to
+those
+data fields or how we use them, anyone who wrote a subclass will see
+their
+code break. In many cases there will be no obvious indication of that
+fact.
+
+Instead we should strive to have a clean and dependable interface that
+subclasses can really depend on.
+
+	Elmar
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Marc
+Eppelmann
+Sent: Friday, September 01, 2006 11:57 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: [izpack-devel] private to protected
+
+
+Hi all,
+
+I want to change the fields and methods of the UserInputPanel from
+private
+to
+protected, to make it possible to derive an userdefined UserInputPanel
+from
+it. If there is nobody which has an objection about it, I will commit
+this
+next week at Tuesday. Then I will describe and document the features(**
+of
+my
+derived ExtendedUserInputPanel and if there is anybody that interests
+on, I
+will commit this.
+
+**) such as userdefined Title Layouts.
+
+Cheers
+Marc
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+IMPORTANT NOTICE:
+This message may contain confidential information. If you have received this
+e-mail in error, do not use, copy or distribute it. Do not open any
+attachments. Delete it immediately from your system and notify the sender
+promptly by e-mail that you have done so. Thank you.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000469.html">[izpack-devel] private to protected -&gt; Objection
+</A></li>
+	<LI>Next message: <A HREF="000471.html">[izpack-devel] Reminder: features freeze next wednesday
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#470">[ date ]</a>
+              <a href="thread.html#470">[ thread ]</a>
+              <a href="subject.html#470">[ subject ]</a>
+              <a href="author.html#470">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

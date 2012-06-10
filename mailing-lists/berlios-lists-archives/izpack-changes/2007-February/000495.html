@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1749 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1749%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000494.html">
+   <LINK REL="Next"  HREF="000496.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1749 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1749%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1749 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon Feb 19 08:29:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000494.html">[izpack-changes] r1748 -	izpack-src/branches/3.10/bin/langpacks/installer
+</A></li>
+        <LI>Next message: <A HREF="000496.html">[izpack-changes] r1750 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#495">[ date ]</a>
+              <a href="thread.html#495">[ thread ]</a>
+              <a href="subject.html#495">[ subject ]</a>
+              <a href="author.html#495">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-02-19 08:29:56 +0100 (Mon, 19 Feb 2007)
+New Revision: 1749
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+Log:
+Show next media dialog if corrupted volume was detected.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-02-18 18:26:05 UTC (rev 1748)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-02-19 07:29:56 UTC (rev 1749)
+@@ -17,6 +17,7 @@
+  */
+ package com.izforge.izpack.installer;
+ 
++import java.awt.Component;
+ import java.io.BufferedOutputStream;
+ import java.io.EOFException;
+ import java.io.File;
+@@ -39,6 +40,8 @@
+ import java.util.zip.ZipInputStream;
+ import java.util.zip.ZipOutputStream;
+ 
++import javax.swing.JOptionPane;
++
+ import org.apache.regexp.RE;
+ import org.apache.regexp.RECompiler;
+ import org.apache.regexp.RESyntaxException;
+@@ -57,6 +60,7 @@
+ import com.izforge.izpack.installer.ResourceManager;
+ import com.izforge.izpack.installer.ScriptParser;
+ import com.izforge.izpack.installer.UninstallData;
++import com.izforge.izpack.io.CorruptVolumeException;
+ import com.izforge.izpack.io.FileSpanningInputStream;
+ import com.izforge.izpack.io.FileSpanningOutputStream;
+ import com.izforge.izpack.io.VolumeNotFoundException;
+@@ -69,6 +73,7 @@
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
++
+ /**
+  * Unpacker class.
+  * 
+@@ -278,19 +283,25 @@
+ 
+     }
+ 
+-    protected File enterNextMediaMessage(String volumename)
++    protected File enterNextMediaMessage(String volumename, boolean lastcorrupt)
+     {
+-        Debug.trace(&quot;Enter next media: &quot; + volumename);
+-        StackTraceElement[] el = (new Exception()).getStackTrace();
+-        for (int i = 0; i &lt; el.length; i++)
++        if (lastcorrupt)
+         {
+-            StackTraceElement element = el[i];
+-            Debug.trace(element.toString());
++            Component parent = null;
++            if ((this.handler != null) &amp;&amp; (this.handler instanceof IzPanel))
++            {
++                parent = ((IzPanel) this.handler).getInstallerFrame();
++            }
++            JOptionPane.showMessageDialog(parent, idata.langpack
++                    .getString(&quot;nextmedia.corruptmedia&quot;), idata.langpack
++                    .getString(&quot;nextmedia.corruptmedia.title&quot;), JOptionPane.ERROR_MESSAGE);
+         }
+-
++        Debug.trace(&quot;Enter next media: &quot; + volumename);
++        
+         File nextvolume = new File(volumename);
+         NextMediaDialog nmd = null;
+-        while (!nextvolume.exists())
++
++        while (!nextvolume.exists() || lastcorrupt)
+         {
+             if ((this.handler != null) &amp;&amp; (this.handler instanceof IzPanel))
+             {
+@@ -312,10 +323,20 @@
+                 Debug.trace(&quot;Input from NextMediaDialog was null&quot;);
+                 nextvolume = new File(volumename);
+             }
++            // selection equal to last selected which was corrupt?
++            if (!(volumename.equals(nextvolume.getAbsolutePath()) &amp;&amp; lastcorrupt))
++            {
++                lastcorrupt = false;
++            }
+         }
+         return nextvolume;
+     }
+ 
++    protected File enterNextMediaMessage(String volumename)
++    {
++        return enterNextMediaMessage(volumename, false);
++    }
++    
+     /** The run method. */
+     public void run()
+     {
+@@ -548,6 +569,12 @@
+                                 File nextmedia = enterNextMediaMessage(vnfe.getVolumename());
+                                 fin.setVolumename(nextmedia.getAbsolutePath());
+                             }
++                            catch (CorruptVolumeException cve)
++                            {
++                                Debug.trace(&quot;corrupt media found. magic number is not correct&quot;);
++                                File nextmedia = enterNextMediaMessage(cve.getVolumename(), true);
++                                fin.setVolumename(nextmedia.getAbsolutePath());
++                            }  
+                         }
+ 
+                         if (fin.getFilepointer() &gt; fileposition)
+@@ -585,6 +612,12 @@
+                                 File nextmedia = enterNextMediaMessage(vnfe.getVolumename());
+                                 fin.setVolumename(nextmedia.getAbsolutePath());
+                             }
++                            catch (CorruptVolumeException cve)
++                            {
++                                Debug.trace(&quot;corrupt media found. magic number is not correct&quot;);
++                                File nextmedia = enterNextMediaMessage(cve.getVolumename(), true);
++                                fin.setVolumename(nextmedia.getAbsolutePath());
++                            }
+                         }
+                         // Cleanings
+                         out.close();
+@@ -622,6 +655,12 @@
+                             File nextmedia = enterNextMediaMessage(vnfe.getVolumename());
+                             fin.setVolumename(nextmedia.getAbsolutePath());
+                         }
++                        catch (CorruptVolumeException cve)
++                        {
++                            Debug.trace(&quot;corrupt media found. magic number is not correct&quot;);
++                            File nextmedia = enterNextMediaMessage(cve.getVolumename(), true);
++                            fin.setVolumename(nextmedia.getAbsolutePath());
++                        }
+                         catch (EOFException eofe)
+                         {
+                             File nextmedia = enterNextMediaMessage(&quot;&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000494.html">[izpack-changes] r1748 -	izpack-src/branches/3.10/bin/langpacks/installer
+</A></li>
+	<LI>Next message: <A HREF="000496.html">[izpack-changes] r1750 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#495">[ date ]</a>
+              <a href="thread.html#495">[ thread ]</a>
+              <a href="subject.html#495">[ subject ]</a>
+              <a href="author.html#495">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

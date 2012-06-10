@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1850 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1850%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000595.html">
+   <LINK REL="Next"  HREF="000597.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1850 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1850%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1850 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Tue May 29 22:31:42 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000595.html">[izpack-changes] r1849 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000597.html">[izpack-changes] r1851 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#596">[ date ]</a>
+              <a href="thread.html#596">[ thread ]</a>
+              <a href="subject.html#596">[ subject ]</a>
+              <a href="author.html#596">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-05-29 22:31:39 +0200 (Tue, 29 May 2007)
+New Revision: 1850
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/HTMLInfoPanel.java
+Log:
+Launch HTMLInfo panel external links in the system browser.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/HTMLInfoPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/HTMLInfoPanel.java	2007-05-28 13:21:27 UTC (rev 1849)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/HTMLInfoPanel.java	2007-05-29 20:31:39 UTC (rev 1850)
+@@ -62,6 +62,7 @@
+         try
+         {
+             textArea = new JEditorPane();
++            textArea.setContentType(&quot;text/html; charset=utf-8&quot;);
+             textArea.setEditable(false);
+             textArea.addHyperlinkListener(this);
+             JScrollPane scroller = new JScrollPane(textArea);
+@@ -113,8 +114,38 @@
+     {
+         try
+         {
+-            if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+-                textArea.setPage(e.getURL());
++             if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
++             {
++                String urls = e.getURL().toExternalForm();
++                // if the link points to a chapter in the same page
++                // don't open a browser
++                if(urls.contains(&quot;HTMLInfoPanel.info#&quot;))
++                   textArea.setPage(e.getURL());
++                else
++                {
++                   if(com.izforge.izpack.util.OsVersion.IS_UNIX)
++                   {
++                      String[] launchers = {&quot;htmlview QqzURL&quot;, &quot;xdg-open QqzURL&quot;, &quot;gnome-open QqzURL&quot;, &quot;kfmclient openURL QqzURL&quot;, &quot;call-browser QqzURL&quot;, &quot;firefox QqzURL&quot;, &quot;opera QqzURL&quot;, &quot;konqueror QqzURL&quot;, &quot;epiphany QqzURL&quot;, &quot;mozilla QqzURL&quot;, &quot;netscape QqzURL&quot;};
++                      //String launchers = &quot;/bin/sh -c \&quot;htmlview QqzURL || xdg-open QqzURL || gnome-open QqzURL || kfmclient openURL QqzURL || call-browser QqzURL || firefox QqzURL || opera QqzURL || konqueror QqzURL || epiphany QqzURL || mozilla QqzURL || netscape QqzURL\&quot;&quot;;
++                      for(int q=0; q&lt;launchers.length; q++)
++                      {
++                         
++                         try
++                         {
++                            Runtime.getRuntime().exec(launchers[q].replaceAll(&quot;QqzURL&quot;, urls));
++                            System.out.println(&quot;OK&quot;);
++                            break;
++                         }
++                         catch(Exception ignore)
++                         {
++                            System.out.println(launchers[q]+&quot; NOT OK&quot;);
++                         }
++                      }
++                   }
++                   else // windows
++                      Runtime.getRuntime().exec(&quot;cmd /C start &quot;+urls);
++                }
++            }
+         }
+         catch (Exception err)
+         {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000595.html">[izpack-changes] r1849 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000597.html">[izpack-changes] r1851 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#596">[ date ]</a>
+              <a href="thread.html#596">[ thread ]</a>
+              <a href="subject.html#596">[ subject ]</a>
+              <a href="author.html#596">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,262 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1454 - izpack-src/trunk/src
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1454%20-%20izpack-src/trunk/src&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000199.html">
+   <LINK REL="Next"  HREF="000201.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1454 - izpack-src/trunk/src</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1454%20-%20izpack-src/trunk/src&In-Reply-To="
+       TITLE="[izpack-changes] r1454 - izpack-src/trunk/src">noreply at berlios.de
+       </A><BR>
+    <I>Mon Jun 26 12:27:15 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000199.html">[izpack-changes] r1453 - izpack-src/trunk/src/dist-files
+</A></li>
+        <LI>Next message: <A HREF="000201.html">[izpack-changes] r1455 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#200">[ date ]</a>
+              <a href="thread.html#200">[ thread ]</a>
+              <a href="subject.html#200">[ subject ]</a>
+              <a href="author.html#200">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-06-26 12:27:13 +0200 (Mon, 26 Jun 2006)
+New Revision: 1454
+
+Modified:
+   izpack-src/trunk/src/build.xml
+Log:
+Extracted / Reordered some dist related targets to prevent double copy actions.
+Also fixed the fix.crlf basedir
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2006-06-26 08:47:40 UTC (rev 1453)
++++ izpack-src/trunk/src/build.xml	2006-06-26 10:27:13 UTC (rev 1454)
+@@ -144,7 +144,11 @@
+ 		
+ 	06.04.2006: (Marc Eppelmann)
+ 	    Inserted the fix.crlf target in the depends-list of target &quot;all&quot; to prevent encoding problems.
+-
++	    
++	26.06.2006: (Marc Eppelmann)
++	    Extracted / Reordered some dist related targets to prevent double copy actions.
++        Also fixed the fix.crlf basedir
++        
+   Mini-HowTo:
+ 
+   To compile and package the compiler.jar jar file, type:
+@@ -826,7 +830,7 @@
+ 
+     &lt;!-- Builds all compilation targets --&gt;
+     &lt;target name=&quot;all&quot;
+-            depends=&quot;splashscreen, build.compiler, build.installer, build.uninstaller, build.uninstaller-ext, build.panels, build.listeners, build.standalone-compiler, fix.crlf&quot; /&gt;
++            depends=&quot;splashscreen, build.compiler, build.installer, build.uninstaller, build.uninstaller-ext, build.panels, build.listeners, build.standalone-compiler&quot; description=&quot;base: compiles a developer version&quot;/&gt;
+ 
+     &lt;!-- Builds the Javadoc --&gt;
+     &lt;target name=&quot;build.javadoc&quot; depends=&quot;prepare&quot; description=&quot;Builds the javadoc&quot;&gt;
+@@ -857,15 +861,23 @@
+             description=&quot;Creates the javadoc-api and customer documentation&quot;&gt;
+ 
+     &lt;/target&gt;
+-
+-    &lt;!-- Creates an installer for IzPack --&gt;
+-    &lt;target name=&quot;generate.installer.worker&quot;&gt;
+-
++	
++	
++    &lt;!-- - - - - - - - - - - - - - - - - - 
++          target: taskdef                      
++         - - - - - - - - - - - - - - - - - --&gt;
++    &lt;target name=&quot;taskdef.dist&quot;&gt;
+         &lt;!-- Allows us to use the IzPack Ant task --&gt;
+         &lt;taskdef name=&quot;izpack&quot;
+                  classpath=&quot;${basedir}/lib/compiler.jar&quot;
+                  classname=&quot;com.izforge.izpack.ant.IzPackTask&quot; /&gt;
+-
++    &lt;/target&gt;
++	
++	
++    &lt;!-- - - - - - - - - - - - - - - - - - 
++          target: copy.natives                      
++         - - - - - - - - - - - - - - - - - --&gt;
++    &lt;target name=&quot;copy.dist.natives&quot;&gt;
+         &lt;echo message=&quot;Copies the recent changed native files to the ${basedir}/bin directory&quot; /&gt;
+ 
+         &lt;mkdir dir=&quot;${basedir}/bin/native/izpack&quot; /&gt;
+@@ -882,7 +894,13 @@
+               file=&quot;${basedir}/src/native/win/COIOSHelper/Release_Unicode/COIOSHelper.dll&quot;
+               verbose=&quot;true&quot;
+               overwrite=&quot;yes&quot; /&gt;
++    &lt;/target&gt;
+ 
++    
++    &lt;!-- - - - - - - - - - - - - - - - - - 
++          target: copy.distfiles                      
++         - - - - - - - - - - - - - - - - - --&gt;
++    &lt;target name=&quot;copy.dist.files&quot;&gt;
+         &lt;echo message=&quot;Copies the general files to the dist directory&quot; /&gt;
+         &lt;copy todir=&quot;${dist.dir}&quot; includeEmptyDirs=&quot;yes&quot;&gt;
+             &lt;fileset dir=&quot;${basedir}&quot;&gt;
+@@ -915,7 +933,21 @@
+                 &lt;include name=&quot;RegistrySpec.xml&quot; /&gt;
+             &lt;/fileset&gt;
+         &lt;/copy&gt;
++        &lt;echo message=&quot;Copies the bin files to the dist directory&quot; /&gt;
++        &lt;copy todir=&quot;${dist.dir}/bin&quot; includeEmptyDirs=&quot;yes&quot; overwrite=&quot;yes&quot;&gt;
++            &lt;fileset dir=&quot;${dist-files.dir}&quot;&gt;
++                &lt;include name=&quot;compile*&quot; /&gt;            	
++                &lt;include name=&quot;lcp.bat&quot; /&gt;
++            	&lt;include name=&quot;start.sh&quot;/&gt;
++            &lt;/fileset&gt;
++        &lt;/copy&gt;
++    &lt;/target&gt;
+ 
++    
++    &lt;!-- - - - - - - - - - - - - - - - - - 
++          target: replace.dist.buildnumber                      
++         - - - - - - - - - - - - - - - - - --&gt;
++    &lt;target name=&quot;replace.dist.buildnumber&quot;&gt;
+         &lt;replace file=&quot;${dist.dir}/shortcutSpec.xml&quot;
+                  token=&quot;@build.number@&quot;
+                  value=&quot;${build.number}&quot;
+@@ -930,15 +962,10 @@
+                  token=&quot;@ver@&quot;
+                  value=&quot;${ver}&quot;
+                  summary=&quot;yes&quot; /&gt;
++    &lt;/target&gt;
+ 
+-        &lt;echo message=&quot;Copies the bin files to the dist directory&quot; /&gt;
+-        &lt;copy todir=&quot;${dist.dir}/bin&quot; includeEmptyDirs=&quot;yes&quot; overwrite=&quot;yes&quot;&gt;
+-            &lt;fileset dir=&quot;${dist-files.dir}&quot;&gt;
+-                &lt;include name=&quot;compile*&quot; /&gt;            	
+-                &lt;include name=&quot;lcp.bat&quot; /&gt;
+-            	&lt;include name=&quot;start.sh&quot;/&gt;
+-            &lt;/fileset&gt;
+-        &lt;/copy&gt;
++    &lt;!-- Creates an installer for IzPack --&gt;
++    &lt;target name=&quot;exec.izpack.compiler&quot;&gt;
+ 
+         &lt;!-- We call IzPack --&gt;
+         &lt;echo message=&quot;Makes the installer using IzPack&quot; level=&quot;verbose&quot; /&gt;
+@@ -949,22 +976,40 @@
+                 izPackDir=&quot;${dist.dir}/&quot;
+                 compression=&quot;raw&quot;
+                 compressionlevel=&quot;9&quot; /&gt;
++    	&lt;echo&gt;
++sucessfully created:
++${dist.dir}/${installer.name}${ver}.${rel}.jar    		
++    	&lt;/echo&gt;
+     &lt;/target&gt;
++	
++	
++    &lt;!-- - - - - - - - - - - - - - - - - - 
++          target: prepare.install.dist                      
++         - - - - - - - - - - - - - - - - - --&gt;
++    &lt;target name=&quot;prepare.install.dist&quot; depends=&quot;taskdef.dist, copy.dist.natives, copy.dist.files, replace.dist.buildnumber, fix.crlf&quot;&gt;
++            
++    &lt;/target&gt;
++	
++    &lt;!-- - - - - - - - - - - - - - - - - - 
++          target: generate.simple.and.reg.installer                      
++         - - - - - - - - - - - - - - - - - --&gt;
++    &lt;target name=&quot;generate.simple.and.reg.installer&quot; depends=&quot;generate.installer, generate.installer-reg&quot;&gt;
++            
++    &lt;/target&gt;
+ 
+-
+     &lt;!-- ================================= 
+ 	   Creates a normal installer for IzPack 
+ 	  ================================= --&gt;
+-    &lt;target name=&quot;generate.installer&quot;&gt;
+-        &lt;antcall target=&quot;generate.installer.worker&quot;&gt;
++    &lt;target name=&quot;generate.installer&quot; depends=&quot;prepare.install.dist&quot;&gt;
++        &lt;antcall target=&quot;exec.izpack.compiler&quot;&gt;
+             &lt;param name=&quot;installer.xmlfile&quot; value=&quot;IzPack-install.xml&quot; /&gt;
+             &lt;param name=&quot;installer.name&quot; value=&quot;IzPack-install-&quot; /&gt;
+         &lt;/antcall&gt;
+     &lt;/target&gt;
+ 
+     &lt;!-- Creates an installer for IzPack with registry support --&gt;
+-    &lt;target name=&quot;generate.installer-reg&quot;&gt;
+-        &lt;antcall target=&quot;generate.installer.worker&quot;&gt;
++    &lt;target name=&quot;generate.installer-reg&quot; depends=&quot;prepare.install.dist&quot;&gt;
++        &lt;antcall target=&quot;exec.izpack.compiler&quot;&gt;
+             &lt;param name=&quot;installer.xmlfile&quot; value=&quot;IzPack-install-reg.xml&quot; /&gt;
+             &lt;param name=&quot;installer.name&quot; value=&quot;IzPack-install-reg-&quot; /&gt;
+         &lt;/antcall&gt;
+@@ -975,14 +1020,26 @@
+         It also fixes the encoding problems by moving it to UTF-8.
+     --&gt;
+     &lt;target name=&quot;fix.crlf&quot;&gt;
+-        &lt;fixcrlf srcDir=&quot;${src.dir}&quot; eol=&quot;lf&quot; eof=&quot;remove&quot; encoding=&quot;UTF-8&quot;&gt;
++        &lt;property name=&quot;dist.src.dir&quot; location=&quot;${dist.dir}/src&quot;/&gt;
++    	&lt;property name=&quot;dist.bin.dir&quot; location=&quot;${dist.dir}/bin&quot;/&gt;
++        &lt;echo&gt;
++Fixing linefeeds for several files in:
++ &quot;${dist.src.dir}&quot;
++   and
++ &quot;${dist.bin.dir}&quot;
++        &lt;/echo&gt;
++        &lt;fixcrlf srcDir=&quot;${dist.src.dir}&quot; eol=&quot;lf&quot; eof=&quot;remove&quot; encoding=&quot;UTF-8&quot;&gt;
+             &lt;include name=&quot;**/*.java&quot; /&gt;
+             &lt;include name=&quot;**/*.xml&quot; /&gt;
+             &lt;include name=&quot;**/*.properties&quot; /&gt;
+         &lt;/fixcrlf&gt;
+-    	&lt;fixcrlf srcdir=&quot;${src.dir}&quot;&gt;
+-    		&lt;include name=&quot;**/*.sh&quot;/&gt;
+-    		&lt;include name=&quot;dist/compile&quot;/&gt;
++    	&lt;fixcrlf srcdir=&quot;${dist.dir}&quot; eol=&quot;unix&quot; eof=&quot;remove&quot;&gt;
++            &lt;include name=&quot;**/*.sh&quot;/&gt;
++    	    &lt;include name=&quot;dist-files/compile&quot;/&gt;
++        &lt;/fixcrlf&gt;
++    	&lt;fixcrlf srcdir=&quot;${dist.bin.dir}&quot; eol=&quot;unix&quot; eof=&quot;remove&quot;&gt;
++    	  &lt;include name=&quot;**/*.sh&quot;/&gt;
++    	  &lt;include name=&quot;compile&quot;/&gt;	    	
+     	&lt;/fixcrlf&gt;
+     &lt;/target&gt;
+ 
+@@ -998,7 +1055,7 @@
+ 
+     &lt;!-- Makes everything, from compilation, customer and javadoc to generating an installer. --&gt;
+     &lt;target name=&quot;dist&quot;
+-            depends=&quot;all, create.docu, generate.installer, generate.installer-reg&quot;
++            depends=&quot;all, create.docu, generate.simple.and.reg.installer&quot;
+             description=&quot;makes a complete installer&quot; /&gt;
+ 
+     &lt;!-- Makes everything, from Cleaning to generating both installers: normal and reg support. --&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000199.html">[izpack-changes] r1453 - izpack-src/trunk/src/dist-files
+</A></li>
+	<LI>Next message: <A HREF="000201.html">[izpack-changes] r1455 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#200">[ date ]</a>
+              <a href="thread.html#200">[ thread ]</a>
+              <a href="subject.html#200">[ subject ]</a>
+              <a href="author.html#200">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

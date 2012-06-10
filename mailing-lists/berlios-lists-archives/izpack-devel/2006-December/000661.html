@@ -1,0 +1,312 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Logging
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Logging&In-Reply-To=D86ACDA44DB9304C99DC9CEBC86AB65002B7BF%40pulinco1.pulinco.ch">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000657.html">
+   <LINK REL="Next"  HREF="000658.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Logging</H1>
+    <B>Elmar Grom</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Logging&In-Reply-To=D86ACDA44DB9304C99DC9CEBC86AB65002B7BF%40pulinco1.pulinco.ch"
+       TITLE="[izpack-devel] Logging">elmar at grom.net
+       </A><BR>
+    <I>Fri Dec  1 17:21:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000657.html">[izpack-devel] FW:  Logging
+</A></li>
+        <LI>Next message: <A HREF="000658.html">[izpack-devel] Documentation -&gt; Fabrice
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#661">[ date ]</a>
+              <a href="thread.html#661">[ thread ]</a>
+              <a href="subject.html#661">[ subject ]</a>
+              <a href="author.html#661">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Re: [izpack-devel] FW: LoggingHi Markus,
+
+that's a good point. I'll change it to Throwable.
+
+    Elmar
+  -----Original Message-----
+  From: Markus Schlegel [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On
+Behalf Of Markus Schlegel
+  Sent: Thursday, November 30, 2006 11:35 PM
+  To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+  Subject: AW: [izpack-devel] FW: Logging
+
+
+  Hi Elmar
+
+  Maybe you have to consider to change the &quot;Exception&quot; argument into
+&quot;Throwable&quot;, at least for &quot;addError(..)&quot;.
+  If not, it might be nasty to log a catched java.lang.Error...
+
+  Markus
+
+
+----------------------------------------------------------------------------
+--
+  Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A> im Auftrag von Elmar Grom
+  Gesendet: Do 30.11.2006 18:20
+  An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+  Betreff: Re: [izpack-devel] FW: Logging
+
+
+  Hi Klaus,
+
+  here is a snippet of the API.
+
+  Log.getInstance ()
+
+  public void addMessage (int        message,
+                          String []  detail)
+
+  public void addWarning (int        message,
+                          String []  detail,
+                          Exception  exception)
+
+  public void addError (int        message,
+                        String []  detail,
+                        Exception  exception)
+
+
+  The integer identifiers for the messages are defined in the Log class. The
+  logger will pull the actual message text from the langpack when building
+the
+  report. In this way messages are localized without extra burden on the
+  calling code.
+
+  In addition, the caller can provide detail information to refine the
+  message. To support this feature, some messages might have variable parts
+  defined, such as a file name, path, some numbers, settings etc. These will
+  be inserted by the logger from the detail array into the localized text.
+For
+  each message it will be exactly defined if there are variable parts, what
+  they are and in which order the detail must be provided.
+
+  Messages are just for generic information, for example which panel was
+  presented or what option was chosen. Warnings and Errors are added when
+  things go wrong, therefore these two methods include the ability to attach
+  an exception. The logger will include the Exception.toString() result with
+  each message that had an associated exception.
+
+  It is not possible to use the identifier of an error message to add a
+  warning and so on, since the message identifiers are organized into groups
+  and each add method verifies that a legal value was used for the call
+before
+  it actually adds the message.
+
+  I hope this answers your questions
+
+          Elmar
+
+
+  -----Original Message-----
+  From: Bartz, Klaus [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>]
+  Sent: Thursday, November 30, 2006 12:14 AM
+  To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+  Subject: RE: [izpack-devel] FW: Logging
+
+
+  Hi Elmar,
+  is it possible to add an &quot;identifier&quot; to the message slot like
+
+  void Logger.getInstance().setMessage(String loggingSlot, String msg,
+  Throwable who)
+
+  or
+  public final static int ERROR = 0;
+  public final static int WARNING = 1;
+  public final static int MESSAGE = 2;
+  void Logger.getInstance().set(int type, String loggingSlot, String msg,
+  Throwable who)
+
+  loggingSlot and who can be null.
+
+  The dumping of slot contents for MESSAGE can be triggert by command line
+  (e.g. string of comma separated identifier).
+  In opposite to log4j (if I have understand it right) there is no hierarchy
+  else
+  special informations can be selective dumped out.
+  With such a mimik it is possible to log more informations without making
+the
+  log blind bend and discussions about logged informations can be easier
+  blocked.
+  It can be simple enough to impl it self in opposite to use log4j (I do not
+  like
+  log4j :-)).
+
+  Cheers
+
+  Klaus
+
+  &gt;-----Original Message-----
+  &gt;From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+  &gt;[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Elmar Grom
+  &gt;Sent: Wednesday, November 29, 2006 11:37 PM
+  &gt;To: Izpack
+  &gt;Subject: [izpack-devel] FW: Logging
+  &gt;
+  &gt;
+  &gt;Klaus,
+  &gt;
+  &gt;you make a good point here. Users might not be happy about a load of
+  &gt;messages, even if they are all good.
+  &gt;
+  &gt;The logger works as follows:
+  &gt;
+  &gt;1) log messages are posted by calls to the logger
+  &gt;2) there are three categories of messages: messages, warnings
+  &gt;and errors
+  &gt;3) the logger simply collects the messages but takes no further action
+  &gt;4) the logger provides information if any warnings or errors have been
+  &gt;posted
+  &gt;5) the installer uses this information to display an
+  &gt;appropriate generic
+  &gt;message (probably in the finish panels) -&gt; (success, possible problems,
+  &gt;install failed)
+  &gt;6) a button will be provided to allow the user to save a
+  &gt;detailed report
+  &gt;7) when asked to save a report, the logger produces a report
+  &gt;with generic
+  &gt;information about the install plus all messages posted. The
+  &gt;messages are
+  &gt;sorted by category (message/warning/error) and they are localized.
+  &gt;
+  &gt;In this way the user is never bombarded with a flood of
+  &gt;messages that might
+  &gt;only succeed in leaving doubt about the success of the operation, even
+  &gt;though they might be completely meaningless. If necessary the
+  &gt;report text
+  &gt;file may be e-mailed to the developer.
+  &gt;
+  &gt;Because of your input, I think it might be a good idea to
+  &gt;allow developers
+  &gt;to decide if logging is actually turned on and perhaps even to
+  &gt;what level.
+  &gt;This could be done by a top level switch in the xml file. Even
+  &gt;if this is
+  &gt;done, there might be cases where an installation problem might
+  &gt;need to be
+  &gt;debugged. For such cases logging might be forced on by a command line
+  &gt;switch.
+  &gt;
+  &gt;Here is what a report looks like right now. The message and
+  &gt;warning section
+  &gt;would not show up at all if there is nothing recorded, I just
+  &gt;wanted to show
+  &gt;what it would look like.
+  &gt;
+  &gt;---------------------------------------------------------------
+  &gt;-------------
+  &gt;---
+  &gt;                           IzPack INSTALLATION REPORT
+  &gt;---------------------------------------------------------------
+  &gt;-------------
+  &gt;---
+  &gt;
+  &gt;WARNING!!! The installation did not succeed!
+  &gt;
+  &gt;This report contains 0 general message(s), 0 warning(s) and 1 error(s)
+  &gt;
+  &gt;Installation report for : ProScholar Version 2.2
+  &gt;Install time            : 11-29-2006 [14:29:37]  Pacific Standard Time
+  &gt;Install directory       : D:\ProgramFiles\ProScholar
+  &gt;
+  &gt;                         --- Installation Messages ---
+  &gt;
+  &gt;Message  [0] - ...
+  &gt;
+  &gt;                               --- Warnings ---
+  &gt;
+  &gt;Warning [0] - ...
+  &gt;
+  &gt;                                --- Errors ---
+  &gt;
+  &gt;Error [0] - unable to write 'D:\ProgramFiles\ProScholar\app.jar'
+  &gt;---------------------------------------------------------------
+  &gt;-------------
+  &gt;---
+  &gt;
+  &gt;
+  &gt;Cheers
+  &gt;
+  &gt;       Elmar
+  &gt;
+  &gt;-----Original Message-----
+  &gt;From: Bartz, Klaus [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>]
+  &gt;Sent: Wednesday, November 29, 2006 1:13 AM
+  &gt;To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+  &gt;Subject: RE: [izpack-devel] Logging
+  &gt;
+  &gt;
+  &gt;Hi Elmar,
+  &gt;I think all developer of IzPack knows that there are some
+  &gt;points in the product which are not optimal solved. Of course,
+  &gt;we should solve it if possible and time is right on work-time-device.
+  &gt;
+  &gt;Some weeks ago I have had a little problem with logging; I log
+  &gt;some things which are interested especially for me, but it will be
+  &gt;logged if logging is activated. One user persisted on the
+  &gt;meaning that the logged information was fatal for IzPack.
+  &gt;
+  &gt;Therefore it will be nice if the new logging stuff will be support
+  &gt;different topics (as you have decribed) and logs a prefix. May be
+  &gt;configurable what topic should be logged.
+  &gt;
+  &gt;Cheers
+  &gt;
+  &gt;Klaus
+  &gt;
+  &gt;_______________________________________________
+  &gt;izpack-devel mailing list
+  &gt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+  &gt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+  &gt;
+
+  _______________________________________________
+  izpack-devel mailing list
+  <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+  <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061201/0f888075/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061201/0f888075/attachment.html</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: winmail.dat
+Type: application/ms-tnef
+Size: 1176 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061201/0f888075/attachment.bin">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061201/0f888075/attachment.bin</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000657.html">[izpack-devel] FW:  Logging
+</A></li>
+	<LI>Next message: <A HREF="000658.html">[izpack-devel] Documentation -&gt; Fabrice
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#661">[ date ]</a>
+              <a href="thread.html#661">[ thread ]</a>
+              <a href="subject.html#661">[ subject ]</a>
+              <a href="author.html#661">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

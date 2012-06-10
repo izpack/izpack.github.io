@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] InstallerListener interface change for	the	nextrelease
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20InstallerListener%20interface%20change%20for%0A%09the%09nextrelease&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139AD8D%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001215.html">
+   <LINK REL="Next"  HREF="001216.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] InstallerListener interface change for	the	nextrelease</H1>
+    <B>Vladimir Ralev</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20InstallerListener%20interface%20change%20for%0A%09the%09nextrelease&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139AD8D%40coi11.coi.com"
+       TITLE="[izpack-devel] InstallerListener interface change for	the	nextrelease">vralev at redhat.com
+       </A><BR>
+    <I>Sun Aug 19 20:53:54 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001215.html">[izpack-devel] InstallerListener interface change for the	nextrelease
+</A></li>
+        <LI>Next message: <A HREF="001216.html">[izpack-devel] (Autoresponder) Re: InstallerListener interface change for the nextrelease
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1224">[ date ]</a>
+              <a href="thread.html#1224">[ thread ]</a>
+              <a href="subject.html#1224">[ subject ]</a>
+              <a href="author.html#1224">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Yes SimpleInstallerListener would work great for devs who used it (not 
+me :( )
+I will look into adding a listener afterInstallerFinishSuccess and 
+afterInstallerFailure may be.
+Bartz, Klaus &#1085;&#1072;&#1087;&#1080;&#1089;&#1072;:
+&gt;<i> Hi Vladimir,
+</I>&gt;<i> until now the an InstallerListener will be invoked only during
+</I>&gt;<i> InstallPanel works. But if you need a listener just after 
+</I>&gt;<i> initialization, why not...
+</I>&gt;<i> If afterInstallerInitialization will be implemented in 
+</I>&gt;<i> SimpleInstallerListener the developers which derive from it
+</I>&gt;<i> (e.g. I :-)) will be have no problem. There is a member 
+</I>&gt;<i> 	private installdata 
+</I>&gt;<i> and public getter and setter for it. Until now it is set
+</I>&gt;<i> in beforePacks if that method is not implemented in the derived
+</I>&gt;<i> class or the super will be called (as in my private code).
+</I>&gt;<i>
+</I>&gt;<i> If we expand, should we add more entry points like 
+</I>&gt;<i> beforeEnd and so on?
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A> 
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of 
+</I>&gt;&gt;<i> Vladimir Ralev
+</I>&gt;&gt;<i> Sent: Thursday, August 09, 2007 3:06 PM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: [izpack-devel] InstallerListener interface change 
+</I>&gt;&gt;<i> for the nextrelease
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Hi
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I need to pass the AutomatedInstallData info after the 
+</I>&gt;&gt;<i> initialization of 
+</I>&gt;&gt;<i> the installer. That's why I am thinking about adding
+</I>&gt;&gt;<i>    /**
+</I>&gt;&gt;<i>      * Called when the installer creates the listener 
+</I>&gt;&gt;<i> instance, immediately
+</I>&gt;&gt;<i>      * after the install data is parsed.
+</I>&gt;&gt;<i>      *
+</I>&gt;&gt;<i>      * @param data
+</I>&gt;&gt;<i>      */
+</I>&gt;&gt;<i>     void afterInstallerInitialization(AutomatedInstallData 
+</I>&gt;&gt;<i> data) throws 
+</I>&gt;&gt;<i> Exception;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> to InstallerListener, but all custom listeners will need to 
+</I>&gt;&gt;<i> be modified. 
+</I>&gt;&gt;<i> Or is it better to create a new listener type for this method 
+</I>&gt;&gt;<i> to avoid 
+</I>&gt;&gt;<i> breaking the compatibility? 
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A> 
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>   
+</I></PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001215.html">[izpack-devel] InstallerListener interface change for the	nextrelease
+</A></li>
+	<LI>Next message: <A HREF="001216.html">[izpack-devel] (Autoresponder) Re: InstallerListener interface change for the nextrelease
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1224">[ date ]</a>
+              <a href="thread.html#1224">[ thread ]</a>
+              <a href="subject.html#1224">[ subject ]</a>
+              <a href="author.html#1224">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

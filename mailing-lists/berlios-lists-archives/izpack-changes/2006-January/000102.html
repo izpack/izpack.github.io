@@ -1,0 +1,271 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r185 - in izpack-frontend/trunk/src: izpack/frontend/view/stages/configure/panels utils
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r185%20-%20in%20izpack-frontend/trunk/src%3A%20izpack/frontend/view/stages/configure/panels%20utils&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000101.html">
+   <LINK REL="Next"  HREF="000103.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r185 - in izpack-frontend/trunk/src: izpack/frontend/view/stages/configure/panels utils</H1>
+    <B>gumbo at BerliOS</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r185%20-%20in%20izpack-frontend/trunk/src%3A%20izpack/frontend/view/stages/configure/panels%20utils&In-Reply-To="
+       TITLE="[izpack-changes] r185 - in izpack-frontend/trunk/src: izpack/frontend/view/stages/configure/panels utils">gumbo at berlios.de
+       </A><BR>
+    <I>Wed Jan 25 02:55:57 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000101.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/installer Unpacker.java,1.49.2.1,1.49.2.2
+</A></li>
+        <LI>Next message: <A HREF="000103.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/util OsVersionConstants.java,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#102">[ date ]</a>
+              <a href="thread.html#102">[ thread ]</a>
+              <a href="subject.html#102">[ subject ]</a>
+              <a href="author.html#102">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gumbo
+Date: 2006-01-25 02:55:39 +0100 (Wed, 25 Jan 2006)
+New Revision: 185
+
+Added:
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/JDKPath.java
+Modified:
+   izpack-frontend/trunk/src/utils/XML.java
+Log:
+Added JDKPathPanel editor
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/JDKPath.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/JDKPath.java	2006-01-17 20:02:47 UTC (rev 184)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/JDKPath.java	2006-01-25 01:55:39 UTC (rev 185)
+@@ -0,0 +1,129 @@
++/*
++ * Created on Jan 24, 2006
++ * 
++ * $Id: JDKPath.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : JDKPath.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package izpack.frontend.view.stages.configure.panels;
++
++import javax.swing.ButtonGroup;
++import javax.swing.JLabel;
++import javax.swing.JPanel;
++import javax.swing.JRadioButton;
++import javax.swing.JTextField;
++
++import org.w3c.dom.Document;
++import org.w3c.dom.Element;
++
++import utils.XML;
++
++import com.jgoodies.forms.builder.DefaultFormBuilder;
++import com.jgoodies.forms.layout.CellConstraints;
++import com.jgoodies.forms.layout.FormLayout;
++
++/**
++ * Simple panel for JDK finding - set the minimum versions and stuff
++ * @author Andy Gombos
++ */
++public class JDKPath extends JPanel implements ConfigurePanel
++{
++    public JDKPath()
++    {
++        FormLayout layout = new FormLayout(&quot;pref, 5dlu, pref, 5dlu, pref&quot;, &quot;pref, 5dlu, pref, 10dlu, pref&quot;);
++        DefaultFormBuilder builder = new DefaultFormBuilder(layout, this);
++        
++        CellConstraints cc = new CellConstraints();
++        
++        builder.add(new JLabel(&quot;Minimum JDK Version:&quot;), cc.xy(1, 1));
++        builder.add(minVer = new JTextField(6),         cc.xyw(3, 1, 3));        
++        
++        builder.add(new JLabel(&quot;Maximum JDK Version:&quot;), cc.xy(1, 3));
++        builder.add(maxVer = new JTextField(6),         cc.xyw(3, 3, 3));                
++        
++        builder.add(new JLabel(&quot;Display panel if a JDK exists&quot;), cc.xy(1, 5));
++        builder.add(yes = new JRadioButton(&quot;Yes&quot;),               cc.xy(3, 5));
++        builder.add(no = new JRadioButton(&quot;No&quot;),                 cc.xy(5, 5));
++        builder.nextLine();
++        
++        ButtonGroup bg = new ButtonGroup();
++        bg.add(yes);
++        bg.add(no);
++    }
++    
++    public Element createXML(Document doc)
++    {
++        Element root = XML.createElement(&quot;variables&quot;, doc);
++        
++        //Skip if JDK valid
++        Element skipIfValid = XML.createElement(&quot;variable&quot;, doc);
++        skipIfValid.setAttribute(&quot;name&quot;, &quot;JDKPathPanel.skipIfValid&quot;);
++        if (yes.isSelected())
++            skipIfValid.setAttribute(&quot;value&quot;, &quot;yes&quot;);
++        else
++            skipIfValid.setAttribute(&quot;value&quot;, &quot;no&quot;);
++        
++        root.appendChild(skipIfValid);
++        
++        //Min version
++        Element minVerElem = XML.createElement(&quot;variable&quot;, doc);
++        minVerElem.setAttribute(&quot;name&quot;, &quot;JDKPathPanel.minVersion&quot;);
++        minVerElem.setAttribute(&quot;value&quot;, minVer.getText());
++        root.appendChild(minVerElem);
++        
++        //Max version
++        Element maxVerElem = XML.createElement(&quot;variable&quot;, doc);
++        maxVerElem.setAttribute(&quot;name&quot;, &quot;JDKPathPanel.maxVersion&quot;);
++        maxVerElem.setAttribute(&quot;value&quot;, maxVer.getText());
++        root.appendChild(maxVerElem);
++        
++        return root;
++    }
++
++    public void initFromXML(Document xmlFile)
++    {
++        //Load variables. Some may be null
++        String minVerStr = XML.getVariable(xmlFile, &quot;JDKPathPanel.minVersion&quot;);
++        String maxVerStr = XML.getVariable(xmlFile, &quot;JDKPathPanel.maxVersion&quot;);
++        String skip      = XML.getVariable(xmlFile, &quot;JDKPathPanel.skipIfValid&quot;);
++
++        if (minVerStr != null)
++            minVer.setText(minVerStr);
++        
++        if (maxVerStr != null)
++            maxVer.setText(maxVerStr);        
++        
++        if (skip != null)
++        {
++            skip = skip.toLowerCase();
++            
++            //Skip
++            if (skip.equals(&quot;yes&quot;) || skip.equals(&quot;true&quot;))
++                yes.setSelected(true);
++            //Don't skip            
++            else
++                no.setSelected(true);                
++        }
++    }
++    
++    JTextField minVer, maxVer;
++    JRadioButton yes, no;
++    //TODO I don't know if this needs to be internationalized
++    JLabel dotLabel = new JLabel(&quot;.&quot;);
++}
+
+Modified: izpack-frontend/trunk/src/utils/XML.java
+===================================================================
+--- izpack-frontend/trunk/src/utils/XML.java	2006-01-17 20:02:47 UTC (rev 184)
++++ izpack-frontend/trunk/src/utils/XML.java	2006-01-25 01:55:39 UTC (rev 185)
+@@ -190,19 +190,11 @@
+      * @return Value of the src attribute 
+      */
+     public static String getResourceValue(Document document, String id) 
+-    {
+-        XPath xpath = XPathFactory.newInstance().newXPath();
++    {        
+         try
+         {            
+-            //Search only for the &lt;res&gt; element we are interested in
+-            NodeList resource = (NodeList) xpath.evaluate(&quot;//res[@id='&quot; + id + &quot;']&quot;, document, XPathConstants.NODESET);
+-            
+-            if (resource.getLength() == 1)
+-            {
+-                String filename = xpath.evaluate(&quot;//res[1]/@src&quot;, resource.item(0));               
+-             
+-                return filename;
+-            }
++            //Use XPath to return the resource value by searching with it
++            return xpath.evaluate(&quot;//res[@id='&quot; + id + &quot;']/@src&quot;, document);            
+         }
+         catch (XPathExpressionException xpee)
+         {
+@@ -239,6 +231,35 @@
+ 	    return root;
+     }
+     
++    /**
++     * Structure:
++     * &lt;variables&gt;
++     *  &lt;variable name=&quot;&quot; value=&quot;&quot;&gt;
++     * &lt;/variables&gt;
++     *
++     * Parse a full install xml file to load a specified variable. Does not handle multiple variables with
++     * the same name
++     * 
++     * @param document The XML document
++     * @param id The variable name to look for
++     * @return Value of the src attribute 
++     */
++    public static String getVariable(Document document, String id) 
++    {        
++        try
++        {   
++            //Find the variable and return it's value
++            return xpath.evaluate(&quot;//variable[@name='&quot; + id + &quot;']/@value&quot;, document);
++        }
++        catch (XPathExpressionException xpee)
++        {
++            //Chances are, this is because the resource is missing
++            //Therefore, just give a null return value
++        } 
++        
++        return null;
++    }
++    
+     public static Element createRootElement(String name)
+     {
+         Document doc = getNewDocument();
+@@ -268,4 +289,5 @@
+     }
+     
+     private static Document doc;
++    private static XPath xpath = XPathFactory.newInstance().newXPath();
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000101.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/installer Unpacker.java,1.49.2.1,1.49.2.2
+</A></li>
+	<LI>Next message: <A HREF="000103.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/util OsVersionConstants.java,1.2,1.3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#102">[ date ]</a>
+              <a href="thread.html#102">[ thread ]</a>
+              <a href="subject.html#102">[ subject ]</a>
+              <a href="author.html#102">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

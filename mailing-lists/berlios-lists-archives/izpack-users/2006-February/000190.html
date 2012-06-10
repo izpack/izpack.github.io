@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Creating shortcuts based on version of windows
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Creating%20shortcuts%20based%20on%20version%20of%20windows&In-Reply-To=006f01c62d64%24be1737d0%240c01a8c0%40OKTA">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000183.html">
+   <LINK REL="Next"  HREF="000191.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Creating shortcuts based on version of windows</H1>
+    <B>Scott Taylor</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Creating%20shortcuts%20based%20on%20version%20of%20windows&In-Reply-To=006f01c62d64%24be1737d0%240c01a8c0%40OKTA"
+       TITLE="[izpack-users] Creating shortcuts based on version of windows">st-izpack at TaylorIT.com
+       </A><BR>
+    <I>Thu Feb  9 21:37:22 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000183.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+        <LI>Next message: <A HREF="000191.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#190">[ date ]</a>
+              <a href="thread.html#190">[ thread ]</a>
+              <a href="subject.html#190">[ subject ]</a>
+              <a href="author.html#190">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I'm using the Java Service Wrapper to allow my Java program to be 
+started as a windows service. I checked the bat file that comes with the 
+code and it already performs a Windows NT check before attempting to 
+install the service, so I shouldn't need to change my process panel at all.
+
+ From what I can see the shortcut configuration only allows one to 
+specify an OS at the family level (eg. windows, unix, mac), but not on 
+the name or version (95, 98, ME, XP, etc). So I've decided to always 
+create the startup short cut on Windows, but  have it point to a batch 
+file that first checks that it isn't a NT based windows before it starts 
+the program. Not the cleanest solution, but I think the easiest. I plan 
+to test it out tomorrow to see if it works.
+
+Thanks again for your help.
+/Scott
+
+Miraodb wrote:
+&gt;<i> Hi scott,
+</I>&gt;<i>
+</I>&gt;<i> Currently there's no differenciation between windows 2k, 98 or xp... they're
+</I>&gt;<i> all win32 OS.
+</I>&gt;<i> I'm not sure on how processpanel and shorcutpanel make the diffence between
+</I>&gt;<i> those.
+</I>&gt;<i> I assume there's a switch case logic within the code.
+</I>&gt;<i> I would therefore assume it's to be done automatically.
+</I>&gt;<i>
+</I>&gt;<i> Here's a thought for processpanel.:
+</I>&gt;<i> What do you use to create the service ? I assume it's a batch file. in that
+</I>&gt;<i> case, there must be a way to find out the version of the OS. i think the
+</I>&gt;<i> environment variable &quot;OS&quot; gives you that. Or even better, opening a command
+</I>&gt;<i> line shows up with two first line which gives you the exact name and version
+</I>&gt;<i> of the OS. All you have to do is run the command line, pipe the outputstream
+</I>&gt;<i> into string, compare substract of the sting to XP, NT, 2000 and so on....
+</I>&gt;<i> and then do the corresponding task for each of them using a switch or
+</I>&gt;<i> something...
+</I>&gt;<i>
+</I>&gt;<i> Another thought, why not using VBS ? since your aim is to use the script
+</I>&gt;<i> under windows. you could use VBS which has a few useful methods for system
+</I>&gt;<i> properties. You could use the GetversionEx API, something like this:
+</I>&gt;<i>
+</I>&gt;<i> Select Case OSInfo.dwPlatformId
+</I>&gt;<i> Case 0
+</I>&gt;<i> PId = &quot;Windows 32s &quot;
+</I>&gt;<i> Case 1
+</I>&gt;<i> PId = &quot;Windows 95/98&quot;
+</I>&gt;<i> Case 2
+</I>&gt;<i> PId = &quot;Windows NT &quot;
+</I>&gt;<i> End Select
+</I>&gt;<i>
+</I>&gt;<i> Now, regarding shorcuts that's more complicated since you can't run a task
+</I>&gt;<i> just for that matter within the shorcut panel.
+</I>&gt;<i> I see one tricky way, why not using the processpanel to run a batch or
+</I>&gt;<i> script of any kind that would create the shorcuts the way you want and get
+</I>&gt;<i> rid of the shorcutpanel in your installer.
+</I>&gt;<i> Thus, you could simply re-use the same code as above for the processpanel
+</I>&gt;<i> and implement the shorcut creation in the manner.
+</I>&gt;<i>
+</I>&gt;<i> Hope that helps,
+</I>&gt;<i> fabrice
+</I>&gt;<i> ----- Original Message ----- 
+</I>&gt;<i> From: &quot;Scott Taylor&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">st-izpack at taylorit.com</A>&gt;
+</I>&gt;<i> To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+</I>&gt;<i> Sent: Thursday, February 09, 2006 11:10 AM
+</I>&gt;<i> Subject: [izpack-users] Creating shortcuts based on version of windows
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> I'm trying to create an installer which when run installs a service on
+</I>&gt;&gt;<i> Windows NT, 2000, or XP. On Win98 (which doesn't support services) I
+</I>&gt;&gt;<i> would like to create a start up shortcut instead. So here are my
+</I>&gt;&gt;<i>     
+</I>&gt;<i> questions:
+</I>&gt;<i>   
+</I>&gt;&gt;<i> I currently install the service using a job run via the ProcessPanel. I
+</I>&gt;&gt;<i> have specified &lt;os family=&quot;windows&quot;&gt; but how do I specify the flavor of
+</I>&gt;&gt;<i> windows? I'm guessing that I should have something like &lt;os
+</I>&gt;&gt;<i> family=&quot;windows&quot; name=&quot;Windows NT&quot;&gt;. Assuming you can only have one &lt;os&gt;
+</I>&gt;&gt;<i> tag per job then I guess I need to repeat the job for name=&quot;Windows
+</I>&gt;&gt;<i> 2000&quot; and name=&quot;Windows XP&quot;. Correct? By the way, is there a list of
+</I>&gt;&gt;<i> valid names for windows operating systems somewhere?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Is it possible to create a shortcut for a specific version of Windows.
+</I>&gt;&gt;<i> In otherwords I would like to create a start up shortcut on Windows 98
+</I>&gt;&gt;<i> but not on Windows NT, 2000, nor XP.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> /Scott
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000183.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+	<LI>Next message: <A HREF="000191.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#190">[ date ]</a>
+              <a href="thread.html#190">[ thread ]</a>
+              <a href="subject.html#190">[ subject ]</a>
+              <a href="author.html#190">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Starting a Microsoft installer from IzPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Starting%20a%20Microsoft%20installer%20from%20IzPack&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001292.html">
+   <LINK REL="Next"  HREF="001311.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Starting a Microsoft installer from IzPack</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Starting%20a%20Microsoft%20installer%20from%20IzPack&In-Reply-To="
+       TITLE="[izpack-users] Starting a Microsoft installer from IzPack">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Feb  7 16:55:24 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001292.html">[izpack-users] I18N packs
+</A></li>
+        <LI>Next message: <A HREF="001311.html">[izpack-users] Starting a Microsoft installer from IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1293">[ date ]</a>
+              <a href="thread.html#1293">[ thread ]</a>
+              <a href="subject.html#1293">[ subject ]</a>
+              <a href="author.html#1293">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Gernot, hi Wilson,
+IzPack contains a variable substitutor. You have only add a &lt;parsable&gt;
+tag to substitut placeholder in your files before executing them.
+Sometimes it is not good to use the standard identifier for variables
+(the $) You can choose some other. Look into the docu.
+May be an example will be the best, therefore a test project which
+contains some &lt;parsable&gt; &lt;execute&gt; sequences and some pure &lt;parsable&gt;
+tags.
+In compile.cmd you have to addapt the path.
+Create a directory named dist.
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Gernot Stenz
+</I>&gt;<i>Sent: Tuesday, February 06, 2007 1:28 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: [izpack-users] Starting a Microsoft installer from IzPack
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hello,
+</I>&gt;<i>
+</I>&gt;<i>currently I have a serious problem with IzPack. I am writing 
+</I>&gt;<i>an installer that
+</I>&gt;<i>is supposed to call another, platform-dependent installer (one 
+</I>&gt;<i>containing
+</I>&gt;<i>the Tortoise SVN Client).
+</I>&gt;<i>
+</I>&gt;<i>Currently I am organising it this way:
+</I>&gt;<i>
+</I>&gt;<i> &lt;executable os=&quot;windows&quot; 
+</I>&gt;<i>targetfile=&quot;$INSTALL_PATH/Tortoise/install-tortoise.bat&quot; 
+</I>&gt;<i>stage=&quot;postinstall&quot; keep=&quot;true&quot;&gt;
+</I>&gt;<i>      &lt;arg 
+</I>&gt;<i>value=&quot;$INSTALL_PATH/Tortoise/TortoiseSVN-1.4.3.8645-win32-svn-
+</I>&gt;<i>1.4.3.msi&quot; /&gt;
+</I>&gt;<i> &lt;/executable&gt;
+</I>&gt;<i>
+</I>&gt;<i>where install-tortoise.bat is a small batch file that looks like this:
+</I>&gt;<i>
+</I>&gt;<i>start /wait msiexec /i %1
+</I>&gt;<i>
+</I>&gt;<i>The argument is necessary as I cannot execute the MSI script 
+</I>&gt;<i>on its own and
+</I>&gt;<i>somehow the path of the installer script has to be passed to 
+</I>&gt;<i>the batch file.
+</I>&gt;<i>
+</I>&gt;<i>The construction as a whole might work. When I replace the 
+</I>&gt;<i>'%1' in the batch
+</I>&gt;<i>file by the MSI-script-name with a proper path, all will 
+</I>&gt;<i>perform nicely.
+</I>&gt;<i>
+</I>&gt;<i>But the argument passing from the IzPack installer to the 
+</I>&gt;<i>batch file does not
+</I>&gt;<i>seem to work. I also tried this:
+</I>&gt;<i> 
+</I>&gt;<i>&lt;arg&gt;$INSTALL_PATH/Tortoise/TortoiseSVN-1.4.3.8645-win32-svn-1.
+</I>&gt;<i>4.3.msi&lt;/arg&gt;
+</I>&gt;<i>but it did not help either.
+</I>&gt;<i>
+</I>&gt;<i>Did anybody get this to work?
+</I>&gt;<i>
+</I>&gt;<i>TIA Gernot
+</I>&gt;<i>
+</I>&gt;<i>BTW, the 'executable' tags of a pack are evaluated in reverse order.
+</I>&gt;<i>
+</I>&gt;<i>-- 
+</I>&gt;<i>    __o  Gernot Stenz  e-mail:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">stenzg at informatik.tu-muenchen.de</A> 
+</I>&gt;<i>       /\
+</I>&gt;<i>   -\&lt;,          WWW:  <A HREF="http://www4.in.tum.de/~stenzg">http://www4.in.tum.de/~stenzg</A>           
+</I>&gt;<i>    /\/--\
+</I>&gt;<i>_(_)/(_)_London - Paris: 3547 
+</I>&gt;<i>km__________________________________/      \
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: Execute.zip
+Type: application/x-zip-compressed
+Size: 4470 bytes
+Desc: Execute.zip
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070207/f714e3d9/attachment.bin">https://lists.berlios.de/pipermail/izpack-users/attachments/20070207/f714e3d9/attachment.bin</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001292.html">[izpack-users] I18N packs
+</A></li>
+	<LI>Next message: <A HREF="001311.html">[izpack-users] Starting a Microsoft installer from IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1293">[ date ]</a>
+              <a href="thread.html#1293">[ thread ]</a>
+              <a href="subject.html#1293">[ subject ]</a>
+              <a href="author.html#1293">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

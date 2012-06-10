@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Execute Java Class
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Execute%20Java%20Class&In-Reply-To=4550D609.1040509%40dante.org.uk">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001086.html">
+   <LINK REL="Next"  HREF="001088.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Execute Java Class</H1>
+    <B>macke</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Execute%20Java%20Class&In-Reply-To=4550D609.1040509%40dante.org.uk"
+       TITLE="[izpack-users] Execute Java Class">maier at isys.uni-klu.ac.at
+       </A><BR>
+    <I>Tue Nov  7 20:05:15 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001086.html">[izpack-users] Execute Java Class
+</A></li>
+        <LI>Next message: <A HREF="001088.html">[izpack-users] PathSelectionPanel without using TargetPanel in 3.9 Show full header
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1087">[ date ]</a>
+              <a href="thread.html#1087">[ thread ]</a>
+              <a href="subject.html#1087">[ subject ]</a>
+              <a href="author.html#1087">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Hi!
+
+ok, in ProcessPanel.Spec.xml make sure it is ..
+&lt;processing&gt;
+&lt;job name=&quot;any&quot;&gt;
+	&lt;os family=&quot;windows&quot;/&gt;
+	&lt;executeclass name=&quot;src.Property.TestWrite&quot;/&gt;	
+&lt;/job&gt;
+&lt;/processing&gt;
+
+it's NOT &lt;executableclass&gt; 
+and you have to specify the right path. So if you have the TestWrite.class
+in the package src.Property, as I see in your code, you have to write:
+&lt;executeclass name=&quot;src.Property.TestWrite&quot;/&gt;
+
+bye,
+macke
+
+
+
+
+Mandeep wrote:
+&gt;<i> 
+</I>&gt;<i> Hi Macke,
+</I>&gt;<i> 
+</I>&gt;<i> Thankyou very much for the help but it hasn't solved my problem. I have 
+</I>&gt;<i> a feeling that I am wrong somewhere in specifying the paths. I am 
+</I>&gt;<i> sending you my complete files with the attachment so that you can have a 
+</I>&gt;<i> clear Idea of what I am doing.
+</I>&gt;<i> 
+</I>&gt;<i> I have also tried with the following path in the ProcessPanel.Spec.xml:
+</I>&gt;<i> 
+</I>&gt;<i> &lt;executeclass name=&quot;com.izforge.izpack.util.TestWrite&quot;&gt;
+</I>&gt;<i> 
+</I>&gt;<i> Thankyou again for ur kind help.
+</I>&gt;<i> 
+</I>&gt;<i> Regards
+</I>&gt;<i> Mandeep
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> macke wrote:
+</I>&gt;<i> 
+</I>&gt;&gt;<i> Hi!
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> First you have to specify in your install.xml, that you want to use the
+</I>&gt;&gt;<i> ProcessPanel: 
+</I>&gt;&gt;<i> &lt;panels&gt;
+</I>&gt;&gt;<i> ...
+</I>&gt;&gt;<i> &lt;panel classname=&quot;ProcessPanel&quot;/&gt;
+</I>&gt;&gt;<i> ...
+</I>&gt;&gt;<i> &lt;/panels&gt;
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> In the resources section of install.xml you have to tell where the xml
+</I>&gt;&gt;<i> for
+</I>&gt;&gt;<i> it is:
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i>     	&lt;resources&gt;
+</I>&gt;&gt;<i>                 .....
+</I>&gt;&gt;<i> 		&lt;!-- what has the ProcessPanel to do --&gt;
+</I>&gt;&gt;<i> 		&lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;PATH/TO/ProcessPanel.Spec.xml&quot;/&gt;
+</I>&gt;&gt;<i>     	&lt;/resources&gt;
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> And you have to include your class. Easiest way is to generate a JAR file
+</I>&gt;&gt;<i> including your class. In the install.xml you have then to add the line,
+</I>&gt;&gt;<i> e.g.
+</I>&gt;&gt;<i> &lt;jar src=&quot;PATH/TO/WriteProperties.jar&quot;/&gt;
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> In the ProcessPanel.Spec.xml you have to write:
+</I>&gt;&gt;<i> &lt;processing&gt;
+</I>&gt;&gt;<i> &lt;job name=&quot;name of teh job&quot;&gt;
+</I>&gt;&gt;<i> &lt;os family=&quot;windows&quot; /&gt;
+</I>&gt;&gt;<i> &lt;executeclass name=&quot;com.izforge.izpack.util.WriteProperties&quot;&gt; &lt;!-- this
+</I>&gt;&gt;<i> is
+</I>&gt;&gt;<i> an example! as you see you have to write the package path to your class.
+</I>&gt;&gt;<i> If
+</I>&gt;&gt;<i> you don't use packages, only write WriteProperties  --&gt;
+</I>&gt;&gt;<i> &lt;arg&gt;arg1&lt;/arg&gt;
+</I>&gt;&gt;<i> ...
+</I>&gt;&gt;<i> &lt;/executeclass&gt;
+</I>&gt;&gt;<i> &lt;/processing&gt;
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Hope this helps. 
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> regards,
+</I>&gt;&gt;<i> Macke
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Mandeep wrote:
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;&gt;<i>I want to execute (during or after the installation process) java class
+</I>&gt;&gt;&gt;<i>which creates a properties file . I am trying to do this with
+</I>ProcessPanel
+&gt;&gt;&gt;<i>and writing the following ProcessPanel.Spec.xml for the same:
+</I>&gt;&gt;&gt;<i>&lt;processing&gt;
+</I>&gt;&gt;&gt;<i>&lt;job name=&quot;any&quot;&gt;
+</I>&gt;&gt;&gt;<i>	&lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;&gt;&gt;<i>	&lt;executableclass name=&quot;$INSTALL_PATH/src/WriteProperties.class&quot;/&gt;	
+</I>&gt;&gt;&gt;<i>&lt;/job&gt;
+</I>&gt;&gt;&gt;<i>&lt;/processing&gt;
+</I>&gt;&gt;&gt;<i>is this the right way to do it...or should I so something else? Please
+</I>&gt;&gt;&gt;<i>suggest me.....I am new to IzPack.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> &lt;processing&gt;
+</I>&gt;<i> &lt;job name=&quot;any&quot;&gt;
+</I>&gt;<i> 	&lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;<i> 	&lt;executableclass name=&quot;$INSTALL_PATH/src/Property/TestWrite&quot;/&gt;	
+</I>&gt;<i> &lt;/job&gt;
+</I>&gt;<i> &lt;/processing&gt;
+</I>&gt;<i>  
+</I>&gt;<i> package src.Property;
+</I>&gt;<i> 
+</I>&gt;<i> import java.io.File;
+</I>&gt;<i> import java.io.FileInputStream;
+</I>&gt;<i> import java.io.OutputStream;
+</I>&gt;<i> import java.util.Properties;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> public class TestWrite extends java.util.Properties 
+</I>&gt;<i> {
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 	
+</I>&gt;<i> 	public TestWrite()
+</I>&gt;<i> 	{
+</I>&gt;<i> 		super();
+</I>&gt;<i> 	}
+</I>&gt;<i> 	public void setDefault(Properties defProp)
+</I>&gt;<i>     {
+</I>&gt;<i>         defaults = defProp;
+</I>&gt;<i>     } 
+</I>&gt;<i> 	
+</I>&gt;<i> 	
+</I>&gt;<i> 	public static void main(String[] args) 
+</I>&gt;<i> 	{
+</I>&gt;<i> 		 TestWrite prop = new TestWrite();
+</I>&gt;<i> 		 OutputStream out=null;		 
+</I>&gt;<i> 		 prop.put(&quot;HEIGHT&quot;,&quot;300&quot;);
+</I>&gt;<i> 		 prop.put(&quot;WIDTH&quot;,&quot;300&quot;);
+</I>&gt;<i> 		 String propFileName = &quot;Y:/IzPack/src/lib/prop.prp&quot;;
+</I>&gt;<i> 		 String comment = &quot;APP SETTINGS, //date will be different for you of
+</I>&gt;<i> course&quot;; 
+</I>&gt;<i> 		 
+</I>&gt;<i> 		 File outFile = new java.io.File(propFileName);
+</I>&gt;<i> 		 try
+</I>&gt;<i> 		 {
+</I>&gt;<i> 			  out = new java.io.FileOutputStream(outFile);
+</I>&gt;<i> 		      prop.store(out, comment);
+</I>&gt;<i> 		 }
+</I>&gt;<i> 		 catch(java.io.IOException ioe)
+</I>&gt;<i> 		 {
+</I>&gt;<i> 			 System.out.print(ioe);
+</I>&gt;<i> 		 }
+</I>&gt;<i> 		 finally
+</I>&gt;<i> 		 {
+</I>&gt;<i> 		     try{
+</I>&gt;<i> 		     out.flush();
+</I>&gt;<i> 		     out.close();}
+</I>&gt;<i> 		     catch(Exception e)
+</I>&gt;<i> 		     {
+</I>&gt;<i> 		    	 System.out.print(e);
+</I>&gt;<i> 		     }
+</I>&gt;<i> 		     out = null;
+</I>&gt;<i> 		 } 
+</I>&gt;<i> 	}
+</I>&gt;<i> 
+</I>&gt;<i> }
+</I>&gt;<i> 
+</I>&gt;<i> &lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+</I>&gt;<i> 
+</I>&gt;<i> &lt;installation version=&quot;1.0&quot;&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>         The info section.
+</I>&gt;<i>         The meaning of the tags should be natural ...
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     &lt;info&gt;
+</I>&gt;<i>         &lt;appname&gt;Sample Installation&lt;/appname&gt;
+</I>&gt;<i>         &lt;appversion&gt;1.4 beta 666&lt;/appversion&gt;
+</I>&gt;<i>         &lt;authors&gt;
+</I>&gt;<i>             &lt;author name=&quot;JPz&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">jpz at superman.org</A>&quot;/&gt;
+</I>&gt;<i>             &lt;author name=&quot;Hidden Man&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">hidden at hisdomain.com</A>&quot;/&gt;
+</I>&gt;<i>         &lt;/authors&gt;
+</I>&gt;<i>         &lt;url&gt;<A HREF="http://www.anotherworld-inspace-website.net/&lt;/url">http://www.anotherworld-inspace-website.net/&lt;/url</A>&gt;
+</I>&gt;<i>     &lt;/info&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>         The gui preferences indication.
+</I>&gt;<i>         Sets the installer window to 640x480. It will not be able to
+</I>&gt;<i> change the size.
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     &lt;guiprefs width=&quot;640&quot; height=&quot;480&quot; resizable=&quot;no&quot;/&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>         The locale section.
+</I>&gt;<i>         Asks here to include the English and French langpacks.
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     &lt;locale&gt;
+</I>&gt;<i>         &lt;langpack iso3=&quot;eng&quot;/&gt;
+</I>&gt;<i>         &lt;langpack iso3=&quot;fra&quot;/&gt;
+</I>&gt;<i>     &lt;/locale&gt;
+</I>&gt;<i> 	
+</I>&gt;<i> 	&lt;jar src=&quot;Y:/IzPack/src/lib/src/Property/TestWrite.jar&quot;/&gt;
+</I>&gt;<i> 	
+</I>&gt;<i> 	&lt;variables&gt;
+</I>&gt;<i> 		&lt;variable name=&quot;Any&quot; value=&quot;something&quot;/&gt;
+</I>&gt;<i> 		&lt;variable name=&quot;any2&quot; value=&quot;again something&quot;/&gt;
+</I>&gt;<i> 	&lt;/variables&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>         The resources section.
+</I>&gt;<i>         The ids must be these ones if you want to use the LicencePanel
+</I>&gt;<i> and/or the InfoPanel.
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     &lt;resources&gt;
+</I>&gt;<i>         &lt;res id=&quot;LicencePanel.licence&quot;
+</I>&gt;<i> src=&quot;Y:/IzPack/src/lib/Licence.txt&quot;/&gt;
+</I>&gt;<i>         &lt;res id=&quot;InfoPanel.info&quot; src=&quot;Y:/IzPack/src/lib/Readme.txt&quot;/&gt;
+</I>&gt;<i> 		&lt;res id=&quot;userInputSpec.xml&quot; src=&quot;Y:/IzPack/src/lib/userInputSpec.xml&quot;/&gt;
+</I>&gt;<i> 		&lt;res id=&quot;ProcessPanel.Spec.xml&quot;
+</I>&gt;<i> src=&quot;Y:/IzPack/src/lib/ProcessPanel.Spec.xml&quot;/&gt;
+</I>&gt;<i>     &lt;/resources&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>         The panels section.
+</I>&gt;<i>         We indicate here which panels we want to use. The order will be
+</I>&gt;<i> respected.
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     &lt;panels&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;InfoPanel&quot;/&gt;	
+</I>&gt;<i>         &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+</I>&gt;<i> 		&lt;panel classname=&quot;UserInputPanel&quot;/&gt; 
+</I>&gt;<i> 		&lt;panel classname=&quot;TargetPanel&quot;/&gt; 
+</I>&gt;<i> 		&lt;panel classname=&quot;ProcessPanel&quot;/&gt;        
+</I>&gt;<i>         &lt;panel classname=&quot;PacksPanel&quot;/&gt;	  	
+</I>&gt;<i>         &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+</I>&gt;<i>     &lt;/panels&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>         The packs section.
+</I>&gt;<i>         We specify here our packs.
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     &lt;packs&gt;
+</I>&gt;<i>         &lt;pack name=&quot;Base&quot; required=&quot;yes&quot;&gt;
+</I>&gt;<i>             &lt;description&gt;The base files&lt;/description&gt;
+</I>&gt;<i>             &lt;file src=&quot;Y:/IzPack/src/lib/Readme.txt&quot;
+</I>&gt;<i> targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;<i>             &lt;file src=&quot;Y:/IzPack/src/lib/Licence.txt&quot;
+</I>&gt;<i> targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;<i>             &lt;file src=&quot;Y:/IzPack/src/lib/script.bat&quot;
+</I>&gt;<i> targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;<i>             &lt;parsable targetfile=&quot;$INSTALL_PATH/script.bat&quot;/&gt; &lt;!-- The
+</I>&gt;<i> file will be parsed --&gt;
+</I>&gt;<i>         &lt;/pack&gt;
+</I>&gt;<i>         &lt;pack name=&quot;Docs&quot; required=&quot;no&quot;&gt;
+</I>&gt;<i>             &lt;description&gt;The documentation&lt;/description&gt;
+</I>&gt;<i>             &lt;file src=&quot;Y:/IzPack/src/lib/doc&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;<i> &lt;!-- Reccursive adding --&gt;			
+</I>&gt;<i>         &lt;/pack&gt;
+</I>&gt;<i>         &lt;pack name=&quot;Sources&quot; required=&quot;no&quot;&gt;
+</I>&gt;<i>             &lt;description&gt;The sources&lt;/description&gt;
+</I>&gt;<i>             &lt;file src=&quot;Y:/IzPack/src/lib/src&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;			
+</I>&gt;<i>         &lt;/pack&gt;
+</I>&gt;<i>     &lt;/packs&gt;
+</I>&gt;<i>     
+</I>&gt;<i> &lt;/installation&gt;
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+-- 
+View this message in context: <A HREF="http://www.nabble.com/Execute-Java-Class-tf2589791.html#a7224821">http://www.nabble.com/Execute-Java-Class-tf2589791.html#a7224821</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001086.html">[izpack-users] Execute Java Class
+</A></li>
+	<LI>Next message: <A HREF="001088.html">[izpack-users] PathSelectionPanel without using TargetPanel in 3.9 Show full header
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1087">[ date ]</a>
+              <a href="thread.html#1087">[ thread ]</a>
+              <a href="subject.html#1087">[ subject ]</a>
+              <a href="author.html#1087">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

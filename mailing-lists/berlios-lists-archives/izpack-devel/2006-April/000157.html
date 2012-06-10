@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Proposed fix for bug #6059: Wrong Installation Path    for Windows
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Proposed%20fix%20for%20bug%20%236059%3A%20Wrong%20Installation%20Path%20%20%20%20for%20Windows&In-Reply-To=C638D9C69D0F9042826B76E8C1D83519058B01B7%40colorado.hq.troux.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000148.html">
+   <LINK REL="Next"  HREF="000149.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Proposed fix for bug #6059: Wrong Installation Path    for Windows</H1>
+    <B>Hans Aikema</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Proposed%20fix%20for%20bug%20%236059%3A%20Wrong%20Installation%20Path%20%20%20%20for%20Windows&In-Reply-To=C638D9C69D0F9042826B76E8C1D83519058B01B7%40colorado.hq.troux.com"
+       TITLE="[izpack-devel] Proposed fix for bug #6059: Wrong Installation Path    for Windows">aikebah at aikebah.net
+       </A><BR>
+    <I>Thu Apr  6 19:55:09 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000148.html">[izpack-devel] Proposed fix for bug #6059: Wrong Installation Path    for Windows
+</A></li>
+        <LI>Next message: <A HREF="000149.html">[izpack-devel] No more support manager @berlios
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Based on the comments on this list I have decided it would be better to 
+leave the current localization of the Program Files folder intact for 
+the time being. So I will NOT commit my modified InstallerBase.java to 
+the CVS.
+
+Maybe someone with good knowledge of the JNI can come up with a solution 
+similar to the solution for Windows Shortcuts using the SHGetFolderPath 
+function mentioned by Microsoft as the preferred way of obtaining the 
+location of the Program Files special folder on Windows Platforms.
+
+See 
+<A HREF="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/functions/shgetfolderpath.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/functions/shgetfolderpath.asp</A> 
+for more info on that function.
+
+Unfortunately I lack knowledge of programming with the Java Native 
+Interface as well as programming in a windows environment using 
+DLL-functions. Maybe one of you is experienced enough to build an 
+interface to SHGetFolderPath to obtain the correct root-path for 
+applications on any windows system.
+
+regards,
+Hans Aikema
+
+Ryan Shillington wrote:
+
+&gt;<i>ProgramFiles is set correctly in Win Server 2003 (Standard).  I dunno
+</I>&gt;<i>about 95, 98 and NT.
+</I>&gt;<i>
+</I>&gt;<i>Ryan
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>__________________________________________________
+</I>&gt;<i>Ryan Shillington
+</I>&gt;<i>Troux
+</I>&gt;<i>Office: 512.493.9575 Cell: 512.426.4389 Fax: 512.231.8796
+</I>&gt;<i>
+</I>&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>] On Behalf Of Miraodb
+</I>&gt;<i>Sent: Tuesday, April 04, 2006 7:02 AM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-devel] Proposed fix for bug #6059: Wrong
+</I>&gt;<i>Installation Path for Windows
+</I>&gt;<i>
+</I>&gt;<i>Hi guyz,
+</I>&gt;<i>
+</I>&gt;<i>This might be true for windows 2000 and xp but not for other versions
+</I>&gt;<i>(95,98,nt4).
+</I>&gt;<i>I'm not sure about win server 2003 either.
+</I>&gt;<i>
+</I>&gt;<i>I don't use those versions, but maybe someone would...
+</I>&gt;<i>Is that an issue ? that's the question !
+</I>&gt;<i>
+</I>&gt;<i>cheers,
+</I>&gt;<i>fabrice
+</I>&gt;<i>----- Original Message -----
+</I>&gt;<i>From: &quot;Julien Ponge&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">julien at izforge.com</A>&gt;
+</I>&gt;<i>To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>&gt;
+</I>&gt;<i>Sent: Monday, April 03, 2006 11:02 PM
+</I>&gt;<i>Subject: Re: [izpack-devel] Proposed fix for bug #6059: Wrong
+</I>&gt;<i>Installation Path for Windows
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;&gt;&gt;<i>I prepared a version of InstallerBase.java where I implemented my
+</I>&gt;&gt;&gt;<i>suggestion. Does any of you object to committing this code into CVS?
+</I>&gt;&gt;&gt;<i>      
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;<i>If the env variable is indeed reliable, then I am in favor of your
+</I>&gt;&gt;<i>fix ;-)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>--
+</I>&gt;&gt;<i>Julien Ponge
+</I>&gt;&gt;<i><A HREF="http://www.izforge.com/">http://www.izforge.com/</A>
+</I>&gt;&gt;<i>GnuPG ID: 0xCD9DE030
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>_______________________________________________
+</I>&gt;&gt;<i>izpack-devel mailing list
+</I>&gt;&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>    
+</I>&gt;&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>IMPORTANT NOTICE:
+</I>&gt;<i>This message may contain confidential information. If you have received this e-mail in error, do not use, copy or distribute it. Do not open any attachments. Delete it immediately from your system and notify the sender promptly by e-mail that you have done so. Thank you.
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000148.html">[izpack-devel] Proposed fix for bug #6059: Wrong Installation Path    for Windows
+</A></li>
+	<LI>Next message: <A HREF="000149.html">[izpack-devel] No more support manager @berlios
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,302 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1675 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . compiler installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1675%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20.%20compiler%20installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000419.html">
+   <LINK REL="Next"  HREF="000421.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1675 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . compiler installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1675%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20.%20compiler%20installer&In-Reply-To="
+       TITLE="[izpack-changes] r1675 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . compiler installer">noreply at berlios.de
+       </A><BR>
+    <I>Fri Jan  5 09:00:38 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000419.html">[izpack-changes] r1674 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000421.html">[izpack-changes] r1676 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#420">[ date ]</a>
+              <a href="thread.html#420">[ thread ]</a>
+              <a href="subject.html#420">[ subject ]</a>
+              <a href="author.html#420">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-05 09:00:33 +0100 (Fri, 05 Jan 2007)
+New Revision: 1675
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/IUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerFactory.java
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/Info.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+Log:
+Completed option to select Unpacker implementation
+
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/Info.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/Info.java	2007-01-04 13:17:58 UTC (rev 1674)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/Info.java	2007-01-05 08:00:33 UTC (rev 1675)
+@@ -66,6 +66,8 @@
+      */
+     private String packDecoderClassName = null;
+     
++    private String unpackerClassName = null;
++    
+     /** The constructor, deliberatly void. */
+     public Info()
+     {
+@@ -349,4 +351,16 @@
+     {
+         this.packDecoderClassName = packDecoderClassName;
+     }
++
++    
++    public String getUnpackerClassName()
++    {
++        return unpackerClassName;
++    }
++
++    
++    public void setUnpackerClassName(String unpackerClassName)
++    {
++        this.unpackerClassName = unpackerClassName;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-01-04 13:17:58 UTC (rev 1674)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-01-05 08:00:33 UTC (rev 1675)
+@@ -346,13 +346,14 @@
+             XMLElement unpacker = root.getFirstChildNamed(&quot;unpacker&quot;);
+             
+             if (unpacker != null){
+-                unpackerclassname = requireAttribute(unpacker, &quot;class&quot;);
++                unpackerclassname = requireAttribute(unpacker, &quot;class&quot;);                
+             }        
+         }
+         compiler.initPackager(packagerclassname);  
+         if (root != null){
+             compiler.getPackager().addConfigurationInformation(root);
+         }
++        compiler.addProperty(&quot;UNPACKER_CLASS&quot;, unpackerclassname);
+         notifyCompilerListener(&quot;loadPackager&quot;, CompilerListener.END, data);        
+     }
+ 
+@@ -1293,6 +1294,9 @@
+         XMLElement slfPath = root.getFirstChildNamed(&quot;summarylogfilepath&quot;);
+         if (slfPath != null) info.setSummaryLogFilePath(requireContent(slfPath));
+ 
++        // look for an unpacker class
++        String unpackerclass = compiler.getProperty(&quot;UNPACKER_CLASS&quot;);
++        info.setUnpackerClassName(unpackerclass);
+         compiler.setInfo(info);
+         notifyCompilerListener(&quot;addInfo&quot;, CompilerListener.END, data);
+     }
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/IUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/IUnpacker.java	2007-01-04 13:17:58 UTC (rev 1674)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/IUnpacker.java	2007-01-05 08:00:33 UTC (rev 1675)
+@@ -0,0 +1,31 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.installer;
++
++public interface IUnpacker extends Runnable
++{
++    /**
++     * Return the state of the operation.
++     * 
++     * @return true if the operation was successful, false otherwise.
++     */
++    public abstract boolean getResult();
++}
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-01-04 13:17:58 UTC (rev 1674)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-01-05 08:00:33 UTC (rev 1675)
+@@ -1198,9 +1198,13 @@
+      * @param listener The installation listener.
+      */
+     public void install(AbstractUIProgressHandler listener)
+-    {
++    {       
++        IUnpacker unpacker = UnpackerFactory.getUnpacker(this.installdata.info.getUnpackerClassName(), installdata, listener);
++        unpacker.run();
++        /*
+         Unpacker unpacker = new Unpacker(installdata, listener);
+         unpacker.start();
++        */
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-01-04 13:17:58 UTC (rev 1674)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-01-05 08:00:33 UTC (rev 1675)
+@@ -43,7 +43,7 @@
+  * @author Julien Ponge
+  * @author Johannes Lehtinen
+  */
+-public class Unpacker extends Thread
++public class Unpacker extends Thread implements IUnpacker
+ {
+ 
+     /** The installdata. */
+@@ -248,7 +248,9 @@
+ 
+     }
+ 
+-    /** The run method. */
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.installer.IUnpacker#run()
++     */
+     public void run()
+     {
+         addToInstances();
+@@ -568,10 +570,8 @@
+         }
+     }
+ 
+-    /**
+-     * Return the state of the operation.
+-     * 
+-     * @return true if the operation was successful, false otherwise.
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.installer.IUnpacker#getResult()
+      */
+     public boolean getResult()
+     {
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerFactory.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerFactory.java	2007-01-04 13:17:58 UTC (rev 1674)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerFactory.java	2007-01-05 08:00:33 UTC (rev 1675)
+@@ -0,0 +1,66 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.installer;
++
++import java.lang.reflect.Constructor;
++
++import com.izforge.izpack.util.AbstractUIProgressHandler;
++import com.izforge.izpack.util.Debug;
++
++
++/**
++ * A Factory for getting unpacker instances. 
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ */
++public abstract class UnpackerFactory
++{
++    /**
++     * Returns an instance of the desired unpacker class
++     * @param unpackerclassname
++     * @param installdata
++     * @param listener
++     * @return
++     */
++    public static IUnpacker getUnpacker(String unpackerclassname, AutomatedInstallData installdata, AbstractUIProgressHandler listener){
++        IUnpacker unpackerobj = null;
++        try
++        {
++            Class unpackerclass = Class.forName(unpackerclassname);
++            Class[] parametertypes = {AutomatedInstallData.class, AbstractUIProgressHandler.class};
++            Constructor unpackerconstructor = unpackerclass.getConstructor(parametertypes);
++            Object[] parameter = {installdata,listener};
++            unpackerobj = (IUnpacker) unpackerconstructor.newInstance(parameter);            
++        }        
++        catch (NoSuchMethodException e)
++        {
++            Debug.trace(&quot;Can't load unpacker: &quot; + unpackerclassname);
++            Debug.trace(&quot;Unpacker doesn't implement the desired method&quot;);
++            Debug.trace(e);
++        }
++        catch (Exception e)
++        {
++            Debug.trace(&quot;Can't load unpacker: &quot; + unpackerclassname);
++            Debug.trace(e);
++        }                
++        return unpackerobj;
++    }
++}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000419.html">[izpack-changes] r1674 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000421.html">[izpack-changes] r1676 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#420">[ date ]</a>
+              <a href="thread.html#420">[ thread ]</a>
+              <a href="subject.html#420">[ subject ]</a>
+              <a href="author.html#420">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

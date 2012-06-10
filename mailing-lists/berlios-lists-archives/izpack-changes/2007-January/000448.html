@@ -1,0 +1,663 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1703 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1703%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000447.html">
+   <LINK REL="Next"  HREF="000449.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1703 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1703%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1703 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Fri Jan 12 16:22:59 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000447.html">[izpack-changes] r1702 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000449.html">[izpack-changes] r1704 - in izpack-src/trunk: .	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#448">[ date ]</a>
+              <a href="thread.html#448">[ thread ]</a>
+              <a href="subject.html#448">[ subject ]</a>
+              <a href="author.html#448">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-12 16:22:52 +0100 (Fri, 12 Jan 2007)
+New Revision: 1703
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/PackselectionCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java
+Log:
+Refactored conditions
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -40,10 +40,12 @@
+      * 
+      * @see de.reddot.installer.util.Condition#isTrue()
+      */
++    /*
+     public boolean isTrue(Properties variables)
+     {
+         return leftoperand.isTrue(variables) &amp;&amp; rightoperand.isTrue(variables);
+     }
++    */
+ 
+     /*
+      * (non-Javadoc)
+@@ -68,9 +70,15 @@
+         }
+     }
+ 
++    /*
+     public boolean isTrue(Properties variables, List selectedpacks)
+     {
+         return leftoperand.isTrue(variables, selectedpacks)
+                 &amp;&amp; rightoperand.isTrue(variables, selectedpacks);
+     }
++    */
++    public boolean isTrue()
++    {        
++        return leftoperand.isTrue() &amp;&amp; rightoperand.isTrue();
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -1,10 +1,9 @@
+ package com.izforge.izpack.rules;
+ 
+-import java.util.List;
+-import java.util.Properties;
+-
+ import net.n3.nanoxml.XMLElement;
+ 
++import com.izforge.izpack.installer.AutomatedInstallData;
++
+ /**
+  * Abstract base class for all conditions
+  *
+@@ -13,19 +12,23 @@
+ public abstract class Condition {
+ 
+     protected String id;
++    protected AutomatedInstallData installdata;
+ 
+     public Condition() {
+         this.id = &quot;UNKNOWN&quot;;
++        this.installdata = null;
+     }
+ 
++    
+     /**
+      * checks if this condition is met.
+      *
+      * @return true if condition is fulfilled
+      *         false if condition is not fulfilled
+      */
++    /*
+     public abstract boolean isTrue(Properties variables);
+-
++     */
+     /**
+      * checks if this condition is met.
+      *
+@@ -34,10 +37,12 @@
+      * @return true if condition is fulfilled
+      *         false if condition is not fulfilled
+      */
++    /*
+     public boolean isTrue(Properties variables, List selectedpacks) {
+         // default implementation is to ignore the selected packs
+         return this.isTrue(variables);
+     }
++    */
+ 
+     /**
+      * @return the id
+@@ -55,4 +60,18 @@
+     }
+ 
+     public abstract void readFromXML(XMLElement xmlcondition);
++
++    public abstract boolean isTrue();
++    
++    public AutomatedInstallData getInstalldata()
++    {
++        return installdata;
++    }
++
++
++    
++    public void setInstalldata(AutomatedInstallData installdata)
++    {
++        this.installdata = installdata;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -29,7 +29,7 @@
+ 
+     }
+ 
+-    public boolean isTrue(Properties variables) {
++    private boolean isTrue(Properties variables) {
+         if (!this.complete) {
+             return false;
+         } else {
+@@ -115,4 +115,9 @@
+         this.complete = true;
+     }
+ 
++    public boolean isTrue()
++    {
++       return this.isTrue(this.installdata.getVariables());
++    }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -1,9 +1,7 @@
+ package com.izforge.izpack.rules;
+ 
+-import java.util.List;
+-import java.util.Properties;
++import net.n3.nanoxml.XMLElement;
+ 
+-import net.n3.nanoxml.XMLElement;
+ import com.izforge.izpack.util.Debug;
+ 
+ /**
+@@ -36,10 +34,12 @@
+      * 
+      * @see de.reddot.installer.util.Condition#isTrue()
+      */
++    /*
+     public boolean isTrue(Properties variables)
+     {
+         return !operand.isTrue(variables);
+     }
++    */
+ 
+     /*
+      * (non-Javadoc)
+@@ -63,8 +63,14 @@
+         }
+     }
+ 
++    /*
+     public boolean isTrue(Properties variables, List selectedpacks)
+     {
+         return !operand.isTrue(variables, selectedpacks);
+     }
++    */
++    public boolean isTrue()
++    {        
++        return !operand.isTrue();
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -44,12 +44,11 @@
+      * 
+      * @see de.reddot.installer.util.Condition#isTrue()
+      */
+-    public boolean isTrue(Properties variables)
+-    {
+-        return this.leftoperand.isTrue(variables) || this.rightoperand.isTrue(variables);
+-    }
+-
+     /*
++     * public boolean isTrue(Properties variables) { return this.leftoperand.isTrue(variables) ||
++     * this.rightoperand.isTrue(variables); }
++     */
++    /*
+      * (non-Javadoc)
+      * 
+      * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+@@ -72,9 +71,13 @@
+         }
+     }
+ 
+-    public boolean isTrue(Properties variables, List selectedpacks)
++    /*
++     * public boolean isTrue(Properties variables, List selectedpacks) { return
++     * this.leftoperand.isTrue(variables, selectedpacks) || this.rightoperand.isTrue(variables,
++     * selectedpacks); }
++     */
++    public boolean isTrue()
+     {
+-        return this.leftoperand.isTrue(variables, selectedpacks)
+-                || this.rightoperand.isTrue(variables, selectedpacks);
++        return this.leftoperand.isTrue() || this.rightoperand.isTrue();
+     }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/PackselectionCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/PackselectionCondition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/PackselectionCondition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -13,42 +13,56 @@
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  * @version $Id: PackselectionCondition.java,v 1.1 2006/11/03 13:03:26 dennis Exp $
+  */
+-public class PackselectionCondition extends Condition {
++public class PackselectionCondition extends Condition
++{
+ 
+     protected String packid;
+ 
+     /**
+-     *
++     * 
+      */
+-    public PackselectionCondition() {
++    public PackselectionCondition()
++    {
+         // TODO Auto-generated constructor stub
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.rules.Condition#isTrue(java.util.Properties)
+-    */
+-    public boolean isTrue(Properties variables) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.rules.Condition#isTrue(java.util.Properties)
++     */
++    private boolean isTrue(Properties variables)
++    {
+         // no information about selected packs given, so return false
+         return false;
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+-    */
+-    public void readFromXML(XMLElement xmlcondition) {
+-        try {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
++     */
++    public void readFromXML(XMLElement xmlcondition)
++    {
++        try
++        {
+             this.packid = xmlcondition.getFirstChildNamed(&quot;packid&quot;).getContent();
+         }
+-        catch (Exception e) {
++        catch (Exception e)
++        {
+             Debug.log(&quot;missing element in &lt;condition type=\&quot;variable\&quot;/&gt;&quot;);
+         }
+     }
+ 
+-    public boolean isTrue(Properties variables, List selectedpacks) {
+-        if (selectedpacks != null) {
+-            for (Iterator iter = selectedpacks.iterator(); iter.hasNext();) {
++    private boolean isTrue(Properties variables, List selectedpacks)
++    {
++        if (selectedpacks != null)
++        {
++            for (Iterator iter = selectedpacks.iterator(); iter.hasNext();)
++            {
+                 Pack p = (Pack) iter.next();
+-                if (packid.equals(p.id)) {
++                if (packid.equals(p.id))
++                {
+                     // pack is selected
+                     return true;
+                 }
+@@ -58,4 +72,9 @@
+         return false;
+     }
+ 
++    public boolean isTrue()
++    {
++        return this.isTrue(this.installdata.getVariables(), this.installdata.selectedPacks);
++    }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -1,8 +1,5 @@
+ package com.izforge.izpack.rules;
+ 
+-import java.util.List;
+-import java.util.Properties;
+-
+ import net.n3.nanoxml.XMLElement;
+ 
+ /**
+@@ -20,27 +17,30 @@
+         this.referencedcondition = null;
+     }
+ 
+-    public boolean isTrue(Properties variables)
++    /*
++     * public boolean isTrue(Properties variables) { if (referencedcondition == null) { return
++     * false; } else { return referencedcondition.isTrue(variables); } }
++     */
++    public void readFromXML(XMLElement xmlcondition)
+     {
+-        if (referencedcondition == null)
++        String refid = xmlcondition.getAttribute(&quot;refid&quot;);
++        this.referencedcondition = RulesEngine.getCondition(refid);
++    }
++
++    public boolean isTrue()
++    {
++        if (this.referencedcondition == null)
+         {
+             return false;
+         }
+         else
+         {
+-            return referencedcondition.isTrue(variables);
++            return this.referencedcondition.isTrue();
+         }
+     }
+ 
+-    public void readFromXML(XMLElement xmlcondition)
+-    {
+-        String refid = xmlcondition.getAttribute(&quot;refid&quot;);
+-        this.referencedcondition = RulesEngine.getCondition(refid);
+-    }
+-
+-    public boolean isTrue(Properties variables, List selectedpacks)
+-    {
+-        return referencedcondition.isTrue(variables, selectedpacks);
+-    }
+-
++    /*
++     * public boolean isTrue(Properties variables, List selectedpacks) { return
++     * referencedcondition.isTrue(variables, selectedpacks); }
++     */
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -100,7 +100,8 @@
+                     if (cond != null) {
+                         // this.conditionslist.add(cond);
+                         String condid = cond.getId();
+-                        if ((condid != null) &amp;&amp; !(&quot;UNKNOWN&quot;.equals(condid))) {
++                        cond.setInstalldata(this.installdata);
++                        if ((condid != null) &amp;&amp; !(&quot;UNKNOWN&quot;.equals(condid))) {                            
+                             conditionsmap.put(condid, cond);
+                         }
+                     }
+@@ -148,7 +149,7 @@
+             return true;
+         } else {
+             Debug.trace(&quot;Checking condition&quot;);
+-            return cond.isTrue(variables, this.installdata.selectedPacks);
++            return cond.isTrue();
+         }
+     }
+ 
+@@ -158,7 +159,7 @@
+             return true;
+         } else {
+             Debug.trace(&quot;Checking condition&quot;);
+-            return cond.isTrue(variables, this.installdata.selectedPacks);
++            return cond.isTrue();
+         }
+     }
+ 
+@@ -179,7 +180,7 @@
+         Debug.trace(&quot;there is a condition&quot;);
+         Condition condition = (Condition) conditionsmap.get(this.panelconditions.get(panelid));
+         if (condition != null) {
+-            return condition.isTrue(variables, this.installdata.selectedPacks);
++            return condition.isTrue();
+         }
+         return false;
+     }
+@@ -204,7 +205,7 @@
+         Debug.trace(&quot;there is a condition&quot;);
+         Condition condition = (Condition) conditionsmap.get(this.packconditions.get(packid));
+         if (condition != null) {
+-            return condition.isTrue(variables, this.installdata.selectedPacks);
++            return condition.isTrue();
+         }
+         return false;
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -9,65 +9,81 @@
+ /**
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  */
+-public class VariableCondition extends Condition {
++public class VariableCondition extends Condition
++{
++
+     protected String variablename;
++
+     protected String value;
+ 
+-    public VariableCondition(String variablename, String value, HashMap packstoremove) {
++    public VariableCondition(String variablename, String value, HashMap packstoremove)
++    {
+         super();
+         this.variablename = variablename;
+         this.value = value;
+     }
+ 
+-    public VariableCondition(String variablename, String value) {
++    public VariableCondition(String variablename, String value)
++    {
+         super();
+         this.variablename = variablename;
+         this.value = value;
+     }
+ 
+-    public VariableCondition() {
++    public VariableCondition()
++    {
+         super();
+     }
+ 
+-    public String getValue() {
++    public String getValue()
++    {
+         return value;
+     }
+ 
+-    public void setValue(String value) {
++    public void setValue(String value)
++    {
+         this.value = value;
+     }
+ 
+-    public String getVariablename() {
++    public String getVariablename()
++    {
+         return variablename;
+     }
+ 
+-    public void setVariablename(String variablename) {
++    public void setVariablename(String variablename)
++    {
+         this.variablename = variablename;
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.util.Condition#isTrue()
+-    */
+-    public boolean isTrue(Properties variables) {
+-        String val = variables.getProperty(variablename);
+-        if (val == null) {
+-            return false;
+-        } else {
+-            return val.equals(value);
+-        }
+-    }
+-
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+-    */
+-    public void readFromXML(XMLElement xmlcondition) {
+-        try {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
++     */
++    public void readFromXML(XMLElement xmlcondition)
++    {
++        try
++        {
+             this.variablename = xmlcondition.getFirstChildNamed(&quot;name&quot;).getContent();
+             this.value = xmlcondition.getFirstChildNamed(&quot;value&quot;).getContent();
+         }
+-        catch (Exception e) {
++        catch (Exception e)
++        {
+             Debug.log(&quot;missing element in &lt;condition type=\&quot;variable\&quot;/&gt;&quot;);
+         }
+ 
+     }
++
++    public boolean isTrue()
++    {
++        String val = this.installdata.getVariable(variablename);
++        if (val == null)
++        {
++            return false;
++        }
++        else
++        {
++            return val.equals(value);
++        }
++    }
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java	2007-01-11 13:55:06 UTC (rev 1702)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java	2007-01-12 15:22:52 UTC (rev 1703)
+@@ -1,9 +1,7 @@
+ package com.izforge.izpack.rules;
+ 
+-import java.util.List;
+-import java.util.Properties;
++import net.n3.nanoxml.XMLElement;
+ 
+-import net.n3.nanoxml.XMLElement;
+ import com.izforge.izpack.util.Debug;
+ 
+ /**
+@@ -36,6 +34,7 @@
+      * 
+      * @see de.reddot.installer.util.OrCondition#isTrue()
+      */
++    /*
+     public boolean isTrue(Properties variables)
+     {
+         boolean op1true = leftoperand.isTrue(variables);
+@@ -48,7 +47,7 @@
+         }
+         return op1true || op2true;
+     }
+-
++    */
+     /*
+      * (non-Javadoc)
+      * 
+@@ -72,6 +71,20 @@
+         }
+     }
+ 
++    public boolean isTrue()
++    {
++        boolean op1true = leftoperand.isTrue();
++        boolean op2true = rightoperand.isTrue();
++
++        if (op1true &amp;&amp; op2true)
++        {
++            // in case where both are true
++            return false;
++        }
++        return op1true || op2true;
++    }
++
++    /*
+     public boolean isTrue(Properties variables, List selectedpacks)
+     {
+         boolean op1true = leftoperand.isTrue(variables, selectedpacks);
+@@ -84,4 +97,5 @@
+         }
+         return op1true || op2true;
+     }
++    */
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000447.html">[izpack-changes] r1702 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000449.html">[izpack-changes] r1704 - in izpack-src/trunk: .	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#448">[ date ]</a>
+              <a href="thread.html#448">[ thread ]</a>
+              <a href="subject.html#448">[ subject ]</a>
+              <a href="author.html#448">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

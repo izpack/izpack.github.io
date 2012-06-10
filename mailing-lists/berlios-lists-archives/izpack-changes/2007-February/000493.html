@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1747 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1747%20-%0A%09izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000492.html">
+   <LINK REL="Next"  HREF="000494.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1747 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1747%20-%0A%09izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1747 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Sun Feb 18 19:24:10 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000492.html">[izpack-changes] r1746 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+        <LI>Next message: <A HREF="000494.html">[izpack-changes] r1748 -	izpack-src/branches/3.10/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#493">[ date ]</a>
+              <a href="thread.html#493">[ thread ]</a>
+              <a href="subject.html#493">[ subject ]</a>
+              <a href="author.html#493">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-02-18 19:23:57 +0100 (Sun, 18 Feb 2007)
+New Revision: 1747
+
+Modified:
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+Log:
+In Linux we will use the English locale, because of a bug in
+JRE6. In Korean, Persian, Chinese, japanese and some other
+locales the installer throws and exception and doesn't load
+at all. See <A HREF="http://jira.jboss.com/jira/browse/JBINSTALL-232.">http://jira.jboss.com/jira/browse/JBINSTALL-232.</A>
+This is a workaround until this bug gets fixed.
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-02-18 14:54:59 UTC (rev 1746)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-02-18 18:23:57 UTC (rev 1747)
+@@ -298,6 +298,12 @@
+         {
+             if (!&quot;mac&quot;.equals(syskey))
+             {
++                // In Linux we will use the English locale, because of a bug in
++                // JRE6. In Korean, Persian, Chinese, japanese and some other
++                // locales the installer throws and exception and doesn't load
++                // at all. See <A HREF="http://jira.jboss.com/jira/browse/JBINSTALL-232.">http://jira.jboss.com/jira/browse/JBINSTALL-232.</A>
++                // This is a workaround until this bug gets fixed.
++                if(&quot;unix&quot;.equals(syskey)) Locale.setDefault(Locale.ENGLISH);
+                 String syslaf = UIManager.getSystemLookAndFeelClassName();
+                 UIManager.setLookAndFeel(syslaf);
+                 if (UIManager.getLookAndFeel() instanceof MetalLookAndFeel)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000492.html">[izpack-changes] r1746 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+	<LI>Next message: <A HREF="000494.html">[izpack-changes] r1748 -	izpack-src/branches/3.10/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#493">[ date ]</a>
+              <a href="thread.html#493">[ thread ]</a>
+              <a href="subject.html#493">[ subject ]</a>
+              <a href="author.html#493">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

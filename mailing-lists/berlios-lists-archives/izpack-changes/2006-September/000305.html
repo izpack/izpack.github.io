@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1560 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1560%20-%20in%20izpack-src/trunk%3A%20.%20src/dist-files%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000304.html">
+   <LINK REL="Next"  HREF="000306.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1560 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1560%20-%20in%20izpack-src/trunk%3A%20.%20src/dist-files%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1560 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Tue Sep  5 04:02:23 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000304.html">[izpack-changes] r1559 - in izpack-src/trunk/src: dist-files	doc-ng/XHTML lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000306.html">[izpack-changes] r1561 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#305">[ date ]</a>
+              <a href="thread.html#305">[ thread ]</a>
+              <a href="subject.html#305">[ subject ]</a>
+              <a href="author.html#305">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-09-05 04:01:57 +0200 (Tue, 05 Sep 2006)
+New Revision: 1560
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/dist-files/IzPack-install.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+Log:
+A potential null pointer exception has been discovered in Unpacker with a custom action. (Dennis Reil, via Julien Ponge).
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2006-09-04 15:46:18 UTC (rev 1559)
++++ izpack-src/trunk/Versions.txt	2006-09-05 02:01:57 UTC (rev 1560)
+@@ -44,7 +44,9 @@
+   Default is now: with both. (Marc Eppelmann).
+ - Suppress a NullPointerException in the RuleInputField (Dennis Reil, via Marc
+   Eppelmann).
+-- Merged normal installer and registry-enabled installers (julien Ponge).
++- Merged normal installer and registry-enabled installers (Julien Ponge).
++- A potential null pointer exception has been discovered in Unpacker with a
++  custom action. (Dennis Reil, via Julien Ponge).
+ 
+   &gt; 3.8.1 (build 2006.01.06)
+ - Added Greek language support (Fabrice Mirabile, thanks to Panayotis
+
+Modified: izpack-src/trunk/src/dist-files/IzPack-install.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install.xml	2006-09-04 15:46:18 UTC (rev 1559)
++++ izpack-src/trunk/src/dist-files/IzPack-install.xml	2006-09-05 02:01:57 UTC (rev 1560)
+@@ -36,6 +36,7 @@
+             &lt;author email=&quot;&quot; name=&quot;Ryan Shillington (contributor)&quot; /&gt;
+             &lt;author email=&quot;&quot; name=&quot;Eric Rose (contributor)&quot; /&gt;
+             &lt;author email=&quot;&quot; name=&quot;Amit Bhayani @JBoss/RedHat (contributors)&quot; /&gt;
++            &lt;author email=&quot;&quot; name=&quot;Denis Reil (contributor)&quot; /&gt;
+ 
+             &lt;author email=&quot;&quot;
+                     name=&quot;... the many other developers and contributors to the previous releases (see Thanks.txt)&quot;/&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2006-09-04 15:46:18 UTC (rev 1559)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2006-09-05 02:01:57 UTC (rev 1560)
+@@ -22,46 +22,21 @@
+ 
+ package com.izforge.izpack.installer;
+ 
+-import java.io.BufferedInputStream;
+-import java.io.BufferedOutputStream;
+-import java.io.File;
+-import java.io.FileInputStream;
+-import java.io.FileNotFoundException;
+-import java.io.FileOutputStream;
+-import java.io.IOException;
+-import java.io.InputStream;
+-import java.io.ObjectInputStream;
++import com.izforge.izpack.*;
++import com.izforge.izpack.event.InstallerListener;
++import com.izforge.izpack.util.*;
++import org.apache.regexp.RE;
++import org.apache.regexp.RECompiler;
++import org.apache.regexp.RESyntaxException;
++
++import java.io.*;
+ import java.lang.reflect.Constructor;
+ import java.net.URL;
+-import java.util.ArrayList;
+-import java.util.HashMap;
+-import java.util.HashSet;
+-import java.util.Iterator;
+-import java.util.List;
+-import java.util.Stack;
+-import java.util.TreeSet;
++import java.util.*;
+ import java.util.zip.ZipEntry;
+ import java.util.zip.ZipInputStream;
+ import java.util.zip.ZipOutputStream;
+ 
+-import org.apache.regexp.RE;
+-import org.apache.regexp.RECompiler;
+-import org.apache.regexp.RESyntaxException;
+-
+-import com.izforge.izpack.ExecutableFile;
+-import com.izforge.izpack.LocaleDatabase;
+-import com.izforge.izpack.Pack;
+-import com.izforge.izpack.PackFile;
+-import com.izforge.izpack.ParsableFile;
+-import com.izforge.izpack.UpdateCheck;
+-import com.izforge.izpack.event.InstallerListener;
+-import com.izforge.izpack.util.AbstractUIHandler;
+-import com.izforge.izpack.util.AbstractUIProgressHandler;
+-import com.izforge.izpack.util.FileExecutor;
+-import com.izforge.izpack.util.IoHelper;
+-import com.izforge.izpack.util.OsConstraint;
+-import com.izforge.izpack.util.VariableSubstitutor;
+-
+ /**
+  * Unpacker class.
+  * 
+@@ -294,6 +269,8 @@
+             // Custom action listener stuff --- beforePacks ----
+             informListeners(customActions, InstallerListener.BEFORE_PACKS, idata, new Integer(
+                     npacks), handler);
++            packs = idata.selectedPacks;
++            npacks = packs.size();
+ 
+             // We unpack the selected packs
+             for (int i = 0; i &lt; npacks; i++)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000304.html">[izpack-changes] r1559 - in izpack-src/trunk/src: dist-files	doc-ng/XHTML lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000306.html">[izpack-changes] r1561 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#305">[ date ]</a>
+              <a href="thread.html#305">[ thread ]</a>
+              <a href="subject.html#305">[ subject ]</a>
+              <a href="author.html#305">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] search fields in UserInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20search%20fields%20in%20UserInputPanel&In-Reply-To=FD228452B2AED04299D4283FE5821F780434D39C%40ms01insiel.insiel.it">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001665.html">
+   <LINK REL="Next"  HREF="001667.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] search fields in UserInputPanel</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20search%20fields%20in%20UserInputPanel&In-Reply-To=FD228452B2AED04299D4283FE5821F780434D39C%40ms01insiel.insiel.it"
+       TITLE="[izpack-users] search fields in UserInputPanel">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Mon Sep 17 09:27:02 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001665.html">[izpack-users] search fields in UserInputPanel
+</A></li>
+        <LI>Next message: <A HREF="001667.html">[izpack-users] Displaying subpackages in PacksPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1666">[ date ]</a>
+              <a href="thread.html#1666">[ thread ]</a>
+              <a href="subject.html#1666">[ subject ]</a>
+              <a href="author.html#1666">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>You'll have to define a condition on that and define your fields twice like this:
+
+ 
+
+  &lt;field type=&quot;search&quot; variable=&quot;KS_FILE&quot; conditionid=&quot;filevarset&quot;&gt;
+
+      &lt;description type=&quot;file&quot; /&gt;
+
+      &lt;spec result=&quot;file&quot; id=&quot;input2.searchdes&quot; size=&quot;30&quot;&gt;
+
+          &lt;choice txt=&quot;${KS_FILE}&quot; /&gt;
+
+      &lt;/spec&gt;
+
+  &lt;/field&gt;
+
+  
+
+  &lt;field type=&quot;search&quot; variable=&quot;KS_FILE&quot; conditionid=&quot;!filevarset&quot;&gt;
+
+      &lt;description type=&quot;file&quot; /&gt;
+
+      &lt;spec result=&quot;file&quot; id=&quot;input2.searchdes&quot; size=&quot;30&quot;&gt;
+
+          &lt;choice txt=&quot;&quot; /&gt;
+
+      &lt;/spec&gt;
+
+  &lt;/field&gt;
+
+ 
+
+filevarset has to be defined in your conditions.xml and you'll have to implement a Condition (subclass com.izforge.izpack.rules.Condition) which check's if a variable is null or not.
+
+ 
+
+Regards,
+
+   Dennis
+
+ 
+
+ 
+
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von Barzelatto Guido
+Gesendet: Montag, 17. September 2007 09:18
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: [izpack-users] search fields in UserInputPanel
+
+ 
+
+I haven't descript correctly my problem: The reset happened only for fields defined like this:
+
+ 
+
+&lt;field type=&quot;search&quot; variable=&quot;KS_FILE&quot;&gt;
+
+      &lt;description type=&quot;file&quot; /&gt;
+
+      &lt;spec result=&quot;file&quot; id=&quot;input2.searchdes&quot; size=&quot;30&quot;&gt;
+
+          &lt;choice txt=&quot;&quot; /&gt;
+
+      &lt;/spec&gt;
+
+  &lt;/field&gt;
+
+ 
+
+Any suggestion?
+
+Thanks 
+
+Guido
+
+ 
+
+________________________________
+
+Da: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Per conto di Barzelatto Guido
+Inviato: venerd&#236; 7 settembre 2007 10.24
+A: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Oggetto: [izpack-users] (no subject)
+
+ 
+
+Hi,
+
+I have successfully built an installer for deploying a web application. 
+
+I use two UserInputPanels. If users fill the first form, press forward button and then press backward button, the first form is reset to default values. I haven't yet figured how to avoid it. Have you got any suggestion on how to avoid it?
+
+ 
+
+Thanks for your help
+
+Best regards
+
+ 
+
+Guido 
+
+ 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070917/ab4a6ff4/attachment-0001.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070917/ab4a6ff4/attachment-0001.html</A> 
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001665.html">[izpack-users] search fields in UserInputPanel
+</A></li>
+	<LI>Next message: <A HREF="001667.html">[izpack-users] Displaying subpackages in PacksPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1666">[ date ]</a>
+              <a href="thread.html#1666">[ thread ]</a>
+              <a href="subject.html#1666">[ subject ]</a>
+              <a href="author.html#1666">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

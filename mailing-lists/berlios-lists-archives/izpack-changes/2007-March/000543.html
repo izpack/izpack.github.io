@@ -1,0 +1,1077 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1797 - in izpack-src/branches/3.10: . src	src/dist-files src/lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1797%20-%20in%20izpack-src/branches/3.10%3A%20.%20src%0A%09src/dist-files%20src/lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000542.html">
+   <LINK REL="Next"  HREF="000544.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1797 - in izpack-src/branches/3.10: . src	src/dist-files src/lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1797%20-%20in%20izpack-src/branches/3.10%3A%20.%20src%0A%09src/dist-files%20src/lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1797 - in izpack-src/branches/3.10: . src	src/dist-files src/lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Thu Mar 29 15:24:06 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000542.html">[izpack-changes] r1796 - in izpack-src/trunk: .	bin/langpacks/installer src src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000544.html">[izpack-changes] r1798 - in izpack-src/trunk: . src src/dist-files	src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#543">[ date ]</a>
+              <a href="thread.html#543">[ thread ]</a>
+              <a href="subject.html#543">[ subject ]</a>
+              <a href="author.html#543">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-03-29 15:24:02 +0200 (Thu, 29 Mar 2007)
+New Revision: 1797
+
+Modified:
+   izpack-src/branches/3.10/Versions.txt
+   izpack-src/branches/3.10/src/build.xml
+   izpack-src/branches/3.10/src/dist-files/IzPack-install.xml
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/compiler/Compiler.java
+Log:
+3.10.1
+
+Modified: izpack-src/branches/3.10/Versions.txt
+===================================================================
+--- izpack-src/branches/3.10/Versions.txt	2007-03-28 13:44:58 UTC (rev 1796)
++++ izpack-src/branches/3.10/Versions.txt	2007-03-29 13:24:02 UTC (rev 1797)
+@@ -1,8 +1,8 @@
+ [ The list of the different public versions of IzPack ]
+ 
+ 
+-	&gt; 3.10.1 (build 2007.xx.xx)
+-	
++  &gt; 3.10.1 (build 2007.03.29)
++
+ - Fixed NPE for pack.id == null (Fabrice Mirabile)
+ - Packages that are not marked as preselected must also be removed from the selectedPacks
+   (Martina Angela Albrecht, via Fabrice Mirabile)
+@@ -22,7 +22,7 @@
+ - Compile listeners are included in izevent.jar (Julien Ponge).
+ - PacksModel: the number of required bytes could be wrong when selecting and deselecting
+   packs. (Stefan Wachter via Julien Ponge)
+-- Turkish langpack updated (Melih Cetin vie Julien Ponge)
++- Turkish langpack updated (Melih Cetin via Julien Ponge)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+@@ -62,7 +62,7 @@
+   (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ - Finnish localization updates (Ari Voutilainen via Julien Ponge)
+ - Going back and forth between profile selection and packs selection made packs selection unavailable
+-  (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)  
++  (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ - PathInputPanel: the close button had incorrect behavior for all path input question/notification messages
+   (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ - PathInputPanel: logged a stacktrace on Linux systems when no defaultInstallDir was specified and
+@@ -79,12 +79,12 @@
+ - New splash-screen (Romain Guy)
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+-- Fix NullPointerException in CompilerConfig, if you specify a 
++- Fix NullPointerException in CompilerConfig, if you specify a
+ 	compiler listener and the compiler listener class can't be found (Dennis Reil)
+ - Fix Accents In French Langpack (Fabrice Mirabile)
+ - Update French Langpack (Julien Ponge)
+ - New Indonesian Langpack (Hans Aikema, thanks to Thomas Edwin Santosa)
+-- Updated Dutch Langpack (Hans Aikema) 
++- Updated Dutch Langpack (Hans Aikema)
+ - Fix for ComboBox in SearchField of UserInputPanel returning
+   java.lang.reflect.InvocationTargetException
+   if no options added.(Fabrice Mirabile, thanks to Oliver Kiddle)
+@@ -93,7 +93,7 @@
+ - Added TroubleShooting for ShellLink.dll missing in help (DocBook and XHTML)
+   (Fabrice Mirabile).
+ - Swing threading fixes (Julien Ponge).
+-- Some fixes adviced by IntelliJ IDEA 5.1 code inspector (Julien Ponge).  
++- Some fixes adviced by IntelliJ IDEA 5.1 code inspector (Julien Ponge).
+ - Spanish langpack update (Cesar Martinez Izquierdo).
+ - New Polish langpack (Fabrice Mirabile, thanks to Radek)
+ - Fixed the createPWD.sh (Fabrice Mirabile, thanks to Radek)
+@@ -103,7 +103,7 @@
+ - Fixed indent of ShortcutPanels Headline (Marc Eppelmann)
+ - Made available all IzPack Variable in the ShortCut Specs (Marc Eppelmann)
+ - Configurable heading panel added to InstallerFrame (Klaus Bartz).
+-- Panels counter (text or progressbar) useable in the heading or 
++- Panels counter (text or progressbar) useable in the heading or
+   navigation panel (Klaus Bartz).
+ - Fixed logfile for AntActions (Eric Rose).
+ - PacksPanels: fixed disk space requirements (Ryan Shillington, via Julien
+@@ -116,9 +116,9 @@
+ - Added a variable for install log, InstallerFrame.logfilePath (Klaus Bartz).
+ - Added the docu for install log (Fabrice Mirabile).
+ - TwoColumnLayout fix (Amit Bhayani @JBoss/RedHat).
+-- New compiler (packager) comandline argument -h for IZPACK_HOME; try to 
++- New compiler (packager) comandline argument -h for IZPACK_HOME; try to
+   automatic resolving of IZPACK_HOME if not specified (Klaus Bartz).
+-- New layout manager (IzPanelLayout) for simplify layouting of IzPanels. 
++- New layout manager (IzPanelLayout) for simplify layouting of IzPanels.
+   Configurable anchor, gaps, stretch rules etc. (Klaus Bartz).
+ - Documentation figures refreshment (Julien Ponge).
+ - Throw an IllegalArgumentException in the compiler if the declared panel
+@@ -136,7 +136,7 @@
+ - Write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+   (Marc Eppelmann)
+ - Write common shortcuts and their icons to the new freedesktop.org common
+-  &quot;/usr/share/applications&quot;   and &quot;/usr/share/pixmaps&quot; folders to display 
++  &quot;/usr/share/applications&quot;   and &quot;/usr/share/pixmaps&quot; folders to display
+   these in the commons [start].menu (Marc Eppelmann)
+ - New InstallationGroupPanel for grouping packs together (Amit Bhayani, Scott Starks,
+   Alex Pinkin @JBoss/RedHat, via Julien Ponge).
+@@ -159,11 +159,11 @@
+ - Subgrouping of shortcuts (Weiji Guo).
+ - Added Korean language support (Fabrice Mirabile, thanks to Dongsu Jang).
+ - Added new panel SelectedPrinterPanel which allows the user to chose any local
+-  printer installed and set it to the $SELECTED_PRINTER variable. (Hal Vaughan 
++  printer installed and set it to the $SELECTED_PRINTER variable. (Hal Vaughan
+   and Fabrice Mirabile).
+ 
+   &gt; 3.8.0 (build 2005.10.27)
+-- Added 2 processor classes having the ability to fill a combobox 
++- Added 2 processor classes having the ability to fill a combobox
+   with all available unix user and groups (Thorsten Kamann)
+ - All default values for the InputPanel (the values of the set attribute)
+   can conatins variables at now.  All
+@@ -171,7 +171,7 @@
+ - The resources of the target panel can contains variables at now. All
+   variables will be replaces by the VariableSubstitutor (Thorsten Kamann)
+ - Fixed chinese Flag.
+-- Patch for InstallerFrame to support user confirmation after pressing 
++- Patch for InstallerFrame to support user confirmation after pressing
+   windows &quot;X&quot; closing button.
+ - Update the IzPackTask to support an embedded xml installation document that
+   replaces @{x} property references with the corresponding ant property.
+@@ -203,18 +203,18 @@
+   and Scott Stark).
+ - New Turkish langpack (Levent Bayindir).
+ - Mac OS X: better Swing integration.
+-- Configurable notation of language names in the language selection dialog 
++- Configurable notation of language names in the language selection dialog
+   (Christian Murphy | Klaus Bartz).
+ - Fail message in SimpleFinishPanel (Klaus Bartz).
+ - Interrupt handling changed (Klaus Bartz).
+-- Fixed shortcuts for RedHat and Mandrake (Fabrice Mirabile, thanks to Vitor 
++- Fixed shortcuts for RedHat and Mandrake (Fabrice Mirabile, thanks to Vitor
+   Rodrigues for the code).
+ - New ConditionalUserInputPanel (Andreas Breiter, patches #407, #408).
+ - ExecuteForPack, allow processing depending on the selected pack (Fabrice
+   Mirabile, thanks to Johannes Gutleber for the code).
+ - Ant file cleanup: requires ant 1.6. Incremental builds of jar files.
+ - Macrodefs instead of antcalls (Chad McHenry).
+-- createForUnselectedPack, show a userinputapanel if a pack is not selected 
++- createForUnselectedPack, show a userinputapanel if a pack is not selected
+   (Fabrice Mirabile, thanks to Stefano Gamma)
+ - Registry support on Windows (Klaus Bartz).
+ - New CheckedHelloPanel which checks already installed products (Klaus Bartz).
+@@ -249,7 +249,7 @@
+ - The Danish langpack was empty by mistake in 3.7.0.
+ - Silent installations fix (Oscar Sierra).
+ - Free disk space bugfix on Solaris (Oscar Sierra).
+-- Installation runable with VM versions &lt; 1.4 again (Klaus Bartz) 
++- Installation runable with VM versions &lt; 1.4 again (Klaus Bartz)
+   (implementation for bug #2268 changed).
+ - Italian langpack fixes (Fabrice Mirabille).
+ - UserInputPanel: bug fixes by Per Abich (bugs #3233 and #3283).
+@@ -302,7 +302,7 @@
+   (bug #2713).
+ - Installers: avoid showing an empty JFrame behind the languages selection
+   dialog (observed on X11).
+-- UserInputPanel: the autodetect button is hidden if not needed 
++- UserInputPanel: the autodetect button is hidden if not needed
+   (Michael Hagedorn).
+ - A tutorial is now available.
+ - New Czech langpack (Jan Pavlovic).
+
+Modified: izpack-src/branches/3.10/src/build.xml
+===================================================================
+--- izpack-src/branches/3.10/src/build.xml	2007-03-28 13:44:58 UTC (rev 1796)
++++ izpack-src/branches/3.10/src/build.xml	2007-03-29 13:24:02 UTC (rev 1797)
+@@ -1,7 +1,7 @@
+ &lt;project name=&quot;IzPack&quot; default=&quot;all&quot; basedir=&quot;..&quot;&gt;
+     &lt;!--
+   $Id$
+-  
++
+   build.xml first written by Pierre Dittgen (<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">pierre.dittgen at criltelecom.com</A>)
+   This file is intended to be used with ant (<A HREF="http://jakarta.apache.org/ant">http://jakarta.apache.org/ant</A>),
+   a java/xml makefile utility.
+@@ -79,87 +79,87 @@
+     30.04.2003: (by Jonathan Halliday)
+         Change to panel compilation target, for panel automation
+         (silent install) support.
+-        
++
+     05.07.2003: (by Julien Ponge)
+         Added a target to fix the files encoding and cr/lf (fix.crlf).
+-    
++
+     10.09.2003: (by Julien Ponge)
+         Reformatting, 4 spaces tabs, got rid of residual hard tabs.
+-    
++
+     19.09.2003: (by Julien Ponge)
+         Added a run.installer target to test an installer.
+-    
++
+     06.12.2003: (by Julien Ponge)
+         Removed the frontend-related sections.
+ 
+     16.12.2003: (by Julien Ponge)
+         Added the SudoPanel building call.
+-    
++
+     18.02.2004: (by Julien Ponge)
+         New installer naming scheme (IzPack-install-{version}.jar).
+-    
++
+     29.05.2004: (by Julien Ponge)
+         New SimpleFinishPanel.
+ 
+     30.07.2004: (by Klaus Bartz)
+         Simple CustomAction stuff added.
+-    
++
+     09.09.2004: (by Klaus Bartz)
+         Clean up of CustomActions added.
+         New uninstaller-ext.jar with native helper stuff for native libs
+            in uninstaller.
+-    
++
+     14.10.2004: (by Klaus Bartz)
+         New izevent.jar with the base classes of the custom action stuff
+           to support creation of custom action jars without IzPack source tree
+-    
++
+     25.10.2004: (by Klaus Bartz)
+         &quot;Standard&quot; CustomActions AntActionInstallerListener and
+         AntActionUninstallerListener added
+-    
++
+     03.05.2005: (by Klaus Bartz)
+         Target generated.installer-reg added:
+         Creates an installer for IzPack with registry support
+-    
++
+     09.05.2005: (by Marc Eppelman)
+         Target dist+run added:
+         convenient :) makes a complete dist an installer and run them
+-    
++
+     11.05.2005: (by Fabrice Mirabile)
+         Target cleandistreg added:
+         Clean, Regenerate installer and installer with reg support. Avoid use of bad jars during installation.
+-    
++
+     18.07.2005: (by Julien Ponge)
+     	Enforce source / target compatibility, now 1.4 / 1.4.
+-    
++
+     02.09.2005: (by Klaus Bartz)
+     	Unicode support of ShellLink.
+-    
++
+     09.09.2005: (Marc.Eppelmann)
+ 		Added start.sh to the shipped files in bin-folder.
+-		
++
+ 	10.01.2006: (by Fabrice Mirabile)
+ 		Added the splashscreen to the cleandistreg target
+-		
++
+ 	06.04.2006: (Marc Eppelmann)
+ 	    Inserted the fix.crlf target in the depends-list of target &quot;all&quot; to prevent encoding problems.
+-	    
++
+ 	26.06.2006: (Marc Eppelmann)
+ 	    Extracted / Reordered some dist related targets to prevent double copy actions.
+         Also fixed the fix.crlf basedir
+-        
++
+ 	27.08.2006: (Marc Eppelmann)
+-      Embedd ShortcutPanel*.java     
+-        
+-  14.09.2006: (Marc Eppelmann)   
++      Embedd ShortcutPanel*.java
++
++  14.09.2006: (Marc Eppelmann)
+       Added target src.tar.gz and clean.src.tar.gz
+-      
+-  19.10.2006: (Fabrice Mirabile &amp; Hal Vaughan)   
++
++  19.10.2006: (Fabrice Mirabile &amp; Hal Vaughan)
+       Added DataCheckPanel
+ 
+-  10.10.2006: (Fabrice Mirabile)   
++  10.10.2006: (Fabrice Mirabile)
+ 	  Fixed target src.tar.gz and clean.src.tar.gz
+-              
++
+   Mini-HowTo:
+ 
+   To compile and package the compiler.jar jar file, type:
+@@ -198,7 +198,7 @@
+ 
+     &lt;property file=&quot;src/ant.properties&quot; /&gt;
+     &lt;property name=&quot;ver&quot; value=&quot;3.10&quot; /&gt;
+-    &lt;property name=&quot;rel&quot; value=&quot;0&quot; /&gt;
++    &lt;property name=&quot;rel&quot; value=&quot;1&quot; /&gt;
+     &lt;property name=&quot;build.number&quot; value=&quot;${ver}.${rel}&quot; /&gt;
+ 
+     &lt;property name=&quot;src.dir&quot; value=&quot;${basedir}/src/lib&quot; /&gt;
+@@ -368,7 +368,7 @@
+             &lt;include name=&quot;com/izforge/izpack/panels/PathSelectionPanel.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/gui/*.java&quot; /&gt;
+-            &lt;include name=&quot;com/izforge/izpack/io/*.java&quot; /&gt;          
++            &lt;include name=&quot;com/izforge/izpack/io/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/installer/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/NextMedia*.java&quot;/&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/*.java&quot; /&gt;
+@@ -423,11 +423,11 @@
+                debuglevel=&quot;${debuglevel}&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/LocaleDatabase.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/gui/*.java&quot; /&gt;
+-            
++
+             &lt;include name=&quot;com/izforge/izpack/util/*.java&quot;/&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/os/*.java&quot;/&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/os/unix/*.java&quot;/&gt;
+-            
++
+             &lt;include name=&quot;com/izforge/izpack/uninstaller/*.java&quot; /&gt;
+             &lt;exclude name=&quot;com/izforge/izpack/gui/IzPackKMetalTheme.java&quot; /&gt;
+             &lt;include name=&quot;net/n3/nanoxml/*.java&quot; /&gt;
+@@ -446,7 +446,7 @@
+                 &lt;include name=&quot;com/izforge/izpack/LocaleDatabase.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/gui/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/uninstaller/*.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/ExecutableFile.class&quot; /&gt;                
++                &lt;include name=&quot;com/izforge/izpack/ExecutableFile.class&quot; /&gt;
+                 &lt;exclude name=&quot;com/izforge/izpack/gui/IzPackKMetalTheme.class&quot; /&gt;
+                 &lt;include name=&quot;net/n3/nanoxml/*.class&quot; /&gt;
+             &lt;/fileset&gt;
+@@ -473,7 +473,7 @@
+             &lt;include name=&quot;com/izforge/izpack/util/os/*.java&quot;/&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/os/unix/*.java&quot;/&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/xml/*.java&quot;/&gt;
+-          
++
+             &lt;exclude name=&quot;com/izforge/izpack/gui/IzPackKMetalTheme.java&quot; /&gt;
+             &lt;include name=&quot;net/n3/nanoxml/*.java&quot; /&gt;
+         &lt;/javac&gt;
+@@ -488,7 +488,7 @@
+         &lt;/jar&gt;
+     &lt;/target&gt;
+ 
+-    &lt;!-- 
++    &lt;!--
+          ======================================================================
+            Create Panel Modules
+          ======================================================================
+@@ -524,8 +524,8 @@
+     &lt;/macrodef&gt;
+ 
+     &lt;!-- Compile all panels and put them at the right location --&gt;
+-    &lt;!-- 
+-         If you add a another, and the build fails because it can't find a class, 
++    &lt;!--
++         If you add a another, and the build fails because it can't find a class,
+          be sure to explicitly include the .java file in the nested fileset.
+          This also acts as a check to help limit dependancies.
+     --&gt;
+@@ -656,7 +656,7 @@
+         &lt;/build-panel&gt;
+     &lt;/target&gt;
+ 
+-    &lt;!-- 
++    &lt;!--
+          ======================================================================
+            Create Listener Modules
+          ======================================================================
+@@ -678,7 +678,7 @@
+             &lt;include name=&quot;com/izforge/izpack/event/Simple*nstallerListener.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/event/SimpleCompilerListener.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/event/InstallerListener.java&quot; /&gt;
+-            &lt;include name=&quot;com/izforge/izpack/event/CompilerListener.java&quot; /&gt; 
++            &lt;include name=&quot;com/izforge/izpack/event/CompilerListener.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/event/UninstallerListener.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/IoHelper.java&quot; /&gt;
+         &lt;/javac&gt;
+@@ -777,8 +777,8 @@
+     &lt;/macrodef&gt;
+ 
+     &lt;!-- Compile all custom actions (listener) and put them at the right location --&gt;
+-    &lt;!-- 
+-         If you add a another, and the build fails because it can't find a class, 
++    &lt;!--
++         If you add a another, and the build fails because it can't find a class,
+          be sure to explicitly include the .java file in the nested fileset.
+          This also acts as a check to help limit dependancies.
+     --&gt;
+@@ -900,10 +900,10 @@
+             description=&quot;Creates the javadoc-api and customer documentation&quot;&gt;
+ 
+     &lt;/target&gt;
+-	
+-	
+-    &lt;!-- - - - - - - - - - - - - - - - - - 
+-          target: taskdef                      
++
++
++    &lt;!-- - - - - - - - - - - - - - - - - -
++          target: taskdef
+          - - - - - - - - - - - - - - - - - --&gt;
+     &lt;target name=&quot;taskdef.dist&quot;&gt;
+         &lt;!-- Allows us to use the IzPack Ant task --&gt;
+@@ -911,10 +911,10 @@
+                  classpath=&quot;${basedir}/lib/compiler.jar&quot;
+                  classname=&quot;com.izforge.izpack.ant.IzPackTask&quot; /&gt;
+     &lt;/target&gt;
+-	
+-	
+-    &lt;!-- - - - - - - - - - - - - - - - - - 
+-          target: copy.natives                      
++
++
++    &lt;!-- - - - - - - - - - - - - - - - - -
++          target: copy.natives
+          - - - - - - - - - - - - - - - - - --&gt;
+     &lt;target name=&quot;copy.dist.natives&quot;&gt;
+         &lt;echo message=&quot;Copies the recent changed native files to the ${basedir}/bin directory&quot; /&gt;
+@@ -935,9 +935,9 @@
+               overwrite=&quot;yes&quot; /&gt;
+     &lt;/target&gt;
+ 
+-    
+-    &lt;!-- - - - - - - - - - - - - - - - - - 
+-          target: copy.distfiles                      
++
++    &lt;!-- - - - - - - - - - - - - - - - - -
++          target: copy.distfiles
+          - - - - - - - - - - - - - - - - - --&gt;
+     &lt;target name=&quot;copy.dist.files&quot;&gt;
+         &lt;echo message=&quot;Copies the general files to the dist directory&quot; /&gt;
+@@ -976,16 +976,16 @@
+         &lt;echo message=&quot;Copies the bin files to the dist directory&quot; /&gt;
+         &lt;copy todir=&quot;${dist.dir}/bin&quot; includeEmptyDirs=&quot;yes&quot; overwrite=&quot;yes&quot;&gt;
+             &lt;fileset dir=&quot;${dist-files.dir}&quot;&gt;
+-                &lt;include name=&quot;compile*&quot; /&gt;            	
++                &lt;include name=&quot;compile*&quot; /&gt;
+                 &lt;include name=&quot;lcp.bat&quot; /&gt;
+             	&lt;include name=&quot;start.sh&quot;/&gt;
+             &lt;/fileset&gt;
+         &lt;/copy&gt;
+     &lt;/target&gt;
+ 
+-    
+-    &lt;!-- - - - - - - - - - - - - - - - - - 
+-          target: replace.dist.buildnumber                      
++
++    &lt;!-- - - - - - - - - - - - - - - - - -
++          target: replace.dist.buildnumber
+          - - - - - - - - - - - - - - - - - --&gt;
+     &lt;target name=&quot;replace.dist.buildnumber&quot;&gt;
+         &lt;replace file=&quot;${dist.dir}/shortcutSpec.xml&quot;
+@@ -1018,20 +1018,20 @@
+                 compressionlevel=&quot;9&quot; /&gt;
+     	&lt;echo&gt;
+ sucessfully created:
+-${dist.dir}/${installer.name}${ver}.${rel}.jar    		
++${dist.dir}/${installer.name}${ver}.${rel}.jar
+     	&lt;/echo&gt;
+     &lt;/target&gt;
+-	
+-	
+-    &lt;!-- - - - - - - - - - - - - - - - - - 
+-          target: prepare.install.dist                      
++
++
++    &lt;!-- - - - - - - - - - - - - - - - - -
++          target: prepare.install.dist
+          - - - - - - - - - - - - - - - - - --&gt;
+     &lt;target name=&quot;prepare.install.dist&quot; depends=&quot;taskdef.dist, copy.dist.natives, copy.dist.files, replace.dist.buildnumber, fix.crlf&quot;&gt;
+-            
++
+     &lt;/target&gt;
+-	
++
+     &lt;!-- =================================
+-	   Creates a normal installer for IzPack 
++	   Creates a normal installer for IzPack
+ 	  ================================= --&gt;
+     &lt;target name=&quot;generate.installer&quot; depends=&quot;prepare.install.dist&quot;&gt;
+         &lt;antcall target=&quot;exec.izpack.compiler&quot;&gt;
+@@ -1064,7 +1064,7 @@
+         &lt;/fixcrlf&gt;
+     	&lt;fixcrlf srcdir=&quot;${dist.bin.dir}&quot; eol=&quot;unix&quot; eof=&quot;remove&quot;&gt;
+     	  &lt;include name=&quot;**/*.sh&quot;/&gt;
+-    	  &lt;include name=&quot;compile&quot;/&gt;	    	
++    	  &lt;include name=&quot;compile&quot;/&gt;
+     	&lt;/fixcrlf&gt;
+     &lt;/target&gt;
+ 
+@@ -1087,16 +1087,16 @@
+     &lt;target name=&quot;cleandistreg&quot;
+             depends=&quot;clean, splashscreen, dist, generate.installer&quot;
+             description=&quot;creates a full dist with Win32 uninstall registry support&quot; /&gt;
+-  
+-    &lt;!-- ================================= 
+-          target: clean.src.tar.gz              
++
++    &lt;!-- =================================
++          target: clean.src.tar.gz
+          ================================= --&gt;
+     &lt;target name=&quot;clean.src.tar.gz&quot; depends=&quot;clean, src.tar.gz&quot; description=&quot;--&gt; creates a src.tar.gz after clean up&quot;&gt;
+     &lt;/target&gt;
+ 
+-  
+-    &lt;!-- ================================= 
+-          target: src.tar.gz              
++
++    &lt;!-- =================================
++          target: src.tar.gz
+          ================================= --&gt;
+     &lt;target name=&quot;src.tar.gz&quot;  description=&quot;--&gt; creates a src.tar.gz &quot;&gt;
+       &lt;mkdir dir=&quot;${basedir}/_src${dist.subdir}&quot;/&gt;
+@@ -1145,8 +1145,8 @@
+     &lt;/target&gt;
+ 
+ 
+-    &lt;!-- ================================= 
+-          target: ShellLink.Javah              
++    &lt;!-- =================================
++          target: ShellLink.Javah
+          ================================= --&gt;
+     &lt;target name=&quot;ShellLink.Javah&quot;
+             depends=&quot;compile.installer&quot;
+@@ -1158,16 +1158,16 @@
+     &lt;/target&gt;
+ 
+ 
+-    &lt;!-- ================================= 
+-         target: time - takes a timestamp           
++    &lt;!-- =================================
++         target: time - takes a timestamp
+         ================================= --&gt;
+     &lt;target name=&quot;time&quot;&gt;
+         &lt;tstamp /&gt;
+     &lt;/target&gt;
+ 
+ 
+-    &lt;!-- ================================= 
+-          target: dump.properties - dumps the curent properties into the $os_$timestamp.properties file             
++    &lt;!-- =================================
++          target: dump.properties - dumps the curent properties into the $os_$timestamp.properties file
+          ================================= --&gt;
+     &lt;target name=&quot;dump.properties&quot; depends=&quot;time&quot; description=&quot;dump.environment (for debug)&quot;&gt;
+         &lt;echoproperties destfile=&quot;${basedir}/ant_properties_at_${os.name}-${os.arch}-${os.version}_at_${DSTAMP}-${TSTAMP}.txt&quot; /&gt;
+
+Modified: izpack-src/branches/3.10/src/dist-files/IzPack-install.xml
+===================================================================
+--- izpack-src/branches/3.10/src/dist-files/IzPack-install.xml	2007-03-28 13:44:58 UTC (rev 1796)
++++ izpack-src/branches/3.10/src/dist-files/IzPack-install.xml	2007-03-29 13:24:02 UTC (rev 1797)
+@@ -1,10 +1,10 @@
+ &lt;!--
+     $Id$
+-    
++
+     IzPack installer XML file
+-    
++
+     By Julien PONGE
+-    
++
+     In order to build an installer for IzPack, let's create a directory
+     named '_dist' in the IzPack root directory. Then copy the files from
+     'src/dist-files' into '_dist'. Copy your IzPack image, that is all
+@@ -12,7 +12,7 @@
+     you'll get bin/, lib/, ... and text files like Versions.txt and so
+     on. Now you can invoke the IzPack compiler and it will generate the
+     installer.
+-    
++
+     Alternatively, you can use the IzPack Ant makefile and run 'ant dist'. It's
+     much simpler :-)
+ --&gt;
+@@ -23,22 +23,23 @@
+     &lt;!-- The info section --&gt;
+     &lt;info&gt;
+         &lt;appname&gt;IzPack&lt;/appname&gt;
+-        &lt;appversion&gt;3.10.0&lt;/appversion&gt;
++        &lt;appversion&gt;3.10.1&lt;/appversion&gt;
+         &lt;authors&gt;
+             &lt;author email=&quot;&quot; name=&quot;Julien Ponge (maintainer and original developer)&quot;/&gt;
+ 
+             &lt;author email=&quot;&quot; name=&quot;Klaus Bartz (developer)&quot;/&gt;
+             &lt;author email=&quot;&quot; name=&quot;Fabrice Mirabile (developer)&quot;/&gt;
+             &lt;author email=&quot;&quot; name=&quot;Dennis Reil (developer)&quot; /&gt;
+-            
++            &lt;author email=&quot;&quot; name=&quot;JBoss/RedHat: Vladimir Ralev (developers)&quot; /&gt;
++
+             &lt;author email=&quot;&quot; name=&quot;Francois Guillet (contributor)&quot;/&gt;
+-            &lt;author email=&quot;&quot; name=&quot;JBoss/RedHat: Vladimir Ralev (contributors)&quot; /&gt;            
+             &lt;author email=&quot;&quot; name=&quot;Nils Meier (contributor)&quot; /&gt;
+             &lt;author email=&quot;&quot; name=&quot;Markus Schlegel (contributor)&quot; /&gt;
+             &lt;author email=&quot;&quot; name=&quot;Hal Vaughan (contributor)&quot; /&gt;
+             &lt;author email=&quot;&quot; name=&quot;Ari Voutilainen (contributor)&quot; /&gt;
+             &lt;author email=&quot;&quot; name=&quot;Stefan Wachter (contributor)&quot; /&gt;
+             &lt;author email=&quot;&quot; name=&quot;Romain Guy (contributor)&quot; /&gt;
++            &lt;author email=&quot;&quot; name=&quot;Melih Cetin (contributor)&quot; /&gt;
+ 
+             &lt;author email=&quot;&quot;
+                     name=&quot;... the (many) other developers and contributors to the previous releases!&quot;/&gt;
+@@ -58,7 +59,7 @@
+     	&lt;modifier key=&quot;headingPanelCounter&quot; value=&quot;progressbar&quot;/&gt;
+ 		&lt;modifier key=&quot;headingPanelCounterPos&quot; value=&quot;inNavigationPanel&quot;/&gt;
+ 		&lt;modifier key=&quot;allYGap&quot; value=&quot;3&quot;/&gt;
+-		&lt;modifier key=&quot;paragraphYGap&quot; value=&quot;10&quot;/&gt;	
++		&lt;modifier key=&quot;paragraphYGap&quot; value=&quot;10&quot;/&gt;
+ 		&lt;modifier key=&quot;filler1YGap&quot; value=&quot;5&quot;/&gt;
+ 		&lt;modifier key=&quot;filler3XGap&quot; value=&quot;10&quot;/&gt;
+     &lt;/guiprefs&gt;
+@@ -107,8 +108,8 @@
+         &lt;res src=&quot;doc-html.png&quot; id=&quot;ImgPacksPanel.img.1&quot;/&gt;
+         &lt;res src=&quot;javadocs.png&quot; id=&quot;ImgPacksPanel.img.2&quot;/&gt;
+         &lt;res src=&quot;doc-nanoxml.png&quot; id=&quot;ImgPacksPanel.img.3&quot;/&gt;
+-        &lt;!--    
+-            &lt;res src=&quot;doc-pdf.png&quot; id=&quot;ImgPacksPanel.img.2&quot; /&gt;        
++        &lt;!--
++            &lt;res src=&quot;doc-pdf.png&quot; id=&quot;ImgPacksPanel.img.2&quot; /&gt;
+         --&gt;
+         &lt;res src=&quot;sample.png&quot; id=&quot;ImgPacksPanel.img.4&quot;/&gt;
+         &lt;res src=&quot;src.png&quot; id=&quot;ImgPacksPanel.img.5&quot;/&gt;
+@@ -134,9 +135,9 @@
+         &lt;panel classname=&quot;SummaryPanel&quot; id=&quot;summarypanel&quot;/&gt;
+         &lt;panel classname=&quot;InstallPanel&quot; id=&quot;installpanel&quot;/&gt;
+         &lt;panel classname=&quot;ShortcutPanel&quot; id=&quot;shortcutpanel&quot;/&gt;
+-        &lt;!-- We use temporary the FinishPanel in the 3.9 Release 
++        &lt;!-- We use temporary the FinishPanel in the 3.9 Release
+              to get Access to the [Generate an automatic installation script]-Button
+-             to get feedback so quick as possible from all of users, 
++             to get feedback so quick as possible from all of users,
+              who wants to get back this feature ;-) --&gt;
+         &lt;panel classname=&quot;FinishPanel&quot; id=&quot;finishpanel&quot;/&gt;
+     &lt;/panels&gt;
+@@ -144,7 +145,7 @@
+     &lt;!-- The listeners section for CustomActions --&gt;
+     &lt;listeners&gt;
+         &lt;listener installer=&quot;SummaryLoggerInstallerListener&quot;/&gt;
+-        &lt;listener installer=&quot;RegistryInstallerListener&quot;   
++        &lt;listener installer=&quot;RegistryInstallerListener&quot;
+                   uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
+             &lt;os family=&quot;windows&quot;/&gt;
+         &lt;/listener&gt;
+@@ -183,7 +184,7 @@
+         &lt;/pack&gt;
+         &lt;!--
+             Disabled while doc-ng not provides a pdf ...
+-            
++
+             &lt;pack name=&quot;PDF Documentation&quot; required=&quot;no&quot;&gt;
+             &lt;description&gt;The IzPack documentation (PDF version).&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-03-28 13:44:58 UTC (rev 1796)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-03-29 13:24:02 UTC (rev 1797)
+@@ -1,21 +1,21 @@
+ /*
+  * $Id$
+  * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
+- * 
++ *
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+- * 
++ *
+  * Copyright 2001 Johannes Lehtinen
+  * Copyright 2002 Paul Wilkinson
+  * Copyright 2004 Gaganis Giorgos
+  *
+- * 
++ *
+  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+- *     
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@@ -54,9 +54,9 @@
+  * configured using the object representations of the install.xml
+  * configuration. The install.xml configuration is now handled by the
+  * CompilerConfig class.
+- * 
++ *
+  * @see CompilerConfig
+- * 
++ *
+  * @author Julien Ponge
+  * @author Tino Schwarze
+  * @author Chadwick McHenry
+@@ -64,7 +64,7 @@
+ public class Compiler extends Thread
+ {
+     /** The IzPack version. */
+-    public final static String IZPACK_VERSION = &quot;3.10.0&quot;;
++    public final static String IZPACK_VERSION = &quot;3.10.1&quot;;
+ 
+     /** The IzPack home directory. */
+     public static String IZPACK_HOME = &quot;.&quot;;
+@@ -89,7 +89,7 @@
+ 
+     /** Replaces the properties in the install.xml file prior to compiling */
+     private VariableSubstitutor propertySubstitutor;
+-    
++
+     private String compr_format;
+     private int compr_level;
+     private PackagerListener packagerlistener;
+@@ -105,7 +105,7 @@
+ 
+     /**
+      * The constructor.
+-     * 
++     *
+      * @param basedir The base directory.
+      * @param kind The installer kind.
+      * @param output The installer filename.
+@@ -118,7 +118,7 @@
+ 
+     /**
+      * The constructor.
+-     * 
++     *
+      * @param basedir The base directory.
+      * @param kind The installer kind.
+      * @param output The installer filename.
+@@ -132,7 +132,7 @@
+ 
+     /**
+      * The constructor.
+-     * 
++     *
+      * @param basedir The base directory.
+      * @param kind The installer kind.
+      * @param output The installer filename.
+@@ -140,7 +140,7 @@
+      * @param compr_level Compression level to be used if supported.
+      * @throws CompilerException
+      */
+-    public Compiler(String basedir, String kind, String output, 
++    public Compiler(String basedir, String kind, String output,
+             String compr_format, int compr_level) throws CompilerException
+     {
+         // Default initialisation
+@@ -155,7 +155,7 @@
+         // add izpack built in property
+         setProperty(&quot;izpack.version&quot;, IZPACK_VERSION);
+         setProperty(&quot;basedir&quot;, basedir);
+-        
++
+         this.compr_format = compr_format;
+         this.compr_level = compr_level;
+     }
+@@ -182,7 +182,7 @@
+             throw new CompilerException(&quot;Error loading packager class: &quot; +  classname);
+         }
+     }
+-    
++
+     /**
+      * Returns the packager listener.
+      * @return the packager listener
+@@ -193,7 +193,7 @@
+     }
+     /**
+      * Sets the packager listener.
+-     * 
++     *
+      * @param listener The listener.
+      */
+     public void setPackagerListener(PackagerListener listener)
+@@ -256,7 +256,7 @@
+ 
+     /**
+      * Compiles the installation.
+-     * 
++     *
+      * @exception Exception Description of the Exception
+      */
+     public void createInstaller() throws Exception
+@@ -274,10 +274,10 @@
+                 if( decoderClassNames[i] != null &amp;&amp; decoderClassNames[i].length &gt; 0)
+                     addJarContent(compressorURL, Arrays.asList(decoderClassNames[i]));
+             }
+-            
+-            
++
++
+         }
+-  
++
+         // We ask the packager to create the installer
+         packager.createInstaller(new File(output));
+         this.compileFailed = false;
+@@ -339,7 +339,7 @@
+ 
+     /**
+      * Get the value of a property currerntly known to izpack.
+-     * 
++     *
+      * @param name the name of the property
+      * @return the value of the property, or null
+      */
+@@ -350,7 +350,7 @@
+ 
+     /**
+      * Add a name value pair to the project property set. Overwriting any existing value except system properties.
+-     * 
++     *
+      * @param name the name of the property
+      * @param value the value to set
+      * @return an indicator if the name value pair was added.
+@@ -367,7 +367,7 @@
+     /**
+      * Add a name value pair to the project property set. It is &lt;i&gt;not&lt;/i&gt; replaced it is already
+      * in the set of properties.
+-     * 
++     *
+      * @param name the name of the property
+      * @param value the value to set
+      * @return true if the property was not already set
+@@ -385,7 +385,7 @@
+ 
+     /**
+      * Add jar content to the installation.
+-     * @param content 
++     * @param content
+      */
+     public void addJarContent(URL content)
+     {
+@@ -396,7 +396,7 @@
+      * Adds a jar file content to the installer. Package structure is maintained. Need mechanism to
+      * copy over signed entry information. If the given file list is null the hole contents of the
+      * jar file will be copied else only the listed.
+-     * 
++     *
+      * @param content The url of the jar to add to the installer. We use a URL so the jar may be
+      * nested within another.
+      * @param files to be copied
+@@ -408,7 +408,7 @@
+ 
+     /**
+      * Add a custom jar to the installation.
+-     * 
++     *
+      * @param ca
+      * @param url
+      */
+@@ -459,7 +459,7 @@
+      */
+     public void addPanelJar(Panel panel, URL url)
+     {
+-        packager.addPanelJar(panel, url);        
++        packager.addPanelJar(panel, url);
+     }
+     /**
+      * Add a resource to the installation.
+@@ -475,13 +475,13 @@
+      * Checks whether the dependencies stated in the configuration file are correct. Specifically it
+      * checks that no pack point to a non existent pack and also that there are no circular
+      * dependencies in the packs.
+-     * @throws CompilerException 
++     * @throws CompilerException
+      */
+     public void checkDependencies() throws CompilerException
+     {
+         checkDependencies(packager.getPacksList());
+     }
+-    
++
+     /**
+      * Checks whether the excluded packs exist. (simply calles the other function)
+      * @throws CompilerException
+@@ -490,11 +490,11 @@
+     {
+        checkExcludes(packager.getPacksList());
+     }
+-    
++
+     /**
+      * This checks if there are more than one preselected packs per excludeGroup.
+      * @param packs list of packs which should be checked
+-     * @throws CompilerException 
++     * @throws CompilerException
+      */
+     public void checkExcludes(List packs) throws CompilerException
+     {
+@@ -520,7 +520,7 @@
+                     }
+                 }
+             }
+-            
++
+         }
+     }
+     /**
+@@ -528,7 +528,7 @@
+      * checks that no pack point to a non existent pack and also that there are no circular
+      * dependencies in the packs.
+      * @param packs - List&lt;Pack&gt; representing the packs in the installation
+-     * @throws CompilerException 
++     * @throws CompilerException
+      */
+     public void checkDependencies(List packs) throws CompilerException
+     {
+@@ -551,7 +551,7 @@
+      * We use the dfs graph search algorithm to check whether the graph is acyclic as described in:
+      * Thomas H. Cormen, Charles Leiserson, Ronald Rivest and Clifford Stein. Introduction to
+      * algorithms 2nd Edition 540-549,MIT Press, 2001
+-     * 
++     *
+      * @param packs The graph
+      * @param names The name map
+      * @return -2 if back edges exist, else 0
+@@ -641,11 +641,11 @@
+      * not be absolute. The path must use '/' as the fileSeparator (it's used to access the jar
+      * file). If the resource is not found, a CompilerException is thrown indicating fault in the
+      * parent element.
+-     * 
++     *
+      * @param path the relative path (using '/' as separator) to the resource.
+      * @param desc the description of the resource used to report errors
+      * @return a URL to the resource.
+-     * @throws CompilerException 
++     * @throws CompilerException
+      */
+     public URL findIzPackResource(String path, String desc)
+             throws CompilerException
+@@ -675,9 +675,9 @@
+     /**
+      * Create parse error with consistent messages. Includes file name. For use When parent is
+      * unknown.
+-     * 
++     *
+      * @param message Brief message explaining error
+-     * @throws CompilerException 
++     * @throws CompilerException
+      */
+     public void parseError(String message) throws CompilerException
+     {
+@@ -687,10 +687,10 @@
+     /**
+      * Create parse error with consistent messages. Includes file name. For use When parent is
+      * unknown.
+-     * 
++     *
+      * @param message Brief message explaining error
+      * @param how throwable which was catched
+-     * @throws CompilerException 
++     * @throws CompilerException
+      */
+     public void parseError(String message, Throwable how) throws CompilerException
+     {
+@@ -701,7 +701,7 @@
+     /**
+      * The main method if the compiler is invoked by a command-line call.
+      * This simply calls the CompilerConfig.main method.
+-     * 
++     *
+      * @param args The arguments passed on the command-line.
+      */
+     public static void main(String[] args)
+@@ -717,7 +717,7 @@
+      * posible, the listeners will be validated. Listener declaration is a fragmention in
+      * install.xml like : &amp;lt;listeners&amp;gt; &amp;lt;listener compiler=&quot;PermissionCompilerListener&quot;
+      * installer=&quot;PermissionInstallerListener&quot;/1gt; &amp;lt;/listeners&amp;gt;
+-     * 
++     *
+      * @param type The listener type.
+      * @param className The class name.
+      * @param jarPath The jar path.
+@@ -737,7 +737,7 @@
+     /**
+      * Returns a list which contains the pathes of all files which are included in the given url.
+      * This method expects as the url param a jar.
+-     * 
++     *
+      * @param url url of the jar file
+      * @return full qualified paths of the contained files
+      * @throws Exception
+@@ -760,7 +760,7 @@
+     /**
+      * Returns the qualified class name for the given class. This method expects as the url param a
+      * jar file which contains the given class. It scans the zip entries of the jar file.
+-     * 
++     *
+      * @param url url of the jar file which contains the class
+      * @param className short name of the class for which the full name should be resolved
+      * @return full qualified class name
+@@ -800,7 +800,7 @@
+ 
+     /**
+      * Used to handle the packager messages in the command-line mode.
+-     * 
++     *
+      * @author julien created October 26, 2002
+      */
+     static class CmdlinePackagerListener implements PackagerListener
+@@ -808,7 +808,7 @@
+ 
+         /**
+          * Print a message to the console at default priority (MSG_INFO).
+-         * 
++         *
+          * @param info The information.
+          */
+         public void packagerMsg(String info)
+@@ -818,7 +818,7 @@
+ 
+         /**
+          * Print a message to the console at the specified priority.
+-         * 
++         *
+          * @param info The information.
+          * @param priority priority to be used for the message prefix
+          */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000542.html">[izpack-changes] r1796 - in izpack-src/trunk: .	bin/langpacks/installer src src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000544.html">[izpack-changes] r1798 - in izpack-src/trunk: . src src/dist-files	src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#543">[ date ]</a>
+              <a href="thread.html#543">[ thread ]</a>
+              <a href="subject.html#543">[ subject ]</a>
+              <a href="author.html#543">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

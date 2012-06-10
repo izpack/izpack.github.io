@@ -1,0 +1,438 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2020 - izpack-src/trunk/src/doc-reST
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2020%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000765.html">
+   <LINK REL="Next"  HREF="000767.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2020 - izpack-src/trunk/src/doc-reST</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2020%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To="
+       TITLE="[izpack-changes] r2020 - izpack-src/trunk/src/doc-reST">noreply at berlios.de
+       </A><BR>
+    <I>Fri Jan 25 23:21:30 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000765.html">[izpack-changes] r2019 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000767.html">[izpack-changes] r2021 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#766">[ date ]</a>
+              <a href="thread.html#766">[ thread ]</a>
+              <a href="subject.html#766">[ subject ]</a>
+              <a href="author.html#766">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-25 23:21:26 +0100 (Fri, 25 Jan 2008)
+New Revision: 2020
+
+Modified:
+   izpack-src/trunk/src/doc-reST/user-input.txt
+Log:
+Added link to sample-userInputSpec.xml
+Added Password Field
+Added Directory Field
+Added File Field
+Added password field example for Regex Validator
+Added PasswordEqualityValidator
+Added PasswordKeystoreValidator
+Small spelling and gammer corrections
+Cropped images 7-11 (Rule Field in UserInputPanel)
+Added file-field.png (File Field UserInputPanel)
+Added file-field-error.png (File Field UserInputPanel)
+
+Modified: izpack-src/trunk/src/doc-reST/user-input.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/user-input.txt	2008-01-25 22:16:43 UTC (rev 2019)
++++ izpack-src/trunk/src/doc-reST/user-input.txt	2008-01-25 22:21:26 UTC (rev 2020)
+@@ -19,7 +19,11 @@
+ it to the install resources. The name of this resource must be
+ ``userInputSpec.xml``.
+ 
++Here's an example userInputSpec.xml_ showing 3 panels.  There are some advanced
++features in this example, but the general flow should be looked at first.
+ 
++.. _userInputSpec.xml: sample-userInputSpec.html
++
+ The user input panel is a blank panel that can be populated with UI elements
+ through a XML specification file. The specification supports text labels,
+ input elements, explanatory text and some minor formatting options.
+@@ -31,9 +35,20 @@
+ -   Combo Box
+ -   Radio Buttons
+ -   Check Box
++-   Password
++-   File
++-   Directory
+ -   Rule Input Field
+ -   Search Field
+ 
++Additionally visual elements can be added using the following types:
++
++-   Static Text
++-   Title
++-   Space
++-   Divider
++
++
+ The way in which this panel conveys the user input to your application is
+ through the variable substitution system. User input is not directly inserted
+ into your configuration files but the variables that you specify for this
+@@ -67,7 +82,7 @@
+ variables are used.
+ 
+ 
+-At this point i would also like to mention that it is possible to hide select
++At this point I would also like to mention that it is possible to hide select
+ elements on the panel or the panel altogether if certain packs are not
+ selected. For this to work you must place this panel after the packs panel.
+ One side effect of using this feature is that it is not possible to step back
+@@ -81,6 +96,7 @@
+ The Basic XML Structure
+ ----------------------------------------
+ 
++
+ The top level XML section is called ``&lt;userInput&gt;``. For most panels it does
+ not make sense to present them more than once, however you might want to
+ present multiple user input panels -with different content of course.
+@@ -114,7 +130,7 @@
+ Concepts and XML Elements Common to All Fields
+ ------------------------------------------------------------
+ 
+-Before i dive into the details of defining the various UI elements i would
++Before we dive into the details of defining the various UI elements I would
+ like to present XML elements and general concepts that apply throughout. This
+ saves me a lot of work in writing and you a lot of repetitive reading and
+ maybe a tree or two.
+@@ -172,7 +188,7 @@
+ your text definitions from the panel specification or if you need to support
+ multiple languages you might want to use the ``id`` attribute instead to only
+ specify an identifier. You can then add multiple XML files with the same name
+-as this spec file (userInputSpec.xml) appended with an unserscore '_' and the
++as this spec file (userInputSpec.xml) appended with an underscore '_' and the
+ the appropriate three letter ISO3 language code. The content of those files
+ must conform to the specification for IzPack language packages. For more
+ details on this topic see the chapter on language packages under advanced
+@@ -210,7 +226,7 @@
+ Also, any number of ``&lt;createForUnselectedPack name=''a pack name'' /&gt;`` tags
+ can be added to the ``&lt;panel&gt;`` and ``&lt;field&gt;`` sections. This tag has only
+ one attribute and no data. It works exactly like createForPack except that
+-once added userinputpanel will appear for only NOT Selected packs. As
++once added user input panel will appear for only NOT Selected packs. As
+ mentioned earlier, you need to make sure that the user input panel shows up
+ after the packs panel for this feature to work.
+ 
+@@ -219,7 +235,7 @@
+ supplied via ``txt`` attribute. This includes static fields and input fields 
+ (spec, description). The text can contain unlimited number of variables that 
+ will be substituted. Variable substitution also works with language packs, 
+-just use variables in your language pack, and they will be still subsituted 
++just use variables in your language pack, and they will be still substituted 
+ properly.
+ 
+ 
+@@ -250,7 +266,7 @@
+ 
+ 
+ If you have the following userInputSpec.xml and you want to internationalize
+-``input.comment``, ``input.proxy``, ``input.port`` for english and french you
++``input.comment``, ``input.proxy``, ``input.port`` for English and French you
+ have to create two files named userInputLang.xml_eng and
+ userInputLang.xml_fra:
+ 
+@@ -373,10 +389,12 @@
+ but also draws a division line which can be either aligned at the top or
+ bottom of the separation.
+ 
+-``&lt;field type=&quot;divider&quot; /&gt;``
+-``&lt;field type=&quot;space&quot; /&gt;``
++::
+ 
++		&lt;field type=&quot;divider&quot; /&gt;
++		&lt;field type=&quot;space&quot; /&gt;
+ 
++
+ Text Input
+ --------------------
+ 
+@@ -420,11 +438,9 @@
+ ::
+ 
+     &lt;field type=&quot;text&quot; variable=&quot;textInput&quot;&gt;
+-      &lt;description align=&quot;left&quot; txt=&quot;A description for a text input
+-      field&quot;
+-                   id=&quot;description.text&quot;/&gt;
+-      &lt;spec txt=&quot;Enter some text:&quot; id=&quot;text.label&quot; size=&quot;15&quot; set=&quot;some
+-      text&quot;/&gt;
++      &lt;description align=&quot;left&quot; txt=&quot;A description for a text input field&quot;
++          id=&quot;description.text&quot;/&gt;
++      &lt;spec txt=&quot;Enter some text:&quot; id=&quot;text.label&quot; size=&quot;15&quot; set=&quot;some text&quot;/&gt;
+     &lt;/field&gt;
+ 
+ Radio Buttons
+@@ -487,13 +503,13 @@
+ ::
+ 
+     &lt;field type=&quot;radio&quot; variable=&quot;radioSelection&quot;&gt;
+-      &lt;description align=&quot;left&quot; txt=&quot;This is a description for radio
+-      buttons&quot; id=&quot;description.radio&quot;/&gt;
++      &lt;description align=&quot;left&quot; txt=&quot;This is a description for radio buttons&quot; 
++      		id=&quot;description.radio&quot;/&gt;
+       &lt;spec&gt;
+-      &lt;choice txt=&quot;the first choice&quot; id=&quot;radio.label.1&quot; value=&quot;1 selected&quot; /&gt;
+-      &lt;choice txt=&quot;the second choice&quot; id=&quot;radio.label.2&quot; value=&quot;2 selected&quot; set=&quot;true&quot; /&gt;
+-      &lt;choice txt=&quot;the third choice&quot; id=&quot;radio.label.3&quot; value=&quot;3 selected&quot; /&gt;
+-      &lt;choice txt=&quot;the fourth choice&quot; id=&quot;radio.label.4&quot; value=&quot;4 selected&quot; /&gt;
++	      &lt;choice txt=&quot;the first choice&quot; id=&quot;radio.label.1&quot; value=&quot;1 selected&quot; /&gt;
++	      &lt;choice txt=&quot;the second choice&quot; id=&quot;radio.label.2&quot; value=&quot;2 selected&quot; set=&quot;true&quot; /&gt;
++	      &lt;choice txt=&quot;the third choice&quot; id=&quot;radio.label.3&quot; value=&quot;3 selected&quot; /&gt;
++	      &lt;choice txt=&quot;the fourth choice&quot; id=&quot;radio.label.4&quot; value=&quot;4 selected&quot; /&gt;
+       &lt;/spec&gt;
+     &lt;/field&gt;
+ 
+@@ -569,14 +585,108 @@
+ 
+ ::
+ 
+-    &lt;field type=&quot;check&quot; variable=&quot;chekSelection.1&quot;&gt;
+-      &lt;description align=&quot;left&quot; txt=&quot;This is a description for a check
+-      box&quot;
+-                   id=&quot;description.check.1&quot;/&gt;
++    &lt;field type=&quot;check&quot; variable=&quot;checkSelection.1&quot;&gt;
++      &lt;description align=&quot;left&quot; txt=&quot;This is a description for a check box&quot; 
++      		id=&quot;description.check.1&quot;/&gt;
+       &lt;spec txt=&quot;check box 1&quot; id=&quot;check.label.1&quot; true=&quot;on&quot; false=&quot;off&quot;
+-            set=&quot;false&quot;/&gt;
++          set=&quot;false&quot;/&gt;
+     &lt;/field&gt;
+ 
++
++Password Field
++--------------------
++
++The password field allows masked user input to accept password values.  Normally,
++a spec is created with 2 'pwd' elements to allow equality validation (below) and
++ensure the user typed the password correctly. The password field also allows 
++**multiple validators** (see below).  This is a very powerful feature for chaining
++validation operations based on user input. See the PasswordKeystoreValidator for
++an example.
++
++::
++
++        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;the.password&quot;&gt;
++          &lt;spec&gt;
++            &lt;pwd txt=&quot;The Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++          &lt;/spec&gt;
++        &lt;/field&gt;
++
++
++File Field
++--------------------
++
++This field allows the user to select a file from the file system.  Text can be added before
++the selection or a static text element can be added to display above the selection box
++(a little more visually appealing). 
++
++::
++
++        &lt;field type=&quot;file&quot; align=&quot;left&quot; variable=&quot;the.file&quot;&gt;
++          &lt;spec txt=&quot;&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++        &lt;/field&gt;
++
++::
++
++       &lt;field type=&quot;staticText&quot; align=&quot;left&quot; txt=&quot;Existing SSL keystore to import:&quot;/&gt;
++        &lt;field type=&quot;file&quot; align=&quot;left&quot; variable=&quot;existing.ssl.keystore&quot;&gt;
++          &lt;spec txt=&quot;&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++        &lt;/field&gt;
++
++.. image:: file-field.png
++
++Pressing 'Next' without a file selected show the following message:
++
++.. image:: file-field-error.png
++
++
++Messages for the file field can be customized by creating a custom lang pack and
++overriding the following values (attribute values wrapped for readability):
++
++::
++
++    &lt;str id=&quot;UserInputPanel.file.nofile.message&quot;   txt=&quot;You must select a valid file.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.file.nofile.caption&quot;   txt=&quot;No File Selected&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.file.notfile.message&quot;   txt=&quot;The file you have chosen either 
++    		does not exist or is not valid.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.file.notfile.caption&quot;   txt=&quot;Invalid File&quot;/&gt;
++
++
++Note: Mixing file fields with other fields that have text in front of 
++them can lead to formatting (layout) issues. Placing these types of elements on
++different panels can provide a much better user experience.
++
++
++Directory Field
++--------------------
++
++The directory field is essentially the same as the file field except the 
++field will ensure a directory is selected.
++
++
++::
++
++        &lt;field type=&quot;dir&quot; align=&quot;left&quot; variable=&quot;existing.jboss.home&quot;&gt;
++          &lt;spec txt=&quot;&quot; size=&quot;25&quot; set=&quot;$INSTALL_PATH$FILE_SEPARATOR${jboss.version}&quot;/&gt;
++        &lt;/field&gt;
++
++
++Messages for the directory field can be customized by creating a custom lang pack and
++overriding the following values (attribute values wrapped for readability):
++
++::
++
++    &lt;str id=&quot;UserInputPanel.dir.nodirectory.message&quot;   txt=&quot;You must select a valid directory.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.dir.nodirectory.caption&quot;   txt=&quot;No Directory Selected&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.dir.notdirectory.message&quot;   txt=&quot;The directory you have chosen 
++    		either does not exist or is not valid.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.dir.notdirectory.caption&quot;   txt=&quot;Invalid Directory&quot;/&gt;
++
++Note: Mixing directory fields with other fields that have text in front of 
++them can lead to formatting (layout) issues. Placing these types of elements on
++different panels can provide a much better user experience.
++
++
+ Rule Input
+ --------------------
+ 
+@@ -749,7 +859,8 @@
+ ``processed``         The content is processed by Java code that you supply before replacing the variable. How to do this is described below.
+ ===================== ======================================================================================================================================================
+ 
+-Validating the Field Content
++
++Validating Field Content
+ --------------------------------------------
+ 
+ You can provide runtime validation for user input into a text field and rule field 
+@@ -836,13 +947,89 @@
+       &lt;/validator&gt;
+     &lt;/field&gt;
+ 
++An example of using regexp validator in a password field 
++(attribute text wrapped for readability):
+ 
++::
++
++        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;db.password&quot;&gt;
++          &lt;spec&gt;
++            &lt;pwd txt=&quot;DB Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++          &lt;/spec&gt;
++          &lt;validator class=&quot;com.izforge.izpack.util.PasswordEqualityValidator&quot; 
++          		txt=&quot;Both DB passwords must match.&quot; id=&quot;key for the error text&quot;/&gt;
++          &lt;validator class=&quot;com.izforge.izpack.util.RegularExpressionValidator&quot; 
++          		txt=&quot;Service password must begin with a character and be 8-20 
++          				 mixed-case characters, numbers, and special characters [#@!$_].&quot; 
++          				 id=&quot;key for the error text&quot;&gt;
++            &lt;param name=&quot;pattern&quot; value=&quot;^(?=[a-zA-Z])(?=.*[0-9])(?=.*[#@!$_])
++            		(?=.*[A-Z])(?=.*[a-z])(?!.*[^a-zA-Z0-9#@!$_])(?!.*\s).{8,20}$&quot;/&gt;
++          &lt;/validator&gt;
++        &lt;/field&gt;
++
++
+ You can test your own regular expressions using the handy applet at
+ <A HREF="http://jakarta.apache.org/regexp/applet.html.">http://jakarta.apache.org/regexp/applet.html.</A>
+ 
+ 
++PasswordEqualityValidator
++''''''''''''''''''''''''''''''
+ 
++This validator uses a password field specification to compare the values in 
++each field for equality. Normally, this would be to ensure a password was 
++typed correctly before any other validation takes place.
+ 
++::
++
++		        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;the.password&quot;&gt;
++		          &lt;spec&gt;
++		            &lt;pwd txt=&quot;The Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		          &lt;/spec&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordEqualityValidator&quot; 
++		          	txt=&quot;Both passwords must match.&quot; id=&quot;lang pack key for the error text&quot;/&gt;
++		        &lt;/field&gt;
++
++
++PasswordKeystoreValidator
++''''''''''''''''''''''''''''''
++
++This validator uses the password field and parameters you send in from previous
++user input or predefined properties to open a keystore and optionally try to
++get a specified key.
++
++You must specify the parameter 'keystoreFile', and optionally 'keystoreType' 
++(defaults to JKS), 'keystoreAlias' (to check for existence of a key),
++and 'aliasPassword' (for trying to retrieve the key).
++
++An additional parameter 'skipValidation' can be set to 'true' in a checkbox and
++allow the validator framework to run, but not actually do the validation.
++
++Optionally checking the key password of multiple keys within a keystore
++requires the keystore password (if different from the key password) be set
++in the 'keystorePassword' parameter.
++
++::
++
++		        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;keystore.password&quot;&gt;
++		          &lt;spec&gt;
++		            &lt;pwd txt=&quot;Keystore Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		          &lt;/spec&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordEqualityValidator&quot; 
++		          		txt=&quot;Both keystore passwords must match.&quot; id=&quot;key for the error text&quot;/&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordKeystoreValidator&quot; 
++		          		txt=&quot;Could not validate keystore with password and alias provided.&quot; id=&quot;key for the error text&quot;&gt;
++		            &lt;param name=&quot;keystoreFile&quot; value=&quot;${ssl.keystore}&quot;/&gt;
++		            &lt;param name=&quot;keystoreType&quot; value=&quot;${ssl.keystore.type}&quot;/&gt;
++		            &lt;param name=&quot;keystoreAlias&quot; value=&quot;${keystore.key.alias}&quot;/&gt;
++		            &lt;param name=&quot;skipValidation&quot; value=&quot;${skip.keystore.validation}&quot;/&gt;
++		          &lt;/validator&gt;
++		        &lt;/field&gt;
++
++
++
+ Creation Your Own Custom Validator
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000765.html">[izpack-changes] r2019 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000767.html">[izpack-changes] r2021 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#766">[ date ]</a>
+              <a href="thread.html#766">[ thread ]</a>
+              <a href="subject.html#766">[ subject ]</a>
+              <a href="author.html#766">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] New file parsing type needed
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20New%20file%20parsing%20type%20needed&In-Reply-To=78d145690704121025t43c6662fr4c49cb1e485955f1%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000989.html">
+   <LINK REL="Next"  HREF="000999.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] New file parsing type needed</H1>
+    <B>Julien Ponge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20New%20file%20parsing%20type%20needed&In-Reply-To=78d145690704121025t43c6662fr4c49cb1e485955f1%40mail.gmail.com"
+       TITLE="[izpack-devel] New file parsing type needed">julien.ponge at gmail.com
+       </A><BR>
+    <I>Tue Apr 17 08:34:02 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000989.html">[izpack-devel] New file parsing type needed
+</A></li>
+        <LI>Next message: <A HREF="000999.html">[izpack-devel] New file parsing type needed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#996">[ date ]</a>
+              <a href="thread.html#996">[ thread ]</a>
+              <a href="subject.html#996">[ subject ]</a>
+              <a href="author.html#996">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Can you please send a patch instead? Thanks a lot.
+
+On 4/12/07, Max Fedorov &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">mfedorov at netflexity.com</A>&gt; wrote:
+&gt;<i> I've been using IzPack for some time and very glad with it, but sick of
+</I>&gt;<i> rebuilding it for every new version to incorporate my enhancements. I use
+</I>&gt;<i> IzPack to deploy a java web application to Unix and Windows environments.
+</I>&gt;<i> The problem that I have is with backslashes &quot;\&quot;, which are returned by
+</I>&gt;<i> $INSTALL_PATH variable on Windows, for example, and are not going to work if
+</I>&gt;<i> substituted in files that are used by java application, for example, web.xml
+</I>&gt;<i> or other configuration files. What I added is another file type called
+</I>&gt;<i> JAVA_TYPE in VariableSubstitutor.java with a tiny if. Thank you very much
+</I>&gt;<i> for your product. Hope this will help other people as well!!!
+</I>&gt;<i>
+</I>&gt;<i> Here are the changes:
+</I>&gt;<i>
+</I>&gt;<i> /** A constant for file type. Java file, where \ have to be escaped. */
+</I>&gt;<i> protected final static int TYPE_JAVA = 5;
+</I>&gt;<i>
+</I>&gt;<i> // Initialize the file type map
+</I>&gt;<i>     static
+</I>&gt;<i>     {
+</I>&gt;<i>         typeNameToConstantMap = new HashMap();
+</I>&gt;<i>         typeNameToConstantMap.put(&quot;plain&quot;, new Integer(TYPE_PLAIN));
+</I>&gt;<i>         typeNameToConstantMap.put (&quot;javaprop&quot;, new
+</I>&gt;<i> Integer(TYPE_JAVA_PROPERTIES));
+</I>&gt;<i>         typeNameToConstantMap.put(&quot;java&quot;, new Integer(TYPE_JAVA));
+</I>&gt;<i>         typeNameToConstantMap.put(&quot;xml&quot;, new Integer(TYPE_XML));
+</I>&gt;<i>         typeNameToConstantMap.put(&quot;shell&quot;, new Integer(TYPE_SHELL));
+</I>&gt;<i>         typeNameToConstantMap.put(&quot;at&quot;, new Integer(TYPE_AT));
+</I>&gt;<i>     }
+</I>&gt;<i>
+</I>&gt;<i> case TYPE_JAVA_PROPERTIES:
+</I>&gt;<i> case TYPE_JAVA:
+</I>&gt;<i>             buffer = new StringBuffer(str);
+</I>&gt;<i>             len = str.length();
+</I>&gt;<i>             for (i = 0; i &lt; len; i++)
+</I>&gt;<i>             {
+</I>&gt;<i>                 // Check for control characters
+</I>&gt;<i>                 char c = buffer.charAt(i);
+</I>&gt;<i>                 if (type == TYPE_JAVA_PROPERTIES){
+</I>&gt;<i>                     if(c == '\t' || c == '\n' || c == '\r')
+</I>&gt;<i>                     {
+</I>&gt;<i>                         char tag;
+</I>&gt;<i>                         if (c == '\t')
+</I>&gt;<i>                             tag = 't';
+</I>&gt;<i>                         else if (c == '\n')
+</I>&gt;<i>                             tag = 'n';
+</I>&gt;<i>                         else
+</I>&gt;<i>                             tag = 'r';
+</I>&gt;<i>                         buffer.replace(i, i + 1, &quot;\\&quot; + tag);
+</I>&gt;<i>                         len++;
+</I>&gt;<i>                         i++;
+</I>&gt;<i>                     }
+</I>&gt;<i>
+</I>&gt;<i>                     // Check for special characters
+</I>&gt;<i>                     if (c == '\\' || c == '&quot;' || c == '\'' || c == ' ')
+</I>&gt;<i>                     {
+</I>&gt;<i>                         buffer.insert(i, '\\');
+</I>&gt;<i>                         len++;
+</I>&gt;<i>                         i++;
+</I>&gt;<i>                     }
+</I>&gt;<i>                 }
+</I>&gt;<i>                 else{
+</I>&gt;<i>                     if (c == '\\'){
+</I>&gt;<i>                         buffer.replace(i, i + 1, &quot;\\\\&quot;);
+</I>&gt;<i>                         len++;
+</I>&gt;<i>                         i++;
+</I>&gt;<i>                     }
+</I>&gt;<i>                 }
+</I>&gt;<i>             }
+</I>&gt;<i>             return buffer.toString();
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000989.html">[izpack-devel] New file parsing type needed
+</A></li>
+	<LI>Next message: <A HREF="000999.html">[izpack-devel] New file parsing type needed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#996">[ date ]</a>
+              <a href="thread.html#996">[ thread ]</a>
+              <a href="subject.html#996">[ subject ]</a>
+              <a href="author.html#996">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

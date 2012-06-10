@@ -1,0 +1,2101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1519 - in	izpack-src/trunk/src/lib/com/izforge/izpack: gui installer panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1519%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20gui%20installer%20panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000262.html">
+   <LINK REL="Next"  HREF="000264.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1519 - in	izpack-src/trunk/src/lib/com/izforge/izpack: gui installer panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1519%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20gui%20installer%20panels&In-Reply-To="
+       TITLE="[izpack-changes] r1519 - in	izpack-src/trunk/src/lib/com/izforge/izpack: gui installer panels">noreply at berlios.de
+       </A><BR>
+    <I>Mon Aug  7 15:59:35 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000262.html">[izpack-changes] r1518 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+        <LI>Next message: <A HREF="000264.html">[izpack-changes] Additions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#263">[ date ]</a>
+              <a href="thread.html#263">[ thread ]</a>
+              <a href="subject.html#263">[ subject ]</a>
+              <a href="author.html#263">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-08-07 15:59:34 +0200 (Mon, 07 Aug 2006)
+New Revision: 1519
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelConstraints.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/gui/LayoutConstants.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/LayoutHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/HelloPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+Log:
+JavaDoc; continue developing of new layout handling;
+first changed panels.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelConstraints.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelConstraints.java	2006-08-07 13:27:14 UTC (rev 1518)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelConstraints.java	2006-08-07 13:59:34 UTC (rev 1519)
+@@ -24,6 +24,10 @@
+ import java.awt.Component;
+ import java.awt.Rectangle;
+ 
++/**
++ * Constraints class for the layout manager &lt;code&gt;IzPanelLayout&lt;/code&gt;.
++ * 
++ */
+ public class IzPanelConstraints implements Cloneable, LayoutConstants
+ {
+ 
+@@ -32,18 +36,10 @@
+      * method getGap. The gap type will be determined by the array index and has to be synchron to
+      * the gap identifier and the indices of array GAP_NAME_LOOK_UP
+      */
+-    protected static int[] DEFAULT_Y_GAPS = { 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, -1, 0};
++    private int xCellAlignment = IzPanelLayout.DEFAULT_X_ALIGNMENT[0];
+ 
+-    protected static int[] DEFAULT_X_GAPS = { 0, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, -1, 0};
+-    
+-    protected static int[] DEFAULT_X_ALIGNMENT = { LEFT, LEFT, LEFT, LEFT};
++    private int yCellAlignment = IzPanelLayout.DEFAULT_Y_ALIGNMENT[0];
+ 
+-    protected static int[] DEFAULT_Y_ALIGNMENT = { CENTER, CENTER, CENTER, CENTER};
+-
+-    private int xCellAlignment = DEFAULT_X_ALIGNMENT[0];
+-
+-    private int yCellAlignment = DEFAULT_Y_ALIGNMENT[0];
+-
+     private int xPos = 0;
+ 
+     private int yPos = NEXT_ROW;
+@@ -52,50 +48,92 @@
+ 
+     private int yWeight = 1;
+ 
+-    private int xGap = DEFAULT_X_GAPS[-LABEL_GAP];
++    private int xGap = IzPanelLayout.DEFAULT_X_GAPS[-LABEL_GAP];
+ 
+-    private int yGap = DEFAULT_Y_GAPS[-LABEL_GAP];
++    private int yGap = IzPanelLayout.DEFAULT_Y_GAPS[-LABEL_GAP];
+ 
+     private double stretch = 0.0;
+-    
++
+     private Rectangle bounds;
+ 
+     /** for private use by the layout manager */
+     Component component = null;
+ 
+-    public static IzPanelConstraints LABEL_CONSTRAINT = new IzPanelConstraints();
++    // public static IzPanelConstraints LABEL_CONSTRAINT = new IzPanelConstraints();
+ 
+-
++    /**
++     * Returns the declared stretch value.
++     * 
++     * @return the declared stretch value
++     */
+     public double getStretch()
+     {
+         return stretch;
+     }
+ 
++    /**
++     * Sets the given value as stretch value.
++     * 
++     * @param stretch value to be set
++     */
+     public void setStretch(double stretch)
+     {
+         this.stretch = stretch;
+     }
+ 
++    /**
++     * Returns the declared x gap value.
++     * 
++     * @return the declared x gap value
++     */
+     public int getXGap()
+     {
+         return xGap;
+     }
+ 
++    /**
++     * Sets the given value as x gap.
++     * 
++     * @param gap value to be set
++     */
+     public void setXGap(int gap)
+     {
+         xGap = gap;
+     }
+ 
++    /**
++     * Returns the declared y gap value.
++     * 
++     * @return the declared y gap value
++     */
+     public int getYGap()
+     {
+         return yGap;
+     }
+ 
++    /**
++     * Sets the given value as y gap.
++     * 
++     * @param gap value to be set
++     */
+     public void setYGap(int gap)
+     {
+         yGap = gap;
+     }
+ 
++    /**
++     * Constructor with all existent parameters.
++     * 
++     * @param xCellAlignment value to be used as x alignment
++     * @param yCellAlignment value to be used as y alignment
++     * @param xPos x position to be used
++     * @param yPos y position to be used
++     * @param xWeight weight at x direction
++     * @param yWeight weight at y direction
++     * @param xGap gap for x direction
++     * @param yGap gap for y direction
++     * @param stretch stretch value for the x direction
++     */
+     public IzPanelConstraints(int xCellAlignment, int yCellAlignment, int xPos, int yPos,
+             int xWeight, int yWeight, int xGap, int yGap, double stretch)
+     {
+@@ -110,8 +148,12 @@
+         setStretch(stretch);
+     }
+ 
++    /**
++     * Default constructor
++     */
+     public IzPanelConstraints()
+     {
++        super();
+     }
+ 
+     /*
+@@ -133,75 +175,145 @@
+         }
+     }
+ 
++    /**
++     * Returns the alignment for the x direction.
++     * 
++     * @return the alignment for the x direction
++     */
+     public int getXCellAlignment()
+     {
+         return xCellAlignment;
+     }
+ 
++    /**
++     * Sets the alignment for the x direction. Possible values are LEFT, RIGHT and CENTER.
++     * 
++     * @param cellAlignment to be used
++     */
+     public void setXCellAlignment(int cellAlignment)
+     {
+         xCellAlignment = cellAlignment;
+     }
+ 
++    /**
++     * Returns the x position (column number).
++     * 
++     * @return the x position (column number)
++     */
+     public int getXPos()
+     {
+         return xPos;
+     }
+ 
++    /**
++     * Sets the x position to be used.
++     * 
++     * @param pos position to be used
++     */
+     public void setXPos(int pos)
+     {
+         xPos = pos;
+     }
+ 
++    /**
++     * Returns the weight for the x direction. The weight determines how many cells are occupied by
++     * the component.
++     * 
++     * @return the weight for the x direction
++     */
+     public int getXWeight()
+     {
+         return xWeight;
+     }
+ 
++    /**
++     * Sets the weight value for the x direction.
++     * 
++     * @param weight to be used for the x direction
++     */
+     public void setXWeight(int weight)
+     {
+         xWeight = weight;
+     }
+ 
++    /**
++     * Returns the alignment for the y direction.
++     * 
++     * @return the alignment for the y direction
++     */
+     public int getYCellAlignment()
+     {
+         return yCellAlignment;
+     }
+ 
++    /**
++     * Sets the alignment for the y direction. Possible values are TOP, BOTTOM and CENTER.
++     * 
++     * @param cellAlignment to be used
++     */
+     public void setYCellAlignment(int cellAlignment)
+     {
+         yCellAlignment = cellAlignment;
+     }
+ 
++    /**
++     * Returns the y position (row number).
++     * 
++     * @return the y position (row number)
++     */
+     public int getYPos()
+     {
+         return yPos;
+     }
+ 
++    /**
++     * Sets the y position to be used.
++     * 
++     * @param pos position to be used
++     */
+     public void setYPos(int pos)
+     {
+         yPos = pos;
+     }
+ 
++    /**
++     * Returns the weight for the y direction. The weight determines how many cells are occupied by
++     * the component.
++     * 
++     * @return the weight for the y direction
++     */
+     public int getYWeight()
+     {
+         return yWeight;
+     }
+ 
++    /**
++     * Sets the weight value for the y direction.
++     * 
++     * @param weight to be used for the y direction
++     */
+     public void setYWeight(int weight)
+     {
+         yWeight = weight;
+     }
+ 
+-    
++    /**
++     * Returns the bounds which should be used by the corresponding component. This will be used by
++     * the layout manager at a fast layouting.
++     * 
++     * @return used bounds
++     */
+     public Rectangle getBounds()
+     {
+-        if(bounds != null )
+-            return(Rectangle) (bounds.clone());
+-        return( new Rectangle());
++        if (bounds != null) return (Rectangle) (bounds.clone());
++        return (new Rectangle());
+     }
+ 
+-    
++    /**
++     * Sets the bounds which should be used for the component.
++     * 
++     * @param bounds bounds to be used
++     */
+     public void setBounds(Rectangle bounds)
+     {
+         this.bounds = (Rectangle) bounds.clone();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2006-08-07 13:27:14 UTC (rev 1518)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2006-08-07 13:59:34 UTC (rev 1519)
+@@ -35,6 +35,12 @@
+ 
+ import com.izforge.izpack.util.MultiLineLabel;
+ 
++/**
++ * This is a special layout manager for IzPanels.
++ * 
++ * @author Klaus Bartz
++ * 
++ */
+ public class IzPanelLayout implements LayoutManager, LayoutManager2, LayoutConstants
+ {
+ 
+@@ -42,7 +48,7 @@
+     private ArrayList components = new ArrayList();
+ 
+     /** Maximum rows to handle symbolic values like NEXT_ROW in constraints. */
+-    private int currentYPos = -1;
++    private int currentYPos = 0;
+ 
+     /** Current column to handle symbolic values like NEXT_COLUMN in constraints. */
+     private int currentXPos = -1;
+@@ -51,30 +57,50 @@
+     private Dimension prefLayoutDim;
+ 
+     private Dimension oldParentSize;
+-    
++
+     private Insets oldParentInsets;
+ 
+-    public static IzPanelConstraints DEFAULT_CONSTRAINTS[] = {
++    /** Array with some default constraints. */
++    private static IzPanelConstraints DEFAULT_CONSTRAINTS[] = {
++            // Default constraints for labels.
+             new IzPanelConstraints(DEFAULT_LABEL_ALIGNMENT, DEFAULT_LABEL_ALIGNMENT, NEXT_COLUMN,
+                     CURRENT_ROW, 1, 1, LABEL_GAP, LABEL_GAP, 0.0),
++            // Default constraints for text fields.
+             new IzPanelConstraints(DEFAULT_TEXT_ALIGNMENT, DEFAULT_TEXT_ALIGNMENT, NEXT_COLUMN,
+                     CURRENT_ROW, 1, 1, TEXT_GAP, TEXT_GAP, 0.0),
++            // Default constraints for other controls.
+             new IzPanelConstraints(DEFAULT_CONTROL_ALIGNMENT, DEFAULT_CONTROL_ALIGNMENT,
+-                    NEXT_COLUMN, CURRENT_ROW, 10, 10, CONTROL_GAP, CONTROL_GAP, 0.0),
++                    NEXT_COLUMN, CURRENT_ROW, 1, 1, CONTROL_GAP, CONTROL_GAP, 0.0),
++            // Default constraints for multi line labels.
+             new IzPanelConstraints(DEFAULT_LABEL_ALIGNMENT, DEFAULT_LABEL_ALIGNMENT, 0, NEXT_ROW,
+-                    10, 10, LABEL_GAP, LABEL_GAP, 0.7),
++                    10, 10, LABEL_GAP, LABEL_GAP, FULL_LINE_STRETCH),
++            // Default constraints for x filler.
+             new IzPanelConstraints(DEFAULT_LABEL_ALIGNMENT, DEFAULT_LABEL_ALIGNMENT, NEXT_COLUMN,
+                     CURRENT_ROW, 1, 1, 0, 0, 0.0),
+-            new IzPanelConstraints(DEFAULT_LABEL_ALIGNMENT, DEFAULT_LABEL_ALIGNMENT,
+-                    CURRENT_COLUMN, NEXT_ROW, 1, 1, 0, 0, 0.0)
++            // Default constraints for y filler.
++            new IzPanelConstraints(DEFAULT_LABEL_ALIGNMENT, DEFAULT_LABEL_ALIGNMENT, 0, NEXT_ROW,
++                    1, 1, 0, 0, 0.0),
++            // Default constraints for other controls using the full line.
++            new IzPanelConstraints(DEFAULT_CONTROL_ALIGNMENT, DEFAULT_CONTROL_ALIGNMENT, 0,
++                    NEXT_ROW, 10, 10, CONTROL_GAP, CONTROL_GAP, FULL_LINE_STRETCH),
+ 
+     };
+ 
++    protected static int[] DEFAULT_Y_GAPS = { -1, 0, 5, 5, 10, 5, 5, 5,     5, 5, 5, 5, 5, 5, 0};
++
++    protected static int[] DEFAULT_X_GAPS = { -1, 0, 0, 0, 0, 0, 10, 10,    10, 10, 10, 10, 10, 0};
++
++    protected static int[] DEFAULT_X_ALIGNMENT = { LEFT, LEFT, LEFT, LEFT};
++
++    protected static int[] DEFAULT_Y_ALIGNMENT = { CENTER, CENTER, CENTER, CENTER};
++
+     /** Anchor to be used for the controls in all panels. */
+     private static int ANCHOR = CENTER;
+ 
+     private static int X_STRETCH_TYPE = RELATIVE_STRETCH;
+ 
++    private static double FULL_LINE_STRETCH_DEFAULT = 0.7;
++
+     private static final int[][] GAP_INTERMEDIAER_LOOKUP = {
+             { LABEL_GAP, LABEL_TO_TEXT_GAP, LABEL_TO_CONTROL_GAP, LABEL_GAP},
+             { TEXT_TO_LABEL_GAP, TEXT_GAP, TEXT_TO_CONTROL_GAP, TEXT_GAP},
+@@ -86,38 +112,80 @@
+      */
+     public IzPanelLayout()
+     {
++        super();
+     }
+ 
+-        public static int getYGap(IzPanelConstraints curConst, IzPanelConstraints nextYConst)
++    /**
++     * Returns the y gap for the given constraint dependant on the next y constraint.
++     * 
++     * @param curConst constraint of the component for which the gap should be returnd
++     * @param nextYConst constraint of the component which is the next in y direction
++     * @return the y gap
++     */
++    private static int getYGap(IzPanelConstraints curConst, IzPanelConstraints nextYConst)
+     {
+ 
+         Class nextClass = (nextYConst != null) ? nextYConst.component.getClass()
+-                : DummyComponent.class;
+-        int interId = GAP_INTERMEDIAER_LOOKUP[getIntermediarId(curConst.component.getClass(), false)][getIntermediarId(nextClass, false)];
+-        return (IzPanelConstraints.DEFAULT_Y_GAPS[interId]);
++                : FillerComponent.class;
++        int interId = GAP_INTERMEDIAER_LOOKUP[getIntermediarId(curConst.component.getClass(), null)][getIntermediarId(
++                nextClass, null)];
++        return (DEFAULT_Y_GAPS[interId]);
+ 
+     }
+ 
+-    public static int getXGap(IzPanelConstraints curConst, IzPanelConstraints nextXConst)
++    /**
++     * Returns the x gap for the given constraint dependant on the next x constraint.
++     * 
++     * @param curConst constraint of the component for which the gap should be returnd
++     * @param nextXConst constraint of the component which is the next in x direction
++     * @return the x gap
++     */
++    private static int getXGap(IzPanelConstraints curConst, IzPanelConstraints nextXConst)
+     {
+ 
+         Class nextClass = (nextXConst != null) ? nextXConst.component.getClass()
+-                : DummyComponent.class;
+-        int interId = GAP_INTERMEDIAER_LOOKUP[getIntermediarId(curConst.component.getClass(), false)][getIntermediarId(nextClass, false)];
+-        return (IzPanelConstraints.DEFAULT_X_GAPS[interId]);
++                : FillerComponent.class;
++        int interId = GAP_INTERMEDIAER_LOOKUP[getIntermediarId(curConst.component.getClass(), null)][getIntermediarId(
++                nextClass, null)];
++        return (DEFAULT_X_GAPS[interId]);
+ 
+     }
+ 
+-    private static int getIntermediarId(Class clazz, boolean ext)
++    /**
++     * Returns an index depending on the class type. Only for internal use.
++     * 
++     * @param clazz class for which the index should be returned
++     * @param comp component for which the index should be returned
++     * @return an index depending on the class type
++     */
++    private static int getIntermediarId(Class clazz, Component comp)
+     {
+-        if(ext)
++
++        if (comp != null)
+         {
+             if (MultiLineLabel.class.isAssignableFrom(clazz)) return (3);
+-            if (DummyComponent.class.isAssignableFrom(clazz)) return (4);
++            if (FillerComponent.class.isAssignableFrom(clazz)
++                    || javax.swing.Box.Filler.class.isAssignableFrom(clazz))
++            {
++                Dimension size = comp.getPreferredSize();
++                if (size.height &gt;= Short.MAX_VALUE || size.height &lt;= 0)
++                {
++                    size.height = 0;
++                    comp.setSize(size);
++                    return (4);
++                }
++                else if (size.width &gt;= Short.MAX_VALUE || size.width &lt;= 0)
++                {
++                    size.width = 0;
++                    comp.setSize(size);
++                    return (5);
++                }
++            }
+         }
+         if (JLabel.class.isAssignableFrom(clazz)) return (0);
+         if (JTextComponent.class.isAssignableFrom(clazz)) return (1);
+-        if (DummyComponent.class.isAssignableFrom(clazz)) return (3);
++        if (FillerComponent.class.isAssignableFrom(clazz)) return (3);
++        if (javax.swing.Box.Filler.class.isAssignableFrom(clazz)) return (3);
+         return (2); // Other controls.
+     }
+ 
+@@ -128,6 +196,7 @@
+      */
+     public void addLayoutComponent(String name, Component comp)
+     {
++        // Has to be implemented, but not supported in this class.
+     }
+ 
+     /*
+@@ -137,6 +206,7 @@
+      */
+     public void removeLayoutComponent(Component comp)
+     {
++        // Has to be implemented, but not supported in this class.
+     }
+ 
+     /*
+@@ -179,6 +249,8 @@
+ 
+     /**
+      * Returns the number of rows that need to be laid out.
++     * 
++     * @return the number of rows that need to be laid out
+      */
+     private int rows()
+     {
+@@ -194,6 +266,8 @@
+ 
+     /**
+      * Returns the number of columns that need to be laid out.
++     * 
++     * @return the number of columns that need to be laid out
+      */
+     private int columns()
+     {
+@@ -222,6 +296,7 @@
+      * row.
+      * 
+      * @param row the index of the row to measure
++     * @return minimum height of a row
+      */
+     private int rowHeight(int row)
+     {
+@@ -240,6 +315,7 @@
+      * 
+      * @param row the index of the row to measure
+      * @param column the column of the component
++     * @return size of the given cell
+      */
+     private Dimension cellSize(int row, int column)
+     {
+@@ -259,14 +335,15 @@
+                 if (needsReEvaluation(component)) retval.width = 0;
+             }
+         }
+-        // ----------------------------------------------------
+-        // we might get an exception if one of the array list is
+-        // shorter, because we index out of bounds. If there
+-        // is nothing there then the height is 0, nothing
+-        // further to worry about!
+-        // ----------------------------------------------------
+         catch (Throwable exception)
+-        {}
++        {
++            // ----------------------------------------------------
++            // we might get an exception if one of the array list is
++            // shorter, because we index out of bounds. If there
++            // is nothing there then the height is 0, nothing
++            // further to worry about!
++            // ----------------------------------------------------
++        }
+ 
+         return (retval);
+     }
+@@ -290,9 +367,9 @@
+     }
+ 
+     /**
+-     * Returns the minimum width needed by all columns
++     * Returns the minimum width needed by all columns.
+      * 
+-     * @return
++     * @return the minimum width needed by all columns
+      */
+     private int minimumAllColumnsWidth()
+     {
+@@ -311,9 +388,19 @@
+      */
+     private IzPanelConstraints getConstraint(int col, int row)
+     {
++        if (col &gt;= columns() || row &gt;= rows()) return (null);
+         Object obj = components.get(col);
+         if (obj != null &amp;&amp; obj instanceof ArrayList)
+-            obj = ((ArrayList) components.get(col)).get(row);
++        {
++            try
++            {
++                obj = ((ArrayList) components.get(col)).get(row);
++            }
++            catch (Throwable t)
++            {
++                return (null);
++            }
++        }
+         if (obj != null) return ((IzPanelConstraints) obj);
+         return (null);
+     }
+@@ -362,8 +449,9 @@
+     private void resolveDefaultSettings(int col, int row)
+     {
+         IzPanelConstraints currentConst = getConstraint(col, row);
+-        IzPanelConstraints nextYConst = (row &lt; rows() - 1) ? getConstraint(col, row + 1) : null;
+-        IzPanelConstraints nextXConst = (col &lt; columns() - 1) ? getConstraint(col + 1, row) : null;
++        IzPanelConstraints nextYConst = getConstraint(col, row + 1);
++        IzPanelConstraints nextXConst = getConstraint(col + 1, row);
++        if (currentConst == null) return;
+         int gap = currentConst.getYGap();
+         if (gap == AUTOMATIC_GAP)
+         { // Automatic gap; determine now.
+@@ -371,7 +459,7 @@
+         }
+         else if (gap &lt; 0)
+         {
+-            currentConst.setYGap(IzPanelConstraints.DEFAULT_Y_GAPS[-gap]);
++            currentConst.setYGap(DEFAULT_Y_GAPS[-gap]);
+         }
+         gap = currentConst.getXGap();
+         if (gap == AUTOMATIC_GAP)
+@@ -380,18 +468,16 @@
+         }
+         else if (gap &lt; 0)
+         {
+-            currentConst.setXGap(IzPanelConstraints.DEFAULT_X_GAPS[-gap]);
++            currentConst.setXGap(DEFAULT_X_GAPS[-gap]);
+         }
+ 
+         if (currentConst.getXCellAlignment() &lt; 0)
+         {
+-            currentConst.setXCellAlignment(IzPanelConstraints.DEFAULT_X_ALIGNMENT[-currentConst
+-                    .getXCellAlignment()]);
++            currentConst.setXCellAlignment(DEFAULT_X_ALIGNMENT[-currentConst.getXCellAlignment()]);
+         }
+         if (currentConst.getYCellAlignment() &lt; 0)
+         {
+-            currentConst.setYCellAlignment(IzPanelConstraints.DEFAULT_Y_ALIGNMENT[-currentConst
+-                    .getYCellAlignment()]);
++            currentConst.setYCellAlignment(DEFAULT_Y_ALIGNMENT[-currentConst.getYCellAlignment()]);
+         }
+ 
+     }
+@@ -403,7 +489,7 @@
+      */
+     public void layoutContainer(Container parent)
+     {
+-        if( ! needNewLayout(parent ))
++        if (!needNewLayout(parent))
+         {
+             fastLayoutContainer(parent);
+             return;
+@@ -455,7 +541,7 @@
+                         while (weight &gt; 1 &amp;&amp; col &lt; columns())
+                         {
+                             colConstraints[col] = getConstraint(col, row);
+-                            if (!(colConstraints[col].component instanceof DummyComponent)) break;
++                            if (!(colConstraints[col].component instanceof FillerComponent)) break;
+                             curWidth += minimumColumnWidth(col);
+                             col++;
+                             weight--;
+@@ -464,11 +550,11 @@
+                     // width known
+                     int adaptedXPos = getAdaptedXPos(xpos, curWidth, curDim, currentConst);
+                     int adaptedYPos = getAdaptedYPos(ypos, rowHeight, curDim, currentConst);
+-                    currentComp.setBounds(adaptedXPos + generellOffset[0], ypos
++                    currentComp.setBounds(adaptedXPos + generellOffset[0], adaptedYPos
+                             + currentConst.getYGap() + generellOffset[1], curWidth, rowHeight);
+                     currentComp.getBounds(curRect);
+-                    
+-                    if (!(currentComp instanceof DummyComponent))
++
++                    if (!(currentComp instanceof FillerComponent))
+                     {
+                         if (curRect.x &lt; minWidth) minWidth = curRect.x;
+                         if (curRect.y &lt; minHeight) minHeight = curRect.y;
+@@ -490,6 +576,8 @@
+                 // Determine hole stretch of this row.
+                 for (i = 0; i &lt; colConstraints.length; ++i)
+                 {
++                    if (colConstraints[i].getStretch() == FULL_LINE_STRETCH)
++                        colConstraints[i].setStretch(IzPanelLayout.getFullLineStretch());
+                     rowStretch += colConstraints[i].getStretch();
+                 }
+                 // Modify rowStretch depending on the current X-Stretch type.
+@@ -526,16 +614,13 @@
+                         colConstraints[i].component.setBounds(curBounds.x + offset, curBounds.y,
+                                 newWidth, curBounds.height);
+                         colConstraints[i].component.getBounds(curRect);
+-                        if (!(colConstraints[i].component instanceof DummyComponent))
+-                        {
+-                            if (curRect.x &lt; minWidth) minWidth = curRect.x;
+-                            if (curRect.y &lt; minHeight) minHeight = curRect.y;
+-                        }
++                        if (curRect.x &gt; 0 &amp;&amp; curRect.x &lt; minWidth) minWidth = curRect.x;
++                        if (curRect.y &gt; 0 &amp;&amp; curRect.y &lt; minHeight) minHeight = curRect.y;
+                         int curMax = (int) curRect.getMaxX();
+                         if (curMax - minWidth &gt; maxWidth) maxWidth = curMax - minWidth;
+                         curMax = (int) curRect.getMaxY();
+                         colConstraints[i].setBounds(curRect);
+-                        
++
+                         if (curMax - minHeight &gt; overallHeight) overallHeight = curMax - minHeight;
+ 
+                         offset += curPixel;
+@@ -545,7 +630,6 @@
+                                     &amp;&amp; oldOnceAgain == onceAgain) onceAgain++;
+                         }
+                     }
+-
+                 }
+                 // Seems so that height has changed. Reevaluate only one time else it is possible
+                 // to go in a endless loop.
+@@ -563,15 +647,16 @@
+ 
+     private void fastLayoutContainer(Container parent)
+     {
+-        for( int row = 0; row &lt; rows(); ++ row)
++        for (int row = 0; row &lt; rows(); ++row)
+         {
+-            for( int col = 0; col &lt; columns(); ++ col)
++            for (int col = 0; col &lt; columns(); ++col)
+             {
+                 IzPanelConstraints currentConst = getConstraint(col, row);
+-                currentConst.component.setBounds(currentConst.getBounds());
+-                
++                if (currentConst != null)
++                    currentConst.component.setBounds(currentConst.getBounds());
++
+             }
+-            
++
+         }
+     }
+ 
+@@ -581,12 +666,10 @@
+         Insets opi = oldParentInsets;
+         oldParentSize = parent.getSize();
+         oldParentInsets = parent.getInsets();
+-        if( opi == null || opi == null)
+-            return(true);
+-        if( ops.equals(parent.getSize()) &amp;&amp; opi.equals(parent.getInsets()))
+-            return(false);
+-        return(true);
+-        
++        if (opi == null || opi == null) return (true);
++        if (ops.equals(parent.getSize()) &amp;&amp; opi.equals(parent.getInsets())) return (false);
++        return (true);
++
+     }
+ 
+     private int resolveGenerellOffsets(int[] generellOffset, Dimension realSizeDim, Insets insets,
+@@ -675,7 +758,7 @@
+      */
+     public void invalidateLayout(Container target)
+     {
+-        //prefLayoutDim = null;
++        // prefLayoutDim = null;
+     }
+ 
+     /*
+@@ -688,30 +771,41 @@
+         return (minimumLayoutSize(target));
+     }
+ 
++    /* (non-Javadoc)
++     * @see java.awt.LayoutManager2#addLayoutComponent(java.awt.Component, java.lang.Object)
++     */
+     public void addLayoutComponent(Component comp, Object constraints)
+     {
+-        if( comp == null )  throw new NullPointerException(&quot;component has to be not null&quot;);
+-        if (!(constraints instanceof IzPanelConstraints ))
++        if (comp == null) throw new NullPointerException(&quot;component has to be not null&quot;);
++        IzPanelConstraints cc;
++        if (!(constraints instanceof IzPanelConstraints))
+         {
+             Object oldVal = constraints;
+-            constraints = IzPanelLayout.DEFAULT_CONSTRAINTS[getIntermediarId(comp.getClass(), true)];
+-            if( NEXT_LINE.equals(oldVal))
++            if ((comp instanceof FillerComponent)
++                    &amp;&amp; ((FillerComponent) comp).getConstraints() != null)
++                constraints = ((FillerComponent) comp).getConstraints();
++            else
++                constraints = IzPanelLayout.DEFAULT_CONSTRAINTS[getIntermediarId(comp.getClass(),
++                        comp)];
++            if (NEXT_LINE.equals(oldVal))
+             {
+                 ((IzPanelConstraints) constraints).setXPos(0);
+                 ((IzPanelConstraints) constraints).setYPos(NEXT_ROW);
+             }
++            cc = (IzPanelConstraints) constraints;
+         }
+-        IzPanelConstraints cc = (IzPanelConstraints) ((IzPanelConstraints) constraints).clone();
++        else
++            cc = (IzPanelConstraints) ((IzPanelConstraints) constraints).clone();
+         cc.component = comp;
+         int i;
+         // Modify positions if constraint value is one of the symbolic ints.
+         int yPos = cc.getYPos();
+-        if (yPos == IzPanelConstraints.NEXT_ROW) yPos = currentYPos + 1;
+-        if (yPos == IzPanelConstraints.CURRENT_ROW) yPos = currentYPos;
++        if (yPos == LayoutConstants.NEXT_ROW) yPos = currentYPos + 1;
++        if (yPos == LayoutConstants.CURRENT_ROW) yPos = currentYPos;
+         cc.setYPos(yPos);
+         int xPos = cc.getXPos();
+-        if (xPos == IzPanelConstraints.NEXT_COLUMN) xPos = currentXPos + 1;
+-        if (xPos == IzPanelConstraints.CURRENT_COLUMN) xPos = currentXPos;
++        if (xPos == LayoutConstants.NEXT_COLUMN) xPos = currentXPos + 1;
++        if (xPos == LayoutConstants.CURRENT_COLUMN) xPos = currentXPos;
+         cc.setXPos(xPos);
+         // Now we know real x and y position. If needed, expand array or
+         // array of array.
+@@ -727,58 +821,189 @@
+             for (i = xComp.size() - 1; i &lt; yPos - 1; ++i)
+             {
+                 IzPanelConstraints dc = getDefaultConstraint(XDUMMY_CONSTRAINT);
+-                dc.component = new DummyComponent();
++                dc.component = new FillerComponent();
+                 xComp.add(dc);
+ 
+             }
+         }
++
+         xComp.add(yPos, cc);
+         if (currentYPos &lt; xComp.size() - 1) currentYPos = xComp.size() - 1;
+         currentXPos = xPos;
+ 
+     }
+ 
++    /**
++     * Creates an invisible, component with a defined width. This component will be placed in the
++     * given cell of an IzPackLayout. If no constraint will be set (the default) a default
++     * constraint with NEXT_COLUMN and CURRENT_ROW will be used. This component has the height 0.
++     * The height of the row will be determined by other components in the same row.
++     * 
++     * @param width the width of the invisible component
++     * @return the component
++     */
++    public static Component createHorizontalStrut(int width)
++    {
++        return (new FillerComponent(new Dimension(width, 0)));
++    }
++
++    /**
++     * Creates an invisible, component with a defined height. This component will be placed in the
++     * given cell of an IzPackLayout. If no constraint will be set (the default) a default
++     * constraint with column 0 and NEXT_ROW will be used. If the next component also uses NEXT_ROW,
++     * this strut goes over the hole width with the declared height. If more components are in the
++     * row, the highest of them determines the height of the row. This component has the width 0.
++     * The width of a row will be determined by other rows.
++     * 
++     * @param height the height of the invisible component, in pixels &gt;= 0
++     * @return the component
++     */
++    public static Component createVerticalStrut(int height)
++    {
++        return (new FillerComponent(new Dimension(0, height)));
++    }
++
++    /**
++     * Returns a filler component which has self the size 0|0. Additional there is a constraints
++     * which has the x position 0,y position NEXT_ROW, x and y weight 10, stretch 1.0 and the gaps
++     * PARAGRAPH_GAP. The result will be that a gap will be inserted into the layout at the current
++     * place with the height equal to the defined paragraph gap. Use NEXT_LINE (or NEXT_ROW in the
++     * constraints) for the next added control, else the layout will be confused.
++     * 
++     * @return a filler component with the height of the defined paragraph gap
++     */
++    public static Component createParagraphGap()
++    {
++        return (new FillerComponent(new Dimension(0, 0), new IzPanelConstraints(
++                DEFAULT_CONTROL_ALIGNMENT, DEFAULT_CONTROL_ALIGNMENT, 0, NEXT_ROW, 10, 10,
++                PARAGRAPH_GAP, PARAGRAPH_GAP, 1.0)));
++
++    }
++
++    /**
++     * Returns the constraint for the given type. Valid types are declared in the interface
++     * &lt;code&gt;LayoutConstraints&lt;/code&gt;. Possible are LABEL_CONSTRAINT, TEXT_CONSTRAINT and
++     * CONTROL_CONSTRAINT.
++     * 
++     * @param type for which the constraint should be returned
++     * @return a copy of the default constraint for the given type
++     */
+     public static IzPanelConstraints getDefaultConstraint(int type)
+     {
+         return ((IzPanelConstraints) DEFAULT_CONSTRAINTS[type].clone());
+     }
+ 
+     /**
+-     * Component which will be used as placeholder if not extern component will be set.
++     * Component which will be used as placeholder if not extern component will be set or as filler
++     * for struts.
+      * 
+      * @author Klaus Bartz
+      * 
+      */
+-    private static class DummyComponent extends Component
++    public static class FillerComponent extends Component
+     {
+ 
++        private Dimension size;
++
++        private IzPanelConstraints constraints;
++
++        /**
++         * Default constructor creating an filler with the size 0|0.
++         */
++        public FillerComponent()
++        {
++            this(new Dimension(0, 0));
++        }
++
++        /**
++         * Constructor with giving the filler a size.
++         * 
++         * @param size dimension to be used as size for this filler.
++         */
++        public FillerComponent(Dimension size)
++        {
++            this(size, null);
++        }
++
++        /**
++         * Constructor with giving the filler a size and set the constraints.
++         * 
++         * @param size
++         * @param constraints
++         */
++        public FillerComponent(Dimension size, IzPanelConstraints constraints)
++        {
++            super();
++            this.size = size;
++            this.constraints = constraints;
++        }
++
+         public Dimension getMinimumSize()
+         {
+-            return (new Dimension(0, 0));
++            return (Dimension) (size.clone());
+         }
+ 
++        /*
++         * (non-Javadoc)
++         * 
++         * @see java.awt.Component#getPreferredSize()
++         */
+         public Dimension getPreferredSize()
+         {
+             return getMinimumSize();
+         }
+ 
++        /*
++         * (non-Javadoc)
++         * 
++         * @see java.awt.Component#getMaximumSize()
++         */
+         public Dimension getMaximumSize()
+         {
+             return getMinimumSize();
+         }
+ 
++        /*
++         * (non-Javadoc)
++         * 
++         * @see java.awt.Component#getBounds()
++         */
+         public Rectangle getBounds()
+         {
+             return (getBounds(new Rectangle()));
+         }
+ 
++        /*
++         * (non-Javadoc)
++         * 
++         * @see java.awt.Component#getBounds(java.awt.Rectangle)
++         */
+         public Rectangle getBounds(Rectangle rect)
+         {
+             Rectangle rv = (rect != null) ? rect : new Rectangle();
+-            rv.setBounds(0, 0, 0, 0);
++            rv.setBounds(0, 0, size.width, size.height);
+             return (rv);
+         }
+ 
++        /**
++         * Returns the constraints defined for this component. Often this will be null.
++         * 
++         * @return the constraints defined for this component
++         */
++        public IzPanelConstraints getConstraints()
++        {
++            return constraints;
++        }
++
++        /**
++         * Sets the constraints which should be used by this component.
++         * 
++         * @param constraints constraints to be used
++         */
++        public void setConstraints(IzPanelConstraints constraints)
++        {
++            this.constraints = constraints;
++        }
+     }
+ 
+     /**
+@@ -823,4 +1048,89 @@
+         X_STRETCH_TYPE = x_stretch;
+     }
+ 
++    /**
++     * Returns the value which should be used stretching to a full line.
++     * 
++     * @return the value which should be used stretching to a full line
++     */
++    public static double getFullLineStretch()
++    {
++        return FULL_LINE_STRETCH_DEFAULT;
++    }
++
++    /**
++     * Sets the value which should be used as default for stretching to a full line.
++     * 
++     * @param fullLineStretch value to be used as full line stretching default
++     */
++    public static void setFullLineStretch(double fullLineStretch)
++    {
++        FULL_LINE_STRETCH_DEFAULT = fullLineStretch;
++
++    }
++
++    /**
++     * Verifies whether a gap id is valid or not. If the id is less than
++     * zero, the sign will be removed. If the id is out of range, an
++     * IndexOutOfBoundsException will be thrown. The return value is the verified 
++     * unsigned id.
++     * @param gapId to be verified
++     * @return the verified gap id
++     */
++    public static int verifyGapId(int gapId)
++    {
++        if (gapId &lt; 0) gapId = -gapId;
++        if (gapId &lt;= GAP_LOAD_MARKER || gapId &gt;= DEFAULT_X_GAPS.length)
++            throw new IndexOutOfBoundsException(&quot;gapId is not in the default gap container.&quot;);
++        return (gapId);
++    }
++
++    /**
++     * Returns the default x gap for the given gap id.
++     * 
++     * @param gapId for which the default x gap should be returned
++     * @return the default x gap for the given gap id
++     */
++    public static int getDefaultXGap(int gapId)
++    {
++        gapId = verifyGapId(gapId);
++        return DEFAULT_X_GAPS[gapId];
++    }
++
++    /**
++     * Set the gap for the given gap id for the x default gaps.
++     * 
++     * @param gap to be used as default
++     * @param gapId for which the default should be set
++     */
++    public static void setDefaultXGap(int gap, int gapId)
++    {
++        gapId = verifyGapId(gapId);
++        DEFAULT_X_GAPS[gapId] = gap;
++    }
++
++    /**
++     * Returns the default y gap for the given gap id.
++     * 
++     * @param gapId for which the default y gap should be returned
++     * @return the default x gap for the given gap id
++     */
++    public static int getDefaultYGap(int gapId)
++    {
++        gapId = verifyGapId(gapId);
++        return DEFAULT_Y_GAPS[gapId];
++    }
++
++    /**
++     * Set the gap for the given gap id for the y default gaps.
++     * 
++     * @param gap to be used as default
++     * @param gapId for which the default should be set
++     */
++    public static void setDefaultYGap(int gap, int gapId)
++    {
++        gapId = verifyGapId(gapId);
++        DEFAULT_Y_GAPS[gapId] = gap;
++    }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/gui/LayoutConstants.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/gui/LayoutConstants.java	2006-08-07 13:27:14 UTC (rev 1518)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/gui/LayoutConstants.java	2006-08-07 13:59:34 UTC (rev 1519)
+@@ -23,89 +23,111 @@
+ 
+ import javax.swing.SwingConstants;
+ 
+-
++/**
++ * Interface with some constants used by or for the IzPanelLayout.
++ * 
++ * @author Klaus Bartz
++ * 
++ */
+ public interface LayoutConstants extends SwingConstants
+ {
+-    public final static int NO_GAP = -13;
+ 
+-    /** Identifier for gaps between labels */
+-    public final static int LABEL_GAP = -1;
++    /** Identifier for gaps between labels. */
++    final static int LABEL_GAP = -1;
+ 
+-     /** Identifier for gaps between labels and text fields */
+-    public final static int TEXT_GAP = -2;
++    /** Identifier for gaps between text fields. */
++    final static int TEXT_GAP = -2;
+ 
+-    /** Identifier for gaps between labels and controls like radio buttons/groups */
+-    public final static int CONTROL_GAP = -3;
++    /** Identifier for gaps between controls like radio buttons/groups. */
++    final static int CONTROL_GAP = -3;
+ 
+-    /** Identifier for gaps between paragraphs */
+-    public final static int PARAGRAPH_GAP = -4;
++    /** Identifier for gaps between paragraphs. */
++    final static int PARAGRAPH_GAP = -4;
+ 
+-    /** Identifier for gaps between labels and text fields */
+-    public final static int LABEL_TO_TEXT_GAP = -5;
++    /** Identifier for gaps between labels and text fields. */
++    final static int LABEL_TO_TEXT_GAP = -5;
+ 
+-    /** Identifier for gaps between labels and controls like radio buttons/groups */
+-    public final static int LABEL_TO_CONTROL_GAP = -6;
++    /** Identifier for gaps between labels and controls like radio buttons/groups. */
++    final static int LABEL_TO_CONTROL_GAP = -6;
+ 
+-   /** Identifier for gaps between text fields and labels */
+-    public final static int TEXT_TO_LABEL_GAP = -7;
++    /** Identifier for gaps between text fields and labels. */
++    final static int TEXT_TO_LABEL_GAP = -7;
+ 
+-    /** Identifier for gaps between controls like radio buttons/groups and labels */
+-    public final static int CONTROL_TO_LABEL_GAP = -8;
++    /** Identifier for gaps between controls like radio buttons/groups and labels. */
++    final static int CONTROL_TO_LABEL_GAP = -8;
+ 
+-    /** Identifier for gaps between controls like radio buttons/groups and labels */
+-    public final static int CONTROL_TO_TEXT_GAP = -9;
++    /** Identifier for gaps between controls like radio buttons/groups and text components. */
++    final static int CONTROL_TO_TEXT_GAP = -9;
+ 
+-    /** Identifier for gaps between controls like radio buttons/groups and labels */
+-    public final static int TEXT_TO_CONTROL_GAP = -10;
++    /** Identifier for gaps between text components and controls like radio buttons/groups and labels */
++    final static int TEXT_TO_CONTROL_GAP = -10;
+ 
+     /** Identifier for gaps between panel top and the first control. */
+-    public final static int TOP_GAP = -11;
++    final static int TOP_GAP = -11;
+ 
++    /** Identifier for all gaps. */
++    final static int ALL_GAP = -12;
++
++    /** Identifier for gaps for filler. */
++    final static int NO_GAP = -13;
++
+     /** Identifier for gaps to be evaluated automatically at a late time. */
+-    public final static int AUTOMATIC_GAP = -12;
++    final static int AUTOMATIC_GAP = -14;
+ 
++    /** Identifier for gaps load marker. */
++    final static int GAP_LOAD_MARKER = 0;
++
+     /** Identifier for relative row positioning (next). */
+     public static final int NEXT_ROW = -1;
+ 
+     /** Identifier for relative row positioning (current). */
+     public static final int CURRENT_ROW = -2;
+-    
++
+     /** Identifier for relative column positioning (next). */
+     public static final int NEXT_COLUMN = -1;
+ 
+     /** Identifier for relative column positioning (current). */
+     public static final int CURRENT_COLUMN = -2;
+-    
+-    /** Identifier for using the default alignment defined for labels. The
+-     *  value will be resolved at layouting, therefore it is possible to change
+-     *  the default values in &lt;/code&gt;IzPanelConstraints&lt;/code&gt;. 
++
++    /**
++     * Identifier for using the default alignment defined for labels. The value will be resolved at
++     * layouting, therefore it is possible to change the default values in &lt;/code&gt;IzPanelConstraints&lt;/code&gt;.
+      */
+     public static final int DEFAULT_LABEL_ALIGNMENT = -1;
+ 
+-    /** Identifier for using the default alignment defined for text fields. The
+-     *  value will be resolved at layouting, therefore it is possible to change
+-     *  the default values in &lt;/code&gt;IzPanelConstraints&lt;/code&gt;. 
++    /**
++     * Identifier for using the default alignment defined for text fields. The value will be
++     * resolved at layouting, therefore it is possible to change the default values in &lt;/code&gt;IzPanelConstraints&lt;/code&gt;.
+      */
+     public static final int DEFAULT_TEXT_ALIGNMENT = -2;
+ 
+-    /** Identifier for using the default alignment defined for other controls. The
+-     *  value will be resolved at layouting, therefore it is possible to change
+-     *  the default values in &lt;/code&gt;IzPanelConstraints&lt;/code&gt;. 
++    /**
++     * Identifier for using the default alignment defined for other controls. The value will be
++     * resolved at layouting, therefore it is possible to change the default values in &lt;/code&gt;IzPanelConstraints&lt;/code&gt;.
+      */
+     public static final int DEFAULT_CONTROL_ALIGNMENT = -3;
+-    
++
++    /** Identifier for the default label constraints. */
+     public static final int LABEL_CONSTRAINT = 0;
+ 
++    /** Identifier for the default text component constraints. */
+     public static final int TEXT_CONSTRAINT = 1;
+ 
++    /** Identifier for the default for other control constraints. */
+     public static final int CONTROL_CONSTRAINT = 2;
+ 
++    /** Identifier for the default multi line label constraints. */
+     public static final int MULTILINE_LABEL_CONSTRAINT = 3;
+ 
++    /** Identifier for the default constraint used by a filler with x direction. */
+     public static final int XDUMMY_CONSTRAINT = 4;
+ 
++    /** Identifier for the default constraint used by a filler with y direction. */
+     public static final int YDUMMY_CONSTRAINT = 5;
+ 
++    /** Identifier for the default constraint used by a filler with y direction. */
++    public static final int FULL_LINE_CONTROL_CONSTRAINT = 6;
++
+     /** Constant used to specify that no action should be done. Useable for X_STRETCH. */
+     public static final int NO_STRETCH = 0;
+ 
+@@ -115,5 +137,12 @@
+     /** X_STRETCH constant used to specify absolute weighting of stretch factors. */
+     public static final int ABSOLUTE_STRETCH = 2;
+ 
++    /** X_STRETCH &quot;symbolic&quot; value to signal that the configurable default stretch value should be used. */
++    public static final double FULL_LINE_STRETCH = -1.0;
++
++    /**
++     * Object constant used as &quot;constraint&quot; at add a component to the IzPanel to signal that this
++     * component should be place in the next line.
++     */
+     public static final String NEXT_LINE = &quot;nextLine&quot;;
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/LayoutHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/LayoutHelper.java	2006-08-07 13:27:14 UTC (rev 1518)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/LayoutHelper.java	2006-08-07 13:59:34 UTC (rev 1519)
+@@ -21,7 +21,6 @@
+  */
+ package com.izforge.izpack.installer;
+ 
+-import java.awt.Component;
+ import java.awt.GridBagConstraints;
+ import java.awt.GridBagLayout;
+ import java.awt.Insets;
+@@ -71,45 +70,72 @@
+ 
+     protected static int X_STRETCH_TYPE = -1;
+ 
++    protected static double FULL_LINE_STRETCH_DEFAULT = -1.0;
++
+     /**
+-     * Look-up table for gap identifier to gap names. The gap names can be used in the XML
+-     * installation configuration file. Be aware that case sensitivity should be used.
++     * Look-up table for gap identifier to gap names for the x direction. The gap names can be used
++     * in the XML installation configuration file. Be aware that case sensitivity should be used.
+      */
+-    public final static String[] GAP_NAME_LOOK_UP = { &quot;noGap&quot;, &quot;labelGap&quot;, &quot;paragraphGap&quot;,
+-            &quot;textGab&quot;, &quot;controlGap&quot;, &quot;labelToTextGap&quot;, &quot;labelToControlGap&quot;, &quot;textToLabelGap&quot;,
+-            &quot;controlToLabelGap&quot;, &quot;controlToTextGap&quot;, &quot;textToControlGap&quot;, &quot;topGap&quot;};
++    public final static String[] X_GAP_NAME_LOOK_UP = { &quot;noXGap&quot;, &quot;labelXGap&quot;, &quot;paragraphXGap&quot;,
++            &quot;textXGab&quot;, &quot;controlXGap&quot;, &quot;labelToTextXGap&quot;, &quot;labelToControlXGap&quot;, &quot;textToLabelXGap&quot;,
++            &quot;controlToLabelXGap&quot;, &quot;controlToTextXGap&quot;, &quot;textToControlXGap&quot;, &quot;firstXGap&quot;};
+ 
+     /**
+-     * Current defined gaps. Here are the defaults which can be overwritten at the first call to
+-     * method getGap. The gap type will be determined by the array index and has to be synchron to
+-     * the gap identifier and the indices of array GAP_NAME_LOOK_UP
++     * Look-up table for gap identifier to gap names for the y direction. The gap names can be used
++     * in the XML installation configuration file. Be aware that case sensitivity should be used.
+      */
+-    protected static int[] GAPS = { 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, -1, 0, -1};
++    public final static String[] Y_GAP_NAME_LOOK_UP = { &quot;noYGap&quot;, &quot;labelYGap&quot;, &quot;paragraphYGap&quot;,
++            &quot;textYGab&quot;, &quot;controlYGap&quot;, &quot;labelToTextYGap&quot;, &quot;labelToControlYGap&quot;, &quot;textToLabelYGap&quot;,
++            &quot;controlToLabelYGap&quot;, &quot;controlToTextYGap&quot;, &quot;textToControlYGap&quot;, &quot;firstYGap&quot;};
+ 
++    /** Identifier of x gap for all default x gaps. */
++    public final static String ALL_X_GAP = &quot;allXGap&quot;;
++
++    /** Identifier of x gap for all default y gaps. */
++    public final static String ALL_Y_GAP = &quot;allYGap&quot;;
++
++    /**
++     * Only useable constructor. Creates a layout manager for special purpose.
++     * 
++     * @param parent for which this layout manager will be used
++     */
+     public LayoutHelper(IzPanel parent)
+     {
++        this();
+         this.parent = parent;
+         izPanelLayout = new GridBagLayout();
+         parent.setLayout(izPanelLayout);
+         gridyCounter++;
+     }
+ 
++    /**
++     * The default constructor is only useable by derived classes.
++     */
++    protected LayoutHelper()
++    {
++        super();
++    }
++
++    /**
++     * Returns whether the used layout is a GridBagLayout or not.
++     * 
++     * @return whether the used layout is a GridBagLayout or not
++     */
+     private boolean isGridBag()
+     {
+         return (izPanelLayout instanceof GridBagLayout);
+     }
+ 
++    /**
++     * Returns whether the used layout is an IzPanelLayout or not.
++     * 
++     * @return whether the used layout is an IzPanelLayout or not
++     */
+     private boolean isIzPanel()
+     {
+         return (izPanelLayout instanceof IzPanelLayout);
+     }
+ 
+-    // ----------------------------------------------------------------------
+-    public void add(Component comp)
+-    {
+-
+-    }
+-
+     // ------------------- Common Layout stuff -------------------- START ---
+ 
+     /**
+@@ -117,6 +143,8 @@
+      * This will be done, if the IzPack guiprefs modifier with the key &quot;layoutAnchor&quot; has the value
+      * &quot;SOUTH&quot; or &quot;SOUTHWEST&quot;. The earlier used value &quot;BOTTOM&quot; and the declaration via the IzPack
+      * variable &lt;code&gt;IzPanel.LayoutType&lt;/code&gt; are also supported.
++     * 
++     * @param layout layout to be used by this layout helper
+      */
+     public void startLayout(LayoutManager2 layout)
+     {
+@@ -131,10 +159,16 @@
+         if (isIzPanel()) startIzPanelLayout();
+     }
+ 
++    /**
++     * Special start method for IzPanelLayout. Called from &lt;code&gt;startLayout&lt;/code&gt;.
++     */
+     private void startIzPanelLayout()
+     {
+         IzPanelLayout.setAnchor(getAnchor());
+         IzPanelLayout.setXStretchType(getXStretchType());
++        IzPanelLayout.setFullLineStretch(getFullLineStretch());
++        getXGap(LABEL_GAP); // This call triggers resolving external setting if not already done.
++        getYGap(LABEL_GAP); // This call triggers resolving external setting if not already done.
+         parent.setLayout(izPanelLayout);
+ 
+     }
+@@ -306,7 +340,7 @@
+         if (izPanelLayout == null || !(izPanelLayout instanceof GridBagLayout))
+             izPanelLayout = new GridBagLayout();
+         GridBagConstraints dgbc = new GridBagConstraints();
+-        dgbc.insets = new Insets(0, 0, getGap(LABEL_GAP), 0);
++        dgbc.insets = new Insets(0, 0, getYGap(LABEL_GAP), 0);
+         dgbc.anchor = GridBagConstraints.WEST;
+         defaultConstraints = dgbc;
+         parent.setLayout(izPanelLayout);
+@@ -394,32 +428,53 @@
+     }
+ 
+     /**
+-     * Returns the gap which should be used between the given gui objects. The value will be
+-     * configurable by guiprefs modifiers. Valid values are all entries in the static String array
+-     * GAP_NAME_LOOK_UP of this class. There are constant ints for the indexes of this array.
++     * Returns the gap which should be used between the given gui objects for the x direction. The
++     * value will be configurable by guiprefs modifiers. Valid values are all entries in the static
++     * String array X_GAP_NAME_LOOK_UP of this class. There are constant ints for the indexes of this
++     * array.
+      * 
+      * @param gapId index in array GAP_NAME_LOOK_UP for the needed gap
+      * 
+      * @return the gap depend on the xml-configurable guiprefs modifier
+      */
+-    public static int getGap(int gapId)
++    public static int getXGap(int gapId)
+     {
+-        if (gapId &lt; 0) gapId = -gapId;
+-        if (gapId &gt;= GAPS.length - 2) throw new IllegalArgumentException(&quot;gapId out of range.&quot;);
+-        if (GAPS[GAPS.length - 1] &gt;= 0) return (GAPS[gapId]);
++        gapId = IzPanelLayout.verifyGapId(gapId);
++        if (IzPanelLayout.getDefaultXGap(GAP_LOAD_MARKER) &gt;= 0)
++            return (IzPanelLayout.getDefaultXGap(gapId));
+         AutomatedInstallData idata = AutomatedInstallData.getInstance();
+-        if (!(idata instanceof InstallData)) return (GAPS[gapId]);
++        if (!(idata instanceof InstallData)) return (IzPanelLayout.getDefaultXGap(gapId));
+         String var = null;
+-        for (int i = 0; i &lt; GAP_NAME_LOOK_UP.length; ++i)
++        InstallData id = (InstallData) idata;
++        int commonDefault = -1;
++        if (id.guiPrefs.modifier.containsKey(ALL_X_GAP))
+         {
+-            if (((InstallData) idata).guiPrefs.modifier.containsKey(GAP_NAME_LOOK_UP[i]))
++            try
+             {
+-                var = (String) ((InstallData) idata).guiPrefs.modifier.get(GAP_NAME_LOOK_UP[i]);
++                commonDefault = Integer.parseInt((String) id.guiPrefs.modifier.get(ALL_X_GAP));
++            }
++            catch (NumberFormatException nfe)
++            {
++                // Do nothing else use the default value.
++                // Need to set it again at this position??
++            }
++
++        }
++        for (int i = 0; i &lt; X_GAP_NAME_LOOK_UP.length; ++i)
++        {
++            int currentDefault = 0;
++            if (commonDefault &gt;= 0)
++            {
++                currentDefault = commonDefault;
++            }
++            else
++            {
++                var = (String) id.guiPrefs.modifier.get(X_GAP_NAME_LOOK_UP[i]);
+                 if (var != null)
+                 {
+                     try
+                     {
+-                        GAPS[i] = Integer.parseInt(var);
++                        currentDefault = Integer.parseInt(var);
+                     }
+                     catch (NumberFormatException nfe)
+                     {
+@@ -428,16 +483,91 @@
+                     }
+                 }
+             }
++            IzPanelLayout.setDefaultXGap(currentDefault, i);
++        }
++        IzPanelLayout.setDefaultXGap(0, GAP_LOAD_MARKER); // Mark external settings allready
++        // loaded.
++        return (IzPanelLayout.getDefaultXGap(gapId));
++    }
++    /**
++     * Returns the gap which should be used between the given gui objects for the y direction. The
++     * value will be configurable by guiprefs modifiers. Valid values are all entries in the static
++     * String array Y_GAP_NAME_LOOK_UP of this class. There are constant ints for the indexes of this
++     * array.
++     * 
++     * @param gapId index in array GAP_NAME_LOOK_UP for the needed gap
++     * 
++     * @return the gap depend on the xml-configurable guiprefs modifier
++     */
++    public static int getYGap(int gapId)
++    {
++        gapId = IzPanelLayout.verifyGapId(gapId);
++        if (IzPanelLayout.getDefaultYGap(GAP_LOAD_MARKER) &gt;= 0)
++            return (IzPanelLayout.getDefaultYGap(gapId));
++        AutomatedInstallData idata = AutomatedInstallData.getInstance();
++        if (!(idata instanceof InstallData)) return (IzPanelLayout.getDefaultYGap(gapId));
++        String var = null;
++        InstallData id = (InstallData) idata;
++        int commonDefault = -1;
++        if (id.guiPrefs.modifier.containsKey(ALL_Y_GAP))
++        {
++            try
++            {
++                commonDefault = Integer.parseInt((String) id.guiPrefs.modifier.get(ALL_Y_GAP));
++            }
++            catch (NumberFormatException nfe)
++            {
++                // Do nothing else use the default value.
++                // Need to set it again at this position??
++            }
+ 
+         }
+-        GAPS[GAPS.length - 1] = 0; // Mark external settings allready loaded.
+-        return (GAPS[gapId]);
++        for (int i = 0; i &lt; Y_GAP_NAME_LOOK_UP.length; ++i)
++        {
++            int currentDefault = 0;
++            if (commonDefault &gt;= 0)
++            {
++                currentDefault = commonDefault;
++            }
++            else
++            {
++                var = (String) id.guiPrefs.modifier.get(Y_GAP_NAME_LOOK_UP[i]);
++                if (var != null)
++                {
++                    try
++                    {
++                        currentDefault = Integer.parseInt(var);
++                    }
++                    catch (NumberFormatException nfe)
++                    {
++                        // Do nothing else use the default value.
++                        // Need to set it again at this position??
++                    }
++                }
++            }
++            IzPanelLayout.setDefaultYGap(currentDefault, i);
++        }
++        IzPanelLayout.setDefaultYGap(0, GAP_LOAD_MARKER); // Mark external settings allready
++        // loaded.
++        return (IzPanelLayout.getDefaultYGap(gapId));
+     }
+ 
++    /**
++     * Returns the used stretch type for the x direction. Possible are NO_STRETCH, RELATIVE_STRETCH
++     * and ABSOLUTE_STRETCH. The stretch type will be used at rows where one or more components has
++     * a stretch value greater than 0.0 in the constraints. If NO_STRETCH is used, no stretch will
++     * be performed. If ABSOLUTE_STRETCH is used, parts of the unused area are given to the
++     * components depending on the unmodified stretch value. At RELATIVE_STRETCH first the hole
++     * stretch for a row will be computed. Relative to this value the unused area will be splited.&lt;br&gt;
++     * The default type is ABSOLUTE_STRETCH. With the modifier &quot;layoutXStretchType&quot; of the &quot;info&quot;
++     * section of the installation configuration file this can be changed.
++     * 
++     * @return used stretch type
++     */
+     public static int getXStretchType()
+     {
++        if (X_STRETCH_TYPE &gt; -1) return (X_STRETCH_TYPE);
+         X_STRETCH_TYPE = ABSOLUTE_STRETCH;
+-        if (X_STRETCH_TYPE &gt; -1) return (X_STRETCH_TYPE);
+         AutomatedInstallData idata = AutomatedInstallData.getInstance();
+         if (!(idata instanceof InstallData)) return (RELATIVE_STRETCH);
+         String var = null;
+@@ -456,7 +586,40 @@
+             }
+         }
+         return (X_STRETCH_TYPE);
++    }
+ 
++    /**
++     * Returns the default value for stretching to a full line. With the modifier
++     * &quot;layoutFullLineStretch&quot; of the &quot;info&quot; section of the installation configuration file this can
++     * be changed. Valid are doubles for the value. This setting is possible to give panels a chance
++     * to center the controls in x direction also a control uses stretching.
++     * 
++     * @return the default value for stretching to a full line
++     */
++    public static double getFullLineStretch()
++    {
++        if (FULL_LINE_STRETCH_DEFAULT &gt;= 0.0) return (FULL_LINE_STRETCH_DEFAULT);
++        FULL_LINE_STRETCH_DEFAULT = 0.7;
++        AutomatedInstallData idata = AutomatedInstallData.getInstance();
++        if (!(idata instanceof InstallData)) return (FULL_LINE_STRETCH_DEFAULT);
++        String var = null;
++        if (((InstallData) idata).guiPrefs.modifier.containsKey(&quot;layoutFullLineStretch&quot;))
++        {
++            var = (String) ((InstallData) idata).guiPrefs.modifier.get(&quot;layoutFullLineStretch&quot;);
++            if (var != null)
++            {
++                try
++                {
++                    FULL_LINE_STRETCH_DEFAULT = Double.parseDouble(var);
++                }
++                catch (NumberFormatException nfe)
++                {
++                    // Do nothing else use the default value.
++                    // Need to set it again at this position??
++                }
++            }
++        }
++        return (FULL_LINE_STRETCH_DEFAULT);
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java	2006-08-07 13:27:14 UTC (rev 1518)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java	2006-08-07 13:59:34 UTC (rev 1519)
+@@ -19,23 +19,18 @@
+ 
+ package com.izforge.izpack.panels;
+ 
+-import java.awt.GridBagConstraints;
+-import java.awt.Insets;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+ import java.io.BufferedOutputStream;
+ import java.io.File;
+ import java.io.FileOutputStream;
+ 
+-import javax.swing.Box;
+-import javax.swing.BoxLayout;
+ import javax.swing.JButton;
+ import javax.swing.JFileChooser;
+-import javax.swing.JLabel;
+ import javax.swing.JOptionPane;
+-import javax.swing.JPanel;
+ 
+ import com.izforge.izpack.gui.ButtonFactory;
++import com.izforge.izpack.gui.IzPanelLayout;
+ import com.izforge.izpack.gui.LabelFactory;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+@@ -55,9 +50,6 @@
+     /** The automated installers generation button. */
+     private JButton autoButton;
+ 
+-    /** The center panel. */
+-    private JPanel centerPanel;
+-
+     /** The variables substitutor. */
+     private VariableSubstitutor vs;
+ 
+@@ -73,27 +65,7 @@
+ 
+         vs = new VariableSubstitutor(idata.getVariables());
+ 
+-        // Changed to layout handling of IzPanel to support different anchors.
+-        // (Klaus Bartz, 2006.06.30)
+-        GridBagConstraints gbConstraints = getNextYGridBagConstraints();
+-
+-        gbConstraints.insets = new Insets(0, 0, 0, 0);
+-        gbConstraints.fill = GridBagConstraints.NONE;
+-        if (getLayoutHelper().getAnchor() == GridBagConstraints.NONE || getLayoutHelper().getAnchor() == GridBagConstraints.CENTER)
+-            gbConstraints.anchor = GridBagConstraints.CENTER;
+-        else
+-        {
+-            gbConstraints.weightx = 1.0;
+-            gbConstraints.anchor = getLayoutHelper().getAnchor();
+-        }
+-        
+-
+-        // We initialize our 'real' layout
+-        centerPanel = new JPanel();
+-        BoxLayout layout = new BoxLayout(centerPanel, BoxLayout.Y_AXIS);
+-        centerPanel.setLayout(layout);
+-        add(centerPanel, gbConstraints);
+-        completeGridBagLayout();
++        getLayoutHelper().startLayout(new IzPanelLayout());
+     }
+ 
+     /**
+@@ -115,33 +87,32 @@
+         if (idata.installSuccess)
+         {
+             // We set the information
+-            centerPanel.add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.success&quot;),
+-                    parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING));
+-            centerPanel.add(Box.createVerticalStrut(20));
+-
++            add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.success&quot;),
++                    parent.icons.getImageIcon(&quot;information&quot;), LEADING));
++            add(IzPanelLayout.createParagraphGap());
+             if (idata.uninstallOutJar != null)
+             {
+                 // We prepare a message for the uninstaller feature
+                 String path = translatePath(&quot;$INSTALL_PATH&quot;) + File.separator + &quot;Uninstaller&quot;;
+ 
+-                centerPanel.add(LabelFactory.create(parent.langpack
++                add(LabelFactory.create(parent.langpack
+                         .getString(&quot;FinishPanel.uninst.info&quot;), parent.icons
+-                        .getImageIcon(&quot;information&quot;), JLabel.TRAILING));
+-                centerPanel.add(LabelFactory.create(path, parent.icons.getImageIcon(&quot;empty&quot;),
+-                        JLabel.TRAILING));
++                        .getImageIcon(&quot;information&quot;), LEADING), NEXT_LINE);
++                add(LabelFactory.create(path, parent.icons.getImageIcon(&quot;empty&quot;),
++                        LEADING), NEXT_LINE);
+             }
+ 
+             // We add the autoButton
+-            centerPanel.add(Box.createVerticalStrut(20));
++            add(IzPanelLayout.createParagraphGap());
+             autoButton = ButtonFactory.createButton(parent.langpack.getString(&quot;FinishPanel.auto&quot;),
+                     parent.icons.getImageIcon(&quot;edit&quot;), idata.buttonsHColor);
+             autoButton.setToolTipText(parent.langpack.getString(&quot;FinishPanel.auto.tip&quot;));
+             autoButton.addActionListener(this);
+-            centerPanel.add(autoButton);
++            add(autoButton, NEXT_LINE);
+         }
+         else
+-            centerPanel.add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.fail&quot;),
+-                    parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING));
++            add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.fail&quot;),
++                    parent.icons.getImageIcon(&quot;information&quot;), LEADING), NEXT_LINE);
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/HelloPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/HelloPanel.java	2006-08-07 13:27:14 UTC (rev 1518)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/HelloPanel.java	2006-08-07 13:59:34 UTC (rev 1519)
+@@ -21,18 +21,14 @@
+ 
+ package com.izforge.izpack.panels;
+ 
+-import java.awt.GridBagConstraints;
+-import java.awt.GridBagLayout;
+-import java.awt.Insets;
+ import java.util.ArrayList;
+ 
+-import javax.swing.Box;
+-import javax.swing.BoxLayout;
+ import javax.swing.JLabel;
+-import javax.swing.JPanel;
+ 
+ import com.izforge.izpack.Info;
++import com.izforge.izpack.gui.IzPanelLayout;
+ import com.izforge.izpack.gui.LabelFactory;
++import com.izforge.izpack.gui.LayoutConstants;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
+@@ -56,45 +52,51 @@
+      * @param parent The parent.
+      * @param idata The installation data.
+      */
+-    public HelloPanel(InstallerFrame parent, InstallData idata)
++    public HelloPanel(InstallerFrame parent, InstallData idata) 
+     {
+         super(parent, idata);
+ 
+-        // The 'super' layout
+-        GridBagLayout superLayout = new GridBagLayout();
+-        setLayout(superLayout);
+-        GridBagConstraints gbConstraints = new GridBagConstraints();
+-        gbConstraints.insets = new Insets(0, 0, 0, 0);
+-        gbConstraints.fill = GridBagConstraints.NONE;
+-        gbConstraints.anchor = GridBagConstraints.CENTER;
+-
+-        // We initialize our 'real' layout
+-        JPanel centerPanel = new JPanel();
+-        BoxLayout layout = new BoxLayout(centerPanel, BoxLayout.Y_AXIS);
+-        centerPanel.setLayout(layout);
+-        superLayout.addLayoutComponent(centerPanel, gbConstraints);
+-        add(centerPanel);
+-
++        // Layout handling. This panel was changed from a mixed layout handling
++        // with GridBagLayout and BoxLayout to IzPanelLayout. It can be used as an
++        // example how to use the IzPanelLayout. For this there are some comments
++        // which are excrescent for a &quot;normal&quot; panel.
++        // Set a IzPanelLayout as layout for this panel.
++        // This have to be the first line during layout if IzPanelLayout will be used.
++        getLayoutHelper().startLayout(new IzPanelLayout());
++        
+         // We create and put the labels
+         String str;
+-
+-        centerPanel.add(Box.createVerticalStrut(10));
+-
+         str = parent.langpack.getString(&quot;HelloPanel.welcome1&quot;) + idata.info.getAppName() + &quot; &quot;
+                 + idata.info.getAppVersion() + parent.langpack.getString(&quot;HelloPanel.welcome2&quot;);
+-        JLabel welcomeLabel = LabelFactory.create(str, parent.icons.getImageIcon(&quot;host&quot;), JLabel.TRAILING);
+-        centerPanel.add(welcomeLabel);
++        JLabel welcomeLabel = LabelFactory.create(str, parent.icons.getImageIcon(&quot;host&quot;),  LEADING);
++        // IzPanelLayout is a constraint orientated layout manager. But if no constraint is
++        // given, a default will be used. It starts in the first line.
++        add(welcomeLabel);
++        // Yes, there exist also a strut for the IzPanelLayout.
++        // But the strut will be only used for one cell. A vertical strut will be use
++        // NEXT_ROW, a horizontal NEXT_COLUMN. For more information see the java doc.
++//        add(IzPanelLayout.createVerticalStrut(20));
++        // But for a strut you have to define a fixed height. Alternative it is possible
++        // to create a paragraph gap which is configurable.
++        add(IzPanelLayout.createParagraphGap());
+ 
+-        centerPanel.add(Box.createVerticalStrut(20));
+-
+         ArrayList authors = idata.info.getAuthors();
+         int size = authors.size();
+         if (size &gt; 0)
+         {
+             str = parent.langpack.getString(&quot;HelloPanel.authors&quot;);
+             JLabel appAuthorsLabel = LabelFactory.create(str, parent.icons.getImageIcon(&quot;information&quot;),
+-                    JLabel.TRAILING);
+-            centerPanel.add(appAuthorsLabel);
++                    LEADING);
++            // If nothing will be sad to the IzPanelLayout the position of an add will be
++            // determined in the default constraint. For labels it is CURRENT_ROW, NEXT_COLUMN.
++            // But at this point we would place the label in the next row. It is possible
++            // to create an IzPanelConstraint with this options, but it is also possible to
++            // use simple the NEXT_LINE object as constraint. Attention!! Do not use
++            // LayoutConstants.NEXT_ROW else LayoutConstants.NEXT_LINE because NEXT_ROW is an
++            // int and with it an other add method will be used without any warning (there the
++            // parameter will be used as position of the component in the panel, not the 
++            // layout manager.
++            add(appAuthorsLabel, LayoutConstants.NEXT_LINE);
+ 
+             JLabel label;
+             for (int i = 0; i &lt; size; i++)
+@@ -102,19 +104,18 @@
+                 Info.Author a = (Info.Author) authors.get(i);
+                 String email = (a.getEmail() != null &amp;&amp; a.getEmail().length() &gt; 0) ? (&quot; &lt;&quot; + a.getEmail() + &quot;&gt;&quot;) : &quot;&quot;;
+                 label = LabelFactory.create(&quot; - &quot; + a.getName() + email, parent.icons
+-                        .getImageIcon(&quot;empty&quot;), JLabel.TRAILING);
+-                centerPanel.add(label);
++                        .getImageIcon(&quot;empty&quot;), LEADING);
++                add(label, NEXT_LINE);
+             }
+-
+-            centerPanel.add(Box.createVerticalStrut(20));
++            add(IzPanelLayout.createParagraphGap());
+         }
+ 
+         if (idata.info.getAppURL() != null)
+         {
+             str = parent.langpack.getString(&quot;HelloPanel.url&quot;) + idata.info.getAppURL();
+             JLabel appURLLabel = LabelFactory.create(str, parent.icons.getImageIcon(&quot;bookmark&quot;),
+-                    JLabel.TRAILING);
+-            centerPanel.add(appURLLabel);
++                    LEADING);
++            add(appURLLabel, LayoutConstants.NEXT_LINE);
+         }
+     }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java	2006-08-07 13:27:14 UTC (rev 1518)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java	2006-08-07 13:59:34 UTC (rev 1519)
+@@ -20,14 +20,13 @@
+ package com.izforge.izpack.panels;
+ 
+ import java.awt.Dimension;
+-import java.awt.GridBagConstraints;
+ 
+ import javax.swing.JLabel;
+ import javax.swing.JOptionPane;
+ import javax.swing.JProgressBar;
+-import javax.swing.JSeparator;
+ import javax.swing.SwingUtilities;
+ 
++import com.izforge.izpack.gui.IzPanelLayout;
+ import com.izforge.izpack.gui.LabelFactory;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+@@ -74,64 +73,30 @@
+     public InstallPanel(InstallerFrame parent, InstallData idata)
+     {
+         super(parent, idata);
+-        // Changed to layout handling of IzPanel to support different anchors.
+-        // (Klaus Bartz, 2006.06.30)
+-        GridBagConstraints gbConstraints = getDefaultGridBagConstraints();
+-        gbConstraints.gridx = 0;
+-        gbConstraints.gridy = 0;
+-        gbConstraints.gridwidth = 2;
+-        gbConstraints.gridheight = 1;
+-        gbConstraints.weightx = 1.0;
+-        gbConstraints.weighty = 0.0;
+-        setDefaultGridBagConstraints(gbConstraints);
+-
++        getLayoutHelper().startLayout(new IzPanelLayout());
+         this.tipLabel = LabelFactory.create(parent.langpack.getString(&quot;InstallPanel.tip&quot;),
+-        parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING);
+-        gbConstraints = getNextYGridBagConstraints();
+-        gbConstraints.fill = GridBagConstraints.NONE;
+-        gbConstraints.anchor = GridBagConstraints.NORTHWEST;
+-        add(this.tipLabel, gbConstraints);
++                parent.icons.getImageIcon(&quot;information&quot;), LEADING);
++        add(this.tipLabel);
++        packOpLabel = LabelFactory.create(&quot; &quot;, LEADING);
++        add(packOpLabel, NEXT_LINE);
+ 
+-        this.packOpLabel = LabelFactory.create(&quot; &quot;, JLabel.TRAILING);
+-        gbConstraints = getNextYGridBagConstraints();
+-        gbConstraints.anchor = GridBagConstraints.SOUTHWEST;
+-        add(this.packOpLabel, gbConstraints);
+-
+-        this.packProgressBar = new JProgressBar();
+-        this.packProgressBar.setStringPainted(true);
+-        this.packProgressBar.setString(parent.langpack.getString(&quot;InstallPanel.begin&quot;));
+-        this.packProgressBar.setValue(0);
+-        gbConstraints = getNextYGridBagConstraints();
+-        gbConstraints.anchor = GridBagConstraints.NORTH;
+-        gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+-        add(this.packProgressBar, gbConstraints);
+-
++        packProgressBar = new JProgressBar();
++        packProgressBar.setStringPainted(true);
++        packProgressBar.setString(parent.langpack.getString(&quot;InstallPanel.begin&quot;));
++        packProgressBar.setValue(0);
++        add(packProgressBar, IzPanelLayout.getDefaultConstraint(FULL_LINE_CONTROL_CONSTRAINT));
+         // make sure there is some space between the progress bars
+-        JSeparator sep = new JSeparator();
+-        Dimension dim = new Dimension(0, 10);
+-        sep.setPreferredSize(dim);
+-        sep.setMinimumSize(dim);
+-        sep.setMaximumSize(dim);
+-        gbConstraints = getNextYGridBagConstraints();
+-        add(sep, gbConstraints);
++        add(IzPanelLayout.createParagraphGap());
+ 
+-        this.overallOpLabel = LabelFactory.create(parent.langpack
+-                .getString(&quot;InstallPanel.progress&quot;), parent.icons.getImageIcon(&quot;information&quot;),
+-                JLabel.TRAILING);
+-        gbConstraints = getNextYGridBagConstraints();
+-        gbConstraints.anchor = GridBagConstraints.NORTHWEST;
+-        gbConstraints.fill = GridBagConstraints.NONE;
+-        add(this.overallOpLabel, gbConstraints);
++        overallOpLabel = LabelFactory.create(parent.langpack.getString(&quot;InstallPanel.progress&quot;),
++                parent.icons.getImageIcon(&quot;information&quot;), LEADING);
++        add(this.overallOpLabel, NEXT_LINE);
+ 
+-        this.overallProgressBar = new JProgressBar();
+-        this.overallProgressBar.setStringPainted(true);
+-        this.overallProgressBar.setString(&quot;&quot;);
+-        this.overallProgressBar.setValue(0);
+-        gbConstraints = getNextYGridBagConstraints();
+-        gbConstraints.anchor = GridBagConstraints.NORTH;
+-        gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+-        add(this.overallProgressBar, gbConstraints);
+-        completeGridBagLayout();
++        overallProgressBar = new JProgressBar();
++        overallProgressBar.setStringPainted(true);
++        overallProgressBar.setString(&quot;&quot;);
++        overallProgressBar.setValue(0);
++        add(this.overallProgressBar, IzPanelLayout.getDefaultConstraint(FULL_LINE_CONTROL_CONSTRAINT));
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java	2006-08-07 13:27:14 UTC (rev 1518)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java	2006-08-07 13:59:34 UTC (rev 1519)
+@@ -19,20 +19,15 @@
+ 
+ package com.izforge.izpack.panels;
+ 
+-import java.awt.GridBagConstraints;
+-import java.awt.Insets;
+ import java.io.File;
+ 
+-import javax.swing.Box;
+-import javax.swing.BoxLayout;
+-import javax.swing.JLabel;
+ import javax.swing.JPanel;
+ 
++import com.izforge.izpack.gui.IzPanelLayout;
+ import com.izforge.izpack.gui.LabelFactory;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
+-import com.izforge.izpack.installer.LayoutHelper;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ /**
+@@ -63,29 +58,8 @@
+     public SimpleFinishPanel(InstallerFrame parent, InstallData idata)
+     {
+         super(parent, idata);
+-
+         vs = new VariableSubstitutor(idata.getVariables());
+-
+-        // Changed to layout handling of IzPanel to support different anchors.
+-        // (Klaus Bartz, 2006.06.30)
+-        GridBagConstraints gbConstraints = getNextYGridBagConstraints();
+-
+-        gbConstraints.insets = new Insets(0, 0, 0, 0);
+-        gbConstraints.fill = GridBagConstraints.NONE;
+-        if (LayoutHelper.getAnchor() == GridBagConstraints.NONE
+-                || LayoutHelper.getAnchor() == GridBagConstraints.CENTER)
+-            gbConstraints.anchor = GridBagConstraints.CENTER;
+-        else
+-        {
+-            gbConstraints.weightx = 1.0;
+-            gbConstraints.anchor = LayoutHelper.getAnchor();
+-        }
+-        // We initialize our 'real' layout
+-        centerPanel = new JPanel();
+-        BoxLayout layout = new BoxLayout(centerPanel, BoxLayout.Y_AXIS);
+-        centerPanel.setLayout(layout);
+-        add(centerPanel, gbConstraints);
+-        completeGridBagLayout();
++        getLayoutHelper().startLayout(new IzPanelLayout());
+     }
+ 
+     /**
+@@ -106,28 +80,28 @@
+         parent.setQuitButtonText(parent.langpack.getString(&quot;FinishPanel.done&quot;));
+         if (idata.installSuccess)
+         {
++            
+             // We set the information
+-            centerPanel.add(LabelFactory.create(parent.icons.getImageIcon(&quot;check&quot;)));
+-            centerPanel.add(Box.createVerticalStrut(20));
+-            centerPanel.add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.success&quot;),
+-                    parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING));
+-            centerPanel.add(Box.createVerticalStrut(20));
+-
++            add(LabelFactory.create(parent.icons.getImageIcon(&quot;check&quot;)));
++            add(IzPanelLayout.createParagraphGap());
++            add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.success&quot;),
++                    parent.icons.getImageIcon(&quot;information&quot;), LEADING), NEXT_LINE);
++            add(IzPanelLayout.createParagraphGap());
+             if (idata.uninstallOutJar != null)
+             {
+                 // We prepare a message for the uninstaller feature
+                 String path = translatePath(&quot;$INSTALL_PATH&quot;) + File.separator + &quot;Uninstaller&quot;;
+ 
+-                centerPanel.add(LabelFactory.create(parent.langpack
++                add(LabelFactory.create(parent.langpack
+                         .getString(&quot;FinishPanel.uninst.info&quot;), parent.icons
+-                        .getImageIcon(&quot;information&quot;), JLabel.TRAILING));
+-                centerPanel.add(LabelFactory.create(path, parent.icons.getImageIcon(&quot;empty&quot;),
+-                        JLabel.TRAILING));
++                        .getImageIcon(&quot;information&quot;), LEADING), NEXT_LINE);
++                add(LabelFactory.create(path, parent.icons.getImageIcon(&quot;empty&quot;),
++                        LEADING), NEXT_LINE);
+             }
+         }
+         else
+             centerPanel.add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.fail&quot;),
+-                    parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING));
++                    parent.icons.getImageIcon(&quot;information&quot;),  LEADING));
+ 
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000262.html">[izpack-changes] r1518 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+	<LI>Next message: <A HREF="000264.html">[izpack-changes] Additions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#263">[ date ]</a>
+              <a href="thread.html#263">[ thread ]</a>
+              <a href="subject.html#263">[ subject ]</a>
+              <a href="author.html#263">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

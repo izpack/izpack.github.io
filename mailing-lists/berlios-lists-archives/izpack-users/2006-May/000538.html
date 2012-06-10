@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Can't execute scripts sequentially
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Can%27t%20execute%20scripts%20sequentially&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000537.html">
+   <LINK REL="Next"  HREF="000539.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Can't execute scripts sequentially</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Can%27t%20execute%20scripts%20sequentially&In-Reply-To="
+       TITLE="[izpack-users] Can't execute scripts sequentially">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Mon May 29 12:21:02 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000537.html">[izpack-users] Can't execute scripts sequentially
+</A></li>
+        <LI>Next message: <A HREF="000539.html">[izpack-users] Can't execute scripts sequentially
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#538">[ date ]</a>
+              <a href="thread.html#538">[ thread ]</a>
+              <a href="subject.html#538">[ subject ]</a>
+              <a href="author.html#538">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Keith,
+the sequence will be:
+For each package which should be installed
+    unpack all files with the declared path
+    parse all files which are declared for it
+    execute all files which are declared for it
+
+Most panels (like the ProcessPanel) are singletons;
+you can only use once.
+
+That's what you have seen, but not needed. 
+
+I have had an equal problem and solved it with the
+AntActionInstallerListener. There you can declare multiple
+tasks which has dependencies. The basic features
+like jar, unjar or replace are present.
+There are some lines in the docu for it.
+
+Cheers
+
+Klaus
+
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Roberts, Keith (EDS)
+</I>&gt;<i>Sent: Thursday, May 25, 2006 7:22 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: [izpack-users] Can't execute scripts sequentially
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>I'm trying to implement an installation that performs user input
+</I>&gt;<i>substitution to a file contained in an ear file. 
+</I>&gt;<i>
+</I>&gt;<i>I assumed that the executable and parsable entries are executed in the
+</I>&gt;<i>sequence that they are defined in the pack tag; but that 
+</I>&gt;<i>doesn't seem to
+</I>&gt;<i>be the case.
+</I>&gt;<i>
+</I>&gt;<i>In order for this to work, the executable must run to extract the
+</I>&gt;<i>contents of the ear and ejb jar files. This works fine. The parsable
+</I>&gt;<i>must execute after the completion of the executable so that the
+</I>&gt;<i>variables in the ejb descriptor can be substituted by user input. Then
+</I>&gt;<i>the final executable should run to repackage the ear file.
+</I>&gt;<i>
+</I>&gt;<i>This approach doesn't work because the parsable runs before the first
+</I>&gt;<i>executable completes.
+</I>&gt;<i>I tried using the ProcessPanel to perform the jar extraction; but that
+</I>&gt;<i>doesn't work either. I placed it before and after the pack panel.
+</I>&gt;<i>
+</I>&gt;<i>How should this problem be solved?
+</I>&gt;<i>
+</I>&gt;<i>Thanks in advance
+</I>&gt;<i>Keith...
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000537.html">[izpack-users] Can't execute scripts sequentially
+</A></li>
+	<LI>Next message: <A HREF="000539.html">[izpack-users] Can't execute scripts sequentially
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#538">[ date ]</a>
+              <a href="thread.html#538">[ thread ]</a>
+              <a href="subject.html#538">[ subject ]</a>
+              <a href="author.html#538">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

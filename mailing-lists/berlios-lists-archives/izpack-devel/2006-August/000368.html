@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Issues while reading data from packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Issues%20while%20reading%20data%20from%20packs&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000367.html">
+   <LINK REL="Next"  HREF="000369.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Issues while reading data from packs</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Issues%20while%20reading%20data%20from%20packs&In-Reply-To="
+       TITLE="[izpack-devel] Issues while reading data from packs">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Fri Aug  4 13:29:06 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000367.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+        <LI>Next message: <A HREF="000369.html">[izpack-devel] private/protected conventions in IzPanels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#368">[ date ]</a>
+              <a href="thread.html#368">[ thread ]</a>
+              <a href="subject.html#368">[ subject ]</a>
+              <a href="author.html#368">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Michael,
+see
+Unpacker line 418ff
+
+  if (!overwritefile)
+  {
+      if (!pf.isBackReference() &amp;&amp; !((Pack) packs.get(i)).loose)
+          objIn.skip(pf.length());
+      continue;
+  }
+
+and then the real ugly thing
+line 431
+   InputStream pis = objIn;
+and line 457
+    int bytesInBuffer = pis.read(buffer, 0, maxBytes);
+                        
+The pack contains 
+
+Number of files to be installed	as an 32 bit int
+for(int i = 0; i &lt; files; ++i)
+{
+    Informations of one file        as PackFile object
+    file data                       as &quot;normal byte stream		                     
+}
+Number of files to be parsed		as an 32 bit int
+for(int i = 0; i &lt; files; ++i)
+{
+    Informations of one file        as ParseableFile object
+}
+Number of files to be executed	as an 32 bit int
+for(int i = 0; i &lt; files; ++i)
+{
+    Informations of one file        as ExecutableFile object
+}
+Number of update checks			as an 32 bit int
+for(int i = 0; i &lt; files; ++i)
+{
+    Informations of one check        as UpdateCheck object
+}
+
+
+I think the switch between an ObjectInputStream and a &quot;normal&quot;
+InputStream has confused you.
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Michael
+</I>&gt;<i>Scherer
+</I>&gt;<i>Sent: Friday, August 04, 2006 12:36 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-devel] Issues while reading data from packs
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi Klaus, thanks for the quick answer.
+</I>&gt;<i>Though I have a few points to discuss, see below.
+</I>&gt;<i>
+</I>&gt;<i>Bartz, Klaus schrieb:
+</I>&gt;<i>
+</I>&gt;&gt;&gt;<i> While doing this I'm trying to find all filenames by reading them
+</I>&gt;&gt;&gt;<i>from the packs like the InstallPanel does ...
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> ?? The Unpacker reads the pack &quot;files&quot; (entries in the jar file).
+</I>&gt;<i>Exactly, thats what I &quot;copied&quot;.
+</I>&gt;<i>
+</I>&gt;&gt;&gt;<i> Now when doing &quot;PackFile packFile = 
+</I>&gt;&gt;&gt;<i> (PackFile)packStream.readObject();&quot; I get
+</I>&gt;&gt;&gt;<i> java.io.OptionalDataException
+</I>&gt;&gt;&gt;<i>         at java.io.ObjectInputStream.readObject0(Unknown Source)
+</I>&gt;&gt;&gt;<i>         at java.io.ObjectInputStream.readObject(Unknown Source)
+</I>&gt;&gt;&gt;<i>         at 
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> The structure of a pack is really specific. There are ints, packs
+</I>&gt;&gt;<i> and the data in a well (not documented) order. If you would read the
+</I>&gt;&gt;<i> hole pack file you have to skip the &quot;to be installed part&quot;. 
+</I>&gt;&gt;<i> That's what you NOT DO. 
+</I>&gt;&gt;<i> Seems so, you think that the pack file only
+</I>&gt;&gt;<i> contains the information of a pack. No, it contains the hole pack.
+</I>&gt;<i>Ok, if you say so. :)
+</I>&gt;<i>Though I still wonder why my source breaks.
+</I>&gt;<i>
+</I>&gt;<i>Unpacker.java:
+</I>&gt;<i>for (int i = 0; i &lt; npacks; i++)
+</I>&gt;<i>{
+</I>&gt;<i>	// We get the pack stream
+</I>&gt;<i>	int n = idata.allPacks.indexOf(packs.get(i));
+</I>&gt;<i>
+</I>&gt;<i>	// Custom action listener stuff --- beforePack ----
+</I>&gt;<i>	informListeners(customActions, 
+</I>&gt;<i>InstallerListener.BEFORE_PACK, packs.get(i),
+</I>&gt;<i>		new Integer(npacks), handler);
+</I>&gt;<i>	ObjectInputStream objIn = new 
+</I>&gt;<i>ObjectInputStream(getPackAsStream(n));
+</I>&gt;<i>
+</I>&gt;<i>	// We unpack the files
+</I>&gt;<i>	int nfiles = objIn.readInt();  // &lt;&lt;&lt;&lt; FIRST ACCESS to stream
+</I>&gt;<i>
+</I>&gt;<i>	// We get the internationalized name of the pack
+</I>&gt;<i>	final Pack pack = ((Pack) packs.get(i));
+</I>&gt;<i>	String stepname = pack.name;// the message to be passed to the
+</I>&gt;<i>	// installpanel
+</I>&gt;<i>
+</I>&gt;<i>	[...] Skips langpack stuff [...]
+</I>&gt;<i>
+</I>&gt;<i>	for (int j = 0; j &lt; nfiles; j++)
+</I>&gt;<i>	{
+</I>&gt;<i>		// We read the header
+</I>&gt;<i>		PackFile pf = (PackFile) objIn.readObject(); // 
+</I>&gt;<i>&lt;&lt;&lt;&lt; SECOND ACCESS to stream
+</I>&gt;<i>	[...]
+</I>&gt;<i>}
+</I>&gt;<i>
+</I>&gt;<i>OpenBackupPanel.java
+</I>&gt;<i>for(int i = 0; i &lt; packs.size(); i++)
+</I>&gt;<i>{
+</I>&gt;<i>	// get the pack for later usage
+</I>&gt;<i>	final Pack p = (Pack)packs.get(i);
+</I>&gt;<i>	System.err.println(&quot;&gt;&gt;&gt; PackName: &quot; + p.name);
+</I>&gt;<i>
+</I>&gt;<i>	// position of pack in packs
+</I>&gt;<i>	int n = idata.allPacks.indexOf(packs.get(i));
+</I>&gt;<i>
+</I>&gt;<i>	ObjectInputStream packStream =
+</I>&gt;<i>		new ObjectInputStream(getPackAsStream(idata, 	
+</I>&gt;<i>	// get the number of files in the pack
+</I>&gt;<i>	int nfiles = packStream.readInt(); // &lt;&lt;&lt;&lt; FIRST ACCESS, works
+</I>&gt;<i>
+</I>&gt;<i>	// iterate over file entries
+</I>&gt;<i>	for(int j = 0; j &lt; nfiles; j++)
+</I>&gt;<i>	{
+</I>&gt;<i>		PackFile packFile = 
+</I>&gt;<i>(PackFile)packStream.readObject(); &lt;&lt;&lt;&lt; SECOND ACCESS, 
+</I>&gt;<i>same as in the Unpacker.java, though borks with an Exception
+</I>&gt;<i>	[...]
+</I>&gt;<i>}
+</I>&gt;<i>
+</I>&gt;<i>Now if I'm right the Unpacker doesn't skip anything as well.
+</I>
+not the ObjectInputStream, but after the cast to an InputStream...
+&gt;<i>
+</I>&gt;<i>You are for sure right about the performance stuff but to be 
+</I>&gt;<i>honest, I'd 
+</I>&gt;<i>prefer a backup instead of a faster installer.
+</I>&gt;<i>
+</I>&gt;&gt;<i> If I have to implement something like this, I think I will implement
+</I>&gt;&gt;<i> an InstallListener which implements isFileListener and
+</I>&gt;&gt;<i> beforeFile.
+</I>&gt;&gt;<i> isFileListener returns true,
+</I>&gt;&gt;<i> beforeFile makes the backup.
+</I>&gt;&gt;<i> See as example 
+</I>&gt;&gt;<i> 
+</I>&gt;<i>%IZ_HOME%\sample\src\myCompany\tools\install\listener\ChmodInst
+</I>&gt;<i>allerListener.java
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> You conserve about the real hard job to find the files which are
+</I>&gt;&gt;<i> selected for installation. That's with &quot;selected&quot; is not to 
+</I>&gt;<i>much simple,
+</I>&gt;&gt;<i> the Unpacker needs over 150 lines of code to handle it.
+</I>&gt;&gt;<i> beforeFile will be called from the Unpacker before a file 
+</I>&gt;<i>will be installed. 
+</I>&gt;<i>Correct, I'd save a load of work but lose the ability to 
+</I>&gt;<i>display the backup on a separate panel. 
+</I>
+Yes.
+It is possible to display progress of performing a custom action in the
+ExtendedInstallPanel.
+Additional there are some more things todo. I have written it in a 
+mail thread to the izpack-user list at 20.06.2006 named
+&quot;Messages for AntActions are not displayed&quot;
+see later ones.
+But of course that is not possible for actions during &quot;beforeFile&quot;
+because there you are in the &quot;regular&quot; file installation loop. You
+know, there is also no display of parseable and executable (but
+for the last a separate ExecutePanel exist).
+
+&gt;<i>Though not everyone would need that, I'd prefer it.
+</I>
+If you mean... But then you have to understand the deep internals
+of IzPack. 
+In our inner area we are (the IzPack developers) really
+able todo nice things. At some points the code is a little bit
+self protecting. At the time I began with IzPack I have it accepted
+as challenge. Many learned the time...
+
+
+
+&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Right, hope you can give me a hint for the above code.
+</I>&gt;<i>
+</I>
+see docu and
+%IZ_HOME%\sample\src\myCompany\tools\install\listener\ChmodInstallerListener.java
+
+&gt;<i>Greeetings,
+</I>&gt;<i>  Michael
+</I>&gt;<i>
+</I>
+Cheers
+
+Klaus
+
+&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://bat.berlios.de/mailman/listinfo/izpack-devel">http://bat.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000367.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+	<LI>Next message: <A HREF="000369.html">[izpack-devel] private/protected conventions in IzPanels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#368">[ date ]</a>
+              <a href="thread.html#368">[ thread ]</a>
+              <a href="subject.html#368">[ subject ]</a>
+              <a href="author.html#368">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

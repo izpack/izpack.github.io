@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] ClassCastException with custom listeners
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20ClassCastException%20with%20custom%20listeners&In-Reply-To=EC331E21-3F7F-48EE-AD21-4659EFE5F860%40robododge.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001490.html">
+   <LINK REL="Next"  HREF="001494.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] ClassCastException with custom listeners</H1>
+    <B>Steve Dodge</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20ClassCastException%20with%20custom%20listeners&In-Reply-To=EC331E21-3F7F-48EE-AD21-4659EFE5F860%40robododge.com"
+       TITLE="[izpack-users] ClassCastException with custom listeners">steve at robododge.com
+       </A><BR>
+    <I>Thu May 24 04:40:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001490.html">[izpack-users] ClassCastException with custom listeners
+</A></li>
+        <LI>Next message: <A HREF="001494.html">[izpack-users] Silent uninstall does not work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1497">[ date ]</a>
+              <a href="thread.html#1497">[ thread ]</a>
+              <a href="subject.html#1497">[ subject ]</a>
+              <a href="author.html#1497">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+
+I'm thinking that my explanation is too complicated.  Let me  
+simplify.  I've created a compiler listener and installer listener.   
+I've added those to my install.xml.  Since I'm using the standalone- 
+compiler, I set  the &quot;jar&quot; attribute.  The compiler listener runs as  
+expected, but when the installer is running, it gets a  
+ClassCastException because my compiler listener is incorrectly placed  
+in the collection of InstallerListener objects.
+
+Thanks,
+Steve
+
+
+
+On May 21, 2007, at 10:40 AM, Steve Dodge wrote:
+
+&gt;<i> I've built a compile listener and an installer listener.  Using
+</I>&gt;<i> IzPack 3.10.1.   The compile listener added a filename to the of a
+</I>&gt;<i> Velocity template to the additionalData map.  The Installer listener
+</I>&gt;<i> checks during afterFile() if the name of the file matches a Velocity
+</I>&gt;<i> template, and applies the template if so.  I am also using the
+</I>&gt;<i> standalone-compiler.jar. My install.xml has the following.
+</I>&gt;<i>
+</I>&gt;<i>    &lt;listeners&gt;
+</I>&gt;<i>     &lt;listener
+</I>&gt;<i>        compiler=&quot;nm.trw.utils.listener.CompileListener&quot;
+</I>&gt;<i>        installer=&quot;nm.trw.utils.listener.VelocityListener&quot;
+</I>&gt;<i>        jar=&quot;lib/tekPackListeners.jar&quot;
+</I>&gt;<i>        /&gt;
+</I>&gt;<i>
+</I>&gt;<i>     &lt;listener installer=&quot;AntActionInstallerListener&quot;
+</I>&gt;<i>                uninstaller=&quot;AntActionUninstallerListener&quot;/&gt;
+</I>&gt;<i>     &lt;/listeners&gt;
+</I>&gt;<i>
+</I>&gt;<i> Using debug output, I verify the compile listener is being called
+</I>&gt;<i> correctly during compile time as it searches for &lt;addititionalData&gt;
+</I>&gt;<i> tags within the &lt;fileset&gt; and parses the data correctly.
+</I>&gt;<i> During install, when the install panel is showing the progress bar, I
+</I>&gt;<i> get the following exception:
+</I>&gt;<i>
+</I>&gt;<i> java.lang.ClassCastException: nm.trw.utils.listener.CompileListener
+</I>&gt;<i>          at com.izforge.izpack.installer.Unpacker.getCustomActions
+</I>&gt;<i> (Unpacker.java:1139)
+</I>&gt;<i>          at com.izforge.izpack.installer.Unpacker.run(Unpacker.java: 
+</I>&gt;<i> 295)
+</I>&gt;<i>          at java.lang.Thread.run(Thread.java:613)
+</I>&gt;<i>
+</I>&gt;<i> Looking at the code for Unpacker, it seems the CompileListener was
+</I>&gt;<i> improperly placed in the collection of InstallerListeners, thus
+</I>&gt;<i> ClassCastException.
+</I>&gt;<i>
+</I>&gt;<i> Here are the &lt;jars&gt; that I had to add to make it work.
+</I>&gt;<i> &lt;jar src=&quot;lib/tekPackListeners.jar&quot;/&gt;
+</I>&gt;<i> &lt;jar src=&quot;lib/izevent-3.10.1.jar&quot;/&gt;
+</I>&gt;<i> &lt;jar src=&quot;lib/compiler-3.10.1.jar&quot;/&gt;&lt;!-- this one has to be here,
+</I>&gt;<i> izevent isn't enough,  otherwise ClassNotFoundException for
+</I>&gt;<i> CompilerListener interface
+</I>&gt;<i> &lt;jar src=&quot;lib/ant-1.6.5.jar&quot;/&gt;
+</I>&gt;<i> &lt;jar src=&quot;lib/ant-launcher-1.6.5.jar&quot;/&gt;
+</I>&gt;<i> &lt;jar src=&quot;lib/velocity-1.5.jar&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i> I think I'm missing something in the installation here.
+</I>&gt;<i>
+</I>&gt;<i> Thanks,
+</I>&gt;<i> Steve
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Am I missing something in the setup here?  I cannot figure out how
+</I>&gt;<i> CompileListener makes it way into the
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001490.html">[izpack-users] ClassCastException with custom listeners
+</A></li>
+	<LI>Next message: <A HREF="001494.html">[izpack-users] Silent uninstall does not work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1497">[ date ]</a>
+              <a href="thread.html#1497">[ thread ]</a>
+              <a href="subject.html#1497">[ subject ]</a>
+              <a href="author.html#1497">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

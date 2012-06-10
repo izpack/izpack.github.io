@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Uninstall before installing
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Uninstall%20before%20installing&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000980.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Uninstall before installing</H1>
+    <B>Christopher Deckers</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Uninstall%20before%20installing&In-Reply-To="
+       TITLE="[izpack-devel] Uninstall before installing">chrriis at gmail.com
+       </A><BR>
+    <I>Sat Mar 31 12:19:35 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000980.html">[izpack-devel] Restart computer
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#981">[ date ]</a>
+              <a href="thread.html#981">[ thread ]</a>
+              <a href="subject.html#981">[ subject ]</a>
+              <a href="author.html#981">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+I needed to trigger the uninstall procedure silently, from the
+installer, to ensure that only one instance of my program is
+installed. I have this need because my uninstall procedures unlocks
+some files that otherwise could not be overriden by the newer
+versions, needs to ensure that the registry is cleaned up from past
+useless keys, and needs to remove from the install location the
+content of the packs that the user decided not to install when
+reinstalling.
+
+I managed to get my way through by creating an install listener that
+looks for the uninstall string in the Windows registry, fiddles with
+it, and triggers the command line uninstall in the beforePacks(xxx)
+method. I placed this listener as the first one in the list of
+listeners with an OS restriction to be Windows :)
+
+A few points:
+- I use the JRE of the currently running installer rather than the one
+in the uninstall string, because that one may point to a JRE that was
+removed.
+- I don't use the $INSTALL_PATH, but the uninstall string, because the
+user may decide to install the program to a different location.
+- Because the uninstall process is detached, I test the existence of
+the target directory until it gets deleted, with a timeout of 5
+seconds.
+
+Was there something built in to do the same thing that I overlooked?
+I add the file with the code to this e-mail in case someone is
+interested or want to comment my approach. I don't know if the list
+allows that... if not I will send a second e-mail with the content in
+the e-mail itself.
+
+Cheers,
+-Christopher
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: UninstallInstallerListener.java
+Type: application/octet-stream
+Size: 2770 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070331/55cf0f0d/attachment.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070331/55cf0f0d/attachment.obj</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000980.html">[izpack-devel] Restart computer
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#981">[ date ]</a>
+              <a href="thread.html#981">[ thread ]</a>
+              <a href="subject.html#981">[ subject ]</a>
+              <a href="author.html#981">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Creating shortcuts based on version of windows
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Creating%20shortcuts%20based%20on%20version%20of%20windows&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000182.html">
+   <LINK REL="Next"  HREF="000190.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Creating shortcuts based on version of windows</H1>
+    <B>Miraodb</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Creating%20shortcuts%20based%20on%20version%20of%20windows&In-Reply-To="
+       TITLE="[izpack-users] Creating shortcuts based on version of windows">miraodb at hotmail.com
+       </A><BR>
+    <I>Thu Feb  9 11:36:50 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000182.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+        <LI>Next message: <A HREF="000190.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi scott,
+
+Currently there's no differenciation between windows 2k, 98 or xp... they're
+all win32 OS.
+I'm not sure on how processpanel and shorcutpanel make the diffence between
+those.
+I assume there's a switch case logic within the code.
+I would therefore assume it's to be done automatically.
+
+Here's a thought for processpanel.:
+What do you use to create the service ? I assume it's a batch file. in that
+case, there must be a way to find out the version of the OS. i think the
+environment variable &quot;OS&quot; gives you that. Or even better, opening a command
+line shows up with two first line which gives you the exact name and version
+of the OS. All you have to do is run the command line, pipe the outputstream
+into string, compare substract of the sting to XP, NT, 2000 and so on....
+and then do the corresponding task for each of them using a switch or
+something...
+
+Another thought, why not using VBS ? since your aim is to use the script
+under windows. you could use VBS which has a few useful methods for system
+properties. You could use the GetversionEx API, something like this:
+
+Select Case OSInfo.dwPlatformId
+Case 0
+PId = &quot;Windows 32s &quot;
+Case 1
+PId = &quot;Windows 95/98&quot;
+Case 2
+PId = &quot;Windows NT &quot;
+End Select
+
+Now, regarding shorcuts that's more complicated since you can't run a task
+just for that matter within the shorcut panel.
+I see one tricky way, why not using the processpanel to run a batch or
+script of any kind that would create the shorcuts the way you want and get
+rid of the shorcutpanel in your installer.
+Thus, you could simply re-use the same code as above for the processpanel
+and implement the shorcut creation in the manner.
+
+Hope that helps,
+fabrice
+----- Original Message ----- 
+From: &quot;Scott Taylor&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">st-izpack at taylorit.com</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+Sent: Thursday, February 09, 2006 11:10 AM
+Subject: [izpack-users] Creating shortcuts based on version of windows
+
+
+&gt;<i> I'm trying to create an installer which when run installs a service on
+</I>&gt;<i> Windows NT, 2000, or XP. On Win98 (which doesn't support services) I
+</I>&gt;<i> would like to create a start up shortcut instead. So here are my
+</I>questions:
+&gt;<i>
+</I>&gt;<i> I currently install the service using a job run via the ProcessPanel. I
+</I>&gt;<i> have specified &lt;os family=&quot;windows&quot;&gt; but how do I specify the flavor of
+</I>&gt;<i> windows? I'm guessing that I should have something like &lt;os
+</I>&gt;<i> family=&quot;windows&quot; name=&quot;Windows NT&quot;&gt;. Assuming you can only have one &lt;os&gt;
+</I>&gt;<i> tag per job then I guess I need to repeat the job for name=&quot;Windows
+</I>&gt;<i> 2000&quot; and name=&quot;Windows XP&quot;. Correct? By the way, is there a list of
+</I>&gt;<i> valid names for windows operating systems somewhere?
+</I>&gt;<i>
+</I>&gt;<i> Is it possible to create a shortcut for a specific version of Windows.
+</I>&gt;<i> In otherwords I would like to create a start up shortcut on Windows 98
+</I>&gt;<i> but not on Windows NT, 2000, nor XP.
+</I>&gt;<i>
+</I>&gt;<i> /Scott
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000182.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+	<LI>Next message: <A HREF="000190.html">[izpack-users] Creating shortcuts based on version of windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

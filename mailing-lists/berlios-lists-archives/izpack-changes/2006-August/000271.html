@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1526 - in	izpack-src/trunk/src/lib/com/izforge/izpack: gui installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1526%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20gui%20installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000270.html">
+   <LINK REL="Next"  HREF="000272.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1526 - in	izpack-src/trunk/src/lib/com/izforge/izpack: gui installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1526%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20gui%20installer&In-Reply-To="
+       TITLE="[izpack-changes] r1526 - in	izpack-src/trunk/src/lib/com/izforge/izpack: gui installer">noreply at berlios.de
+       </A><BR>
+    <I>Tue Aug  8 16:41:43 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000270.html">[izpack-changes] r1525 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+        <LI>Next message: <A HREF="000272.html">[izpack-changes] r1527 - in izpack-frontend/trunk/src: .	documentation izpack/frontend/actions	izpack/frontend/controller/validators izpack/frontend/model	izpack/frontend/model/files izpack/frontend/model/stages	izpack/frontend/view/components	izpack/frontend/view/components/table	izpack/frontend/view/mode izpack/frontend/view/stages	izpack/frontend/view/stages/compile	izpack/frontend/view/stages/configure	izpack/frontend/view/stages/geninfo	izpack/frontend/view/stages/packs	izpack/frontend/view/stages/packs/editors	izpack/frontend/view/stages/panelselect lib res/i18n utils
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#271">[ date ]</a>
+              <a href="thread.html#271">[ thread ]</a>
+              <a href="subject.html#271">[ subject ]</a>
+              <a href="author.html#271">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-08-08 16:41:42 +0200 (Tue, 08 Aug 2006)
+New Revision: 1526
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/LayoutHelper.java
+Log:
+Bugs in the new layout stuff fixed.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2006-08-08 13:35:39 UTC (rev 1525)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2006-08-08 14:41:42 UTC (rev 1526)
+@@ -60,6 +60,14 @@
+ 
+     private Insets oldParentInsets;
+ 
++    protected static int[] DEFAULT_Y_GAPS = { -1, 0, 5, 5, 10, 5, 5, 5,     5, 5, 5, 5, 5, 5, 0};
++
++    protected static int[] DEFAULT_X_GAPS = { -1, 0, 0, 0, 0, 0, 10, 10,    10, 10, 10, 10, 10, 0};
++
++    protected static int[] DEFAULT_X_ALIGNMENT = { LEFT, LEFT, LEFT, LEFT};
++
++    protected static int[] DEFAULT_Y_ALIGNMENT = { CENTER, CENTER, CENTER, CENTER};
++
+     /** Array with some default constraints. */
+     private static IzPanelConstraints DEFAULT_CONSTRAINTS[] = {
+             // Default constraints for labels.
+@@ -86,14 +94,6 @@
+ 
+     };
+ 
+-    protected static int[] DEFAULT_Y_GAPS = { -1, 0, 5, 5, 10, 5, 5, 5,     5, 5, 5, 5, 5, 5, 0};
+-
+-    protected static int[] DEFAULT_X_GAPS = { -1, 0, 0, 0, 0, 0, 10, 10,    10, 10, 10, 10, 10, 0};
+-
+-    protected static int[] DEFAULT_X_ALIGNMENT = { LEFT, LEFT, LEFT, LEFT};
+-
+-    protected static int[] DEFAULT_Y_ALIGNMENT = { CENTER, CENTER, CENTER, CENTER};
+-
+     /** Anchor to be used for the controls in all panels. */
+     private static int ANCHOR = CENTER;
+ 
+@@ -626,10 +626,10 @@
+                         offset += curPixel;
+                         if (needsReEvaluation(colConstraints[i].component))
+                         {
+-                            if (oldDim.height != colConstraints[i].component.getPreferredSize().height
+-                                    &amp;&amp; oldOnceAgain == onceAgain) onceAgain++;
++                            if (oldOnceAgain == onceAgain) onceAgain++;
+                         }
+                     }
++
+                 }
+                 // Seems so that height has changed. Reevaluate only one time else it is possible
+                 // to go in a endless loop.
+@@ -777,7 +777,6 @@
+     public void addLayoutComponent(Component comp, Object constraints)
+     {
+         if (comp == null) throw new NullPointerException(&quot;component has to be not null&quot;);
+-        IzPanelConstraints cc;
+         if (!(constraints instanceof IzPanelConstraints))
+         {
+             Object oldVal = constraints;
+@@ -792,10 +791,8 @@
+                 ((IzPanelConstraints) constraints).setXPos(0);
+                 ((IzPanelConstraints) constraints).setYPos(NEXT_ROW);
+             }
+-            cc = (IzPanelConstraints) constraints;
+         }
+-        else
+-            cc = (IzPanelConstraints) ((IzPanelConstraints) constraints).clone();
++        IzPanelConstraints cc = (IzPanelConstraints) ((IzPanelConstraints) constraints).clone();
+         cc.component = comp;
+         int i;
+         // Modify positions if constraint value is one of the symbolic ints.
+@@ -1080,7 +1077,7 @@
+     public static int verifyGapId(int gapId)
+     {
+         if (gapId &lt; 0) gapId = -gapId;
+-        if (gapId &lt;= GAP_LOAD_MARKER || gapId &gt;= DEFAULT_X_GAPS.length)
++        if ( gapId &gt;= DEFAULT_X_GAPS.length)
+             throw new IndexOutOfBoundsException(&quot;gapId is not in the default gap container.&quot;);
+         return (gapId);
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/LayoutHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/LayoutHelper.java	2006-08-08 13:35:39 UTC (rev 1525)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/LayoutHelper.java	2006-08-08 14:41:42 UTC (rev 1526)
+@@ -76,17 +76,19 @@
+      * Look-up table for gap identifier to gap names for the x direction. The gap names can be used
+      * in the XML installation configuration file. Be aware that case sensitivity should be used.
+      */
+-    public final static String[] X_GAP_NAME_LOOK_UP = { &quot;noXGap&quot;, &quot;labelXGap&quot;, &quot;paragraphXGap&quot;,
+-            &quot;textXGab&quot;, &quot;controlXGap&quot;, &quot;labelToTextXGap&quot;, &quot;labelToControlXGap&quot;, &quot;textToLabelXGap&quot;,
+-            &quot;controlToLabelXGap&quot;, &quot;controlToTextXGap&quot;, &quot;textToControlXGap&quot;, &quot;firstXGap&quot;};
++    public final static String[] X_GAP_NAME_LOOK_UP = { &quot;noXGap&quot;, &quot;labelXGap&quot;, &quot;textXGab&quot;,
++            &quot;controlXGap&quot;, &quot;paragraphXGap&quot;, &quot;labelToTextXGap&quot;, &quot;labelToControlXGap&quot;,
++            &quot;textToLabelXGap&quot;, &quot;controlToLabelXGap&quot;, &quot;controlToTextXGap&quot;, &quot;textToControlXGap&quot;,
++            &quot;firstXGap&quot;};
+ 
+     /**
+      * Look-up table for gap identifier to gap names for the y direction. The gap names can be used
+      * in the XML installation configuration file. Be aware that case sensitivity should be used.
+      */
+-    public final static String[] Y_GAP_NAME_LOOK_UP = { &quot;noYGap&quot;, &quot;labelYGap&quot;, &quot;paragraphYGap&quot;,
+-            &quot;textYGab&quot;, &quot;controlYGap&quot;, &quot;labelToTextYGap&quot;, &quot;labelToControlYGap&quot;, &quot;textToLabelYGap&quot;,
+-            &quot;controlToLabelYGap&quot;, &quot;controlToTextYGap&quot;, &quot;textToControlYGap&quot;, &quot;firstYGap&quot;};
++    public final static String[] Y_GAP_NAME_LOOK_UP = { &quot;noYGap&quot;, &quot;labelYGap&quot;, &quot;textYGab&quot;,
++            &quot;controlYGap&quot;, &quot;paragraphYGap&quot;, &quot;labelToTextYGap&quot;, &quot;labelToControlYGap&quot;,
++            &quot;textToLabelYGap&quot;, &quot;controlToLabelYGap&quot;, &quot;controlToTextYGap&quot;, &quot;textToControlYGap&quot;,
++            &quot;firstYGap&quot;};
+ 
+     /** Identifier of x gap for all default x gaps. */
+     public final static String ALL_X_GAP = &quot;allXGap&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000270.html">[izpack-changes] r1525 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+	<LI>Next message: <A HREF="000272.html">[izpack-changes] r1527 - in izpack-frontend/trunk/src: .	documentation izpack/frontend/actions	izpack/frontend/controller/validators izpack/frontend/model	izpack/frontend/model/files izpack/frontend/model/stages	izpack/frontend/view/components	izpack/frontend/view/components/table	izpack/frontend/view/mode izpack/frontend/view/stages	izpack/frontend/view/stages/compile	izpack/frontend/view/stages/configure	izpack/frontend/view/stages/geninfo	izpack/frontend/view/stages/packs	izpack/frontend/view/stages/packs/editors	izpack/frontend/view/stages/panelselect lib res/i18n utils
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#271">[ date ]</a>
+              <a href="thread.html#271">[ thread ]</a>
+              <a href="subject.html#271">[ subject ]</a>
+              <a href="author.html#271">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

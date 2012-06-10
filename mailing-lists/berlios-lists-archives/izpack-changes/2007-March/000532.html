@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1786 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1786%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000531.html">
+   <LINK REL="Next"  HREF="000533.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1786 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1786%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1786 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Wed Mar 14 16:55:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000531.html">[izpack-changes] r1785 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000533.html">[izpack-changes] r1787 - in izpack-src/branches/3.10: .	bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#532">[ date ]</a>
+              <a href="thread.html#532">[ thread ]</a>
+              <a href="subject.html#532">[ subject ]</a>
+              <a href="author.html#532">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-03-14 16:55:03 +0100 (Wed, 14 Mar 2007)
+New Revision: 1786
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+Ignore password and rule validation errors on dynamic revalidation (this kind of validation will occur only on &quot;Next&quot;)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2007-03-14 15:44:15 UTC (rev 1785)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2007-03-14 15:55:03 UTC (rev 1786)
+@@ -370,6 +370,10 @@
+     private Vector entries = new Vector();
+ 
+     private LocaleDatabase langpack = null;
++    
++    // Used for dynamic controls to skip content validation unless the user
++    // really clicks &quot;Next&quot;
++    private boolean validating = true;
+ 
+     /*--------------------------------------------------------------------------*/
+     // This method can be used to search for layout problems. If this class is
+@@ -1396,7 +1400,7 @@
+         }
+         if ((variable == null) || (ruleField == null)) { return (true); }
+ 
+-        boolean success = ruleField.validateContents();
++        boolean success = validating ? ruleField.validateContents() : true;
+         if (!success)
+         {
+             String message = &quot;&quot;;
+@@ -2029,7 +2033,7 @@
+         if ((variable == null) || (passwordGroupsRead.contains(group))) { return (true); }
+         passwordGroups.add(group);
+ 
+-        boolean success = group.validateContents();
++        boolean success = validating ? group.validateContents() : true;
+ 
+         if (!success)
+         {
+@@ -3392,8 +3396,10 @@
+     
+     // Repaint all controls and validate them agains the current variables
+     public void actionPerformed(ActionEvent e) {
++       validating = false;
+        readInput();
+        panelActivate();
++       validating = true;
+    }
+ 
+ } // public class UserInputPanel
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000531.html">[izpack-changes] r1785 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000533.html">[izpack-changes] r1787 - in izpack-src/branches/3.10: .	bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#532">[ date ]</a>
+              <a href="thread.html#532">[ thread ]</a>
+              <a href="subject.html#532">[ subject ]</a>
+              <a href="author.html#532">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

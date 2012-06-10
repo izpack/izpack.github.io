@@ -1,0 +1,351 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] os.arch
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20os.arch&In-Reply-To=200605041808.21504.marc.eppelmann%40gmx.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000542.html">
+   <LINK REL="Next"  HREF="000545.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] os.arch</H1>
+    <B>David Ferrero</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20os.arch&In-Reply-To=200605041808.21504.marc.eppelmann%40gmx.de"
+       TITLE="[izpack-users] os.arch">david.ferrero at zion.com
+       </A><BR>
+    <I>Wed Jun  7 21:45:39 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000542.html">[izpack-users] NullPointerException
+</A></li>
+        <LI>Next message: <A HREF="000545.html">[izpack-users] jvm detection 32bit vs. 64bit
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#543">[ date ]</a>
+              <a href="thread.html#543">[ thread ]</a>
+              <a href="subject.html#543">[ subject ]</a>
+              <a href="author.html#543">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi guys:
+
+take a look at the testWrapper shell script in the bin directory of  
+the delta pack distro used by the Java Wrapper Service to detect OS  
+and architecture information.
+
+<A HREF="http://wrapper.tanukisoftware.org">http://wrapper.tanukisoftware.org</A>
+
+here's a snippet from that open source project:
+
+# Resolve the os
+DIST_OS=`uname -s | tr [:upper:] [:lower:] | tr -d [:blank:]`
+case &quot;$DIST_OS&quot; in
+     'sunos')
+         DIST_OS=&quot;solaris&quot;
+         ;;
+     'hp-ux' | 'hp-ux64')
+         DIST_OS=&quot;hpux&quot;
+         ;;
+     'darwin')
+         DIST_OS=&quot;macosx&quot;
+         ;;
+     'unix_sv')
+         DIST_OS=&quot;unixware&quot;
+         ;;
+esac
+
+
+# Resolve the architecture
+DIST_ARCH=`uname -p | tr [:upper:] [:lower:] | tr -d [:blank:]`
+if [ &quot;$DIST_ARCH&quot; = &quot;unknown&quot; ]
+then
+     DIST_ARCH=`uname -m | tr [:upper:] [:lower:] | tr -d [:blank:]`
+fi
+case &quot;$DIST_ARCH&quot; in
+     'amd64' | 'ia32' | 'ia64' | 'i386' | 'i486' | 'i586' | 'i686' |  
+'x86_64')
+         DIST_ARCH=&quot;x86&quot;
+         ;;
+     'ip27')
+         DIST_ARCH=&quot;mips&quot;
+         ;;
+     'power' | 'powerpc' | 'power_pc' | 'ppc64')
+         DIST_ARCH=&quot;ppc&quot;
+         ;;
+     'pa_risc' | 'pa-risc')
+         DIST_ARCH=&quot;parisc&quot;
+         ;;
+     'sun4u' | 'sparcv9')
+         DIST_ARCH=&quot;sparc&quot;
+         ;;
+     '9000/800')
+         DIST_ARCH=&quot;parisc&quot;
+         ;;
+esac
+
+
+
+
+
+
+
+On May 4, 2006, at 12:08 PM, Marc Eppelmann wrote:
+
+&gt;<i> Hi Jo,
+</I>&gt;<i> This is great. If I have time I will apply this in our code.
+</I>&gt;<i>
+</I>&gt;<i> I have prepared locally in my sandbox the detection of (K)Ubuntu.  
+</I>&gt;<i> That works.
+</I>&gt;<i>
+</I>&gt;<i> uname -i on our Sun:
+</I>&gt;<i>
+</I>&gt;<i> -bash-3.00# uname -i
+</I>&gt;<i> SUNW,Sun-Blade-1000
+</I>&gt;<i>
+</I>&gt;<i> That all ;-(
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i> Marc
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Am Mittwoch, 3. Mai 2006 15:56 schrieb Jo Vark:
+</I>&gt;&gt;<i> Hi Marc,
+</I>&gt;&gt;<i> This is the output of 'uname -a'
+</I>&gt;&gt;<i> Linux &lt;######&gt; 2.4.21-15.EL #1 SMP Thu Apr 22 00:09:47
+</I>&gt;&gt;<i> EDT 2004 x86_64 x86_64 x86_64 GNU/Linux
+</I>&gt;&gt;<i> from the above it is quite clear that the arch should
+</I>&gt;&gt;<i> be x86_64
+</I>&gt;&gt;<i> The output of 'uname -i' usually gives the correct
+</I>&gt;&gt;<i> architecture (definitely on linux, not sure about sun
+</I>&gt;&gt;<i> etc).
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> for me on a 64 bit machine:
+</I>&gt;&gt;&gt;<i> uname -i
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> x86_64
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> on a 32 bit machine:
+</I>&gt;&gt;&gt;<i> uname -i
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> i386
+</I>&gt;&gt;<i> Thanks.
+</I>&gt;&gt;<i> --Jo
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> --- Marc Eppelmann &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">marc.eppelmann at gmx.de</A>&gt; wrote:
+</I>&gt;&gt;&gt;<i> Hi Jo,
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> The content /etc/redhat-release is
+</I>&gt;&gt;&gt;<i> self-explanationed enough.
+</I>&gt;&gt;&gt;<i> If this is really a 64-bit machine and RHEL is
+</I>&gt;&gt;&gt;<i> installed und running in 64-Bit
+</I>&gt;&gt;&gt;<i> mode, please can you send the console-output of
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> :~&gt;uname -a ?
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Or do you (or anybody other from this mailinglist)
+</I>&gt;&gt;&gt;<i> know a commandline tools
+</I>&gt;&gt;&gt;<i> output that identifies sure a running 64 kernel
+</I>&gt;&gt;&gt;<i> resp. 64-bit libraries?
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> I will search on our athlon64 machine.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> What is about SunSolaris 64 Bit? Any Idea?
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> the output of uname -a on our UltraSparc is:
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> SunOS svrsunblade1k-1.localdomain.org 5.10 Generic
+</I>&gt;&gt;&gt;<i> sun4u sparc
+</I>&gt;&gt;&gt;<i> SUNW,Sun-Blade-1000
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> No trace of 64-bit ...
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Am Dienstag, 2. Mai 2006 20:36 schrieb Jo Vark:
+</I>&gt;&gt;&gt;&gt;<i> Hi Marc,
+</I>&gt;&gt;&gt;&gt;<i> This is the contents of my /etc/redhat-relase
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> file:
+</I>&gt;&gt;&gt;&gt;<i> Red Hat Enterprise Linux WS release 3 (Taroon
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Update
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> 2)
+</I>&gt;&gt;&gt;&gt;<i> I'm not really sure what you mean by &quot;assigned
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> OSName&quot;
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> but a &lt;panel&gt; with os=&quot;unix&quot; name=&quot;Linux&quot; and
+</I>&gt;&gt;&gt;&gt;<i> arch=&quot;i386&quot; currently works on my machine, though
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> in
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> reality the arch should be &quot;x86_64&quot;. Let me kow if
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> I
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> can provide you with any further info.
+</I>&gt;&gt;&gt;&gt;<i> Thanks,.
+</I>&gt;&gt;&gt;&gt;<i> --Jo
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> --- Marc Eppelmann &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">marc.eppelmann at gmx.de</A>&gt; wrote:
+</I>&gt;&gt;&gt;&gt;&gt;<i> Hi Jo,
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Currently IzPack uses a combination of
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> System.getProperty( &quot;os.name&quot; ) and
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> /etc/*-release
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> &quot;parsing&quot; to detect the OS.
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> If you want to contribute us, you can send us
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> the
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> content of
+</I>&gt;&gt;&gt;&gt;&gt;<i> the /etc/*-release - Files plus the assigned
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> OSName
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> etc... , so that we can
+</I>&gt;&gt;&gt;&gt;&gt;<i> complete the detection routine.
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Thanks
+</I>&gt;&gt;&gt;&gt;&gt;<i> Marc
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Am Montag, 1. Mai 2006 18:12 schrieb Jo Vark:
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Hi,
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> I recently discovered this great package that
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> IzPack
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> is.
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> I ran into a few problems with the os.arch
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> property,
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> though. Java is not very smart in detecting
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> the
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> correct architecture through the
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> System.getProperty(&quot;os.arch&quot;) method as it
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> returns
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &quot;i386&quot; for both my 64 bit RHEL on a 64 bit
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> xeon
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> processor and for my 32 bit FC3 installation
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> on my
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> 32
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> bit laptop. I was wondering if IzPack had any
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> special
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> way of figuring out the actual architecture or
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> if
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> instead of using the
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> System.getProperty(&quot;os.arch&quot;)
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> it
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> could use the result of the 'uname -i' shell
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> command.
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> TIA
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> --Jo
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> __________________________________________________
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Do You Yahoo!?
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Tired of spam?  Yahoo! Mail has the best spam
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> protection around
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="http://mail.yahoo.com">http://mail.yahoo.com</A>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> __________________________________________________
+</I>&gt;&gt;&gt;&gt;<i> Do You Yahoo!?
+</I>&gt;&gt;&gt;&gt;<i> Tired of spam?  Yahoo! Mail has the best spam
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> protection around
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="http://mail.yahoo.com">http://mail.yahoo.com</A>
+</I>&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> __________________________________________________
+</I>&gt;&gt;<i> Do You Yahoo!?
+</I>&gt;&gt;<i> Tired of spam?  Yahoo! Mail has the best spam protection around
+</I>&gt;&gt;<i> <A HREF="http://mail.yahoo.com">http://mail.yahoo.com</A>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060607/534c1f77/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060607/534c1f77/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000542.html">[izpack-users] NullPointerException
+</A></li>
+	<LI>Next message: <A HREF="000545.html">[izpack-users] jvm detection 32bit vs. 64bit
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#543">[ date ]</a>
+              <a href="thread.html#543">[ thread ]</a>
+              <a href="subject.html#543">[ subject ]</a>
+              <a href="author.html#543">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

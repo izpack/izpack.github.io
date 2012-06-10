@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Edding END statement to report send
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Edding%20END%20statement%20to%20report%20send&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000380.html">
+   <LINK REL="Next"  HREF="000382.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Edding END statement to report send</H1>
+    <B>Yossi Baram</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Edding%20END%20statement%20to%20report%20send&In-Reply-To="
+       TITLE="[izpack-users] Edding END statement to report send">yossiba at eldat.com
+       </A><BR>
+    <I>Wed Mar 22 09:25:30 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000380.html">[izpack-users] Multiple Process Panels?
+</A></li>
+        <LI>Next message: <A HREF="000382.html">[izpack-users] CATALINA_HOME
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#381">[ date ]</a>
+              <a href="thread.html#381">[ thread ]</a>
+              <a href="subject.html#381">[ subject ]</a>
+              <a href="author.html#381">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+Using the jasperreport I create stickers.
+When I send the stickers(reports) to an A4 printer all stickers are
+printed.
+ 
+ 
+    public void print(JasperReport jasperReport,JasperPrint
+jasperPrint,boolean rollMode){
+     try
+     {      
+
+        
+      PrintRequestAttributeSet aset = new
+HashPrintRequestAttributeSet();
+   
+      //Check for orientation
+  if(new
+Byte(jasperReport.getOrientation()).toString().equals(PORTRAIT)){
+    aset.add(OrientationRequested.PORTRAIT);
+    }
+   else{
+    aset.add(OrientationRequested.LANDSCAPE);
+   }
+ 
+
+       aset.add(MediaSizeName.ISO_A9);
+          
+   JRAbstractExporter jaspExporter = new JRPrintServiceExporter();
+   Map map = jaspExporter.getParameters();
+  
+   PrintService selectedPrintService =
+ReportsManager.lookupDefaultPrintService(0,printerName);
+   PrintServiceAttributeSet printAttributeSet = new
+HashPrintServiceAttributeSet();
+   printAttributeSet.addAll(selectedPrintService.getAttributes());
+      jaspExporter.setParameter(JRExporterParameter.INPUT_FILE_NAME,
+stickerFileName);
+ 
+jaspExporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PAGE_D
+IALOG, new Boolean(false));    
+ 
+jaspExporter.setParameter(JRPrintServiceExporterParameter.DISPLAY_PRINT_
+DIALOG, new Boolean(true));      
+ 
+jaspExporter.setParameter(JRPrintServiceExporterParameter.PRINT_SERVICE_
+ATTRIBUTE_SET, printAttributeSet); 
+ 
+jaspExporter.setParameter(JRPrintServiceExporterParameter.PRINT_REQUEST_
+ATTRIBUTE_SET, aset);
+ 
+      try {
+                jaspExporter.exportReport();
+                logger.info(&quot;Sticker was printed at - &quot; +
+selectedPrintService.getName());
+            } catch (JRException e1) {
+             logger.error(&quot;Sticker was not printed  - &quot; +
+e1.getMessage());
+            } 
+            
+            
+      
+     }catch (ModelException me) {
+            logger.error(me.getMessage());
+           
+        } 
+     catch (Exception e)
+     {
+      logger.error(e.getMessage());
+     }
+    }
+ 
+ 
+When I send the print  to a roll printer I get an error saying &quot;Paper's
+imageable width is too small.&quot;
+The problem is solved when I open a print dialoge (just for testing) and
+I set the media size to - Auto End of Paper.
+Where can I modify 'End of paper' in the code? without the need for a
+dialog.
+What is the attribute I should set?
+ 
+Thanks
+ 
+Yossi
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060322/795ccb01/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060322/795ccb01/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000380.html">[izpack-users] Multiple Process Panels?
+</A></li>
+	<LI>Next message: <A HREF="000382.html">[izpack-users] CATALINA_HOME
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#381">[ date ]</a>
+              <a href="thread.html#381">[ thread ]</a>
+              <a href="subject.html#381">[ subject ]</a>
+              <a href="author.html#381">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

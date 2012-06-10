@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] mutually exclusive packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20mutually%20exclusive%20packs&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000594.html">
+   <LINK REL="Next"  HREF="000589.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] mutually exclusive packs</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20mutually%20exclusive%20packs&In-Reply-To="
+       TITLE="[izpack-devel] mutually exclusive packs">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Nov 15 18:11:45 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000594.html">[izpack-devel] UserInputPanel -	replacing	MultiLineLabelwithJTextPane?
+</A></li>
+        <LI>Next message: <A HREF="000589.html">[izpack-devel] mutually exclusive packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#585">[ date ]</a>
+              <a href="thread.html#585">[ thread ]</a>
+              <a href="subject.html#585">[ subject ]</a>
+              <a href="author.html#585">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Vladimir,
+of course &quot;pack&quot;...
+Using the require text area for both is OK, I think. Code
+have to be addapted.
+Will be good if you can expand the docu with points related
+to the added rules.
+In the moment I am very busy, therefore staccato style :-)
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Vladimir
+</I>&gt;<i>Ralev
+</I>&gt;<i>Sent: Wednesday, November 15, 2006 1:36 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-devel] mutually exclusive packs
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Bartz, Klaus wrote:
+</I>&gt;&gt;<i> Hi Vladimir,
+</I>&gt;&gt;<i> seems so it can resolve the logical and declarative symmetry
+</I>&gt;&gt;<i> problems we have had.
+</I>&gt;&gt;<i> First I will write what I understand (or better anticipate)
+</I>&gt;&gt;<i> about &quot;your&quot; exclude group that we can verify that we speak about 
+</I>&gt;&gt;<i> the same &quot;thing&quot;.
+</I>&gt;&gt;<i> There are some points added for the behavior if some premises
+</I>&gt;&gt;<i> are not exist.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 1. &quot;excludeGroup&quot; is an attribute (ATTLIST) of element &quot;packs&quot;
+</I>&gt;&gt;<i>   
+</I>&gt;<i>The element &quot;pack&quot;, but I guess you just misspelled it?
+</I>&gt;&gt;<i> 2. &quot;excludeGroup&quot; can only contain one group.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 3. This group is a String which is unique for one group of all 
+</I>&gt;&gt;<i> &quot;excludeGroup&quot;s, but has no relation to other groups like the 
+</I>&gt;&gt;<i> &quot;installGroups&quot; or the pack name or id.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 4. A functional  &quot;excludeGroup&quot; can contain at least two 
+</I>&gt;<i>members. A member is 
+</I>&gt;&gt;<i> a pack which has the attribute &quot;excludeGroup&quot; with the given name.
+</I>&gt;&gt;<i> If only one member is declared, nothing will be done.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 5. A member in the &quot;excludeGroup&quot; cannot have the attribute 
+</I>&gt;<i>&quot;required=&quot;yes&quot;&quot;.
+</I>&gt;&gt;<i> If so, an exception should be thrown at compile (packaging) 
+</I>&gt;<i>time and no
+</I>&gt;&gt;<i> installer should be created.
+</I>&gt;&gt;<i>   
+</I>&gt;&gt;<i> 6. Only one member in the &quot;excludeGroup&quot; can have the 
+</I>&gt;<i>attribute &quot;preselected=&quot;yes&quot;&quot;.
+</I>&gt;&gt;<i> Therefore it is a precondition that the attribute 
+</I>&gt;<i>&quot;preselected&quot; exist because the
+</I>&gt;&gt;<i> default is &quot;yes&quot;. A contempt will be responsed with an 
+</I>&gt;<i>exception and a break
+</I>&gt;&gt;<i> at compile (packaging) time.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 7. The handling at install time of this feature will be done 
+</I>&gt;<i>in the class
+</I>&gt;&gt;<i> com.izforge.izpack.panels.PacksModel. There is no new panel 
+</I>&gt;<i>to handle something.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 8. From all members of an &quot;excludeGroup&quot; only one member can be 
+</I>&gt;&gt;<i> selected. One member of the group is mutually exclusive to 
+</I>&gt;<i>each other member.
+</I>&gt;&gt;<i> If a secound will be selected, the previous will be 
+</I>&gt;<i>deselected. If no previos 
+</I>&gt;&gt;<i> selected exist, only the selection will be performed.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Unclear:
+</I>&gt;&gt;<i> What about informations for the installer (user)? For 
+</I>&gt;<i>dependens there is an
+</I>&gt;&gt;<i> extra text field in the PacksPanel. For an additonal text 
+</I>&gt;<i>field we have no
+</I>&gt;&gt;<i> place, I think. What todo? 
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>   
+</I>&gt;<i>How about this? Replace the &quot;The selected package requires the 
+</I>&gt;<i>following 
+</I>&gt;<i>packs to be installed&quot; frame with one named &quot;The selected package has 
+</I>&gt;<i>the following dependencies&quot;, which would contain something like this:
+</I>&gt;<i>
+</I>&gt;<i>&quot;&lt;b&gt;Requires:&lt;/b&gt; pack1, pack2, pack3. &lt;b&gt;Excludes:&lt;/b&gt; pack4.&quot;
+</I>&gt;&gt;<i> Is this what you would implement? What is missing? I think a 
+</I>&gt;<i>text like this
+</I>&gt;&gt;<i> can be used as description. Then we have solved the 
+</I>&gt;<i>exasperating point docu.
+</I>&gt;&gt;<i> You confirm? Or can you write it better?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>   
+</I>&gt;<i>Yes, I may add some other minor rules, but this is the main 
+</I>&gt;<i>idea. When I 
+</I>&gt;<i>implement it, I will review the rules again and will see if something 
+</I>&gt;<i>needs to be added or changed. Thanks.
+</I>&gt;&gt;<i> Cheers
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus
+</I>&gt;&gt;<i>   
+</I>&gt;<i>-- 
+</I>&gt;<i>Vladimir Ralev, JBoss/RedHat
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000594.html">[izpack-devel] UserInputPanel -	replacing	MultiLineLabelwithJTextPane?
+</A></li>
+	<LI>Next message: <A HREF="000589.html">[izpack-devel] mutually exclusive packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#585">[ date ]</a>
+              <a href="thread.html#585">[ thread ]</a>
+              <a href="subject.html#585">[ subject ]</a>
+              <a href="author.html#585">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

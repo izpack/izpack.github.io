@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] xinclude - can't use include from within userInputSpec.xml (in installation time)
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20xinclude%20-%20can%27t%20use%20include%20from%20within%0A%20userInputSpec.xml%20%28in%20installation%20time%29&In-Reply-To=47A64255.2070908%40skowro.net">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001530.html">
+   <LINK REL="Next"  HREF="001535.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] xinclude - can't use include from within userInputSpec.xml (in installation time)</H1>
+    <B>Matthew Fudge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20xinclude%20-%20can%27t%20use%20include%20from%20within%0A%20userInputSpec.xml%20%28in%20installation%20time%29&In-Reply-To=47A64255.2070908%40skowro.net"
+       TITLE="[izpack-devel] xinclude - can't use include from within userInputSpec.xml (in installation time)">mfudge at volantis.com
+       </A><BR>
+    <I>Mon Feb  4 04:49:51 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001530.html">[izpack-devel] xinclude - can't use include from within userInputSpec.xml (in installation time)
+</A></li>
+        <LI>Next message: <A HREF="001535.html">[izpack-devel] xinclude - can't use include from within	userInputSpec.xml (in installation time)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1533">[ date ]</a>
+              <a href="thread.html#1533">[ thread ]</a>
+              <a href="subject.html#1533">[ subject ]</a>
+              <a href="author.html#1533">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Piotr,
+
+Try using the &quot;parsexml&quot; attribute on the &quot;res&quot; element. This should cause the xml in your UserInputSpec.xml to have its 
+xincludes parsed at compile time.
+
+
+There are a few problems with the XInclude code. Some of the changes for it seem to have been overwritten. It relies on the SystemID of the parser being set correctly (to allow relative includes) but this is not done correctly anymore. I will fix this at some point when I have time.
+
+
+
+cheers
+
+Matt
+----- Original Message -----
+From: &quot;Piotr Skowronek&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">piotr at skowro.net</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Sent: 03 February 2008 22:38:13 o'clock (GMT) Europe/London
+Subject: [izpack-devel] xinclude - can't use include from within userInputSpec.xml (in installation time)
+
+Hi All,
+
+There is a problem with using xinclude feature when used
+in userInputSpec.xml. The problem appears in installation-time,
+when XIncludeXMLBuilder is unable to find fragments. They would
+have to be placed outside of install.jar, to be accessible
+in installation-time.
+
+However, xinclude feature works fine for install.xml as fragments
+are included/resolved during compilation time. UserInputSpec.xml
+is not parsed in compile-time, but simply embedded into resources.
+
+I have worked out a quick solution for it. It can be found
+in the attachment. Tell me what do you think about it.
+The solution is to modify XIncludeXMLBuilder, to be able
+to check resources whether they contain referenced fragment.
+Fragments have to be put in resources, and referenced using
+/res/ prefix, as I didn't want to hard code this prefix into
+XIncludeXMLBuilder.
+
+One more time, tell me what do you think about this patch.
+
+Regards,
+Piotr Skowronek
+</PRE>
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001530.html">[izpack-devel] xinclude - can't use include from within userInputSpec.xml (in installation time)
+</A></li>
+	<LI>Next message: <A HREF="001535.html">[izpack-devel] xinclude - can't use include from within	userInputSpec.xml (in installation time)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1533">[ date ]</a>
+              <a href="thread.html#1533">[ thread ]</a>
+              <a href="subject.html#1533">[ subject ]</a>
+              <a href="author.html#1533">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

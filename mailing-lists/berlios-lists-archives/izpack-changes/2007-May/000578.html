@@ -1,0 +1,485 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1832 - in izpack-src/trunk/src: doc-ng/XHTML dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1832%20-%20in%20izpack-src/trunk/src%3A%20doc-ng/XHTML%20dtd%0A%09lib/com/izforge/izpack%20lib/com/izforge/izpack/compiler%0A%09lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000577.html">
+   <LINK REL="Next"  HREF="000579.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1832 - in izpack-src/trunk/src: doc-ng/XHTML dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1832%20-%20in%20izpack-src/trunk/src%3A%20doc-ng/XHTML%20dtd%0A%09lib/com/izforge/izpack%20lib/com/izforge/izpack/compiler%0A%09lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1832 - in izpack-src/trunk/src: doc-ng/XHTML dtd	lib/com/izforge/izpack lib/com/izforge/izpack/compiler	lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sat May 12 15:31:09 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000577.html">[izpack-changes] r1831 - in izpack-src/tags: . 3.10.2 3.10.2/src	3.10.2/src/dist-files 3.10.2/src/lib/com/izforge/izpack/compiler
+</A></li>
+        <LI>Next message: <A HREF="000579.html">[izpack-changes] r1833 - in izpack-src/trunk: . src/dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#578">[ date ]</a>
+              <a href="thread.html#578">[ thread ]</a>
+              <a href="subject.html#578">[ subject ]</a>
+              <a href="author.html#578">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: aikebah
+Date: 2007-05-12 15:30:52 +0200 (Sat, 12 May 2007)
+New Revision: 1832
+
+Modified:
+   izpack-src/trunk/src/doc-ng/XHTML/node4.html
+   izpack-src/trunk/src/dtd/installation.dtd
+   izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ImgPacksPanel.java
+Log:
+Enabling externalized pack-configurations based on a patch proposed by Syed Khadeer
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node4.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node4.html	2007-05-11 19:38:20 UTC (rev 1831)
++++ izpack-src/trunk/src/doc-ng/XHTML/node4.html	2007-05-12 13:30:52 UTC (rev 1832)
+@@ -656,8 +656,8 @@
+ &lt;p&gt;Several panels, such as the license panel and the shortcut panel, require additional data to perform their task. This data is supplied in the form of resources. This section describes how to
+ specify them. Take a look at each panel description to see if it might need any resources. Currently, no checks are made to ensure resources needed by any panel have been included. The &lt;tt&gt;
+ &amp;lt;resources&amp;gt;&lt;/tt&gt; element is not required, and no &lt;tt&gt;&amp;lt;res&amp;gt;&lt;/tt&gt; elements are required within.&lt;br /&gt;
++The &lt;tt&gt;&amp;lt;resources&amp;gt;&lt;/tt&gt; element is the only element besides the &lt;tt&gt;&amp;lt;packs&amp;gt;&lt;/tt&gt; element that is taken into consideration in referenced pack-files (see &lt;a href=&quot;#packs-element&quot;&gt;&lt;tt&gt;&amp;lt;packs&amp;gt;&lt;/tt&gt; element&lt;/a&gt; for more info)&lt;br /&gt;
+ &lt;/p&gt;
+-
+ &lt;p&gt;You have to set one &lt;tt&gt;&amp;lt;res&amp;gt;&lt;/tt&gt; markup for each resource. Here are the attributes to specify :&lt;/p&gt;
+ 
+ &lt;ul&gt;
+@@ -705,7 +705,7 @@
+ &lt;h2&gt;&lt;a name=&quot;SECTION00438000000000000000&quot;&gt;&lt;/a&gt; &lt;a name=&quot;packs-element&quot;&gt;&lt;/a&gt;&lt;br /&gt;
+ The Packs Element &lt;tt&gt;&amp;lt;packs&amp;gt;&lt;/tt&gt;&lt;/h2&gt;
+ 
+-&lt;p&gt;This is a crucial section as it is used to specify the files that need to be installed. The &lt;tt&gt;&amp;lt;packs&amp;gt;&lt;/tt&gt; section consists of several &lt;tt&gt;&amp;lt;pack&amp;gt;&lt;/tt&gt; tags.&lt;/p&gt;
++&lt;p&gt;This is a crucial section as it is used to specify the files that need to be installed. The &lt;tt&gt;&amp;lt;packs&amp;gt;&lt;/tt&gt; section consists of several &lt;tt&gt;&amp;lt;pack&amp;gt;&lt;/tt&gt; and &lt;tt&gt;&amp;lt;refpack&amp;gt;&lt;/tt&gt; tags.&lt;/p&gt;
+ 
+ &lt;p&gt;The &lt;tt&gt;&amp;lt;pack&amp;gt;&lt;/tt&gt; takes the following attributes :&lt;/p&gt;
+ 
+@@ -724,8 +724,9 @@
+ this feature will make IzPack take the files on disk instead of from the installer. &lt;i&gt;Please make sure that your relative files paths are correct !&lt;/i&gt;&lt;/li&gt;
+ 
+ &lt;li&gt;&lt;tt&gt;id&lt;/tt&gt;: this attribute is used to give a unique id to the pack to be used for internationalization.&lt;/li&gt;
++&lt;li&gt;&lt;tt&gt;packImgId&lt;/tt&gt;: this attribute is used to reference a unique resource that represents the pack's image for the ImgPacksPanel. The resource should be defined in the &lt;tt&gt;&amp;lt;resources&amp;gt;&lt;/tt&gt; element of the installation XML using the same value for the &lt;tt&gt;id&lt;/tt&gt; attribute of the &lt;tt&gt;&amp;lt;res&amp;gt;&lt;/tt&gt; element.&lt;/li&gt;
+ &lt;/ul&gt;
+-
++&lt;p&gt;The &lt;tt&gt;&amp;lt;refpack&amp;gt;&lt;/tt&gt; takes only one attribute &lt;tt&gt;file&lt;/tt&gt;, which contains the relative path (from the installation compiler) to an externally defined packs-definition. This external packs definition is a regular IzPack installation XML. However the only elements that are used from that XML file are the &lt;tt&gt;&amp;lt;packs&amp;gt;&lt;/tt&gt; and the &lt;tt&gt;&amp;lt;resources&amp;gt;&lt;/tt&gt; elements. This enables a model in which a single developer is responsible for maintaining the packs and resources related to the development-package assigned to him. The main install XML references these xml-files to avoid synchronization efforts between the central installation XML and the developer-maintained installer XMLs.
+ &lt;h3&gt;&lt;a name=&quot;SECTION00438100000000000000&quot;&gt;Internationalization of the PacksPanel&lt;/a&gt;&lt;/h3&gt;
+ 
+ &lt;p&gt;In order to provide internationalization for the PacksPanel, so that your users can be presented with a different name and description for each language you support, you have to create a file named
+@@ -1090,10 +1091,9 @@
+ 
+ &lt;h2&gt;&lt;a name=&quot;SECTION00445000000000000000&quot;&gt;ImgPacksPanel&lt;/a&gt;&lt;/h2&gt;
+ 
+-&lt;p&gt;This is the same as above, but for each panel a different picture is shown to the user. The pictures are specified with the resources &lt;tt&gt;ImgPacksPanel.img.x&lt;/tt&gt; where x stands for the pack
+-number, the numbers start from 0. Of course it's up to you to specify as many images as needed and with correct numbers. For instance if you have 2 packs &lt;tt&gt;core&lt;/tt&gt; and &lt;tt&gt;documentation&lt;/tt&gt; (in
+-this order), then the resource for &lt;tt&gt;core&lt;/tt&gt; will be &lt;tt&gt;ImgPacksPanel.img.0&lt;/tt&gt; and the resource for &lt;tt&gt;doc&lt;/tt&gt; will be &lt;tt&gt;ImgPacksPanel.img.1&lt;/tt&gt;. The supported image formats depend on
+-what you JVM supports, but starting from J2SE 1.3, &lt;i&gt;GIF&lt;/i&gt;, &lt;i&gt;JPEG&lt;/i&gt; and &lt;i&gt;PNG&lt;/i&gt; are supported.&lt;br /&gt;
++&lt;p&gt;This is the same as above, but for each pack a different picture is shown to the user. The pictures are specified using the packImgId attribute for each pack in the installer XML. The initial image will be the image of the first pack that has a packImgId. The image is updated each time the user (de)selects a pack that has a packImgId. Of course it's up to you to specify an image for each pack in your installation with a unique packImgId. For instance if you have 2 packs &lt;tt&gt;core&lt;/tt&gt;  and &lt;tt&gt;documentation&lt;/tt&gt; (in
++this order), and you assign both packs a packImgId that is identical to the pack's name then the resource for &lt;tt&gt;core&lt;/tt&gt; will be &lt;tt&gt;core&lt;/tt&gt; and the resource for &lt;tt&gt;documentation&lt;/tt&gt; will be &lt;tt&gt;documentation&lt;/tt&gt;. The initially shown image will be the resource  &lt;tt&gt;core&lt;/tt&gt;. The supported image formats depend on
++what your client's JVM supports, but starting from J2SE 1.3, &lt;i&gt;GIF&lt;/i&gt;, &lt;i&gt;JPEG&lt;/i&gt; and &lt;i&gt;PNG&lt;/i&gt; are supported.&lt;br /&gt;
+ &lt;/p&gt;
+ 
+ &lt;h2&gt;&lt;a name=&quot;SECTION00446000000000000000&quot;&gt;TargetPanel&lt;/a&gt;&lt;/h2&gt;
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2007-05-11 19:38:20 UTC (rev 1831)
++++ izpack-src/trunk/src/dtd/installation.dtd	2007-05-12 13:30:52 UTC (rev 1832)
+@@ -96,10 +96,11 @@
+         &lt;!ATTLIST listener jar CDATA #IMPLIED&gt;
+ 
+ &lt;!-- The packs section (indicates the packs to create) --&gt;
+-&lt;!ELEMENT packs (pack+)&gt;
++&lt;!ELEMENT packs ((pack|refpack)+)&gt;
+     &lt;!ELEMENT pack (description, os*, file*, singlefile*, fileset*, updatecheck?, parsable*, executable*, depends*)&gt;
+         &lt;!ATTLIST pack name CDATA #REQUIRED&gt;
+         &lt;!ATTLIST pack id CDATA #IMPLIED&gt;
++        &lt;!ATTLIST pack packImgId IDREF #IMPLIED&gt;
+         &lt;!ATTLIST pack required (yes|no) #REQUIRED&gt;
+         &lt;!ATTLIST pack preselected (yes|no) &quot;yes&quot;&gt;
+         &lt;!ATTLIST pack os (unix|windows|mac) #IMPLIED&gt;
+@@ -157,6 +158,8 @@
+       &lt;!ELEMENT updatecheck (include*, exclude*)&gt;
+       &lt;!ELEMENT depends EMPTY&gt;
+           &lt;!ATTLIST depends packname CDATA #REQUIRED&gt;
++    &lt;!ELEMENT refpack EMPTY&gt;
++        &lt;!ATTLIST refpack file CDATA #REQUIRED&gt;
+           
+ &lt;!-- Allows the inclusion in the installer or uninstaller of a native library --&gt;
+ &lt;!ELEMENT native (os*)&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2007-05-11 19:38:20 UTC (rev 1831)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2007-05-12 13:30:52 UTC (rev 1832)
+@@ -90,6 +90,9 @@
+     /** The color of the node. This is used for the dependency graph algorithms */
+     public int color;
+ 
++    /** The id to use if we want to obtain this pack's image resource */
++    public String packImgId;
++
+     /** white colour */
+     public final static int WHITE = 0;
+ 
+@@ -124,6 +127,7 @@
+         this.preselected = preselected;
+         this.loose = loose;
+         this.excludeGroup = excludegroup;
++        this.packImgId = null;
+         nbytes = 0;
+         color = PackInfo.WHITE;
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-05-11 19:38:20 UTC (rev 1831)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-05-12 13:30:52 UTC (rev 1832)
+@@ -8,6 +8,7 @@
+  * Copyright 2001 Johannes Lehtinen
+  * Copyright 2002 Paul Wilkinson
+  * Copyright 2004 Gaganis Giorgos
++ * Copyright 2007 Syed Khadeer / Hans Aikema
+  *
+  * 
+  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+@@ -75,6 +76,7 @@
+ import net.n3.nanoxml.StdXMLParser;
+ import net.n3.nanoxml.StdXMLReader;
+ import net.n3.nanoxml.XMLElement;
++import net.n3.nanoxml.XMLException;
+ 
+ /**
+  * A parser for the installer xml configuration. This parses a document
+@@ -548,12 +550,36 @@
+     protected void addPacks(XMLElement data) throws CompilerException
+     {
+         notifyCompilerListener(&quot;addPacks&quot;, CompilerListener.BEGIN, data);
++
++        // the actual adding is delegated to addPacksSingle to enable recursive
++        // parsing of refpack package definitions
++        addPacksSingle(data);
++        
++        compiler.checkDependencies();
++        compiler.checkExcludes();
++
++        notifyCompilerListener(&quot;addPacks&quot;, CompilerListener.END, data);
++    }
++
++    /**
++     * Add packs and their contents to the installer without checking 
++     * the dependencies and includes.
++     * 
++     * Helper method to recursively add more packs from refpack XML packs definitions
++     * 
++     * @param data The XML data
++     * @throws CompilerException
++     */
++    private void addPacksSingle(XMLElement data) throws CompilerException
++    {
++        notifyCompilerListener(&quot;addPacksSingle&quot;, CompilerListener.BEGIN, data);
+         // Initialisation
+         XMLElement root = requireChildNamed(data, &quot;packs&quot;);
+ 
+         // at least one pack is required
+         Vector packElements = root.getChildrenNamed(&quot;pack&quot;);
+-        if (packElements.isEmpty()) parseError(root, &quot;&lt;packs&gt; requires a &lt;pack&gt;&quot;);
++        Vector refPackElements = root.getChildrenNamed(&quot;refpack&quot;);
++        if (packElements.isEmpty() &amp;&amp; refPackElements.isEmpty()) parseError(root, &quot;&lt;packs&gt; requires a &lt;pack&gt; or &lt;refpack&gt;&quot;);
+ 
+         File baseDir = new File(basedir);
+         
+@@ -565,6 +591,7 @@
+             // Trivial initialisations
+             String name = requireAttribute(el, &quot;name&quot;);
+             String id = el.getAttribute(&quot;id&quot;);
++            String packImgId = el.getAttribute(&quot;packImgId&quot;);
+             
+             boolean loose = &quot;true&quot;.equalsIgnoreCase(el.getAttribute(&quot;loose&quot;, &quot;false&quot;));
+             String description = requireChildNamed(el, &quot;description&quot;).getContent();
+@@ -602,6 +629,11 @@
+                     pack.addInstallGroup(igroup);
+                 }
+             }
++            
++            // Set the packImgId if specified
++            if (packImgId != null) {
++                pack.setPackImgId(packImgId);
++            }
+ 
+             // We get the parsables list
+             Iterator iter = el.getChildrenNamed(&quot;parsable&quot;).iterator();
+@@ -889,10 +921,73 @@
+             compiler.addPack(pack);
+         }
+         
+-        compiler.checkDependencies();
+-        compiler.checkExcludes();
++        Iterator refPackIter = refPackElements.iterator();
++        while (refPackIter.hasNext())
++        {
++        	XMLElement el = (XMLElement) refPackIter.next();
+ 
+-        notifyCompilerListener(&quot;addPacks&quot;, CompilerListener.END, data);
++            // get the name of reference xml file
++        	String refFileName = requireAttribute(el, &quot;file&quot;);
++        	
++        	// Load the reference XML file
++        	
++        	// Initialises the parser
++            IXMLReader refXMLReader = null;
++            
++            File refXMLFile = new File(refFileName);
++            if (!refXMLFile.isAbsolute()) refXMLFile = new File(basedir, refFileName);
++            if (!refXMLFile.canRead()) {
++                throw new CompilerException(&quot;Invalid file: &quot; + refXMLFile);
++            }
++            
++            try
++            {
++            	refXMLReader = new StdXMLReader(new FileInputStream(refXMLFile.getAbsolutePath()));
++            }
++            catch (CompilerException c)
++            {
++            	throw new CompilerException(&quot;Compiler exception while reading refXMLFile&quot;);
++            }
++            catch (IOException io)
++            {
++            	throw new CompilerException(&quot;IOException exception while reading refXMLFile&quot;);
++            }
++            
++            StdXMLParser refXMLParser = new StdXMLParser();
++            refXMLParser.setBuilder(new StdXMLBuilder());
++            refXMLParser.setReader(refXMLReader);
++            refXMLParser.setValidator(new NonValidator());
++
++            // We get it
++            XMLElement refXMLData = null;
++            try
++            {
++                refXMLData = (XMLElement) refXMLParser.parse();
++            }
++            catch (XMLException x)
++            {
++                throw new CompilerException(&quot;Error parsing installation file&quot;, x);
++            }
++            
++            // Now checked the loaded XML file for basic syntax
++            // We check it
++            if (!&quot;installation&quot;.equalsIgnoreCase(refXMLData.getName())) {
++                parseError(refXMLData, &quot;this is not an IzPack XML installation file&quot;);
++            }
++            if (!VERSION.equalsIgnoreCase(requireAttribute(refXMLData, &quot;version&quot;))) {
++                parseError(refXMLData, &quot;the file version is different from the compiler version&quot;);
++            }
++            
++            // Read the properties and perform replacement on the rest of the tree
++            substituteProperties(refXMLData);
++            
++            // call addResources to add the referenced XML resources to this installation
++            addResources(refXMLData);
++            
++            // Recursively call myself to add all packs and refpacks from the reference XML
++            addPacksSingle(refXMLData);
++        }
++        notifyCompilerListener(&quot;addPacksSingle&quot;, CompilerListener.END, data);
+     }
+ 
+     /**
+@@ -1465,7 +1560,7 @@
+         }
+         else
+         {
+-            throw new CompilerException(&quot;Neither install file or text specified&quot;);
++            throw new CompilerException(&quot;Neither install file nor text specified&quot;);
+         }
+ 
+         StdXMLParser parser = new StdXMLParser();
+@@ -1487,7 +1582,7 @@
+         // We check it
+         if (!&quot;installation&quot;.equalsIgnoreCase(data.getName()))
+             parseError(data, &quot;this is not an IzPack XML installation file&quot;);
+-        if (!requireAttribute(data, &quot;version&quot;).equalsIgnoreCase(VERSION))
++        if (!VERSION.equalsIgnoreCase(requireAttribute(data, &quot;version&quot;)))
+             parseError(data, &quot;the file version is different from the compiler version&quot;);
+ 
+         // We finally return the tree
+@@ -1976,7 +2071,7 @@
+     private static String resolveIzPackHome(String home)
+     {
+         File test = new File(home, IZ_TEST_SUBDIR + File.separator + IZ_TEST_FILE);
+-        if( test != null &amp;&amp; test.exists())
++        if(test.exists())
+             return( home);
+         // Try to resolve the path using compiler.jar which also should be under
+         // IZPACK_HOME.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-05-11 19:38:20 UTC (rev 1831)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-05-12 13:30:52 UTC (rev 1832)
+@@ -293,4 +293,9 @@
+     {
+         return pack.name;
+     }
++
++    public void setPackImgId(String packImgId)
++    {
++        pack.packImgId = packImgId;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ImgPacksPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ImgPacksPanel.java	2007-05-11 19:38:20 UTC (rev 1831)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ImgPacksPanel.java	2007-05-12 13:30:52 UTC (rev 1832)
+@@ -29,7 +29,7 @@
+ import java.awt.GridBagLayout;
+ import java.awt.Insets;
+ import java.net.URL;
+-import java.util.ArrayList;
++import java.util.HashMap;
+ import java.util.Iterator;
+ 
+ import javax.swing.BorderFactory;
+@@ -39,6 +39,7 @@
+ import javax.swing.JScrollPane;
+ import javax.swing.event.ListSelectionEvent;
+ 
++import com.izforge.izpack.Pack;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.ResourceManager;
+@@ -63,7 +64,7 @@
+     private static final long serialVersionUID = 3977858492633659444L;
+ 
+     /** The images to display. */
+-    private ArrayList images;
++    private HashMap images;
+ 
+     /** The img label. */
+     private JLabel imgLabel;
+@@ -109,7 +110,19 @@
+         packsTable = createPacksTable(250, tableScroller, layout, gbConstraints);
+ 
+         // Create the image label with a scroller.
+-        imgLabel = new JLabel((ImageIcon) images.get(0));
++        // Use the image of the first pack having an image as initial image
++        Iterator pack_it = idata.availablePacks.iterator();
++        Pack firstImgPack = null;
++        boolean imgFound = false;
++        while ( !imgFound &amp;&amp; pack_it.hasNext()) {
++        	firstImgPack = (Pack) pack_it.next();
++        	imgFound = firstImgPack.packImgId != null;
++        }
++        if (imgFound) {
++        	imgLabel = new JLabel((ImageIcon) images.get(firstImgPack.packImgId));
++        } else {
++        	imgLabel = new JLabel();
++        }
+         JScrollPane imgScroller = new JScrollPane(imgLabel);
+         imgScroller.setPreferredSize(getPreferredSizeFromImages());
+         parent.buildConstraints(gbConstraints, 1, 1, 1, 1, 0.5, 1.0);
+@@ -159,18 +172,24 @@
+     private void preLoadImages()
+     {
+         int size = idata.availablePacks.size();
+-        images = new ArrayList(size);
+-        for (int i = 0; i &lt; size; i++)
+-            try
+-            {
+-                URL url = ResourceManager.getInstance().getURL(&quot;ImgPacksPanel.img.&quot; + i);
+-                ImageIcon img = new ImageIcon(url);
+-                images.add(img);
++        images = new HashMap(size);
++        Iterator pack_it = idata.availablePacks.iterator();
++        while (pack_it.hasNext())
++        {
++            Pack pack = (Pack) pack_it.next();
++            if (pack.packImgId != null) {
++                try
++                {
++                    URL url = ResourceManager.getInstance().getURL(pack.packImgId);
++                    ImageIcon img = new ImageIcon(url);
++                    images.put(pack.packImgId, img);
++                }
++                catch (Exception err)
++                {
++                    err.printStackTrace();
++                }
+             }
+-            catch (Exception err)
+-            {
+-                err.printStackTrace();
+-            }
++        }
+     }
+ 
+     /**
+@@ -183,7 +202,7 @@
+         int maxHeight = 60;
+         ImageIcon icon;
+ 
+-        for (Iterator it = images.iterator(); it.hasNext();)
++        for (Iterator it = images.values().iterator(); it.hasNext();)
+         {
+             icon = (ImageIcon) it.next();
+             maxWidth = Math.max(maxWidth, icon.getIconWidth());
+@@ -203,10 +222,18 @@
+      */
+     public void valueChanged(ListSelectionEvent e)
+     {
++        // this MUST be called before calling the super's valueChanged() since
++        // that method refreshes the tablemodel and thus deselects the 
++        // just selected row
++        int i = packsTable.getSelectedRow(); 
+         super.valueChanged(e);
+-        int i = packsTable.getSelectedRow();
+-        if (i &gt;= 0) imgLabel.setIcon((ImageIcon) images.get(i));
+-
++        if (i &lt; 0) {
++            return;
++        }
++        if (i &gt;= 0) {
++            Pack pack = (Pack) idata.availablePacks.get(i);
++            imgLabel.setIcon((ImageIcon) images.get(pack.packImgId));
++        }
+     }
+ 
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000577.html">[izpack-changes] r1831 - in izpack-src/tags: . 3.10.2 3.10.2/src	3.10.2/src/dist-files 3.10.2/src/lib/com/izforge/izpack/compiler
+</A></li>
+	<LI>Next message: <A HREF="000579.html">[izpack-changes] r1833 - in izpack-src/trunk: . src/dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#578">[ date ]</a>
+              <a href="thread.html#578">[ thread ]</a>
+              <a href="subject.html#578">[ subject ]</a>
+              <a href="author.html#578">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

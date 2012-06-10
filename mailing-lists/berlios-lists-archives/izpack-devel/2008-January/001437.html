@@ -1,0 +1,374 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] [izpack-users] Problems with localizing	shortcuts.
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20%5Bizpack-users%5D%20Problems%20with%20localizing%0A%09shortcuts.&In-Reply-To=000901c85b5b%2434cc60a0%249e6521e0%24%40com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001436.html">
+   <LINK REL="Next"  HREF="001438.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] [izpack-users] Problems with localizing	shortcuts.</H1>
+    <B>Lo&#239;c</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20%5Bizpack-users%5D%20Problems%20with%20localizing%0A%09shortcuts.&In-Reply-To=000901c85b5b%2434cc60a0%249e6521e0%24%40com"
+       TITLE="[izpack-devel] [izpack-users] Problems with localizing	shortcuts.">lbndev at yahoo.fr
+       </A><BR>
+    <I>Sun Jan 20 18:47:39 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001436.html">[izpack-devel] TreePacksPanel - documentation update
+</A></li>
+        <LI>Next message: <A HREF="001438.html">[izpack-devel] [izpack-users] Problems with localizing	shortcuts.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1437">[ date ]</a>
+              <a href="thread.html#1437">[ thread ]</a>
+              <a href="subject.html#1437">[ subject ]</a>
+              <a href="author.html#1437">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Christian,
+
+Happy to see it works for you.
+Now what is strange is that this patch has been committed a long time 
+ago. Not quite the fix you got, but an improved version by Klaus Bartz.
+However, I just checked out latest SVN and notice the same thing. I have 
+no clue why it has disappeared from SVN again (yes, again, it already 
+happened back in april).
+
+Crossposting to izpack-devel for correction.
+Here is an extract from Klaus' mail, along with the correct patch. 
+Julien, can you commit this ?
+
+----- Message d'origine ----
+De : &quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>&gt;
+&#192; : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Envoy&#233; le : Vendredi, 27 Avril 2007, 11h54mn 35s
+Objet : Re: [izpack-devel] Re : [izpack-users] Re : Tr : Localizingshortcuts
+
+[... snip ...]
+
+Modified: 
+izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- 
+izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java    2007-04-24 
+14:50:54 UTC (rev 1818)
++++ 
+izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java    2007-04-27 
+09:34:36 UTC (rev 1819)
+@@ -756,11 +756,12 @@
+
+         try
+         {
+-            input = 
+parent.getResource(TargetFactory.getCurrentOSPrefix() + SPEC_FILE_NAME);
++            input = ResourceManager.getInstance().getInputStream(
++                    TargetFactory.getCurrentOSPrefix() +
++ SPEC_FILE_NAME);
+         }
+         catch (ResourceNotFoundException rnfE)
+         {
+-            input = parent.getResource(SPEC_FILE_NAME);
++            input =
++ ResourceManager.getInstance().getInputStream(SPEC_FILE_NAME);
+         }
+
+         if (input == null)
+
+----- Fin du message d'origine ----
+
+Thanks everyone,
+
+Lo&#239;c
+
+Christian-Josef Schrattenthaler a &#233;crit :
+&gt;<i>
+</I>&gt;<i> Hi Lo&#239;c!
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> I did it!
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> I used my Newsreader to search in the Mailinglist (news.gmane.org -&gt; 
+</I>&gt;<i> gmane.comp.java.izpack.user), and there I found your posting from 
+</I>&gt;<i> 24.04.2007/11:14. I changed the code of the actual trunk under 
+</I>&gt;<i> src/lib, package com.izforge.izpack.panels, file ShortcutPanel.java from:
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> *** Original ***
+</I>&gt;<i>
+</I>&gt;<i> try
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i> input = parent.getResource(TargetFactory.getCurrentOSPrefix() + 
+</I>&gt;<i> SPEC_FILE_NAME);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> catch (ResourceNotFoundException rnfE)
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i> input = parent.getResource(SPEC_FILE_NAME);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> if (input == null)
+</I>&gt;<i>
+</I>&gt;<i> ****************
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> to
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> *** Changes ***
+</I>&gt;<i>
+</I>&gt;<i> try
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i> // Find os-&amp;-language-specific spec
+</I>&gt;<i>
+</I>&gt;<i> input = parent.getResource(TargetFactory.getCurrentOSPrefix() + 
+</I>&gt;<i> SPEC_FILE_NAME + &quot;_&quot; + idata.localeISO3);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> catch (ResourceNotFoundException rnfe)
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i> try
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i> // Not found ? Try generic OS but language-specific
+</I>&gt;<i>
+</I>&gt;<i> input = parent.getResource(SPEC_FILE_NAME + &quot;_&quot; + idata.localeISO3);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> catch (ResourceNotFoundException rnfe2)
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i> // Still not found ? Maybe generic language but OS-specific ?
+</I>&gt;<i>
+</I>&gt;<i> try
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i> input = parent.getResource(TargetFactory.getCurrentOSPrefix() + 
+</I>&gt;<i> SPEC_FILE_NAME);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> catch (ResourceNotFoundException rnfe3)
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i> // Can't find anything specific : falling back to default
+</I>&gt;<i>
+</I>&gt;<i> input = parent.getResource(SPEC_FILE_NAME);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> if (input == null)
+</I>&gt;<i>
+</I>&gt;<i> ****************
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> Than I did the Ant Build, changed the files in my IzPack installation, 
+</I>&gt;<i> and created a new installation of my testapplication. Now the shortcut 
+</I>&gt;<i> system is working well.
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> I don't know how, but I think we have to tell this to the developers 
+</I>&gt;<i> of IzPack!?
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> Greetings &amp; thanks,
+</I>&gt;<i>
+</I>&gt;<i> Christian.
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> *Von:* <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A>] *Im Auftrag von 
+</I>&gt;<i> *Christian-Josef Schrattenthaler
+</I>&gt;<i> *Gesendet:* Sonntag, 20. J&#228;nner 2008 08:49
+</I>&gt;<i> *An:* <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> *Betreff:* Re: [izpack-users] Problems with localizing shortcuts.
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> Hi Lo&#239;c!
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> At first: Thank you for your help!
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> I downloaded the newest trunk from the svn, and built it under eclipse 
+</I>&gt;<i> over ant as you described. After that I replaced the old IzPack 
+</I>&gt;<i> Installation files with the new files from my build.
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> Than I made a new installation form my testapplication. The same 
+</I>&gt;<i> result as before. The shurtcuts are always in english.
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> Any idea?
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> Greatings,
+</I>&gt;<i>
+</I>&gt;<i> Christian.
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> *Von:* <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A>] *Im Auftrag von *Lo&#239;c
+</I>&gt;<i> *Gesendet:* Samstag, 19. J&#228;nner 2008 21:04
+</I>&gt;<i> *An:* <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> *Betreff:* Re: [izpack-users] Problems with localizing shortcuts.
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>&gt;<i> Open &lt;sourcedir&gt;/src/build.xml in Eclipse.
+</I>&gt;<i> The Ant view will show up : use it to compile what you need (either 
+</I>&gt;<i> the installer =&gt; target &quot;dist&quot; and/or the standalone compiler for 
+</I>&gt;<i> inclusion into your own Ant buildfile =&gt; target 
+</I>&gt;<i> &quot;build.standalone-compiler&quot;).
+</I>&gt;<i> Full instructions are in the comments at the beginning of build.xml
+</I>&gt;<i>
+</I>&gt;<i> Christian-Josef Schrattenthaler a &#233;crit :
+</I>&gt;<i>
+</I>&gt;<i> Hi Lo&#239;c!
+</I>&gt;<i>  
+</I>&gt;<i> No, I used the official version from the Website.
+</I>&gt;<i>  
+</I>&gt;<i> Now I downloaded the newest trunk (1990) over Subclipse as new project into
+</I>&gt;<i> my eclipse.
+</I>&gt;<i>  
+</I>&gt;<i> Painful, but I don't know what to do now. I looked on the files, but there
+</I>&gt;<i> are some files missing. For example the 'compile.jar'.
+</I>&gt;<i>  
+</I>&gt;<i> Please can you, or anybody else, tell me, how to create an installer for
+</I>&gt;<i> this version, so that I can change my installed version, with the version of
+</I>&gt;<i> the SVN?
+</I>&gt;<i>  
+</I>&gt;<i> Thnaks,
+</I>&gt;<i> Christian.
+</I>&gt;<i>  
+</I>&gt;<i> -----Urspr&#252;ngliche Nachricht-----
+</I>&gt;<i> Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A> &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A>&gt;
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von Lo&#239;c
+</I>&gt;<i> Gesendet: Samstag, 19. J&#228;nner 2008 14:12
+</I>&gt;<i> An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users at lists.berlios.de</A> &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-users at lists.berlios.de</A>&gt;
+</I>&gt;<i> Betreff: Re: [izpack-users] Problems with localizing shortcuts.
+</I>&gt;<i>  
+</I>&gt;<i> Christian-Josef Schrattenthaler a &#233;crit :
+</I>&gt;<i>   
+</I>&gt;<i>
+</I>&gt;<i>     Hi!
+</I>&gt;<i>
+</I>&gt;<i>      
+</I>&gt;<i>
+</I>&gt;<i>     I want to localize my shortcuts, but it does not work.
+</I>&gt;<i>
+</I>&gt;<i>      
+</I>&gt;<i>
+</I>&gt;<i>     I have the following entries in my install.xml
+</I>&gt;<i>
+</I>&gt;<i>      
+</I>&gt;<i>
+</I>&gt;<i>     &lt;res src=&quot;IzPack/shortcutSpec.xml&quot; id=&quot;shortcutSpec.xml&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>     &lt;res src=&quot;IzPack/shortcutSpec_deu.xml&quot; id=&quot;shortcutSpec.xml_deu&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>      
+</I>&gt;<i>
+</I>&gt;<i>     Both files have the same content, expect the one has englisch texts and
+</I>&gt;<i>
+</I>&gt;<i>         
+</I>&gt;<i>
+</I>&gt;<i> the
+</I>&gt;<i>   
+</I>&gt;<i>
+</I>&gt;<i>     other has german texts.
+</I>&gt;<i>
+</I>&gt;<i>      
+</I>&gt;<i>
+</I>&gt;<i>     If I do the installation, always the englisch texts are used.
+</I>&gt;<i>
+</I>&gt;<i>      
+</I>&gt;<i>
+</I>&gt;<i>     Do you have any hints for me?
+</I>&gt;<i>
+</I>&gt;<i>       
+</I>&gt;<i>
+</I>&gt;<i>         
+</I>&gt;<i>
+</I>&gt;<i>  
+</I>&gt;<i> Are you using the latest izPack from svn ? This has just been fixed some 
+</I>&gt;<i> time ago.
+</I>&gt;<i>  
+</I>&gt;<i> Have a nice weekend,
+</I>&gt;<i>  
+</I>&gt;<i> Lo&#239;c
+</I>&gt;<i>  
+</I>&gt;<i>  
+</I>&gt;<i>  
+</I>&gt;<i>
+</I>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20080120/82233d5c/attachment-0001.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20080120/82233d5c/attachment-0001.html</A> 
+</PRE>
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001436.html">[izpack-devel] TreePacksPanel - documentation update
+</A></li>
+	<LI>Next message: <A HREF="001438.html">[izpack-devel] [izpack-users] Problems with localizing	shortcuts.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1437">[ date ]</a>
+              <a href="thread.html#1437">[ thread ]</a>
+              <a href="subject.html#1437">[ subject ]</a>
+              <a href="author.html#1437">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

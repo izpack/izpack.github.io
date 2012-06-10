@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] On MacOS X, os=&quot;unix&quot; packs also install
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20On%20MacOS%20X%2C%20os%3D%22unix%22%20packs%20also%20install&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000522.html">
+   <LINK REL="Next"  HREF="000524.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] On MacOS X, os=&quot;unix&quot; packs also install</H1>
+    <B>Miraodb</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20On%20MacOS%20X%2C%20os%3D%22unix%22%20packs%20also%20install&In-Reply-To="
+       TITLE="[izpack-users] On MacOS X, os=&quot;unix&quot; packs also install">miraodb at hotmail.com
+       </A><BR>
+    <I>Fri May 12 16:46:15 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000522.html">[izpack-users] On MacOS X, os=&quot;unix&quot; packs also install
+</A></li>
+        <LI>Next message: <A HREF="000524.html">[izpack-users] Izpack installable required
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#525">[ date ]</a>
+              <a href="thread.html#525">[ thread ]</a>
+              <a href="subject.html#525">[ subject ]</a>
+              <a href="author.html#525">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Oscar,
+
+Try this:
+
+&lt;packs&gt;
+  &lt;pack name=&quot;Base&quot; required=&quot;yes&quot;&gt;
+    &lt;description&gt;The base files&lt;/description&gt;
+    &lt;file src=&quot;main/Progressor.jar&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+    &lt;file src=&quot;main/ProgressorButler.jar&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+    &lt;file src=&quot;main/config_pb&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+  &lt;/pack&gt;
+  &lt;pack name=&quot;Libs&quot; required=&quot;yes&quot;&gt;
+    &lt;description&gt;The libraries&lt;/description&gt;
+    &lt;fileset dir=&quot;libs-common&quot; targetdir=&quot;/Library/Java/Extensions/&quot;
+os=&quot;mac&quot;/&gt;
+    &lt;fileset dir=&quot;libs-mac&quot; targetdir=&quot;/Library/Java/Extensions/&quot; os=&quot;mac&quot;/&gt;
+    &lt;fileset dir=&quot;libs-common&quot; targetdir=&quot;$JAVA_HOME/lib/ext/&quot;
+os=&quot;windows&quot;/&gt;
+    &lt;fileset dir=&quot;libs-win/bin/&quot; targetdir=&quot;$JAVA_HOME/bin/&quot; os=&quot;windows&quot;/&gt;
+    &lt;fileset dir=&quot;libs-win/lib/ext/&quot; targetdir=&quot;$JAVA_HOME/lib/ext/&quot;
+os=&quot;windows&quot;/&gt;
+    &lt;fileset dir=&quot;libs-common&quot; targetdir=&quot;$JAVA_HOME/lib/ext/&quot; os=&quot;unix&quot;/&gt;
+    &lt;fileset dir=&quot;libs-win/bin/&quot; targetdir=&quot;$JAVA_HOME/bin/&quot; os=&quot;unix&quot;/&gt;
+    &lt;fileset dir=&quot;libs-win/lib/ext/&quot; targetdir=&quot;$JAVA_HOME/lib/ext/&quot;
+os=&quot;unix&quot;/&gt;
+  &lt;/pack&gt;
+&lt;/packs&gt;
+
+
+Cheers,
+Fabrice
+
+----- Original Message ----- 
+From: &quot;Oscar Miguel Lopes Sarabando&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">etoscar at ua.pt</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+Sent: Thursday, May 11, 2006 11:24 AM
+Subject: [izpack-users] On MacOS X, os=&quot;unix&quot; packs also install
+
+
+&gt;<i>
+</I>&gt;<i> Hi!
+</I>&gt;<i>
+</I>&gt;<i> I'd like to start by thanking everyone involved in IzPack!
+</I>&gt;<i> It really is a great, flexible installer!
+</I>&gt;<i>
+</I>&gt;<i> Although my needs are quite basic as of now, I've run into
+</I>&gt;<i> a problem. I specify my packs on the install.xml file like
+</I>&gt;<i> this:
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>      &lt;packs&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          &lt;pack name=&quot;Base&quot; required=&quot;yes&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>              &lt;description&gt;The base files&lt;/description&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>              &lt;file src=&quot;main/Progressor.jar&quot;
+</I>&gt;<i> targetdir=&quot;$INSTALL_PATH&quot; /&gt;
+</I>&gt;<i>              &lt;file src=&quot;main/ProgressorButler.jar&quot;
+</I>&gt;<i> targetdir=&quot;$INSTALL_PATH&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>              &lt;file src=&quot;main/config_pb&quot;
+</I>&gt;<i> targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          &lt;/pack&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          &lt;pack name=&quot;Libs-Mac&quot; required=&quot;yes&quot; os=&quot;mac&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>              &lt;description&gt;The libraries for
+</I>&gt;<i> Mac&lt;/description&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>              &lt;fileset dir=&quot;libs-common&quot;
+</I>&gt;<i> targetdir=&quot;/Library/Java/Extensions/&quot;/&gt;
+</I>&gt;<i>              &lt;fileset dir=&quot;libs-mac&quot;
+</I>&gt;<i> targetdir=&quot;/Library/Java/Extensions/&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          &lt;/pack&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          &lt;pack name=&quot;Libs-Win&quot; required=&quot;yes&quot;
+</I>&gt;<i> os=&quot;windows&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>              &lt;description&gt;The libraries for
+</I>&gt;<i> Win&lt;/description&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>              &lt;fileset dir=&quot;libs-common&quot;
+</I>&gt;<i> targetdir=&quot;$JAVA_HOME/lib/ext/&quot;/&gt;
+</I>&gt;<i>              &lt;fileset dir=&quot;libs-win/bin/&quot;
+</I>&gt;<i> targetdir=&quot;$JAVA_HOME/bin/&quot;/&gt;
+</I>&gt;<i>              &lt;fileset dir=&quot;libs-win/lib/ext/&quot;
+</I>&gt;<i> targetdir=&quot;$JAVA_HOME/lib/ext/&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          &lt;/pack&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          &lt;pack name=&quot;Libs-Linux&quot; required=&quot;yes&quot; os=&quot;unix&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>              &lt;description&gt;The libraries for
+</I>&gt;<i> Linux&lt;/description&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>              &lt;fileset dir=&quot;libs-common&quot;
+</I>&gt;<i> targetdir=&quot;$JAVA_HOME/lib/ext/&quot;/&gt;
+</I>&gt;<i>              &lt;fileset dir=&quot;libs-win/bin/&quot;
+</I>&gt;<i> targetdir=&quot;$JAVA_HOME/bin/&quot;/&gt;
+</I>&gt;<i>              &lt;fileset dir=&quot;libs-win/lib/ext/&quot;
+</I>&gt;<i> targetdir=&quot;$JAVA_HOME/lib/ext/&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          &lt;/pack&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>      &lt;/packs&gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Trouble is, on MacOS X, both os=&quot;mac&quot; and os=&quot;unix&quot;
+</I>&gt;<i> defined packs appear on the Packs Panel and are
+</I>&gt;<i> installed... am I doing something really wrong? I searched
+</I>&gt;<i> the mailling list and found some references to this
+</I>&gt;<i> problem, but no solutions. I also tried the &lt;os&gt; tag with
+</I>&gt;<i> family=&quot;unix&quot;, but results are the same.
+</I>&gt;<i>
+</I>&gt;<i> Can anyone help me? Thanks!
+</I>&gt;<i> --
+</I>&gt;<i> &#211;scar Sarabando
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000522.html">[izpack-users] On MacOS X, os=&quot;unix&quot; packs also install
+</A></li>
+	<LI>Next message: <A HREF="000524.html">[izpack-users] Izpack installable required
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#525">[ date ]</a>
+              <a href="thread.html#525">[ thread ]</a>
+              <a href="subject.html#525">[ subject ]</a>
+              <a href="author.html#525">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

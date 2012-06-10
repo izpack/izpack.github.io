@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How to pass the information about selected packs to Ant?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20to%20pass%20the%20information%20about%20selected%20packs%20to%20Ant%3F&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000515.html">
+   <LINK REL="Next"  HREF="000517.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How to pass the information about selected packs to Ant?</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20to%20pass%20the%20information%20about%20selected%20packs%20to%20Ant%3F&In-Reply-To="
+       TITLE="[izpack-users] How to pass the information about selected packs to Ant?">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Mon May  8 14:50:24 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000515.html">[izpack-users] How to pass the information about selected packs to Ant?
+</A></li>
+        <LI>Next message: <A HREF="000517.html">[izpack-users] Language dependant file installation?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#516">[ date ]</a>
+              <a href="thread.html#516">[ thread ]</a>
+              <a href="subject.html#516">[ subject ]</a>
+              <a href="author.html#516">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Stefan,
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Stefan Wachter
+</I>&gt;<i>Sent: Monday, May 08, 2006 10:08 AM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-users] How to pass the information about selected
+</I>&gt;<i>packs to Ant?
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi Klaus,
+</I>&gt;<i>
+</I>&gt;<i>thanks for the information. Can you please give some more details for 
+</I>&gt;<i>the second option? How would a custom action look like that shifts the 
+</I>&gt;<i>information about selected packs into an IzPack-Variable?
+</I>&gt;<i>
+</I>
+You know, there is a description of custom actions in the docu. Sometimes
+the first custom action needs a little bit more time as the secound etc.
+because there are some steps to include it into your installation.
+
+If custom panels are easier for you, you can use one for your needs.
+You can create non-visible custom panels.
+
+
+&gt;<i>Based on my current knowledge I would implement an 
+</I>&gt;<i>InstallerListener and 
+</I>&gt;<i>implement the method beforePacks. 
+</I>
+Use beforePacks only if you need the action realy before something will
+be installed. You cannot use anything of your product at this point.
+
+
+&gt;<i> Using the 
+</I>&gt;<i>AutomatedInstallData.selectedPacks member I would define  a variable 
+</I>&gt;<i>using the setVariable method of the AutomatiedInstallData object.
+</I>&gt;<i>
+</I>
+Yes, that's the way.
+
+&gt;<i>Do you agree with this proceeding? What kind of object is contained in 
+</I>&gt;<i>the selectedPacks member? Are there plain strings in this list?
+</I>&gt;<i>
+</I>
+No, the List contains Packs. Use
+
+  Iterator iter = idata.selectedPacks.iterator();
+  while (iter.hasNext())
+  {
+    String currentPack = ((Pack) iter.next()).name;
+    doWhatYouNeed(currentPack);
+  }
+
+  This code snipet is from AntInstallerLister.afterPacks.
+
+
+&gt;<i>Regards,
+</I>&gt;<i>--Stefan
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+Cheers
+
+Klaus
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000515.html">[izpack-users] How to pass the information about selected packs to Ant?
+</A></li>
+	<LI>Next message: <A HREF="000517.html">[izpack-users] Language dependant file installation?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#516">[ date ]</a>
+              <a href="thread.html#516">[ thread ]</a>
+              <a href="subject.html#516">[ subject ]</a>
+              <a href="author.html#516">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

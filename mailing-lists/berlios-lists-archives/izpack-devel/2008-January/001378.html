@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] InstallationGroupPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20InstallationGroupPanel&In-Reply-To=9291ebe10801100911q6b8711c2ra13d58c39add2765%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001376.html">
+   <LINK REL="Next"  HREF="001380.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] InstallationGroupPanel</H1>
+    <B>Jeff Gordon</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20InstallationGroupPanel&In-Reply-To=9291ebe10801100911q6b8711c2ra13d58c39add2765%40mail.gmail.com"
+       TITLE="[izpack-devel] InstallationGroupPanel">jeff.not24 at gmail.com
+       </A><BR>
+    <I>Thu Jan 10 22:39:14 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001376.html">[izpack-devel] InstallationGroupPanel
+</A></li>
+        <LI>Next message: <A HREF="001380.html">[izpack-devel] InstallationGroupPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1378">[ date ]</a>
+              <a href="thread.html#1378">[ thread ]</a>
+              <a href="subject.html#1378">[ subject ]</a>
+              <a href="author.html#1378">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>No problem,
+
+I also have 2 other additions, but they are much more involved (I'm using
+this in production by the way for a very well known company with global
+reach).  They are multiple validator support and validators.
+
+I added multiple validator support with parameters to the UserInputPanel
+password field (it shouldn't break any existing validators).  I also took
+the sample equality validator and made a PasswordEqualityValidator (which I
+believe should be included as part of the primary distribution), and a
+PasswordKeystoreValidator (which may be of some interest, but whether it
+gets nominated for inclusion would be up to you and the group).
+
+As an example, the PasswordEqualityValidator is below to show how the
+parameters can be evaluated.  The PasswordKeystoreValidator is a bit longer,
+but I can post that as well if anyone would like to see it.
+
+- Jeff Gordon
+
+
+----- PasswordEqualityValidator.java -----
+
+package com.izforge.izpack.panels;
+
+import java.util.Map;
+
+public class PasswordEqualityValidator implements Validator {
+  public boolean validate(ProcessingClient client) {
+    boolean returnValue = false;
+    Map params = getParams(client);
+    try {
+      returnValue = fieldsMatch(client);
+      if (returnValue) {
+        // Additional checking if params passed...
+        if (params!=null) {
+          System.out.println(&quot;Additional &quot;+params.size()+&quot; params not
+evaluated&quot;);
+        }
+      }
+    } catch (Exception e) {
+      System.out.println(&quot;validate() Failed: &quot;+e);
+    }
+    return (returnValue);
+  }
+
+  private Map getParams(ProcessingClient client) {
+    PasswordGroup group = null;
+    Map params = null;
+    try {
+      group = (PasswordGroup)client;
+      if (group.hasParams()) {
+        params = group.getValidatorParams();
+      }
+    } catch (Exception e) {
+      System.out.println(&quot;getParams() Failed: &quot;+e);
+    }
+    return (params);
+  }
+
+  private boolean fieldsMatch(ProcessingClient client) {
+    boolean returnValue = true;
+    int numFields = client.getNumFields();
+    // ----------------------------------------------------
+    // verify that there is more than one field. If there
+    // is only one field we have to return true.
+    // ----------------------------------------------------
+    if (numFields &lt; 2) {
+      returnValue = true;
+    } else {
+      String content = client.getFieldContents(0);
+      for (int i = 1; i &lt; numFields; i++) {
+        if (!content.equals(client.getFieldContents(i))) {
+          returnValue = false;
+        }
+      }
+    }
+    return returnValue;
+  }
+
+}
+
+
+On Jan 10, 2008 9:11 AM, Julien Ponge &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">julien.ponge at gmail.com</A>&gt; wrote:
+
+&gt;<i> Hi Jeff, Sylvain,
+</I>&gt;<i>
+</I>&gt;<i> I will review your submissions shortly.
+</I>&gt;<i>
+</I>&gt;<i> Thanks a lot your feedback ;-)
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20080110/3df7d1a7/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20080110/3df7d1a7/attachment.html</A> 
+</PRE>
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001376.html">[izpack-devel] InstallationGroupPanel
+</A></li>
+	<LI>Next message: <A HREF="001380.html">[izpack-devel] InstallationGroupPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1378">[ date ]</a>
+              <a href="thread.html#1378">[ thread ]</a>
+              <a href="subject.html#1378">[ subject ]</a>
+              <a href="author.html#1378">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

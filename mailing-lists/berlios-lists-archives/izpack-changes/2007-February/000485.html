@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1739 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1739%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000484.html">
+   <LINK REL="Next"  HREF="000486.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1739 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1739%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1739 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Fri Feb 16 15:16:22 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000484.html">[izpack-changes] r1738 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000486.html">[izpack-changes] r1740 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#485">[ date ]</a>
+              <a href="thread.html#485">[ thread ]</a>
+              <a href="subject.html#485">[ subject ]</a>
+              <a href="author.html#485">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-02-16 15:16:21 +0100 (Fri, 16 Feb 2007)
+New Revision: 1739
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+Log:
+Allow fully specified condition class names
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-02-16 13:26:58 UTC (rev 1738)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-02-16 14:16:21 UTC (rev 1739)
+@@ -92,13 +92,18 @@
+         Condition result = null;
+         if (condtype != null)
+         {
+-
+-            String conditiontype = condtype.toLowerCase();
+-            // TODO: externalize package name
+-            String conditionclassname = &quot;com.izforge.izpack.rules.&quot;
++            String conditionclassname = &quot;&quot;;
++            if (condtype.indexOf('.')&gt; -1){
++                conditionclassname = condtype;
++            }
++            else {
++                String conditiontype = condtype.toLowerCase();
++                //  TODO: externalize package name
++                conditionclassname = &quot;com.izforge.izpack.rules.&quot;
+                     + conditiontype.substring(0, 1).toUpperCase()
+                     + conditiontype.substring(1, conditiontype.length());
+-            conditionclassname += &quot;Condition&quot;;
++                conditionclassname += &quot;Condition&quot;;
++            }
+             ClassLoader loader = ClassLoader.getSystemClassLoader();
+             try
+             {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000484.html">[izpack-changes] r1738 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000486.html">[izpack-changes] r1740 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#485">[ date ]</a>
+              <a href="thread.html#485">[ thread ]</a>
+              <a href="subject.html#485">[ subject ]</a>
+              <a href="author.html#485">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

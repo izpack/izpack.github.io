@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Questions on getting up and running with Izpack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Questions%20on%20getting%20up%20and%20running%20with%20Izpack&In-Reply-To=472883B6.3040504%40fastmail.fm">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001740.html">
+   <LINK REL="Next"  HREF="001744.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Questions on getting up and running with Izpack</H1>
+    <B>Paul Taylor</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Questions%20on%20getting%20up%20and%20running%20with%20Izpack&In-Reply-To=472883B6.3040504%40fastmail.fm"
+       TITLE="[izpack-users] Questions on getting up and running with Izpack">paul_t100 at fastmail.fm
+       </A><BR>
+    <I>Mon Nov  5 12:33:54 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001740.html">[izpack-users] How can I pass $APP_VER from Ant to Izpack?
+</A></li>
+        <LI>Next message: <A HREF="001744.html">[izpack-users] Shortcuts not displaying on Linux Fedora System
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1743">[ date ]</a>
+              <a href="thread.html#1743">[ thread ]</a>
+              <a href="subject.html#1743">[ subject ]</a>
+              <a href="author.html#1743">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi
+
+FYI Ive fixed the problem after alot of hair pulling, running the 
+installer with debugging
+
+    java -DTRACE=true -DSTACKTRACE=true -jar install.jar
+
+gave this output:
+
+Current Panel: UNKNOWN
+can show panel with id UNKNOWN ?
+no condition, show panel
+could not read shortcut spec!
+net.n3.nanoxml.XMLParseException: Expected: delimited string, 
+SystemID='file:.', Line=13
+        at net.n3.nanoxml.XMLUtil.errorExpectedInput(XMLUtil.java:427)
+        at net.n3.nanoxml.XMLUtil.scanString(XMLUtil.java:209)
+        at 
+net.n3.nanoxml.StdXMLParser.processAttribute(StdXMLParser.java:539)
+        at net.n3.nanoxml.StdXMLParser.processElement(StdXMLParser.java:429)
+        at net.n3.nanoxml.StdXMLParser.scanSomeTag(StdXMLParser.java:261)
+        at net.n3.nanoxml.StdXMLParser.processElement(StdXMLParser.java:508)
+        at net.n3.nanoxml.StdXMLParser.scanSomeTag(StdXMLParser.java:261)
+        at net.n3.nanoxml.StdXMLParser.scanData(StdXMLParser.java:221)
+        at net.n3.nanoxml.StdXMLParser.parse(StdXMLParser.java:194)
+        at 
+com.izforge.izpack.panels.ShortcutPanel.readShortcutSpec(ShortcutPanel.java:799)
+        at 
+com.izforge.izpack.panels.ShortcutPanel.panelActivate(ShortcutPanel.java:597)
+        at 
+com.izforge.izpack.installer.InstallerFrame.switchPanel(InstallerFrame.java:823)
+     
+showing that it was in fact trying to show the Shortcut Panel , and had 
+problem with the shortcut file
+
+turns out my file was misisng a &quot; in the xml I had programGroup=yes&quot; 
+instaead of programGroup=&quot;yes&quot;, so it was my mistake but could be good 
+if izpack could have detected
+this problem at build time, the best method would be by adding an xsd 
+(xml schema definition) that it would validated against at build time.
+
+Paul
+
+
+Paul Taylor wrote:
+&gt;<i> Hi Joseph
+</I>&gt;<i>
+</I>&gt;<i> Sorry I didnt reply earlier, I tried your solution but it didnt make 
+</I>&gt;<i> any difference. I then though there might a problem with building it 
+</I>&gt;<i> on Windows Vista, got distracted and worked on something else. I have 
+</I>&gt;<i> since found another Izpack installation for a different program, built 
+</I>&gt;<i> it and deployed on Vista with shortcust successfully,  so thats not 
+</I>&gt;<i> the problem . Ive made numerous minor modiifications to my build file 
+</I>&gt;<i> and shortcut file, and then end result is always the same , it always 
+</I>&gt;<i> installs but NEVER shows the shortcut panel., Im building using ant. 
+</I>&gt;<i> My biggest confusion is over the Shelllink.dll file , where does it 
+</I>&gt;<i> have to be and is it distributed with the installtion ? It driving me 
+</I>&gt;<i> a bit mad now, Ive shown the latest files below, in case anyone can 
+</I>&gt;<i> see a problem.
+</I>&gt;<i>
+</I>&gt;<i> thanks paul
+</I>
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001740.html">[izpack-users] How can I pass $APP_VER from Ant to Izpack?
+</A></li>
+	<LI>Next message: <A HREF="001744.html">[izpack-users] Shortcuts not displaying on Linux Fedora System
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1743">[ date ]</a>
+              <a href="thread.html#1743">[ thread ]</a>
+              <a href="subject.html#1743">[ subject ]</a>
+              <a href="author.html#1743">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,394 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1558 - in izpack-src/trunk: . src src/dist-files
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1558%20-%20in%20izpack-src/trunk%3A%20.%20src%20src/dist-files&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000302.html">
+   <LINK REL="Next"  HREF="000304.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1558 - in izpack-src/trunk: . src src/dist-files</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1558%20-%20in%20izpack-src/trunk%3A%20.%20src%20src/dist-files&In-Reply-To="
+       TITLE="[izpack-changes] r1558 - in izpack-src/trunk: . src src/dist-files">noreply at berlios.de
+       </A><BR>
+    <I>Mon Sep  4 03:16:11 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000302.html">[izpack-changes] r1557 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000304.html">[izpack-changes] r1559 - in izpack-src/trunk/src: dist-files	doc-ng/XHTML lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#303">[ date ]</a>
+              <a href="thread.html#303">[ thread ]</a>
+              <a href="subject.html#303">[ subject ]</a>
+              <a href="author.html#303">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-09-04 03:15:41 +0200 (Mon, 04 Sep 2006)
+New Revision: 1558
+
+Removed:
+   izpack-src/trunk/src/dist-files/IzPack-install-reg.xml
+Modified:
+   izpack-src/trunk/IzPack-head.ipr
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/dist-files/IzPack-install.xml
+Log:
+Merged the normal and registry-enabled installers.
+
+Modified: izpack-src/trunk/IzPack-head.ipr
+===================================================================
+--- izpack-src/trunk/IzPack-head.ipr	2006-09-01 19:08:26 UTC (rev 1557)
++++ izpack-src/trunk/IzPack-head.ipr	2006-09-04 01:15:41 UTC (rev 1558)
+@@ -188,7 +188,7 @@
+       &lt;module fileurl=&quot;<A HREF="file://$PROJECT_DIR$/IzPack-head.iml&quot;">file://$PROJECT_DIR$/IzPack-head.iml&quot;</A> filepath=&quot;$PROJECT_DIR$/IzPack-head.iml&quot; /&gt;
+     &lt;/modules&gt;
+   &lt;/component&gt;
+-  &lt;component name=&quot;ProjectRootManager&quot; version=&quot;2&quot; assert-keyword=&quot;true&quot; jdk-15=&quot;false&quot; project-jdk-name=&quot;1.5&quot; /&gt;
++  &lt;component name=&quot;ProjectRootManager&quot; version=&quot;2&quot; assert-keyword=&quot;true&quot; jdk-15=&quot;false&quot; project-jdk-name=&quot;IDEA 4267&quot; /&gt;
+   &lt;component name=&quot;RmicSettings&quot;&gt;
+     &lt;option name=&quot;IS_EANABLED&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
+@@ -196,6 +196,7 @@
+     &lt;option name=&quot;GENERATE_IIOP_STUBS&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;ADDITIONAL_OPTIONS_STRING&quot; value=&quot;&quot; /&gt;
+   &lt;/component&gt;
++  &lt;component name=&quot;XSLT-Support.FileAssociationsManager&quot; /&gt;
+   &lt;component name=&quot;libraryTable&quot; /&gt;
+   &lt;component name=&quot;uidesigner-configuration&quot;&gt;
+     &lt;option name=&quot;INSTRUMENT_CLASSES&quot; value=&quot;true&quot; /&gt;
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2006-09-01 19:08:26 UTC (rev 1557)
++++ izpack-src/trunk/Versions.txt	2006-09-04 01:15:41 UTC (rev 1558)
+@@ -41,8 +41,10 @@
+   name differs in case from the founded class name (Klaus Bartz).
+ - Re-Activated Shortcut Support for the Automated Installation (Marc Eppelmann).
+ - Expanded Debug.log()'s possibility to log with Timestamp and or new Date()
+-  Default is now: with both. (Marc Eppelmann)
+-- Suppress a NullPointerException in the RuleInputField (Dennis Reil, via Marc Eppelmann)
++  Default is now: with both. (Marc Eppelmann).
++- Suppress a NullPointerException in the RuleInputField (Dennis Reil, via Marc
++  Eppelmann).
++- Merged normal installer and registry-enabled installers (julien Ponge).
+ 
+   &gt; 3.8.1 (build 2006.01.06)
+ - Added Greek language support (Fabrice Mirabile, thanks to Panayotis
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2006-09-01 19:08:26 UTC (rev 1557)
++++ izpack-src/trunk/src/build.xml	2006-09-04 01:15:41 UTC (rev 1558)
+@@ -994,14 +994,7 @@
+             
+     &lt;/target&gt;
+ 	
+-    &lt;!-- - - - - - - - - - - - - - - - - - 
+-          target: generate.simple.and.reg.installer                      
+-         - - - - - - - - - - - - - - - - - --&gt;
+-    &lt;target name=&quot;generate.simple.and.reg.installer&quot; depends=&quot;generate.installer, generate.installer-reg&quot;&gt;
+-            
+-    &lt;/target&gt;
+-
+-    &lt;!-- ================================= 
++    &lt;!-- =================================
+ 	   Creates a normal installer for IzPack 
+ 	  ================================= --&gt;
+     &lt;target name=&quot;generate.installer&quot; depends=&quot;prepare.install.dist&quot;&gt;
+@@ -1011,14 +1004,6 @@
+         &lt;/antcall&gt;
+     &lt;/target&gt;
+ 
+-    &lt;!-- Creates an installer for IzPack with registry support --&gt;
+-    &lt;target name=&quot;generate.installer-reg&quot; depends=&quot;prepare.install.dist&quot;&gt;
+-        &lt;antcall target=&quot;exec.izpack.compiler&quot;&gt;
+-            &lt;param name=&quot;installer.xmlfile&quot; value=&quot;IzPack-install-reg.xml&quot; /&gt;
+-            &lt;param name=&quot;installer.name&quot; value=&quot;IzPack-install-reg-&quot; /&gt;
+-        &lt;/antcall&gt;
+-    &lt;/target&gt;
+-
+     &lt;!--
+         Fixes CR/LF by applying the Unix convention (\n for endlines).
+         It also fixes the encoding problems by moving it to UTF-8.
+@@ -1059,12 +1044,12 @@
+ 
+     &lt;!-- Makes everything, from compilation, customer and javadoc to generating an installer. --&gt;
+     &lt;target name=&quot;dist&quot;
+-            depends=&quot;all, create.docu, generate.simple.and.reg.installer&quot;
++            depends=&quot;all, create.docu, generate.installer&quot;
+             description=&quot;makes a complete installer&quot; /&gt;
+ 
+     &lt;!-- Makes everything, from Cleaning to generating both installers: normal and reg support. --&gt;
+     &lt;target name=&quot;cleandistreg&quot;
+-            depends=&quot;clean, splashscreen, dist, generate.installer-reg&quot;
++            depends=&quot;clean, splashscreen, dist, generate.installer&quot;
+             description=&quot;creates a full dist with Win32 uninstall registry support&quot; /&gt;
+ 
+     &lt;!-- convenient :) makes a quick dist (w/o docu), an installer and run them. --&gt;
+
+Deleted: izpack-src/trunk/src/dist-files/IzPack-install-reg.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install-reg.xml	2006-09-01 19:08:26 UTC (rev 1557)
++++ izpack-src/trunk/src/dist-files/IzPack-install-reg.xml	2006-09-04 01:15:41 UTC (rev 1558)
+@@ -1,213 +0,0 @@
+-&lt;!--
+-    $Id$
+-
+-    IzPack installer XML file with registry custom actions.
+-
+-    By Julien PONGE
+-
+-    In order to build an installer for IzPack, let's create a directory
+-    named '_dist' in the IzPack root directory. Then copy the files from
+-    'src/dist-files' into '_dist'. Copy your IzPack image, that is all
+-    the files present at the IzPack root directory. To make it clear,
+-    you'll get bin/, lib/, ... and text files like Versions.txt and so
+-    on. Now you can invoke the IzPack compiler and it will generate the
+-    installer.
+-
+-    Alternatively, you can use the IzPack Ant makefile and run 'ant dist'. It's
+-    much simpler :-)
+---&gt;
+-
+-&lt;!-- The installation --&gt;
+-&lt;installation version=&quot;1.0&quot;&gt;
+-
+-    &lt;!-- The info section --&gt;
+-    &lt;info&gt;
+-        &lt;appname&gt;IzPack&lt;/appname&gt;
+-        &lt;appversion&gt;3.9.0-preview1 (build 2006.06.23)&lt;/appversion&gt;
+-        &lt;authors&gt;
+-            &lt;author email=&quot;&quot; name=&quot;Julien Ponge (maintainer and original developer)&quot;/&gt;
+-
+-            &lt;author email=&quot;&quot; name=&quot;Klaus Bartz (developer)&quot;/&gt;
+-            &lt;author email=&quot;&quot; name=&quot;Fabrice Mirabile (developer)&quot;/&gt;
+-            &lt;author email=&quot;&quot; name=&quot;Marc Eppelmann (developer)&quot; /&gt;
+-
+-            &lt;author email=&quot;&quot; name=&quot;Oliver Kiddle (contributor)&quot;/&gt;
+-            &lt;author email=&quot;&quot; name=&quot;Cesar Martinez Izquierdo (contributor)&quot;/&gt;
+-            &lt;author email=&quot;&quot; name=&quot;Ryan Shillington (contributor)&quot; /&gt;
+-            &lt;author email=&quot;&quot; name=&quot;Eric Rose (contributor)&quot; /&gt;
+-            &lt;author email=&quot;&quot; name=&quot;Amit Bhayani @JBoss/RedHat (contributors)&quot; /&gt;
+-
+-            &lt;author email=&quot;&quot;
+-                name=&quot;... the many other developers and contributors to the previous releases (see Thanks.txt)&quot; /&gt;
+-        &lt;/authors&gt;
+-        &lt;url&gt;<A HREF="http://www.izforge.com/izpack/&lt;/url">http://www.izforge.com/izpack/&lt;/url</A>&gt;
+-        &lt;javaversion&gt;1.4&lt;/javaversion&gt;
+-        &lt;summarylogfilepath&gt;$INSTALL_PATH/installinfo/Summary.htm&lt;/summarylogfilepath&gt;
+-    &lt;/info&gt;
+-
+-    &lt;!-- Flexible and in the screen proportions --&gt;
+-    &lt;guiprefs height=&quot;600&quot; resizable=&quot;yes&quot; width=&quot;800&quot;&gt;
+-        &lt;laf name=&quot;looks&quot;&gt;
+-            &lt;os family=&quot;unix&quot; /&gt;
+-        &lt;/laf&gt;
+-    &lt;/guiprefs&gt;
+-
+-    &lt;variables&gt;
+-        &lt;variable name=&quot;DesktopShortcutCheckboxEnabled&quot; value=&quot;true&quot; /&gt;
+-    &lt;/variables&gt;
+-
+-    &lt;!-- We include every langpack --&gt;
+-    &lt;locale&gt;
+-        &lt;langpack iso3=&quot;eng&quot;/&gt;
+-        &lt;langpack iso3=&quot;fra&quot;/&gt;
+-        &lt;langpack iso3=&quot;deu&quot;/&gt;
+-        &lt;langpack iso3=&quot;ita&quot;/&gt;
+-        &lt;langpack iso3=&quot;jpn&quot;/&gt;
+-        &lt;langpack iso3=&quot;spa&quot;/&gt;
+-        &lt;langpack iso3=&quot;dan&quot;/&gt;
+-        &lt;langpack iso3=&quot;ell&quot; /&gt;
+-        &lt;langpack iso3=&quot;cat&quot;/&gt;
+-        &lt;langpack iso3=&quot;ned&quot;/&gt;
+-        &lt;langpack iso3=&quot;fin&quot;/&gt;
+-        &lt;langpack iso3=&quot;swe&quot;/&gt;
+-        &lt;langpack iso3=&quot;por&quot;/&gt;
+-        &lt;langpack iso3=&quot;pol&quot;/&gt;
+-        &lt;langpack iso3=&quot;rus&quot;/&gt;
+-        &lt;langpack iso3=&quot;ukr&quot;/&gt;
+-        &lt;langpack iso3=&quot;hun&quot;/&gt;
+-        &lt;langpack iso3=&quot;svk&quot;/&gt;
+-        &lt;langpack iso3=&quot;rom&quot;/&gt;
+-        &lt;langpack iso3=&quot;mys&quot;/&gt;
+-        &lt;langpack iso3=&quot;nor&quot;/&gt;
+-        &lt;langpack iso3=&quot;chn&quot;/&gt;
+-        &lt;langpack iso3=&quot;scg&quot;/&gt;
+-        &lt;langpack iso3=&quot;cze&quot;/&gt;
+-        &lt;langpack iso3=&quot;kor&quot;/&gt;
+-    &lt;/locale&gt;
+-
+-    &lt;!-- The resources needed by the various panels --&gt;
+-    &lt;resources&gt;
+-        &lt;res src=&quot;install-readme.html&quot; id=&quot;HTMLInfoPanel.info&quot;/&gt;
+-        &lt;res src=&quot;Licence.txt&quot; id=&quot;LicencePanel.licence&quot;/&gt;
+-        &lt;res src=&quot;splash-sydney.png&quot; id=&quot;installer.langsel.img&quot;/&gt;
+-        &lt;res src=&quot;shortcutSpec.xml&quot; id=&quot;shortcutSpec.xml&quot;/&gt;
+-        &lt;res src=&quot;Unix_shortcutSpec.xml&quot; id=&quot;Unix_shortcutSpec.xml&quot;/&gt;
+-        &lt;res src=&quot;core.png&quot; id=&quot;ImgPacksPanel.img.0&quot; /&gt;
+-        &lt;res src=&quot;doc-html.png&quot; id=&quot;ImgPacksPanel.img.1&quot; /&gt;
+-        &lt;res src=&quot;javadocs.png&quot; id=&quot;ImgPacksPanel.img.2&quot; /&gt;
+-        &lt;res src=&quot;doc-nanoxml.png&quot; id=&quot;ImgPacksPanel.img.3&quot; /&gt;
+-&lt;!--    
+-        &lt;res src=&quot;doc-pdf.png&quot; id=&quot;ImgPacksPanel.img.2&quot; /&gt;
+---&gt;
+-	      &lt;res src=&quot;sample.png&quot;  id=&quot;ImgPacksPanel.img.4&quot; /&gt;
+-        &lt;res src=&quot;src.png&quot;     id=&quot;ImgPacksPanel.img.5&quot; /&gt;
+-        &lt;res src=&quot;border1.png&quot; id=&quot;Installer.image.0&quot;/&gt;
+-        &lt;res src=&quot;border2.png&quot; id=&quot;Installer.image.1&quot;/&gt;
+-        &lt;res src=&quot;border3.png&quot; id=&quot;Installer.image.2&quot;/&gt;
+-        &lt;res src=&quot;border4.png&quot; id=&quot;Installer.image.3&quot;/&gt;
+-        &lt;res src=&quot;border5.png&quot; id=&quot;Installer.image.4&quot;/&gt;
+-        &lt;res src=&quot;border5.png&quot; id=&quot;Installer.image.5&quot;/&gt;
+-        &lt;res src=&quot;border6.png&quot; id=&quot;Installer.image.6&quot;/&gt;
+-        &lt;res src=&quot;border7.png&quot; id=&quot;Installer.image.7&quot;/&gt;
+-        &lt;res src=&quot;border8.png&quot; id=&quot;Installer.image.8&quot;/&gt;
+-        &lt;res src=&quot;RegistrySpec.xml&quot; id=&quot;RegistrySpec.xml&quot;/&gt;
+-    &lt;/resources&gt;
+-
+-    &lt;!-- The panels in a classic order --&gt;
+-    &lt;panels&gt;
+-        &lt;panel classname=&quot;CheckedHelloPanel&quot;/&gt;
+-        &lt;panel classname=&quot;HTMLInfoPanel&quot;/&gt;
+-        &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+-        &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+-        &lt;panel classname=&quot;ImgPacksPanel&quot;/&gt;
+-        &lt;panel classname=&quot;SummaryPanel&quot;/&gt;
+-        &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+-        &lt;panel classname=&quot;ShortcutPanel&quot;/&gt;
+-        &lt;!-- We use temporary the FinishPanel in the 3.9 Release 
+-             to get Access to the [Generate an automatic installation script]-Button
+-             to get feedback so quick as possible from all of users, 
+-             who wants to get back this feature ;-) --&gt;
+-        &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+-    &lt;/panels&gt;
+-
+-    &lt;!-- The listeners section for CustomActions --&gt;
+-    &lt;listeners&gt;
+-        &lt;listener installer=&quot;SummaryLoggerInstallerListener&quot;/&gt;
+-        &lt;listener installer=&quot;RegistryInstallerListener&quot; uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
+-            &lt;os family=&quot;windows&quot;/&gt;
+-        &lt;/listener&gt;
+-    &lt;/listeners&gt;
+-
+-    &lt;!-- The packs section --&gt;
+-    &lt;packs&gt;
+-
+-        &lt;!-- The core files --&gt;
+-        &lt;pack name=&quot;Core&quot; required=&quot;yes&quot;&gt;
+-            &lt;description&gt;The IzPack core files.&lt;/description&gt;
+-            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+-              &lt;include name=&quot;*.txt&quot; /&gt;
+-              &lt;include name=&quot;bin/**/*&quot; /&gt;
+-              &lt;include name=&quot;lib/**/*&quot; /&gt;
+-              &lt;include name=&quot;legal/**/*&quot; /&gt;
+-            &lt;/fileset&gt;
+-            &lt;executable targetfile=&quot;$INSTALL_PATH/bin/compile&quot; stage=&quot;never&quot;/&gt;
+-            &lt;executable targetfile=&quot;$INSTALL_PATH/bin/start.sh&quot; stage=&quot;never&quot;/&gt;
+-        &lt;/pack&gt;
+-
+-        &lt;!-- The documentation --&gt;
+-        &lt;pack name=&quot;XHTML Documentation&quot; required=&quot;no&quot;&gt;
+-            &lt;description&gt;The IzPack documentation (XHTML version).&lt;/description&gt;
+-            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+-              &lt;include name=&quot;doc/izpack/xhtml/**/*&quot; /&gt;              
+-            &lt;/fileset&gt;
+-        &lt;/pack&gt;
+-        &lt;pack name=&quot;Java Documentation&quot; required=&quot;no&quot;&gt;
+-            &lt;description&gt;The IzPack Java documentation (Javadocs for IzPack developers).&lt;/description&gt;
+-            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;              
+-              &lt;include name=&quot;doc/izpack/javadoc/**/*&quot; /&gt;
+-            &lt;/fileset&gt;
+-        &lt;/pack&gt;
+-&lt;!--    
+-      Disabled while doc-ng not provides a pdf ...
+-  
+-        &lt;pack name=&quot;PDF Documentation&quot; required=&quot;no&quot;&gt;
+-            &lt;description&gt;The IzPack documentation (PDF version).&lt;/description&gt;
+-            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+-              &lt;include name=&quot;doc/izpack/pdf/**/*&quot; /&gt;
+-            &lt;/fileset&gt;
+-        &lt;/pack&gt;
+---&gt;
+-        &lt;pack name=&quot;NanoXML Documentation&quot; required=&quot;no&quot;&gt;
+-            &lt;description&gt;NanoXML documentation (for IzPack developers).&lt;/description&gt;
+-            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+-              &lt;include name=&quot;doc/nanoxml/**/*&quot; /&gt;
+-            &lt;/fileset&gt;
+-        &lt;/pack&gt;
+-
+-        &lt;!-- A trivial sample to get started --&gt;
+-        &lt;pack name=&quot;Sample&quot; required=&quot;no&quot;&gt;
+-            &lt;description&gt;A sample installation.&lt;/description&gt;
+-            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+-              &lt;include name=&quot;sample/**/*&quot; /&gt;
+-            &lt;/fileset&gt;
+-        &lt;/pack&gt;
+-
+-        &lt;!-- The source code of this version --&gt;
+-        &lt;pack name=&quot;Sources&quot; required=&quot;no&quot;&gt;
+-            &lt;description&gt;The full IzPack source code.&lt;/description&gt;
+-            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+-              &lt;include name=&quot;src/**/*&quot; /&gt;
+-              &lt;exclude name=&quot;src/*.manifest&quot; /&gt;
+-            &lt;/fileset&gt;
+-        &lt;/pack&gt;
+-
+-    &lt;/packs&gt;
+-
+-     &lt;!-- The native libraries to add --&gt;
+-    &lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+-        &lt;os family=&quot;windows&quot;/&gt;
+-    &lt;/native&gt;
+-    &lt;native type=&quot;izpack&quot; name=&quot;ShellLink.dll&quot;/&gt;
+-
+-
+-&lt;/installation&gt;
+
+Modified: izpack-src/trunk/src/dist-files/IzPack-install.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install.xml	2006-09-01 19:08:26 UTC (rev 1557)
++++ izpack-src/trunk/src/dist-files/IzPack-install.xml	2006-09-04 01:15:41 UTC (rev 1558)
+@@ -204,6 +204,9 @@
+ 
+     &lt;!-- The native libraries to add --&gt;
+     &lt;native type=&quot;izpack&quot; name=&quot;ShellLink.dll&quot;/&gt;
++    &lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
++        &lt;os family=&quot;windows&quot;/&gt;
++    &lt;/native&gt;
+ 
+ 
+ &lt;/installation&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000302.html">[izpack-changes] r1557 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000304.html">[izpack-changes] r1559 - in izpack-src/trunk/src: dist-files	doc-ng/XHTML lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#303">[ date ]</a>
+              <a href="thread.html#303">[ thread ]</a>
+              <a href="subject.html#303">[ subject ]</a>
+              <a href="author.html#303">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

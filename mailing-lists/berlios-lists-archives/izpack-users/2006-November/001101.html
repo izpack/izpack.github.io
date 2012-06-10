@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] No backslashification in XML files?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20No%20backslashification%20in%20XML%20files%3F&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001100.html">
+   <LINK REL="Next"  HREF="001102.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] No backslashification in XML files?</H1>
+    <B>Andrew Warinner</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20No%20backslashification%20in%20XML%20files%3F&In-Reply-To="
+       TITLE="[izpack-users] No backslashification in XML files?">awarinner at gmail.com
+       </A><BR>
+    <I>Wed Nov 15 17:01:26 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001100.html">[izpack-users]	com.izforge.izpack.installer.ResourceNotFoundException:	Cannot find Resource UninstallerIcon for language eng
+</A></li>
+        <LI>Next message: <A HREF="001102.html">[izpack-users] Problem with variable substitution in parsed files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1101">[ date ]</a>
+              <a href="thread.html#1101">[ thread ]</a>
+              <a href="subject.html#1101">[ subject ]</a>
+              <a href="author.html#1101">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I've noticed that when doing variable substitution in XML IzPack does
+not backslashify the values. This is causing me grief with Windows
+pathnames.
+
+For example I install a log4j.xml file like this:
+
+            &lt;file src=&quot;lib/log4j.xml&quot; targetdir=&quot;$INSTALL_PATH/lib&quot;/&gt;
+            &lt;parsable type=&quot;xml&quot; targetfile=&quot;${INSTALL_PATH}/lib/log4j.xml&quot;/&gt;
+
+log4j.xml contains:
+
+  &lt;appender name=&quot;LogFileAppender&quot; class=&quot;org.apache.log4j.RollingFileAppender&quot;&gt;
+    &lt;param name=&quot;File&quot; value=&quot;${INSTALL_PATH}${FILE_SEPARATOR}doQ.log&quot; /&gt;
+    &lt;param name=&quot;Append&quot; value=&quot;true&quot;/&gt;
+    &lt;param name=&quot;MaxFileSize&quot; value=&quot;1MB&quot;/&gt;
+    &lt;param name=&quot;MaxBackupIndex&quot; value=&quot;5&quot;/&gt;
+    &lt;layout class=&quot;org.apache.log4j.PatternLayout&quot;&gt;
+      &lt;param name=&quot;ConversionPattern&quot; value=&quot;%d{ISO8601} %t %-5p
+*%c{1}* - %m%n&quot; /&gt;
+    &lt;/layout&gt;
+  &lt;/appender&gt;
+
+When installing under Windows with INSTALL_PATH=C:\Documents and
+Settings\awarinner\doQ-1.7, the above comes out as:
+
+  &lt;appender name=&quot;LogFileAppender&quot; class=&quot;org.apache.log4j.RollingFileAppender&quot;&gt;
+    &lt;param name=&quot;File&quot; value=&quot;C:\Documents and
+Settings\awarinner\doQ-1.7\doQ.log&quot; /&gt;
+    &lt;param name=&quot;Append&quot; value=&quot;true&quot;/&gt;
+    &lt;param name=&quot;MaxFileSize&quot; value=&quot;1MB&quot;/&gt;
+    &lt;param name=&quot;MaxBackupIndex&quot; value=&quot;5&quot;/&gt;
+    &lt;layout class=&quot;org.apache.log4j.PatternLayout&quot;&gt;
+      &lt;param name=&quot;ConversionPattern&quot; value=&quot;%d{ISO8601} %t %-5p
+*%c{1}* - %m%n&quot; /&gt;
+    &lt;/layout&gt;
+  &lt;/appender&gt;
+
+But this causes log4j to choke, what I really want is INSTALL_PATH to
+be substituted like this:
+
+    &lt;param name=&quot;File&quot; value=&quot;C:\\Documents and
+Settings\\awarinner\\doQ-1.7\\doQ.log&quot; /&gt;
+
+so log4j will understand the backslash path and everything will be copacetic.
+
+Am I misunderstanding the effect of setting parsable type=&quot;xml&quot; or
+does variable substitution not work with XML?
+
+Puzzled,
+
+Andrew Warinner
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001100.html">[izpack-users]	com.izforge.izpack.installer.ResourceNotFoundException:	Cannot find Resource UninstallerIcon for language eng
+</A></li>
+	<LI>Next message: <A HREF="001102.html">[izpack-users] Problem with variable substitution in parsed files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1101">[ date ]</a>
+              <a href="thread.html#1101">[ thread ]</a>
+              <a href="subject.html#1101">[ subject ]</a>
+              <a href="author.html#1101">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

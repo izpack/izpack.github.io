@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] bad file names
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20bad%20file%20names&In-Reply-To=HPEKIFMJKCAJHFKEPLIHMEFJCMAA.elmar%40grom.net">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000545.html">
+   <LINK REL="Next"  HREF="000549.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] bad file names</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20bad%20file%20names&In-Reply-To=HPEKIFMJKCAJHFKEPLIHMEFJCMAA.elmar%40grom.net"
+       TITLE="[izpack-devel] bad file names">bartzkau at gmx.net
+       </A><BR>
+    <I>Sat Oct 28 16:56:19 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000545.html">[izpack-devel] bad file names
+</A></li>
+        <LI>Next message: <A HREF="000549.html">[izpack-devel] &lt;executable&gt; timing
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#548">[ date ]</a>
+              <a href="thread.html#548">[ thread ]</a>
+              <a href="subject.html#548">[ subject ]</a>
+              <a href="author.html#548">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>The behavior was detected at shortcuts, but it exist also at
+file level. There the pain is greater as at shortcuts because the
+shortcuts can be removed, the file not.
+I have tested it as a &lt;singlefile&gt; in a pack where I
+use a colon in the target name.
+Interesting what's happen if the compile (packaging) will be
+performed on unix with such files in the tree. Are then also
+&lt;file&gt; and &lt;fileset&gt; affected?
+In fact I think it is a problem in the Windows API which accept the
+call, but makes really ugly things. I assume that it is a feature,
+not a bug :-)
+At the next level class java.io.File will be affected. But until jet
+I have never send a bug report to java self.
+
+Nice weekend
+
+Klaus
+
+Am 27.10.2006, 18:07 Uhr, schrieb Elmar Grom &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>&gt;:
+
+&gt;<i> This is indeed an ugly thing.
+</I>&gt;<i>
+</I>&gt;<i> You mention specifically the shortcut as a problem. Is this only an  
+</I>&gt;<i> example
+</I>&gt;<i> or is it the only place where this behavior actually leads to a problem?  
+</I>&gt;<i> If
+</I>&gt;<i> it is the only place, then we might be able to come up with a local
+</I>&gt;<i> solution. If it is not, then I suspect a modification of File itself  
+</I>&gt;<i> might
+</I>&gt;<i> not be sufficient, because this problem could also happen with the  
+</I>&gt;<i> content
+</I>&gt;<i> of the shortcut, not just with the shortcut file...
+</I>&gt;<i>
+</I>&gt;<i> Perhaps some more analysis is required to find all possible ways in which
+</I>&gt;<i> this problem could affect the performance of IzPack.
+</I>&gt;<i>
+</I>&gt;<i> 	Elmar
+</I>&gt;<i>
+</I>&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Bartz, Klaus
+</I>&gt;<i> Sent: Friday, October 27, 2006 3:41 AM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-devel] bad file names
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Dear colleagues,
+</I>&gt;<i> on the user list there was someone which
+</I>&gt;<i> uses a name of a shortcut which contained a colon.
+</I>&gt;<i> We all know, that this is not allowed on Windows.
+</I>&gt;<i> But the API of Windows accept such nonsens
+</I>&gt;<i> without any warning or error. I have tested it for
+</I>&gt;<i> installed files via &lt;singelfile&gt;. Also no warning
+</I>&gt;<i> or error. The result is a file with a name upto the
+</I>&gt;<i> colon. The file cannot be opened and not removed.
+</I>&gt;<i> Uninstall fails at this point. In the moment I do not
+</I>&gt;<i> know how cleanup.
+</I>&gt;<i> May be this can cast a damning light on IzPack.
+</I>&gt;<i>
+</I>&gt;<i> Therefore I am thinking about how we can avoid
+</I>&gt;<i> such ugly usage of our product. One way can be to
+</I>&gt;<i> inherit File to a class which verifies a valid filename
+</I>&gt;<i> OS dependant (it seems so that on Linux such nonsens
+</I>&gt;<i> is allowed). There are many constructor calls of
+</I>&gt;<i> File, therefore a little bit more work.
+</I>&gt;<i> Additional there is the problem if this is not
+</I>&gt;<i> used in custom code.
+</I>&gt;<i> Any comment?
+</I>&gt;<i> Any better solution?
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> __________ NOD32 1.1392 (20060202) Information __________
+</I>&gt;<i>
+</I>&gt;<i> Diese E-Mail wurde vom NOD32 Antivirus System gepr&#252;ft
+</I>&gt;<i> <A HREF="http://www.nod32.com">http://www.nod32.com</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+
+-- 
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000545.html">[izpack-devel] bad file names
+</A></li>
+	<LI>Next message: <A HREF="000549.html">[izpack-devel] &lt;executable&gt; timing
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#548">[ date ]</a>
+              <a href="thread.html#548">[ thread ]</a>
+              <a href="subject.html#548">[ subject ]</a>
+              <a href="author.html#548">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

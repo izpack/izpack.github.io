@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] grouping Shortcuts happens multiple times
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20grouping%20Shortcuts%20happens%20multiple%20times&In-Reply-To=20060925084344.19420%40gmx.net">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000887.html">
+   <LINK REL="Next"  HREF="000891.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] grouping Shortcuts happens multiple times</H1>
+    <B>mika</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20grouping%20Shortcuts%20happens%20multiple%20times&In-Reply-To=20060925084344.19420%40gmx.net"
+       TITLE="[izpack-users] grouping Shortcuts happens multiple times">mika.works at gentlemansclub.de
+       </A><BR>
+    <I>Mon Sep 25 13:05:48 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000887.html">[izpack-users] grouping Shortcuts happens multiple times
+</A></li>
+        <LI>Next message: <A HREF="000891.html">[izpack-users] grouping Shortcuts happens multiple times
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#888">[ date ]</a>
+              <a href="thread.html#888">[ thread ]</a>
+              <a href="subject.html#888">[ subject ]</a>
+              <a href="author.html#888">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+
+I found a way of getting the shortcuts created like intended.
+It was a bit tricky in contrast to release 3.8.1, but hey, now it runs perfect.
+Thanks again to all developers and helpers for this program!!!
+
+Thanks,
+mika
+
+-------- Original-Nachricht --------
+Datum: Mon, 25 Sep 2006 10:43:44 +0200
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">mika.works at gentlemansclub.de</A>
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: Re: [izpack-users] grouping Shortcuts happens multiple times
+
+&gt;<i> I think I've found the solution of the problem!
+</I>&gt;<i> 
+</I>&gt;<i> It is nested in the ShortcutPanel.java at position of the method 'public
+</I>&gt;<i> void createShortcuts()'.
+</I>&gt;<i> There the groupname is extended every call of this method by:
+</I>&gt;<i> &gt; groupName = groupName + data.subgroup;
+</I>&gt;<i> 
+</I>&gt;<i> In the release 3.8.1 is used a temporarly variable therefor.
+</I>&gt;<i> &gt; tmpgn = groupName + data.subgroup;
+</I>&gt;<i> 
+</I>&gt;<i> If you could fix it, it would be fantastic :-)!
+</I>&gt;<i> 
+</I>&gt;<i> Thanks,
+</I>&gt;<i> mika
+</I>&gt;<i> 
+</I>&gt;<i> -------- Original-Nachricht --------
+</I>&gt;<i> Datum: Mon, 25 Sep 2006 10:22:06 +0200
+</I>&gt;<i> Von: &quot;mika&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">mika.works at gentlemansclub.de</A>&gt;
+</I>&gt;<i> An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Betreff: [izpack-users] grouping Shortcuts happens multiple times
+</I>&gt;<i> 
+</I>&gt;<i> &gt; Hello and good morning,
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; I've some problems grouping shortcuts using IzPack v3.9!
+</I>&gt;<i> &gt; As the shortcuts were created the following structure appears in the
+</I>&gt;<i> &gt; startmenu:
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; start/programs/
+</I>&gt;<i> &gt;  + Application/
+</I>&gt;<i> &gt;    + Administration/
+</I>&gt;<i> &gt;      + Administration/
+</I>&gt;<i> &gt;        + Service Create
+</I>&gt;<i> &gt;        + Administration/
+</I>&gt;<i> &gt;          + Administration/
+</I>&gt;<i> &gt;            + Service Remove
+</I>&gt;<i> &gt;            + Administration/
+</I>&gt;<i> &gt;              + Administration/
+</I>&gt;<i> &gt;                + Start Some Service
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; the desired structure looks like:
+</I>&gt;<i> &gt; start/programs/
+</I>&gt;<i> &gt;  + Application/
+</I>&gt;<i> &gt;    + Administration/
+</I>&gt;<i> &gt;      + Service Create
+</I>&gt;<i> &gt;      + Service Remove
+</I>&gt;<i> &gt;      + Start Some Service
+</I>&gt;<i> &gt;      
+</I>&gt;<i> &gt; =============================== Source Code
+</I>&gt;<i> =============================
+</I>&gt;<i> &gt;   &lt;shortcut name=&quot;Service Create&quot;
+</I>&gt;<i> &gt; 		target=&quot;$INSTALL_PATH\server\service_create.bat&quot;
+</I>&gt;<i> &gt; 		workingDirectory=&quot;$INSTALL_PATH\server&quot;
+</I>&gt;<i> &gt; 		description=&quot;&quot;
+</I>&gt;<i> &gt; 		subgroup=&quot;/Administration&quot;
+</I>&gt;<i> &gt; 		iconFile=&quot;$INSTALL_PATH\server\service_on.ico&quot;
+</I>&gt;<i> &gt; 		initialState=&quot;normal&quot;
+</I>&gt;<i> &gt; 		programGroup=&quot;yes&quot;
+</I>&gt;<i> &gt; 		desktop=&quot;yes&quot;&gt;
+</I>&gt;<i> &gt;     &lt;createForPack name=&quot;APS&quot; /&gt;
+</I>&gt;<i> &gt;   &lt;/shortcut&gt;
+</I>&gt;<i> &gt;   &lt;shortcut name=&quot;Service Remove&quot;
+</I>&gt;<i> &gt; 		target=&quot;$INSTALL_PATH\server\service_remove.bat&quot;
+</I>&gt;<i> &gt; 		workingDirectory=&quot;$INSTALL_PATH\server&quot;
+</I>&gt;<i> &gt; 		description=&quot;&quot;
+</I>&gt;<i> &gt; 		subgroup=&quot;/Administration&quot;
+</I>&gt;<i> &gt; 		iconFile=&quot;$INSTALL_PATH\server\service_off.ico&quot;
+</I>&gt;<i> &gt; 		initialState=&quot;normal&quot;
+</I>&gt;<i> &gt; 		programGroup=&quot;yes&quot;
+</I>&gt;<i> &gt; 		desktop=&quot;yes&quot;&gt;
+</I>&gt;<i> &gt;     &lt;createForPack name=&quot;APS&quot; /&gt;
+</I>&gt;<i> &gt;   &lt;/shortcut&gt;
+</I>&gt;<i> &gt;   &lt;shortcut name=&quot;Start Some Service&quot;
+</I>&gt;<i> &gt; 		target=&quot;$INSTALL_PATH\server\start_service.bat&quot;
+</I>&gt;<i> &gt; 		workingDirectory=&quot;$INSTALL_PATH\server&quot;
+</I>&gt;<i> &gt; 		description=&quot;&quot;
+</I>&gt;<i> &gt; 		subgroup=&quot;/Administration&quot;
+</I>&gt;<i> &gt; 		iconFile=&quot;$INSTALL_PATH\server\start.ico&quot;
+</I>&gt;<i> &gt; 		initialState=&quot;normal&quot;
+</I>&gt;<i> &gt; 		programGroup=&quot;yes&quot;
+</I>&gt;<i> &gt; 		desktop=&quot;yes&quot;&gt;
+</I>&gt;<i> &gt;     &lt;createForPack name=&quot;APS&quot; /&gt;
+</I>&gt;<i> &gt;   &lt;/shortcut&gt;
+</I>&gt;<i> &gt; ========================== End Of Source Code
+</I>&gt;<i> ===========================
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; What is the reason for this curious structure?
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Thanks,
+</I>&gt;<i> &gt; mika
+</I>&gt;<i> &gt; -- 
+</I>&gt;<i> &gt; NEU: GMX DSL Sofort-Start-Set - blitzschnell ins Internet!
+</I>&gt;<i> &gt; Echte DSL-Flatrate ab 0,- Euro* <A HREF="http://www.gmx.net/de/go/dsl">http://www.gmx.net/de/go/dsl</A>
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-users mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i> stay cool !
+</I>&gt;<i> 
+</I>&gt;<i> mikaNEU: GMX DSL Sofort-Start-Set - blitzschnell ins Internet!
+</I>&gt;<i> Echte DSL-Flatrate ab 0,- Euro* <A HREF="http://www.gmx.net/de/go/dsl">http://www.gmx.net/de/go/dsl</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+-- 
+Der GMX SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen! 
+Ideal f&#252;r Modem und ISDN: <A HREF="http://www.gmx.net/de/go/smartsurfer">http://www.gmx.net/de/go/smartsurfer</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000887.html">[izpack-users] grouping Shortcuts happens multiple times
+</A></li>
+	<LI>Next message: <A HREF="000891.html">[izpack-users] grouping Shortcuts happens multiple times
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#888">[ date ]</a>
+              <a href="thread.html#888">[ thread ]</a>
+              <a href="subject.html#888">[ subject ]</a>
+              <a href="author.html#888">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

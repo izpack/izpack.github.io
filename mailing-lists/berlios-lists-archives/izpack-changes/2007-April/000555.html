@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1809 - in izpack-src/branches/3.10: .	bin/langpacks/installer src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1809%20-%20in%20izpack-src/branches/3.10%3A%20.%0A%09bin/langpacks/installer%20src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000554.html">
+   <LINK REL="Next"  HREF="000556.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1809 - in izpack-src/branches/3.10: .	bin/langpacks/installer src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1809%20-%20in%20izpack-src/branches/3.10%3A%20.%0A%09bin/langpacks/installer%20src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1809 - in izpack-src/branches/3.10: .	bin/langpacks/installer src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Wed Apr  4 23:27:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000554.html">[izpack-changes] r1808 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/event
+</A></li>
+        <LI>Next message: <A HREF="000556.html">[izpack-changes] r1810 - in izpack-src/branches/3.10: .	bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#555">[ date ]</a>
+              <a href="thread.html#555">[ thread ]</a>
+              <a href="subject.html#555">[ subject ]</a>
+              <a href="author.html#555">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: aikebah
+Date: 2007-04-04 23:27:06 +0200 (Wed, 04 Apr 2007)
+New Revision: 1809
+
+Modified:
+   izpack-src/branches/3.10/Versions.txt
+   izpack-src/branches/3.10/bin/langpacks/installer/ned.xml
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+Log:
+Fix NPE in getI18NPackName and corrected case in Dutch langpack
+
+Modified: izpack-src/branches/3.10/Versions.txt
+===================================================================
+--- izpack-src/branches/3.10/Versions.txt	2007-04-04 13:11:25 UTC (rev 1808)
++++ izpack-src/branches/3.10/Versions.txt	2007-04-04 21:27:06 UTC (rev 1809)
+@@ -4,6 +4,7 @@
+ 
+ - Vista/Java6 fixes (Stefan Wachter via Julien Ponge)
+ - Dutch Langpack fixes (Hans Aikema)
++- Fix NPE for pack.id == null in dependencies/excludes (Hans Aikema)
+ 
+   &gt; 3.10.1 (build 2007.03.29)
+ 
+
+Modified: izpack-src/branches/3.10/bin/langpacks/installer/ned.xml
+===================================================================
+--- izpack-src/branches/3.10/bin/langpacks/installer/ned.xml	2007-04-04 13:11:25 UTC (rev 1808)
++++ izpack-src/branches/3.10/bin/langpacks/installer/ned.xml	2007-04-04 21:27:06 UTC (rev 1809)
+@@ -98,7 +98,7 @@
+     &lt;str id=&quot;TargetPanel.empty_target&quot;
+         txt=&quot;U heeft geen installatiemap ingevuld. Wilt u toch doorgaan?&quot; /&gt;
+     &lt;str id=&quot;TargetPanel.createdir&quot;
+-        txt=&quot;de installatiemap zal worden aangemaakt :&quot; /&gt;
++        txt=&quot;De installatiemap zal worden aangemaakt :&quot; /&gt;
+     &lt;str id=&quot;TargetPanel.nodir&quot;
+         txt=&quot;Uw keuze is geen map! Kies s.v.p. een map!&quot; /&gt;
+     &lt;str id=&quot;TargetPanel.notwritable&quot;
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-04-04 13:11:25 UTC (rev 1808)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-04-04 21:27:06 UTC (rev 1809)
+@@ -375,7 +375,7 @@
+         {
+             packName = langpack.getString(key);
+         }
+-        if (&quot;&quot;.equals(packName) || key.equals(packName) || pack.id == null)
++        if (&quot;&quot;.equals(packName) || key == null || key.equals(packName) )
+         {
+             packName = pack.name;
+         }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000554.html">[izpack-changes] r1808 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/event
+</A></li>
+	<LI>Next message: <A HREF="000556.html">[izpack-changes] r1810 - in izpack-src/branches/3.10: .	bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#555">[ date ]</a>
+              <a href="thread.html#555">[ thread ]</a>
+              <a href="subject.html#555">[ subject ]</a>
+              <a href="author.html#555">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

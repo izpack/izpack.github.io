@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1841 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1841%20-%0A%09izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000586.html">
+   <LINK REL="Next"  HREF="000588.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1841 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1841%20-%0A%09izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui&In-Reply-To="
+       TITLE="[izpack-changes] r1841 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui">noreply at berlios.de
+       </A><BR>
+    <I>Tue May 22 10:14:59 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000586.html">[izpack-changes] r1840 -	izpack-src/trunk/src/lib/com/izforge/izpack/gui
+</A></li>
+        <LI>Next message: <A HREF="000588.html">[izpack-changes] r1842 - izpack-src/branches/3.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#587">[ date ]</a>
+              <a href="thread.html#587">[ thread ]</a>
+              <a href="subject.html#587">[ subject ]</a>
+              <a href="author.html#587">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2007-05-22 10:14:58 +0200 (Tue, 22 May 2007)
+New Revision: 1841
+
+Modified:
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui/IzPanelLayout.java
+Log:
+Used width for stretched components changed.
+
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui/IzPanelLayout.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2007-05-22 07:58:09 UTC (rev 1840)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/gui/IzPanelLayout.java	2007-05-22 08:14:58 UTC (rev 1841)
+@@ -826,6 +826,12 @@
+                         int curPixel = (int) ((colConstraints[i].getXStretch() / rowStretch) * pixel);
+ 
+                         Rectangle curBounds = colConstraints[i].component.getBounds();
++                        // The width of some components differ from time to time. E.g. a JScrollPane
++                        // with a JEditorPane as viewport has sometimes the minimum column width and
++                        // some times the width of the scroll bar. Therefore we use the minimum
++                        // column width.
++                        int curWidth = this.minimumColumnWidth(i);
++                        if (curBounds.width &lt; curWidth) curBounds.width = curWidth;
+                         int newWidth = curPixel + curBounds.width;
+                         colConstraints[i].component.setBounds(curBounds.x + offset, curBounds.y,
+                                 newWidth, curBounds.height);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000586.html">[izpack-changes] r1840 -	izpack-src/trunk/src/lib/com/izforge/izpack/gui
+</A></li>
+	<LI>Next message: <A HREF="000588.html">[izpack-changes] r1842 - izpack-src/branches/3.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#587">[ date ]</a>
+              <a href="thread.html#587">[ thread ]</a>
+              <a href="subject.html#587">[ subject ]</a>
+              <a href="author.html#587">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

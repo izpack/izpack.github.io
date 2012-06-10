@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Having install.jar independant from packages	content
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Having%20install.jar%20independant%20from%20packages%0A%09content&In-Reply-To=200610112132.13681.frederic%40lapeyre-frederic.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000952.html">
+   <LINK REL="Next"  HREF="000953.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Having install.jar independant from packages	content</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Having%20install.jar%20independant%20from%20packages%0A%09content&In-Reply-To=200610112132.13681.frederic%40lapeyre-frederic.com"
+       TITLE="[izpack-users] Having install.jar independant from packages	content">hal at thresholddigital.com
+       </A><BR>
+    <I>Wed Oct 11 16:03:07 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000952.html">[izpack-users] Having install.jar independant from packages content
+</A></li>
+        <LI>Next message: <A HREF="000953.html">[izpack-users] custom panel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#957">[ date ]</a>
+              <a href="thread.html#957">[ thread ]</a>
+              <a href="subject.html#957">[ subject ]</a>
+              <a href="author.html#957">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wednesday 11 October 2006 07:32, Frederic Lapeyre wrote:
+&gt;<i> Hello,
+</I>&gt;<i>
+</I>&gt;<i> I am a new IzPack user and really like it!
+</I>&gt;<i>
+</I>&gt;<i> I have a need that I cannot find covered by the current IzPack
+</I>&gt;<i> functionalities: to install packs dynamically without the need to
+</I>&gt;<i> recompile the install.jar file when packs change.
+</I>&gt;<i>
+</I>&gt;<i> Why? Because I have frequent update to the content of the packages
+</I>&gt;<i> and they are quite large files. So I was thinking that if I have both
+</I>&gt;<i> the &quot;web&quot; and the &quot;loose&quot; functionality combined, that would seem to
+</I>&gt;<i> work perfectly. Without the loose option, install.jar would have to
+</I>&gt;<i> be recompiled every time a package changes. And without the web
+</I>&gt;<i> option, users would have to download the installer and the packages
+</I>&gt;<i> rather than just the installer, which defeats the purpose of having
+</I>&gt;<i> an installer!
+</I>
+I have a similar situation and the way I handle it might help you.  I 
+use a few other tools on Linux to take care of this.  I believe I 
+actually posted a question close to yours a while back.
+
+I have a program that has to install itself, RealVNC, and OpenOffice 
+(unless OpenOffice is already installed).  That means I have one HUGE 
+pack to install.  I also have to upload the web install files to my web 
+site so my clients can, at any time they need to, download and 
+re-install.  My storage space on the web site is limited AND my 
+Internet provider, who brags about download speeds, allows slower 
+upload speeds, so it takes hours to upload an install file to my web 
+site.  If I change a line of code in my program, that means re-building 
+the installs for each client (both web and standard), then re-uploading 
+ALL the files to the web site, which could literally take well over a 
+day. (And, btw, due to passwords and encryption, which is a feature 
+I'll contribute once we get the SimpleConfig added in, each client has 
+to have a different install build.)
+
+I solved that by creating a master installer.  Then when I add a new 
+client, I create a new install for them, which, as I said, is huge.  
+Uploading it is just impractical.  I wrote a Perl script that will 
+compare the installer for a client to the master installer (which means 
+comparing the install.jar and the packs).  It uses rdiff and produces 
+delta files, which are quite small, that record the changes between my 
+master install setup and that client's install setup.  Then I upload 
+the delta files to the website.  When a client needs their installer, a 
+Perl script on the website uses the master install and the delta files 
+for that client to rebuild their install files, which takes, usually, 
+less than 10 seconds.
+
+When I change a line or two in my source and recompile, it's not enough 
+to seriously effect the size of the delta files, so I can do a number 
+of changes before I have to rebuild the master and all the client delta 
+files.  When I have to do that, and upload the master, it takes a few 
+hours, but then all the delta files are uploaded quickly.
+
+This still means you have to take time to rebuild with each change, but 
+it's possible, since file size seems to be an issue (not the worst, but 
+an issue), you might be able to use delta files to store the changes 
+until there are so many changes it forces a new &quot;master&quot; install 
+rebuild.
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000952.html">[izpack-users] Having install.jar independant from packages content
+</A></li>
+	<LI>Next message: <A HREF="000953.html">[izpack-users] custom panel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#957">[ date ]</a>
+              <a href="thread.html#957">[ thread ]</a>
+              <a href="subject.html#957">[ subject ]</a>
+              <a href="author.html#957">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

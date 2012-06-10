@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Automated installation with custom panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Automated%20installation%20with%20custom%20panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000638.html">
+   <LINK REL="Next"  HREF="000632.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Automated installation with custom panels</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Automated%20installation%20with%20custom%20panels&In-Reply-To="
+       TITLE="[izpack-users] Automated installation with custom panels">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Fri Jul  7 09:53:49 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000638.html">[izpack-users] Shortcuts for all users ...
+</A></li>
+        <LI>Next message: <A HREF="000632.html">[izpack-users] Customize the panel heading?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#631">[ date ]</a>
+              <a href="thread.html#631">[ thread ]</a>
+              <a href="subject.html#631">[ subject ]</a>
+              <a href="author.html#631">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Chris,
+you use a wrong signature:
+there is no call of 
+LicenseCheckPanel.makeInstallData(AutomatedInstallData,xmlElement),
+therefore no debug output, no &quot;licenseKey&quot;.
+
+You use a wrong signature of the method.
+In the derived class of IzPanel the signature should be:
+
+public void makeXMLData(XMLElement panelRoot);
+
+You use the signature from the interface PanelAutomation
+
+public void makeXMLData(AutomatedInstallData installData, XMLElement panelRoot);
+
+Little bit confusing, I know...
+
+I do not konw whether there are more problems or not. One point can be that
+that the naming convention for AutomationHelper are strong (seems you use 
+the right name). Additional the AutomationHelper class has to be in the
+jar file of the panel (see e.g. TargetPanel.jar).
+
+At problems you can (in opposite to other java based installer :-))
+debug. In the docu there is a discription how to debug the different
+states of an installation in eclipse (packaging, installation and
+uninstallation). There are some little pitfalls like the position of 
+included install.jar...
+If needed, I have also a description how to debug
+native code (but only in german and only for MS visual studio 6.0 on
+Windows). 
+
+If automated install not work, initialize a debug session with the
+flags for automated install, set a breakpoint in 
+AutomatedInstaller.doInstall()
+and look what happens...
+If data will be not created, the right place for a breakpoint is
+InstallerFrame.writeXMLTree (called at end of install if FinishPanel
+is used, not with SimpleFinishPanel).
+
+happy installing
+
+Klaus
+
+
+
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of cmcclain
+</I>&gt;<i>Sent: Thursday, July 06, 2006 10:48 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: [izpack-users] Automated installation with custom panels
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Greetings,
+</I>&gt;<i>
+</I>&gt;<i>  As a brief introduction, I am a software engineer with 
+</I>&gt;<i>Enterasys Networks
+</I>&gt;<i>working on migrating our application's existing installation 
+</I>&gt;<i>process from
+</I>&gt;<i>InstallAnywhere to IZPack.  As part of that process, I have implemented
+</I>&gt;<i>several custom panels to handle such things as a checkbox panel to
+</I>&gt;<i>selectively enable services and a license check panel that 
+</I>&gt;<i>validates whether
+</I>&gt;<i>a user is authorized to install our application.  For the most 
+</I>&gt;<i>part, adding
+</I>&gt;<i>these custom panels has been fairly easy and has functioned as 
+</I>&gt;<i>expected.
+</I>&gt;<i>
+</I>&gt;<i>  Now, however, I am attempting to use the Automated Installation
+</I>&gt;<i>functionality and am unable to get my custom panels to export the
+</I>&gt;<i>appropriate data to the XML file.  Using my LicenseCheckPanel 
+</I>&gt;<i>and IZPack's
+</I>&gt;<i>TargetPanel source code as an example, I added a public void 
+</I>&gt;<i>makeXMLData
+</I>&gt;<i>method to my LicenseCheckPanel that forwards the 
+</I>&gt;<i>AutomatedInstallData and
+</I>&gt;<i>XMLElement objects to a helper class called
+</I>&gt;<i>LicenseCheckPanelAutomationHelper.  This class implements the
+</I>&gt;<i>PanelAutomation interface and its makeXMLData method contains 
+</I>&gt;<i>code which is
+</I>&gt;<i>supposed to add a sub-element to the LicenseCheckPanel's node 
+</I>&gt;<i>in the XML
+</I>&gt;<i>file.
+</I>&gt;<i>
+</I>&gt;<i>  Unfortunately it doesn't seem like the makeXMLData method in my
+</I>&gt;<i>LicenseCheckPanel is ever called.  The exported XML file 
+</I>&gt;<i>contains an element
+</I>&gt;<i>for the panel, but the sub-element called &quot;licenseKey&quot; is not 
+</I>&gt;<i>present nor do
+</I>&gt;<i>I see any of my debug output from my makeXMLData method in the 
+</I>&gt;<i>install log. 
+</I>&gt;<i>So, my question is largely what steps do I need to follow to 
+</I>&gt;<i>make sure my
+</I>&gt;<i>data gets exported to the XML file?  I have noticed that some 
+</I>&gt;<i>of the IZPack
+</I>&gt;<i>classes differ in their implementations for makeXMLData, so perhaps the
+</I>&gt;<i>method I have chosen is not correct.  In any event, the relevant code
+</I>&gt;<i>segments follow and any help is greatly appreciated.
+</I>&gt;<i>
+</I>&gt;<i>Thank you,
+</I>&gt;<i>
+</I>&gt;<i>- Chris
+</I>&gt;<i>
+</I>&gt;<i>From LicenseCheckPanel.java
+</I>&gt;<i>
+</I>&gt;<i>    public void makeXMLData(AutomatedInstallData idata, XMLElement
+</I>&gt;<i>panelRoot)
+</I>&gt;<i>    {
+</I>&gt;<i>         System.out.println(&quot;makeXMLData stdout called&quot;);
+</I>&gt;<i>         System.err.println(&quot;makeXMLData stderr called&quot;);
+</I>&gt;<i>         new LicenseCheckPanelAutomationHelper().makeXMLData(idata,
+</I>&gt;<i>panelRoot);
+</I>&gt;<i>    }
+</I>&gt;<i>
+</I>&gt;<i>From LicenseCheckPanelAutomationHelper.java
+</I>&gt;<i>    public void makeXMLData(AutomatedInstallData idata, XMLElement
+</I>&gt;<i>panelRoot)
+</I>&gt;<i>    {
+</I>&gt;<i>        String     licKey  = 
+</I>&gt;<i>idata.getVariable(&quot;MACROVISION_LICENSE_KEY&quot;);
+</I>&gt;<i>        String     licType = idata.getVariable(&quot;LICENSE_TYPE&quot;);
+</I>&gt;<i>        XMLElement element = new XMLElement(&quot;licenseKey&quot;);
+</I>&gt;<i>        XMLElement old     = 
+</I>&gt;<i>panelRoot.getFirstChildNamed(&quot;licenseKey&quot;);
+</I>&gt;<i>
+</I>&gt;<i>        if (old != null)
+</I>&gt;<i>            panelRoot.removeChild(old);
+</I>&gt;<i> 
+</I>&gt;<i>        element.setAttribute(&quot;key&quot;, licKey);
+</I>&gt;<i>        element.setAttribute(&quot;type&quot;, licType);
+</I>&gt;<i>        panelRoot.addChild(element);
+</I>&gt;<i>    }
+</I>&gt;<i>
+</I>&gt;<i>From auto-install.xml: Note that there is a LicenseCheckPanel 
+</I>&gt;<i>element, but
+</I>&gt;<i>no &quot;licenseKey&quot; child element
+</I>&gt;<i>&lt;AutomatedInstallation langpack=&quot;eng&quot;&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.ConsoleHelloPanel/&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.LicencePanel/&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.LicenseCheckPanel/&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.TargetPanel&gt;
+</I>&gt;<i>        &lt;installpath&gt;/export/local/NetSight&lt;/installpath&gt;
+</I>&gt;<i>    &lt;/com.izforge.izpack.panels.TargetPanel&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.PacksPanel&gt;
+</I>&gt;<i>        &lt;selected&gt;
+</I>&gt;<i>            &lt;pack index=&quot;0&quot;/&gt;
+</I>&gt;<i>            &lt;pack index=&quot;1&quot;/&gt;
+</I>&gt;<i>        &lt;/selected&gt;
+</I>&gt;<i>    &lt;/com.izforge.izpack.panels.PacksPanel&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.ServicesPanel/&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.InstallPanel/&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.ConsoleProcessPanel/&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.ShortcutPanel&gt;
+</I>&gt;<i>        &lt;programGroup name=&quot;New Enterasys Networks\NetSight Console&quot;/&gt;
+</I>&gt;<i>        &lt;shortcut name=&quot;Console Client&quot; initialState=&quot;1&quot; commandLine=&quot;&quot;
+</I>&gt;<i>workingDirectory=&quot;/export/local/NetSight/clients/Console/&quot;
+</I>&gt;<i>target=&quot;/export/local/NetSight/clients/Console/console.exe&quot; type=&quot;1&quot;
+</I>&gt;<i>icon=&quot;/export/local/NetSight/clients/Console/console.ico&quot; group=&quot;true&quot;
+</I>&gt;<i>description=&quot;Launcher for Console client&quot; iconIndex=&quot;0&quot;/&gt;
+</I>&gt;<i>        &lt;shortcut name=&quot;another Documentation&quot; initialState=&quot;1&quot;
+</I>&gt;<i>commandLine=&quot;&quot; workingDirectory=&quot;&quot;
+</I>&gt;<i>target=&quot;/export/local/NetSight/clients/Console/license.pdf&quot; type=&quot;1&quot;
+</I>&gt;<i>icon=&quot;%SystemRoot%/system32/SHELL32.dll&quot; group=&quot;true&quot; description=&quot;This
+</I>&gt;<i>opens Adobe (Acrobat) Reader (if available) to look into or print the
+</I>&gt;<i>NanoXML (PDF) developer documentation&quot; iconIndex=&quot;23&quot;/&gt;
+</I>&gt;<i>        &lt;shortcut name=&quot;License test&quot; initialState=&quot;1&quot; commandLine=&quot;&quot;
+</I>&gt;<i>workingDirectory=&quot;&quot;
+</I>&gt;<i>target=&quot;/export/local/NetSight/clients/Console/license.pdf&quot; type=&quot;1&quot;
+</I>&gt;<i>icon=&quot;%SystemRoot%/system32/SHELL32.dll&quot; group=&quot;true&quot; description=&quot;This
+</I>&gt;<i>opens Adobe (Acrobat) Reader (if available) to look into or 
+</I>&gt;<i>print the IzPack
+</I>&gt;<i>@build.number@ (PDF) user documentation&quot; iconIndex=&quot;23&quot;/&gt;
+</I>&gt;<i>    &lt;/com.izforge.izpack.panels.ShortcutPanel&gt;
+</I>&gt;<i>    &lt;com.izforge.izpack.panels.FinishPanel/&gt;
+</I>&gt;<i>&lt;/AutomatedInstallation&gt;
+</I>&gt;<i>
+</I>&gt;<i>-- 
+</I>&gt;<i>View this message in context: 
+</I><A HREF="http://www.nabble.com/Automated-installation-with-custom-panels-tf1902934.html#a5207281">http://www.nabble.com/Automated-installation-with-custom-panels-tf1902934.html#a5207281</A>
+Sent from the izpack users forum at Nabble.com.
+
+_______________________________________________
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+<A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000638.html">[izpack-users] Shortcuts for all users ...
+</A></li>
+	<LI>Next message: <A HREF="000632.html">[izpack-users] Customize the panel heading?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#631">[ date ]</a>
+              <a href="thread.html#631">[ thread ]</a>
+              <a href="subject.html#631">[ subject ]</a>
+              <a href="author.html#631">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

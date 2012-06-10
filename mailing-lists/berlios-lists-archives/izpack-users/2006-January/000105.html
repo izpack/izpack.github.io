@@ -1,0 +1,580 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Installation 3.8.1 problems
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Installation%203.8.1%20problems&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000104.html">
+   <LINK REL="Next"  HREF="000106.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Installation 3.8.1 problems</H1>
+    <B>Nadestin Yuri</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Installation%203.8.1%20problems&In-Reply-To="
+       TITLE="[izpack-users] Installation 3.8.1 problems">Yuri.Nadestin at bison-group.com
+       </A><BR>
+    <I>Thu Jan 12 08:14:27 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000104.html">[izpack-users] Sample compile failure
+</A></li>
+        <LI>Next message: <A HREF="000106.html">[izpack-users] Is it possible to stop a service via the install.xml?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#105">[ date ]</a>
+              <a href="thread.html#105">[ thread ]</a>
+              <a href="subject.html#105">[ subject ]</a>
+              <a href="author.html#105">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello Stephen,
+
+ 
+
+I saw this problem with ant 1.6.1.
+
+ 
+
+Start your build script with -debug option and check stack trace.
+
+ 
+
+If you see something similar to this:
+
+ 
+
+Caused by: java.lang.NullPointerException
+
+      at
+org.apache.tools.zip.ZipOutputStream.flush(ZipOutputStream.java:510)
+
+      at
+java.io.ObjectOutputStream$BlockDataOutputStream.flush(ObjectOutputStrea
+m.java:1585)
+
+      at java.io.ObjectOutputStream.flush(ObjectOutputStream.java:639)
+
+      at
+com.izforge.izpack.compiler.Packager.writeInstallerObject(Packager.java:
+456)
+
+      at
+com.izforge.izpack.compiler.Packager.createInstaller(Packager.java:180)
+
+ 
+
+then you hit Ant 1.6.1 bug. Upgrade you ant and problem should go away.
+
+ 
+
+P.S. If you are wondering what is in ZipOutputStream.java at line 510,
+here is extract from source:
+
+ 
+
+501    /**
+
+502     * Flushes this output stream and forces any buffered output
+bytes
+
+503     * to be written out to the stream.
+
+504     *
+
+505     * @exception  IOException  if an I/O error occurs.
+
+506     * @since 1.14
+
+507     */
+
+508    public void flush() throws IOException {
+
+509        if (out == null) {
+
+510            out.flush();
+
+511        }
+
+512    }
+
+ 
+
+The bug is obviously in line 509 which should read &quot;if(out != null) {&quot;.
+
+ 
+
+In later versions of ant this bug is fixed.
+
+ 
+
+Regards,
+
+Yuri Nadestin
+
+________________________________
+
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>] Im Auftrag von Stephen Cheng
+Gesendet: Donnerstag, 12. Januar 2006 04:38
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: [izpack-users] Installation 3.8.1 problems
+
+ 
+
+Hello,
+
+ 
+
+I couple of problems installing 3.8.1
+
+1. After the pack panel the following exception occur
+
+2. I could not choose the option of installing for all users - even
+though I am running as admin.
+
+ 
+
+Environment:
+
+WinXP SP2
+
+JVM build 1.5.0-b64
+
+ 
+
+Cheers,
+
+Stephen
+
+ 
+
+ 
+
+C:\Download\IzPack&gt;java -jar IzPack-install-3.8.1.jar
+
+Exception in thread &quot;AWT-EventQueue-0&quot; java.lang.NullPointerException
+
+        at javax.swing.text.html.CSS$FontSize.getValue(Unknown Source)
+
+        at javax.swing.text.html.CSS$FontSize.toStyleConstants(Unknown
+Source)
+
+        at
+javax.swing.text.html.StyleSheet$ViewAttributeSet.getAttribute(Unknow
+
+n Source)
+
+        at javax.swing.text.StyleConstants.getFontSize(Unknown Source)
+
+        at javax.swing.text.html.CSS$FontSize.getValue(Unknown Source)
+
+        at javax.swing.text.html.CSS$FontSize.toStyleConstants(Unknown
+Source)
+
+        at
+javax.swing.text.html.StyleSheet$ViewAttributeSet.getAttribute(Unknow
+
+n Source)
+
+        at javax.swing.text.StyleConstants.getFontSize(Unknown Source)
+
+        at javax.swing.text.html.CSS$FontSize.getValue(Unknown Source)
+
+        at javax.swing.text.html.CSS.getFontSize(Unknown Source)
+
+        at javax.swing.text.html.CSS.getFont(Unknown Source)
+
+        at javax.swing.text.html.StyleSheet.getFont(Unknown Source)
+
+        at javax.swing.text.DefaultStyledDocument.getFont(Unknown
+Source)
+
+        at
+javax.swing.text.LabelView.setPropertiesFromAttributes(Unknown Source
+
+)
+
+        at
+javax.swing.text.html.InlineView.setPropertiesFromAttributes(Unknown
+
+Source)
+
+        at javax.swing.text.LabelView.sync(Unknown Source)
+
+        at javax.swing.text.LabelView.getFont(Unknown Source)
+
+        at javax.swing.text.GlyphPainter1.sync(Unknown Source)
+
+        at javax.swing.text.GlyphPainter1.getSpan(Unknown Source)
+
+        at javax.swing.text.GlyphView.getPreferredSpan(Unknown Source)
+
+        at
+javax.swing.text.FlowView$LogicalView.getPreferredSpan(Unknown Source
+
+)
+
+        at
+javax.swing.text.FlowView.calculateMinorAxisRequirements(Unknown Sour
+
+ce)
+
+        at
+javax.swing.text.html.ParagraphView.calculateMinorAxisRequirements(Un
+
+known Source)
+
+        at javax.swing.text.BoxView.checkRequests(Unknown Source)
+
+        at javax.swing.text.BoxView.getMinimumSpan(Unknown Source)
+
+        at javax.swing.text.html.ParagraphView.getMinimumSpan(Unknown
+Source)
+
+        at
+javax.swing.text.BoxView.calculateMinorAxisRequirements(Unknown Sourc
+
+e)
+
+        at
+javax.swing.text.html.BlockView.calculateMinorAxisRequirements(Unknow
+
+n Source)
+
+        at javax.swing.text.BoxView.checkRequests(Unknown Source)
+
+        at javax.swing.text.BoxView.getMinimumSpan(Unknown Source)
+
+        at javax.swing.text.html.BlockView.getMinimumSpan(Unknown
+Source)
+
+        at
+javax.swing.text.BoxView.calculateMinorAxisRequirements(Unknown Sourc
+
+e)
+
+        at
+javax.swing.text.html.BlockView.calculateMinorAxisRequirements(Unknow
+
+n Source)
+
+        at javax.swing.text.BoxView.checkRequests(Unknown Source)
+
+        at javax.swing.text.BoxView.setSpanOnAxis(Unknown Source)
+
+        at javax.swing.text.BoxView.layout(Unknown Source)
+
+        at javax.swing.text.BoxView.setSize(Unknown Source)
+
+        at javax.swing.plaf.basic.BasicTextUI$RootView.setSize(Unknown
+Source)
+
+        at javax.swing.plaf.basic.BasicTextUI.getPreferredSize(Unknown
+Source)
+
+        at javax.swing.JComponent.getPreferredSize(Unknown Source)
+
+        at javax.swing.JEditorPane.getPreferredSize(Unknown Source)
+
+        at
+javax.swing.text.JTextComponent.getPreferredScrollableViewportSize(Un
+
+known Source)
+
+        at javax.swing.ViewportLayout.preferredLayoutSize(Unknown
+Source)
+
+        at java.awt.Container.preferredSize(Unknown Source)
+
+        at java.awt.Container.getPreferredSize(Unknown Source)
+
+        at javax.swing.JComponent.getPreferredSize(Unknown Source)
+
+        at javax.swing.ScrollPaneLayout.preferredLayoutSize(Unknown
+Source)
+
+        at java.awt.Container.preferredSize(Unknown Source)
+
+        at java.awt.Container.getPreferredSize(Unknown Source)
+
+        at javax.swing.JComponent.getPreferredSize(Unknown Source)
+
+        at java.awt.GridBagLayout.GetLayoutInfo(Unknown Source)
+
+        at java.awt.GridBagLayout.getLayoutInfo(Unknown Source)
+
+        at java.awt.GridBagLayout.ArrangeGrid(Unknown Source)
+
+        at java.awt.GridBagLayout.arrangeGrid(Unknown Source)
+
+        at java.awt.GridBagLayout.layoutContainer(Unknown Source)
+
+        at java.awt.Container.layout(Unknown Source)
+
+        at java.awt.Container.doLayout(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validate(Unknown Source)
+
+        at javax.swing.RepaintManager.validateInvalidComponents(Unknown
+Source)
+
+        at
+javax.swing.SystemEventQueueUtilities$ComponentWorkRequest.run(Unknow
+
+n Source)
+
+        at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+
+        at java.awt.EventQueue.dispatchEvent(Unknown Source)
+
+        at java.awt.EventDispatchThread.pumpOneEventForHierarchy(Unknown
+Source)
+
+ 
+
+        at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown
+Source)
+
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+
+        at java.awt.EventDispatchThread.run(Unknown Source)
+
+Exception in thread &quot;AWT-EventQueue-0&quot; java.lang.NullPointerException
+
+        at javax.swing.text.html.CSS$FontSize.getValue(Unknown Source)
+
+        at javax.swing.text.html.CSS$FontSize.toStyleConstants(Unknown
+Source)
+
+        at
+javax.swing.text.html.StyleSheet$ViewAttributeSet.getAttribute(Unknow
+
+n Source)
+
+        at javax.swing.text.StyleConstants.getFontSize(Unknown Source)
+
+        at javax.swing.text.html.CSS$FontSize.getValue(Unknown Source)
+
+        at javax.swing.text.html.CSS$FontSize.toStyleConstants(Unknown
+Source)
+
+        at
+javax.swing.text.html.StyleSheet$ViewAttributeSet.getAttribute(Unknow
+
+n Source)
+
+        at javax.swing.text.StyleConstants.getFontSize(Unknown Source)
+
+        at javax.swing.text.html.CSS$FontSize.getValue(Unknown Source)
+
+        at javax.swing.text.html.CSS.getFontSize(Unknown Source)
+
+        at javax.swing.text.html.CSS.getFont(Unknown Source)
+
+        at javax.swing.text.html.StyleSheet.getFont(Unknown Source)
+
+        at javax.swing.text.DefaultStyledDocument.getFont(Unknown
+Source)
+
+        at
+javax.swing.text.LabelView.setPropertiesFromAttributes(Unknown Source
+
+)
+
+        at
+javax.swing.text.html.InlineView.setPropertiesFromAttributes(Unknown
+
+Source)
+
+        at javax.swing.text.LabelView.sync(Unknown Source)
+
+        at javax.swing.text.LabelView.getFont(Unknown Source)
+
+        at javax.swing.text.GlyphPainter1.sync(Unknown Source)
+
+        at javax.swing.text.GlyphPainter1.getSpan(Unknown Source)
+
+        at javax.swing.text.GlyphView.getPreferredSpan(Unknown Source)
+
+        at
+javax.swing.text.FlowView$LogicalView.getPreferredSpan(Unknown Source
+
+)
+
+        at
+javax.swing.text.FlowView.calculateMinorAxisRequirements(Unknown Sour
+
+ce)
+
+        at
+javax.swing.text.html.ParagraphView.calculateMinorAxisRequirements(Un
+
+known Source)
+
+        at javax.swing.text.BoxView.checkRequests(Unknown Source)
+
+        at javax.swing.text.BoxView.getMinimumSpan(Unknown Source)
+
+        at javax.swing.text.html.ParagraphView.getMinimumSpan(Unknown
+Source)
+
+        at
+javax.swing.text.BoxView.calculateMinorAxisRequirements(Unknown Sourc
+
+e)
+
+        at
+javax.swing.text.html.BlockView.calculateMinorAxisRequirements(Unknow
+
+n Source)
+
+        at javax.swing.text.BoxView.checkRequests(Unknown Source)
+
+        at javax.swing.text.BoxView.getMinimumSpan(Unknown Source)
+
+        at javax.swing.text.html.BlockView.getMinimumSpan(Unknown
+Source)
+
+        at
+javax.swing.text.BoxView.calculateMinorAxisRequirements(Unknown Sourc
+
+e)
+
+        at
+javax.swing.text.html.BlockView.calculateMinorAxisRequirements(Unknow
+
+n Source)
+
+        at javax.swing.text.BoxView.checkRequests(Unknown Source)
+
+        at javax.swing.text.BoxView.setSpanOnAxis(Unknown Source)
+
+        at javax.swing.text.BoxView.layout(Unknown Source)
+
+        at javax.swing.text.BoxView.setSize(Unknown Source)
+
+        at javax.swing.plaf.basic.BasicTextUI$RootView.setSize(Unknown
+Source)
+
+        at javax.swing.plaf.basic.BasicTextUI.getPreferredSize(Unknown
+Source)
+
+        at javax.swing.JComponent.getPreferredSize(Unknown Source)
+
+        at javax.swing.JEditorPane.getPreferredSize(Unknown Source)
+
+        at
+javax.swing.text.JTextComponent.getPreferredScrollableViewportSize(Un
+
+known Source)
+
+        at javax.swing.ViewportLayout.preferredLayoutSize(Unknown
+Source)
+
+        at java.awt.Container.preferredSize(Unknown Source)
+
+        at java.awt.Container.getPreferredSize(Unknown Source)
+
+        at javax.swing.JComponent.getPreferredSize(Unknown Source)
+
+        at javax.swing.ScrollPaneLayout.preferredLayoutSize(Unknown
+Source)
+
+        at java.awt.Container.preferredSize(Unknown Source)
+
+        at java.awt.Container.getPreferredSize(Unknown Source)
+
+        at javax.swing.JComponent.getPreferredSize(Unknown Source)
+
+        at java.awt.GridBagLayout.GetLayoutInfo(Unknown Source)
+
+        at java.awt.GridBagLayout.getLayoutInfo(Unknown Source)
+
+        at java.awt.GridBagLayout.ArrangeGrid(Unknown Source)
+
+        at java.awt.GridBagLayout.arrangeGrid(Unknown Source)
+
+        at java.awt.GridBagLayout.layoutContainer(Unknown Source)
+
+        at java.awt.Container.layout(Unknown Source)
+
+        at java.awt.Container.doLayout(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validateTree(Unknown Source)
+
+        at java.awt.Container.validate(Unknown Source)
+
+        at javax.swing.RepaintManager.validateInvalidComponents(Unknown
+Source)
+
+        at
+javax.swing.SystemEventQueueUtilities$ComponentWorkRequest.run(Unknow
+
+n Source)
+
+        at java.awt.event.InvocationEvent.dispatch(Unknown Source)
+
+        at java.awt.EventQueue.dispatchEvent(Unknown Source)
+
+        at java.awt.EventDispatchThread.pumpOneEventForHierarchy(Unknown
+Source)
+
+ 
+
+        at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown
+Source)
+
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+
+        at java.awt.EventDispatchThread.run(Unknown Source)
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060112/a229361e/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060112/a229361e/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000104.html">[izpack-users] Sample compile failure
+</A></li>
+	<LI>Next message: <A HREF="000106.html">[izpack-users] Is it possible to stop a service via the install.xml?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#105">[ date ]</a>
+              <a href="thread.html#105">[ thread ]</a>
+              <a href="subject.html#105">[ subject ]</a>
+              <a href="author.html#105">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1491 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1491%20-%20in%20izpack-src/trunk%3A%20.%20src/dist-files%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000234.html">
+   <LINK REL="Next"  HREF="000236.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1491 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1491%20-%20in%20izpack-src/trunk%3A%20.%20src/dist-files%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1491 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sun Jul 16 05:17:51 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000234.html">[izpack-changes] r1490 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+        <LI>Next message: <A HREF="000236.html">[izpack-changes] r1492 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/event
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#235">[ date ]</a>
+              <a href="thread.html#235">[ thread ]</a>
+              <a href="subject.html#235">[ subject ]</a>
+              <a href="author.html#235">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-07-16 05:16:43 +0200 (Sun, 16 Jul 2006)
+New Revision: 1491
+
+Modified:
+   izpack-src/trunk/IzPack-head.ipr
+   izpack-src/trunk/Thanks.txt
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/dist-files/IzPack-install-reg.xml
+   izpack-src/trunk/src/dist-files/IzPack-install.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+Log:
+Compiler and PacksPanels fixes by Ryan Shillington.
+
+Modified: izpack-src/trunk/IzPack-head.ipr
+===================================================================
+--- izpack-src/trunk/IzPack-head.ipr	2006-07-13 20:57:06 UTC (rev 1490)
++++ izpack-src/trunk/IzPack-head.ipr	2006-07-16 03:16:43 UTC (rev 1491)
+@@ -188,7 +188,7 @@
+       &lt;module fileurl=&quot;<A HREF="file://$PROJECT_DIR$/IzPack-head.iml&quot;">file://$PROJECT_DIR$/IzPack-head.iml&quot;</A> filepath=&quot;$PROJECT_DIR$/IzPack-head.iml&quot; /&gt;
+     &lt;/modules&gt;
+   &lt;/component&gt;
+-  &lt;component name=&quot;ProjectRootManager&quot; version=&quot;2&quot; assert-keyword=&quot;true&quot; jdk-15=&quot;false&quot; project-jdk-name=&quot;1.6&quot; /&gt;
++  &lt;component name=&quot;ProjectRootManager&quot; version=&quot;2&quot; assert-keyword=&quot;true&quot; jdk-15=&quot;false&quot; project-jdk-name=&quot;1.5.0_05&quot; /&gt;
+   &lt;component name=&quot;RmicSettings&quot;&gt;
+     &lt;option name=&quot;IS_EANABLED&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
+
+Modified: izpack-src/trunk/Thanks.txt
+===================================================================
+--- izpack-src/trunk/Thanks.txt	2006-07-13 20:57:06 UTC (rev 1490)
++++ izpack-src/trunk/Thanks.txt	2006-07-16 03:16:43 UTC (rev 1491)
+@@ -102,4 +102,5 @@
+ - Stefan Heidrich : for the PacksPanel langpack loading patch.
+ - Oliver Kiddle: for the patches and fixes
+ - Julian Payne: for the patch on WebAccessor
+-- Hal Vaughan: for the patches
+\ No newline at end of file
++- Hal Vaughan: for the patches
++- Ryan Shillington: for the patches
+\ No newline at end of file
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2006-07-13 20:57:06 UTC (rev 1490)
++++ izpack-src/trunk/Versions.txt	2006-07-16 03:16:43 UTC (rev 1491)
+@@ -21,6 +21,9 @@
+ - Configurable heading panel added to InstallerFrame (Klaus Bartz).
+ - Panels counter (text or progressbar) useable in the heading or 
+   navigation panel (Klaus Bartz).
++- PacksPanels: fixed disk space requirements (Ryan Shillington, via Julien
++  Ponge).
++- Compiler fix (Ryan Shillington, via Julien Ponge).
+ 
+   &gt; 3.8.1 (build 2006.01.06)
+ - Added Greek language support (Fabrice Mirabile, thanks to Panayotis
+
+Modified: izpack-src/trunk/src/dist-files/IzPack-install-reg.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install-reg.xml	2006-07-13 20:57:06 UTC (rev 1490)
++++ izpack-src/trunk/src/dist-files/IzPack-install-reg.xml	2006-07-16 03:16:43 UTC (rev 1491)
+@@ -32,6 +32,7 @@
+ 
+             &lt;author email=&quot;&quot; name=&quot;Oliver Kiddle (contributor)&quot;/&gt;
+             &lt;author email=&quot;&quot; name=&quot;Cesar Martinez Izquierdo (contributor)&quot;/&gt;
++            &lt;author email=&quot;&quot; name=&quot;(Ryan Shillington&quot; /&gt;
+ 
+             &lt;author email=&quot;&quot;
+                 name=&quot;... the many other developers and contributors to the previous releases (see Thanks.txt)&quot; /&gt;
+
+Modified: izpack-src/trunk/src/dist-files/IzPack-install.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install.xml	2006-07-13 20:57:06 UTC (rev 1490)
++++ izpack-src/trunk/src/dist-files/IzPack-install.xml	2006-07-16 03:16:43 UTC (rev 1491)
+@@ -32,6 +32,7 @@
+ 
+             &lt;author email=&quot;&quot; name=&quot;Oliver Kiddle (contributor)&quot;/&gt;
+             &lt;author email=&quot;&quot; name=&quot;Cesar Martinez Izquierdo (contributor)&quot;/&gt;
++            &lt;author email=&quot;&quot; name=&quot;(Ryan Shillington&quot; /&gt;
+ 
+             &lt;author email=&quot;&quot;
+                     name=&quot;... the many other developers and contributors to the previous releases (see Thanks.txt)&quot;/&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2006-07-13 20:57:06 UTC (rev 1490)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2006-07-16 03:16:43 UTC (rev 1491)
+@@ -183,7 +183,7 @@
+      * @param bytes A number of bytes to convert to a String.
+      * @return The String-converted value.
+      */
+-    public static String toByteUnitsString(int bytes)
++    public static String toByteUnitsString(long bytes)
+     {
+         if (bytes &lt; KILOBYTES)
+             return String.valueOf(bytes) + &quot; bytes&quot;;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-07-13 20:57:06 UTC (rev 1490)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-07-16 03:16:43 UTC (rev 1491)
+@@ -1955,8 +1955,7 @@
+             {
+                 pos = name.indexOf(className);
+             }
+-            if (name.length() == pos + className.length() + 6) // &quot;Main&quot; class
+-            // found
++            if (pos != -1 &amp;&amp; name.length() == pos + className.length() + 6) // &quot;Main&quot; class found
+             {
+                 jis.close();
+                 return (name.substring(0, lastPos));
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2006-07-13 20:57:06 UTC (rev 1490)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2006-07-16 03:16:43 UTC (rev 1491)
+@@ -74,7 +74,7 @@
+  * panels together. This class handles the common logic of pack selection. The derived class should
+  * be create the layout and other specific actions. There are some helper methods to simplify layout
+  * creation in the derived class.
+- * 
++ *
+  * @author Julien Ponge
+  * @author Klaus Bartz
+  */
+@@ -83,48 +83,72 @@
+ {
+ 
+     // Common used Swing fields
+-    /** The free space label. */
++    /**
++     * The free space label.
++     */
+     protected JLabel freeSpaceLabel;
+ 
+-    /** The space label. */
++    /**
++     * The space label.
++     */
+     protected JLabel spaceLabel;
+ 
+-    /** The tip label. */
++    /**
++     * The tip label.
++     */
+     protected JTextArea descriptionArea;
+ 
+-    /** The dependencies label. */
++    /**
++     * The dependencies label.
++     */
+     protected JTextArea dependencyArea;
+ 
+-    /** The packs table. */
++    /**
++     * The packs table.
++     */
+     protected JTable packsTable;
+ 
+-    /** The tablescroll. */
++    /**
++     * The tablescroll.
++     */
+     protected JScrollPane tableScroller;
+ 
+     // Non-GUI fields
+-    /** Map that connects names with pack objects */
++    /**
++     * Map that connects names with pack objects
++     */
+     private Map names;
+ 
+-    /** The bytes of the current pack. */
++    /**
++     * The bytes of the current pack.
++     */
+     protected int bytes = 0;
+ 
+-    /** The free bytes of the current selected disk. */
++    /**
++     * The free bytes of the current selected disk.
++     */
+     protected long freeBytes = 0;
+ 
+-    /** Are there dependencies in the packs */
++    /**
++     * Are there dependencies in the packs
++     */
+     protected boolean dependenciesExist = false;
+ 
+-    /** The packs locale database. */
++    /**
++     * The packs locale database.
++     */
+     private LocaleDatabase langpack = null;
+ 
+-    /** The name of the XML file that specifies the panel langpack */
++    /**
++     * The name of the XML file that specifies the panel langpack
++     */
+     private static final String LANG_FILE_NAME = &quot;packsLang.xml&quot;;
+ 
+     /**
+      * The constructor.
+-     * 
++     *
+      * @param parent The parent window.
+-     * @param idata The installation data.
++     * @param idata  The installation data.
+      */
+     public PacksPanelBase(InstallerFrame parent, InstallData idata)
+     {
+@@ -202,20 +226,20 @@
+         {
+             String msg = null;
+             freeBytes = IoHelper.getFreeSpace(IoHelper.existingParent(
+-                    new File(idata.getInstallPath())).getAbsolutePath());
+-            if (freeBytes &gt; 0x000000007fffffff)
+-                msg = &quot; &gt; 2 GB&quot;;
+-            else if (freeBytes &lt; 0)
+-                msg = parent.langpack.getString(&quot;PacksPanel.notAscertainable&quot;);
++                    new
++                            File(idata.getInstallPath())).getAbsolutePath());
++            if (freeBytes &lt; 0)
++                msg =
++                        parent.langpack.getString(&quot;PacksPanel.notAscertainable&quot;);
+             else
+-                msg = Pack.toByteUnitsString((int) freeBytes);
++                msg = Pack.toByteUnitsString(freeBytes);
+             freeSpaceLabel.setText(msg);
+         }
+     }
+ 
+     /**
+      * Indicates wether the panel has been validated or not.
+-     * 
++     *
+      * @return true if the needed space is less than the free space, else false
+      */
+     public boolean isValidated()
+@@ -232,7 +256,7 @@
+ 
+     /**
+      * Asks to make the XML panel data.
+-     * 
++     *
+      * @param panelRoot The XML tree to write the data in.
+      */
+     public void makeXMLData(XMLElement panelRoot)
+@@ -299,15 +323,15 @@
+      * Creates an label with a message given by msgId and an icon given by the iconId. If layout and
+      * constraints are not null, the label will be added to layout with the given constraints. The
+      * label will be added to this object.
+-     * 
+-     * @param msgId identifier for the IzPack langpack
+-     * @param iconId identifier for the IzPack icons
+-     * @param layout layout to be used
++     *
++     * @param msgId       identifier for the IzPack langpack
++     * @param iconId      identifier for the IzPack icons
++     * @param layout      layout to be used
+      * @param constraints constraints to be used
+      * @return the created label
+      */
+     protected JLabel createLabel(String msgId, String iconId, GridBagLayout layout,
+-            GridBagConstraints constraints)
++                                 GridBagConstraints constraints)
+     {
+         JLabel label = LabelFactory.create(parent.langpack.getString(msgId), parent.icons
+                 .getImageIcon(iconId), JLabel.TRAILING);
+@@ -321,14 +345,14 @@
+      * and a label on the right side with initial no text. The right label will be returned. If
+      * layout and constraints are not null, the label will be added to layout with the given
+      * constraints. The panel will be added to this object.
+-     * 
+-     * @param msgId identifier for the IzPack langpack
+-     * @param layout layout to be used
++     *
++     * @param msgId       identifier for the IzPack langpack
++     * @param layout      layout to be used
+      * @param constraints constraints to be used
+      * @return the created (right) label
+      */
+     protected JLabel createPanelWithLabel(String msgId, GridBagLayout layout,
+-            GridBagConstraints constraints)
++                                          GridBagConstraints constraints)
+     {
+         JPanel panel = new JPanel();
+         JLabel label = new JLabel();
+@@ -349,15 +373,15 @@
+      * else the text area will be added directly to this object. If layout and constraints are not
+      * null, the text area or scroller will be added to layout with the given constraints. The text
+      * area will be returned.
+-     * 
+-     * @param msgId identifier for the IzPack langpack
+-     * @param scroller the scroller to be used
+-     * @param layout layout to be used
++     *
++     * @param msgId       identifier for the IzPack langpack
++     * @param scroller    the scroller to be used
++     * @param layout      layout to be used
+      * @param constraints constraints to be used
+      * @return the created text area
+      */
+     protected JTextArea createTextArea(String msgId, JScrollPane scroller, GridBagLayout layout,
+-            GridBagConstraints constraints)
++                                       GridBagConstraints constraints)
+     {
+         JTextArea area = new JTextArea();
+         area.setMargin(new Insets(2, 2, 2, 2));
+@@ -392,15 +416,15 @@
+ 
+     /**
+      * Creates the table for the packs. All parameters are required. The table will be returned.
+-     * 
+-     * @param width of the table
+-     * @param scroller the scroller to be used
+-     * @param layout layout to be used
++     *
++     * @param width       of the table
++     * @param scroller    the scroller to be used
++     * @param layout      layout to be used
+      * @param constraints constraints to be used
+      * @return the created table
+      */
+     protected JTable createPacksTable(int width, JScrollPane scroller, GridBagLayout layout,
+-            GridBagConstraints constraints)
++                                      GridBagConstraints constraints)
+     {
+ 
+         JTable table = new JTable();
+@@ -423,7 +447,7 @@
+ 
+     /**
+      * Computes pack related data like the names or the dependencies state.
+-     * 
++     *
+      * @param packs
+      */
+     private void computePacks(List packs)
+@@ -441,7 +465,6 @@
+     /**
+      * Called when the panel becomes active. If a derived class implements this method also, it is
+      * recomanded to call this method with the super operator first.
+-     * 
+      */
+     public void panelActivate()
+     {
+@@ -453,7 +476,8 @@
+             CheckBoxEditorRenderer packSelectedEditor = new CheckBoxEditorRenderer(true);
+             packsTable.getColumnModel().getColumn(0).setCellEditor(packSelectedEditor);
+             packsTable.getColumnModel().getColumn(0).setMaxWidth(40);
+-            DefaultTableCellRenderer renderer1 = new DefaultTableCellRenderer() {
++            DefaultTableCellRenderer renderer1 = new DefaultTableCellRenderer()
++            {
+ 
+                 /**
+                  * 
+@@ -465,7 +489,8 @@
+                 }
+             };
+             packsTable.getColumnModel().getColumn(1).setCellRenderer(renderer1);
+-            DefaultTableCellRenderer renderer2 = new DefaultTableCellRenderer() {
++            DefaultTableCellRenderer renderer2 = new DefaultTableCellRenderer()
++            {
+ 
+                 /**
+                  * 
+@@ -561,7 +586,7 @@
+         }
+ 
+         public Component getTableCellRendererComponent(JTable table, Object value,
+-                boolean isSelected, boolean hasFocus, int row, int column)
++                                                       boolean isSelected, boolean hasFocus, int row, int column)
+         {
+             if (isSelected)
+             {
+@@ -581,10 +606,10 @@
+ 
+         /**
+          * @see javax.swing.table.TableCellEditor#getTableCellEditorComponent(javax.swing.JTable,
+-         * java.lang.Object, boolean, int, int)
++         *      Object, boolean, int, int)
+          */
+         public Component getTableCellEditorComponent(JTable table, Object value,
+-                boolean isSelected, int row, int column)
++                                                     boolean isSelected, int row, int column)
+         {
+             return getTableCellRendererComponent(table, value, isSelected, false, row, column);
+         }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000234.html">[izpack-changes] r1490 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+	<LI>Next message: <A HREF="000236.html">[izpack-changes] r1492 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/event
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#235">[ date ]</a>
+              <a href="thread.html#235">[ thread ]</a>
+              <a href="subject.html#235">[ subject ]</a>
+              <a href="author.html#235">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

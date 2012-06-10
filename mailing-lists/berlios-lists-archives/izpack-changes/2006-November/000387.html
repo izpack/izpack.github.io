@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1642 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1642%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000386.html">
+   <LINK REL="Next"  HREF="000388.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1642 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1642%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1642 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 21 10:50:18 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000386.html">[izpack-changes] r1641 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000388.html">[izpack-changes] r1643 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#387">[ date ]</a>
+              <a href="thread.html#387">[ thread ]</a>
+              <a href="subject.html#387">[ subject ]</a>
+              <a href="author.html#387">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-11-21 10:50:08 +0100 (Tue, 21 Nov 2006)
+New Revision: 1642
+
+Modified:
+   izpack-src/branches/branch-3.9/Versions.txt
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+UserInputPanel multiline label fix (Vladimir Ralev, JBoss/RedHat)
+
+Modified: izpack-src/branches/branch-3.9/Versions.txt
+===================================================================
+--- izpack-src/branches/branch-3.9/Versions.txt	2006-11-14 09:51:52 UTC (rev 1641)
++++ izpack-src/branches/branch-3.9/Versions.txt	2006-11-21 09:50:08 UTC (rev 1642)
+@@ -1,8 +1,10 @@
+ [ The list of the different public versions of IzPack ]
+ 
+ 	&gt; 3.9.1 (build xxxx.xx.xx)
+-- Fixed the DesktopShortcutCheckboxEnabled Builtin Variable in docu (Fabrice Mirabile))
++
++- Fixed the DesktopShortcutCheckboxEnabled Builtin Variable in docu (Fabrice Mirabile)
+ - Fixed build.xml (PathSelectionPanel without using TargetPanel) (Fabrice Mirabile)
++- UserInputPanel multiline label fix (Vladimir Ralev, JBoss/RedHat)
+ 
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-11-14 09:51:52 UTC (rev 1641)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-11-21 09:50:08 UTC (rev 1642)
+@@ -2054,8 +2054,21 @@
+                     }
+                 }
+ 
+-                MultiLineLabel label = new MultiLineLabel(description, justify);
+-
++                javax.swing.JTextPane label = new javax.swing.JTextPane();
++                
++                // Not editable, but still selectable.
++                label.setEditable(false);
++                
++                // If html tags are present enable html rendering, otherwise the JTextPane
++                // looks exactly like MultiLineLabel.
++                if(description.startsWith(&quot;&lt;html&gt;&quot;) &amp;&amp; description.endsWith(&quot;&lt;/html&gt;&quot;))
++                    label.setContentType(&quot;text/html&quot;);               
++                label.setText(description);
++                
++                // Background color and font to match the label's.
++                label.setBackground(javax.swing.UIManager.getColor(&quot;label.backgroud&quot;));
++                label.setMargin(new java.awt.Insets(3, 0, 3, 0));
++                    
+                 uiElements.add(new Object[] { null, DESCRIPTION, null, constraints, label,
+                         forPacks, forOs});
+             }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000386.html">[izpack-changes] r1641 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000388.html">[izpack-changes] r1643 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#387">[ date ]</a>
+              <a href="thread.html#387">[ thread ]</a>
+              <a href="subject.html#387">[ subject ]</a>
+              <a href="author.html#387">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

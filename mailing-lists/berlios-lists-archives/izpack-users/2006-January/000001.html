@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Specifying Required Packs and OSs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Specifying%20Required%20Packs%20and%20OSs&In-Reply-To=200512311242.59942.hal%40thresholddigital.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000000.html">
+   <LINK REL="Next"  HREF="000003.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Specifying Required Packs and OSs</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Specifying%20Required%20Packs%20and%20OSs&In-Reply-To=200512311242.59942.hal%40thresholddigital.com"
+       TITLE="[izpack-users] Specifying Required Packs and OSs">bartzkau at gmx.net
+       </A><BR>
+    <I>Sun Jan  1 22:52:18 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000000.html">[izpack-users] Happy new year!
+</A></li>
+        <LI>Next message: <A HREF="000003.html">[izpack-users] Specifying Required Packs and OSs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Hal,
+Am 31.12.2005, 18:42 Uhr, schrieb Hal Vaughan &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">hal at thresholddigital.com</A>&gt;:
+
+&gt;<i>
+</I>&gt;<i> Have you had any problem with the packs for one OS being installed on the
+</I>&gt;<i> other OS?
+</I>
+No.
+
+&gt;<i> I'm testing on Linux and WinXp.  I found if I specified one pack
+</I>&gt;<i> as &quot;windows&quot; and the other as &quot;linux&quot; the test install on Linux gets  
+</I>&gt;<i> only the
+</I>&gt;<i> &quot;linux&quot; pack, but the test install on Windows gets both packs.  (And I'm
+</I>&gt;<i> using the latest version of IzPack!)
+</I>&gt;<i>
+</I>
+&quot;linux&quot; is not a valid name for the OS attribute of all elements like pack,
+file, fileset etc.
+The attribute OS is old and will be present for compatibility. There only  
+the
+three values &quot;windows&quot; &quot;unix&quot; and &quot;mac&quot; are valid. The element OS is newer  
+and
+you can specify the os in more detail. In addition to the family
+(&quot;windows&quot; &quot;unix&quot; and &quot;mac&quot;) you can specify the OS name like &quot;Windows XP&quot;.
+The name will be given by the VM using System.getProperty(&quot;os.name&quot;). I  
+doubt
+that &quot;linux&quot; will be a valid os.name property of a VM.
+
+&gt;<i> It's little things like this that have left me puzzled.  I've tried all  
+</I>&gt;<i> the
+</I>&gt;<i> variations on install.xml that I can think of and still run into this
+</I>&gt;<i> (and
+</I>&gt;<i> problems with the UserInput Panel).
+</I>&gt;<i>
+</I>&gt;<i> Could you possibly post enough of the packs section of your file so I  
+</I>&gt;<i> can see
+</I>&gt;<i> how you're specifying which OS each pack goes for?  It doesn't work for  
+</I>&gt;<i> me
+</I>&gt;<i> unless I specify each file as for a particular OS.
+</I>
+Using the OS attribute &quot;linux&quot; at the element &lt;file&gt; does also NOT work.
+It is the same behavior. I had offered that I can look into your pack
+declaration. If it is not an option for you, also OK. I think, my real
+pack declarations will only confuse you more. Therefore an example of an
+install.xml only for seeing how to declare OS dependency of packs:
+
+&lt;installation version=&quot;1.0&quot;&gt;
+
+     &lt;!-- The info section --&gt;
+     &lt;info&gt;
+         &lt;appname&gt;InstallTest2&lt;/appname&gt;
+         &lt;appversion&gt;0.0.1 (build 2006.01.01)&lt;/appversion&gt;
+         &lt;authors&gt;
+             &lt;author email=&quot;&quot; name=&quot;Klaus Bartz (developer)&quot; /&gt;
+         &lt;/authors&gt;
+         &lt;url&gt;<A HREF="http://www.izforge.com/izpack/&lt;/url">http://www.izforge.com/izpack/&lt;/url</A>&gt;
+         &lt;javaversion&gt;1.4&lt;/javaversion&gt;
+     &lt;/info&gt;
+
+     &lt;!-- Flexible and in the screen proportions --&gt;
+     &lt;guiprefs height=&quot;600&quot; resizable=&quot;yes&quot; width=&quot;800&quot;&gt;
+         &lt;laf name=&quot;looks&quot;&gt;
+             &lt;os family=&quot;unix&quot; /&gt;
+         &lt;/laf&gt;
+     &lt;/guiprefs&gt;
+
+     &lt;!-- We include every langpack --&gt;
+     &lt;locale&gt;
+         &lt;langpack iso3=&quot;eng&quot; /&gt;
+         &lt;langpack iso3=&quot;deu&quot; /&gt;
+     &lt;/locale&gt;
+     &lt;!-- The panels in a classic order --&gt;
+     &lt;panels&gt;
+         &lt;panel classname=&quot;TargetPanel&quot; /&gt;
+         &lt;panel classname=&quot;InstallPanel&quot; /&gt;
+         &lt;panel classname=&quot;SimpleFinishPanel&quot; /&gt;
+     &lt;/panels&gt;
+     &lt;!-- The packs section --&gt;
+     &lt;packs&gt;
+         &lt;!-- The core files --&gt;
+         &lt;pack name=&quot;Core&quot; required=&quot;yes&quot;&gt;
+             &lt;description&gt;The InstallTest core files.&lt;/description&gt;
+             &lt;file src=&quot;core.txt&quot; targetdir=&quot;$INSTALL_PATH&quot; /&gt;
+         &lt;/pack&gt;
+         &lt;!-- The UNIX core files --&gt;
+         &lt;pack name=&quot;UnixCore&quot; required=&quot;yes&quot; os=&quot;unix&quot; &gt;
+             &lt;description&gt;The UNIX specific InstallTest core  
+files.&lt;/description&gt;
+             &lt;file src=&quot;UnixCore.txt&quot; targetdir=&quot;$INSTALL_PATH&quot; /&gt;
+         &lt;/pack&gt;
+         &lt;!-- The WINDOWS core files --&gt;
+         &lt;pack name=&quot;WINCore&quot; required=&quot;yes&quot;&gt;
+             &lt;description&gt;The Windows XP InstallTest core  
+files.&lt;/description&gt;
+             &lt;os family=&quot;windows&quot; name=&quot;windows xp&quot; /&gt;
+             &lt;file src=&quot;WindowsXPCore.txt&quot; targetdir=&quot;$INSTALL_PATH&quot;  /&gt;
+         &lt;/pack&gt;
+         &lt;pack name=&quot;WINCore&quot; required=&quot;yes&quot; os=&quot;windows&quot; &gt;
+             &lt;description&gt;The InstallTest core files for all Windows  
+systems.&lt;/description&gt;
+             &lt;file src=&quot;WindowsCore.txt&quot; targetdir=&quot;$INSTALL_PATH&quot;  /&gt;
+         &lt;/pack&gt;
+         &lt;!-- The MAC core files --&gt;
+         &lt;pack name=&quot;MACCore&quot; required=&quot;yes&quot; os=&quot;mac&quot;&gt;
+             &lt;description&gt;The InstallTest core files.&lt;/description&gt;
+             &lt;file src=&quot;MacCore.txt&quot; targetdir=&quot;$INSTALL_PATH&quot;  /&gt;
+         &lt;/pack&gt;
+     &lt;/packs&gt;
+
+&lt;/installation&gt;
+
+
+
+&gt;<i>
+</I>&gt;<i> Right now I've had to step back.  I am having so many problems with  
+</I>&gt;<i> IzPack I'm
+</I>&gt;<i> not sure what to do.  With my program I have to also install RealVNC and
+</I>&gt;<i> OpenOffice.  My program has to know where both are and it would look  
+</I>&gt;<i> damned
+</I>&gt;<i> clumsy if I have a client install both of those THEN, when installing my
+</I>&gt;<i> program, my installer asks, &quot;Do you have OpenOffice installed?&quot; and,  
+</I>&gt;<i> &quot;What is
+</I>&gt;<i> the path name?&quot;  So I really need to either install those programs along  
+</I>&gt;<i> with
+</I>&gt;<i> mine, which I can do with the Process Panel by copying over the files as
+</I>&gt;<i> packs, including parsing paths and such, so the Process Panel will run  
+</I>&gt;<i> batch
+</I>&gt;<i> files that will do the install with response files that specify  
+</I>&gt;<i> directories
+</I>&gt;<i> my client has picked for OOo and VNC.
+</I>&gt;<i>
+</I>
+On Windows both programs are in the registry. You can look into the
+registry since IzPack 3.8 if the installer has read access in the registry.
+But this feature is only an undocumented add on of my  
+RegistryInstallerListener.
+To use it implies knowledge of java and the possibility to extract the  
+implicit
+rules from an other source. The class
+com.izforge.izpack.panels.CheckedHelloPanel
+can be used as example.
+
+&gt;<i> I have that working my own install program (which doesn't look as nice as
+</I>&gt;<i> IzPack, doesn't do networked installs, and is not as easy to maintain).
+</I>&gt;<i> However, to get it working in IzPack, I need to use the Search object in  
+</I>&gt;<i> the
+</I>&gt;<i> UserInput panel, and no matter what I try, it is completely messed up.   
+</I>&gt;<i> I've
+</I>&gt;<i> tried using it almost exactly like it was shown in the docs (changed path
+</I>&gt;<i> names, but otherwise the same), and it does not work.  Until I can get
+</I>&gt;<i> something like this to work for me (so the user can either select an  
+</I>&gt;<i> install
+</I>
+You know, I do not use UserInputPanel.
+
+
+&gt;<i> path for OOo and VNC *OR* tell me where they are), IzPack won't do what I
+</I>&gt;<i> need.  I've considered writing my own panels, but I'm not sure I fully
+</I>&gt;<i> understand what I need to do that (I'm self taught, so I have a lot of  
+</I>&gt;<i> holes
+</I>&gt;<i> in my background).
+</I>
+You can only write own custom panels if you are firm with java. IzPack is
+not the best place to learn java...
+In chapter &quot;Getting started&quot; there is the paragraph
+&quot;How to develop and debug IzPack using Eclipse&quot;
+Do it. Never write a panel without the possibility to debug. The fastes
+way to learn something of the internals of IzPack is to step through an
+installation.
+For path panels look into
+com.izforge.izpack.panels.TargetPanel
+An other path panel really needs the methods isValidated() and  
+panelActivate()
+rest is specific for the target panel. If you would see how to verify  
+something,
+look into
+com.izforge.izpack.panels.JDKPathPanel
+
+&gt;<i>
+</I>&gt;<i> So, for now, I've had to set this aside until I can either get some  
+</I>&gt;<i> answers,
+</I>&gt;<i> find a way to get everything on the UserInput Panel to work correctly, or
+</I>&gt;<i> learn enough to write my own panel.  I'm going to take time to think of  
+</I>&gt;<i> all
+</I>&gt;<i> the issues I'm having, write them up as questions, and post them on the  
+</I>&gt;<i> list.
+</I>&gt;<i> Then (I hope) when I'm ready to get back to the install part of my  
+</I>&gt;<i> program,
+</I>&gt;<i> the answers should have been worked out.
+</I>&gt;<i>
+</I>&gt;<i> Thanks for the response.  I'll be posting my install.xml file when I get  
+</I>&gt;<i> back
+</I>&gt;<i> to this so I can ask for help on a number of topics.
+</I>&gt;<i>
+</I>&gt;<i> Hal
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> __________ NOD32 1.1347 (20051230) Information __________
+</I>&gt;<i>
+</I>&gt;<i> Diese E-Mail wurde vom NOD32 Antivirus System gepr&#252;ft
+</I>&gt;<i> <A HREF="http://www.nod32.com">http://www.nod32.com</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+
+-- 
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000000.html">[izpack-users] Happy new year!
+</A></li>
+	<LI>Next message: <A HREF="000003.html">[izpack-users] Specifying Required Packs and OSs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1">[ date ]</a>
+              <a href="thread.html#1">[ thread ]</a>
+              <a href="subject.html#1">[ subject ]</a>
+              <a href="author.html#1">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

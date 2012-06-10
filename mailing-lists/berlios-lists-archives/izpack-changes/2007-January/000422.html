@@ -1,0 +1,430 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1677 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/uninstaller
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1677%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/uninstaller&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000421.html">
+   <LINK REL="Next"  HREF="000423.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1677 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/uninstaller</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1677%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/uninstaller&In-Reply-To="
+       TITLE="[izpack-changes] r1677 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/uninstaller">noreply at berlios.de
+       </A><BR>
+    <I>Sat Jan  6 12:43:28 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000421.html">[izpack-changes] r1676 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels
+</A></li>
+        <LI>Next message: <A HREF="000423.html">[izpack-changes] r1678 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#422">[ date ]</a>
+              <a href="thread.html#422">[ thread ]</a>
+              <a href="subject.html#422">[ subject ]</a>
+              <a href="author.html#422">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-01-06 12:43:12 +0100 (Sat, 06 Jan 2007)
+New Revision: 1677
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerConsole.java
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java
+Log:
+Non-interactive command-line uninstaller (Vladimir Ralev, JBoss/Redhat, via Julien Ponge)
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-01-05 08:06:24 UTC (rev 1676)
++++ izpack-src/trunk/Versions.txt	2007-01-06 11:43:12 UTC (rev 1677)
+@@ -24,10 +24,11 @@
+ - Support for uncompressing archives and adding their content at the installer generation time (Nils Meier, via Julien Ponge)
+ - Fix for default button changes when a text field receives focus in UserInputPanel (Vladimir Ralev, JBoss/RedHat, via Dennis Reil)
+ - Use the 'ProgramFiles' environment variable to detect the Windows program files folder path.
+-  (Markus Schlegel via Julien Ponge).
+-- TargetPanel.dir setting bug fix (Markus Schlegel via Julien Ponge).
++  (Markus Schlegel via Julien Ponge)
++- TargetPanel.dir setting bug fix (Markus Schlegel via Julien Ponge)
+ - Added support for packaging selection (Dennis Reil)
+ - Added support for variables in UserInputPanel (Dennis Reil)
++- Non-interactive command-line uninstaller (Vladimir Ralev, JBoss/Redhat, via Julien Ponge)
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java	2007-01-05 08:06:24 UTC (rev 1676)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java	2007-01-06 11:43:12 UTC (rev 1677)
+@@ -19,14 +19,12 @@
+ 
+ package com.izforge.izpack.uninstaller;
+ 
++import javax.swing.*;
+ import java.lang.reflect.Method;
+ 
+-import javax.swing.SwingUtilities;
+-import javax.swing.UIManager;
+-
+ /**
+  * The uninstaller class.
+- * 
++ *
+  * @author Julien Ponge
+  */
+ public class Uninstaller
+@@ -34,15 +32,22 @@
+ 
+     /**
+      * The main method (program entry point).
+-     * 
++     *
+      * @param args The arguments passed on the command line.
+      */
+     public static void main(String[] args)
+     {
++        boolean cmduninstall = false;
++        for (int q = 0; q &lt; args.length; q++) if (args[q].equals(&quot;-c&quot;)) cmduninstall = true;
++        if (cmduninstall) System.out.println(&quot;Command line uninstaller.\n&quot;);
+         try
+         {
+             Class clazz = Uninstaller.class;
+-            Method target = clazz.getMethod(&quot;uninstall&quot;, new Class[] { String[].class});
++            Method target;
++            if (cmduninstall)
++                target = clazz.getMethod(&quot;cmduninstall&quot;, new Class[]{String[].class});
++            else
++                target = clazz.getMethod(&quot;uninstall&quot;, new Class[]{String[].class});
+             new SelfModifier(target).invoke(args);
+         }
+         catch (Exception ioeOrTypo)
+@@ -55,9 +60,28 @@
+         }
+     }
+ 
++    public static void cmduninstall(String[] args)
++    {
++        try
++        {
++            UninstallerConsole uco = new UninstallerConsole();
++            boolean force = false;
++            for (int q = 0; q &lt; args.length; q++) if (args[q].equals(&quot;-f&quot;)) force = true;
++            System.out.println(&quot;Force deletion: &quot; + force);
++            uco.runUninstall(force);
++        }
++        catch (Exception err)
++        {
++            System.err.println(&quot;- Error -&quot;);
++            err.printStackTrace();
++            System.exit(0);
++        }
++    }
++
+     public static void uninstall(String[] args)
+     {
+-        SwingUtilities.invokeLater(new Runnable() {
++        SwingUtilities.invokeLater(new Runnable()
++        {
+             public void run()
+             {
+                 try
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerConsole.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerConsole.java	2007-01-05 08:06:24 UTC (rev 1676)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerConsole.java	2007-01-06 11:43:12 UTC (rev 1677)
+@@ -0,0 +1,261 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2006 Vladimir Ralev
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.uninstaller;
++
++import java.io.BufferedReader;
++import java.io.InputStream;
++import java.io.InputStreamReader;
++
++import com.izforge.izpack.LocaleDatabase;
++import com.izforge.izpack.util.AbstractUIHandler;
++
++public class UninstallerConsole
++{
++
++   /** The installation path. */
++   protected String installPath;
++
++   /** The language pack. */
++   protected static LocaleDatabase langpack;
++
++   public UninstallerConsole() throws Exception
++   {
++      // Initializations
++      langpack = new LocaleDatabase(UninstallerFrame.class.getResourceAsStream(&quot;/langpack.xml&quot;));
++      getInstallPath();
++   }
++   /**
++    * Gets the installation path from the log file.
++    *
++    * @exception Exception Description of the Exception
++    */
++   private void getInstallPath() throws Exception
++   {
++       InputStream in = UninstallerFrame.class.getResourceAsStream(&quot;/install.log&quot;);
++       InputStreamReader inReader = new InputStreamReader(in);
++       BufferedReader reader = new BufferedReader(inReader);
++       installPath = reader.readLine();
++       reader.close();
++   }
++
++   /**
++    * Runs the cmd line uninstaller.
++    *
++    * @param destroy Equivallen to the destroy option in the GUI.
++    */
++   public void runUninstall(boolean destroy)
++   {
++      Destroyer destroyer = new Destroyer(installPath,
++            destroy, new DestroyerHandler());
++      destroyer.start();
++   }
++
++   /**
++    * The destroyer handler.
++    *
++    * This class also implements the InstallListener because the FileExecutor needs it. TODO: get
++    * rid of the InstallListener - implement generic Listener
++    */
++   private final class DestroyerHandler implements
++           com.izforge.izpack.util.AbstractUIProgressHandler
++   {
++       private int AUTO_ANSWER_MODE = -2;
++
++       private void out(String str)
++       {
++          System.out.println(str);
++       }
++
++       private boolean askOKCancel(String question, int defaultchoice)
++       {
++          if(defaultchoice == AUTO_ANSWER_MODE) return true;
++          boolean defaultanswer = defaultchoice == 1 ? true : false;
++          try
++          {
++             System.out.print(question + &quot; (Ok/Cancel) [&quot; + (defaultanswer?&quot;O&quot;:&quot;C&quot;) + &quot;]:&quot;);
++             String rline = readln();
++             if(rline.toLowerCase().startsWith(&quot;o&quot;)) return true;
++             if(rline.toLowerCase().startsWith(&quot;c&quot;)) return false;
++          }
++          catch(Exception e){}
++          if( defaultchoice == -1 ) return askOKCancel(question, defaultchoice);
++          return defaultanswer;
++       }
++
++       private int askYesNoCancel(String question, int defaultchoice)
++       {
++          if(defaultchoice == AUTO_ANSWER_MODE) return AbstractUIHandler.ANSWER_YES;
++          boolean defaultanswer = defaultchoice == 1 ? true : false;
++          try
++          {
++             System.out.print(question + &quot; (Yes/No/Cancel) [&quot; + (defaultanswer?&quot;Y&quot;:&quot;N&quot;) + &quot;]:&quot;);
++             String rline = readln();
++             if(rline.toLowerCase().equals(&quot;y&quot;)) return AbstractUIHandler.ANSWER_YES;
++             if(rline.toLowerCase().equals(&quot;n&quot;)) return AbstractUIHandler.ANSWER_NO;
++             if(rline.toLowerCase().equals(&quot;c&quot;)) return AbstractUIHandler.ANSWER_CANCEL;
++          }
++          catch(Exception e){}
++          if( defaultchoice == -1 ) return askYesNoCancel(question, defaultchoice);
++          return defaultchoice;
++       }
++
++       private int askYesNo(String question, int defaultchoice)
++       {
++          if(defaultchoice == AUTO_ANSWER_MODE) return AbstractUIHandler.ANSWER_YES;
++          boolean defaultanswer = defaultchoice == 1 ? true : false;
++          try
++          {
++             System.out.print(question + &quot; (Yes/No) [&quot; + (defaultanswer?&quot;Y&quot;:&quot;N&quot;) + &quot;]:&quot;);
++             String rline = readln();
++             if(rline.toLowerCase().equals(&quot;y&quot;)) return AbstractUIHandler.ANSWER_YES;
++             if(rline.toLowerCase().equals(&quot;n&quot;)) return AbstractUIHandler.ANSWER_NO;
++          }
++          catch(Exception e){}
++          if( defaultchoice == -1 ) return askYesNoCancel(question, defaultchoice);
++          return defaultchoice;
++       }
++
++       private String read() throws Exception
++       {
++         byte[] byteArray = {(byte)System.in.read()};
++         return new String(byteArray);
++       }
++
++       private String readln() throws Exception
++       {
++         String input = read();
++         int available = System.in.available();
++         if (available &gt; 0)
++         {
++           byte[] byteArray = new byte[available];
++           System.in.read(byteArray);
++           input += new String(byteArray);
++         }
++         return input.trim();
++       }
++       /**
++        * The destroyer starts.
++        *
++        * @param name The name of the overall action. Not used here.
++        * @param max The maximum value of the progress.
++        */
++       public void startAction(final String name, final int max)
++       {
++           out(&quot;Processing &quot; + name);
++       }
++
++       /** The destroyer stops. */
++       public void stopAction()
++       {
++           out(langpack.getString(&quot;InstallPanel.finished&quot;));
++       }
++
++       /**
++        * The destroyer progresses.
++        *
++        * @param pos The actual position.
++        * @param message The message.
++        */
++       public void progress(final int pos, final String message)
++       {
++          out(message);
++       }
++
++       public void nextStep(String step_name, int step_no, int no_of_substeps)
++       {
++       }
++
++       /**
++        * Output a notification.
++        *
++        * Does nothing here.
++        *
++        * @param text
++        */
++       public void emitNotification(String text)
++       {
++       }
++
++       /**
++        * Output a warning.
++        *
++        * @param text
++        */
++       public boolean emitWarning(String title, String text)
++       {
++           return askOKCancel(title+&quot;: &quot;+text, AUTO_ANSWER_MODE);
++       }
++
++       /**
++        * The destroyer encountered an error.
++        *
++        * @param error The error message.
++        */
++       public void emitError(String title, String error)
++       {
++           out(title+&quot;: &quot;+error);
++       }
++
++       /**
++        * Ask the user a question.
++        *
++        * @param title Message title.
++        * @param question The question.
++        * @param choices The set of choices to present.
++        *
++        * @return The user's choice.
++        *
++        * @see AbstractUIHandler#askQuestion(String, String, int)
++        */
++       public int askQuestion(String title, String question, int choices)
++       {
++           return askQuestion(title, question, choices, AUTO_ANSWER_MODE);
++       }
++
++       /**
++        * Ask the user a question.
++        *
++        * @param title Message title.
++        * @param question The question.
++        * @param choices The set of choices to present.
++        * @param default_choice The default choice. (-1 = no default choice)
++        *
++        * @return The user's choice.
++        * @see AbstractUIHandler#askQuestion(String, String, int, int)
++        */
++       public int askQuestion(String title, String question, int choices, int default_choice)
++       {
++           int choice = 0;
++
++           if (choices == AbstractUIHandler.CHOICES_YES_NO)
++               choice = askYesNo(title+&quot;: &quot;+question, default_choice);
++           else if (choices == AbstractUIHandler.CHOICES_YES_NO_CANCEL)
++               choice = askYesNoCancel(title+&quot;: &quot;+question, default_choice);
++
++           return choice;
++
++
++       }
++
++
++   }
++}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000421.html">[izpack-changes] r1676 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels
+</A></li>
+	<LI>Next message: <A HREF="000423.html">[izpack-changes] r1678 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#422">[ date ]</a>
+              <a href="thread.html#422">[ thread ]</a>
+              <a href="subject.html#422">[ subject ]</a>
+              <a href="author.html#422">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

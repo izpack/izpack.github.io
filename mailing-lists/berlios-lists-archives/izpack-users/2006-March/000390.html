@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Starting Tomcat
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Starting%20Tomcat&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000389.html">
+   <LINK REL="Next"  HREF="000391.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Starting Tomcat</H1>
+    <B>Miraodb</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Starting%20Tomcat&In-Reply-To="
+       TITLE="[izpack-users] Starting Tomcat">miraodb at hotmail.com
+       </A><BR>
+    <I>Fri Mar 24 11:34:28 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000389.html">[izpack-users] Starting Tomcat
+</A></li>
+        <LI>Next message: <A HREF="000391.html">[izpack-users] Way to set a izpack variable?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#390">[ date ]</a>
+              <a href="thread.html#390">[ thread ]</a>
+              <a href="subject.html#390">[ subject ]</a>
+              <a href="author.html#390">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Subir,
+
+This looks good to me. So my guess is that the problem is comming from
+tomcat itseld or from a bad environment.
+Two things:
+
+In startup.bat i see:
+
+set CURRENT_DIR=%cd%
+if not &quot;%CATALINA_HOME%&quot; == &quot;&quot; goto gotHome
+set CATALINA_HOME=%CURRENT_DIR%
+if exist &quot;%CATALINA_HOME%\bin\catalina.bat&quot; goto okHome
+cd ..
+set CATALINA_HOME=%cd%
+cd %CURRENT_DIR%
+:<i>gotHome
+</I>if exist &quot;%CATALINA_HOME%\bin\catalina.bat&quot; goto okHome
+echo The CATALINA_HOME environment variable is not defined correctly
+echo This environment variable is needed to run this program
+goto end
+:<i>okHome
+</I>
+Which means that no matter if you have preset the CATALINA_HOME environment
+variable or not, it will be set automatically to the current folder.
+However, running the startup.bat from %TOMCAT_HOME%/bin, means that
+&quot;%CATALINA_HOME% will refer to %TOMCAT_HOME%/bin, and thus,
+&quot;%CATALINA_HOME%\bin\catalina.bat will actually be
+&quot;%TOMCAT_HOME%\bin\bin\catalina.bat
+
+This folder doesn't exist and therefore the batch file tells you &quot;The
+CATALINA_HOME environment variable is not defined correctly&quot;
+
+I see two options:
+
+either start startup.bat from %TOMCAT_HOME% instead of %TOMCAT_HOME%/bin
+or
+set manually %CATALINA_HOME% in the startup.bat.
+
+something like
+
+SET CATALINA_HOME=%TOMCAT_HOME%
+or
+SET CATALINA_HOME=..
+
+Hope that helps,
+cheers,
+fabrice
+
+Which
+----- Original Message ----- 
+From: &quot;Subir Bhaumik&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">subir_05 at rediffmail.com</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+Sent: Friday, March 24, 2006 11:15 AM
+Subject: [izpack-users] Starting Tomcat
+
+
+
+Hi
+
+I want to start tomcat through IzPack installer.But at the time of occurence
+of that particular job it is showing
+
+
+ The CATALINA_HOME environment variable is not defined correctly
+This environment variable is needed to run this program
+
+
+I think here i am wrong here
+&quot;&quot;&lt;arg&gt;$context/jakarta-tomcat-5.0.27&lt;/arg&gt;&lt;arg&gt;${ENV[CATALINA_HOME]}&lt;/arg&gt;&quot;
+&quot;
+
+
+Here is my ProcessPanel.Spec.xml
+
+&lt;processing&gt;
+  &lt;job name=&quot;Starting Tomcat&quot;&gt;
+    &lt;os family=&quot;windows&quot; /&gt;
+    &lt;executefile name=&quot;$context/jakarta-tomcat-5.0.27/bin/startup.bat&quot;&gt;
+
+&lt;arg&gt;$context/jakarta-tomcat-5.0.27&lt;/arg&gt;&lt;arg&gt;${ENV[CATALINA_HOME]}&lt;/arg&gt;
+    &lt;/executefile&gt;
+  &lt;/job&gt;
+&lt;/processing&gt;
+
+
+Please tell me the exact way to define Env. variable.
+
+Warm Regards
+
+Subir
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000389.html">[izpack-users] Starting Tomcat
+</A></li>
+	<LI>Next message: <A HREF="000391.html">[izpack-users] Way to set a izpack variable?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#390">[ date ]</a>
+              <a href="thread.html#390">[ thread ]</a>
+              <a href="subject.html#390">[ subject ]</a>
+              <a href="author.html#390">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

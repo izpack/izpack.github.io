@@ -1,0 +1,2551 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1907 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1907%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000652.html">
+   <LINK REL="Next"  HREF="000654.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1907 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1907%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1907 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Fri Nov 16 15:20:58 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000652.html">[izpack-changes] r1906 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000654.html">[izpack-changes] r1908 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#653">[ date ]</a>
+              <a href="thread.html#653">[ thread ]</a>
+              <a href="subject.html#653">[ subject ]</a>
+              <a href="author.html#653">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-16 15:20:55 +0100 (Fri, 16 Nov 2007)
+New Revision: 1907
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerBase.java
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+Log:
+Refactored unpacker classes
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-11-16 13:42:26 UTC (rev 1906)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-11-16 14:20:55 UTC (rev 1907)
+@@ -18,7 +18,6 @@
+ package com.izforge.izpack.installer;
+ 
+ import java.awt.Component;
+-import java.io.BufferedOutputStream;
+ import java.io.EOFException;
+ import java.io.File;
+ import java.io.FileInputStream;
+@@ -29,25 +28,12 @@
+ import java.io.PrintWriter;
+ import java.util.ArrayList;
+ import java.util.Enumeration;
+-import java.util.HashMap;
+-import java.util.HashSet;
+-import java.util.Iterator;
+ import java.util.List;
+ import java.util.Properties;
+-import java.util.Stack;
+-import java.util.TreeSet;
+-import java.util.zip.ZipEntry;
+-import java.util.zip.ZipInputStream;
+-import java.util.zip.ZipOutputStream;
+ 
+ import javax.swing.JOptionPane;
+ 
+-import org.apache.regexp.RE;
+-import org.apache.regexp.RECompiler;
+-import org.apache.regexp.RESyntaxException;
+-
+ import com.izforge.izpack.ExecutableFile;
+-import com.izforge.izpack.LocaleDatabase;
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.PackFile;
+ import com.izforge.izpack.ParsableFile;
+@@ -59,227 +45,26 @@
+ import com.izforge.izpack.io.FileSpanningOutputStream;
+ import com.izforge.izpack.io.VolumeNotFoundException;
+ import com.izforge.izpack.panels.NextMediaDialog;
+-import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.AbstractUIHandler;
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.FileExecutor;
+ import com.izforge.izpack.util.IoHelper;
+ import com.izforge.izpack.util.OsConstraint;
+-import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ 
+ /**
+- * Unpacker class.
++ * Unpacker class for a multi volume installation.
+  * 
+  * @author Dennis Reil
+  */
+-public class MultiVolumeUnpacker implements IUnpacker
+-{
+-
+-    /** The installdata. */
+-    private AutomatedInstallData idata;
+-
+-    /** The installer listener. */
+-    private AbstractUIProgressHandler handler;
+-
+-    /** The uninstallation data. */
+-    private UninstallData udata;
+-
+-    /** The variables substitutor. */
+-    private VariableSubstitutor vs;
+-
+-    /** The instances of the unpacker objects. */
+-    private static HashMap instances = new HashMap();
+-
+-    /** The absolute path of the installation. (NOT the canonical!) */
+-    private File absolute_installpath;
+-
+-    /** The packs locale database. */
+-    private LocaleDatabase langpack = null;
+-
+-    /** Interrupt flag if global interrupt is desired. */
+-    private static boolean interruptDesired = false;
+-
+-    /** Do not perform a interrupt call. */
+-    private static boolean discardInterrupt = false;
+-
+-    /** The name of the XML file that specifies the panel langpack */
+-    private static final String LANG_FILE_NAME = &quot;packsLang.xml&quot;;
+-
+-    public static final String ALIVE = &quot;alive&quot;;
+-
+-    public static final String INTERRUPT = &quot;doInterrupt&quot;;
+-
+-    public static final String INTERRUPTED = &quot;interruppted&quot;;
+-
+-    /** The result of the operation. */
+-    private boolean result = true;
+-
+-    private RulesEngine rules;
+-
+-    /**
+-     * The constructor.
+-     * 
+-     * @param idata The installation data.
+-     * @param handler The installation progress handler.
+-     */
++public class MultiVolumeUnpacker extends UnpackerBase
++{             
+     public MultiVolumeUnpacker(AutomatedInstallData idata, AbstractUIProgressHandler handler)
+-    {        
+-        try
+-        {
+-            String resource = LANG_FILE_NAME + &quot;_&quot; + idata.localeISO3;
+-            this.langpack = new LocaleDatabase(ResourceManager.getInstance().getInputStream(
+-                    resource));
+-        }
+-        catch (Throwable exception)
+-        {}
+-
+-        this.idata = idata;
+-        this.handler = handler;
+-
+-        // Initialize the variable substitutor
+-        vs = new VariableSubstitutor(idata.getVariables());
+-    }
+-
+-    /**
+-     * Returns a copy of the active unpacker instances.
+-     * 
+-     * @return a copy of active unpacker instances
+-     */
+-    public static HashMap getRunningInstances()
+     {
+-        synchronized (instances)
+-        { // Return a shallow copy to prevent a
+-            // ConcurrentModificationException.
+-            return (HashMap) (instances.clone());
+-        }
++        super(idata, handler);       
+     }
+ 
+-    /**
+-     * Adds this to the map of all existent instances of Unpacker.
+-     */
+-    private void addToInstances()
+-    {
+-        synchronized (instances)
+-        {
+-            instances.put(this, ALIVE);
+-        }
+-    }
+-
+-    /**
+-     * Removes this from the map of all existent instances of Unpacker.
+-     */
+-    private void removeFromInstances()
+-    {
+-        synchronized (instances)
+-        {
+-            instances.remove(this);
+-        }
+-    }
+-
+-    /**
+-     * Initiate interrupt of all alive Unpacker. This method does not interrupt the Unpacker objects
+-     * else it sets only the interrupt flag for the Unpacker objects. The dispatching of interrupt
+-     * will be performed by the Unpacker objects self.
+-     */
+-    private static void setInterruptAll()
+-    {
+-        synchronized (instances)
+-        {
+-            Iterator iter = instances.keySet().iterator();
+-            while (iter.hasNext())
+-            {
+-                Object key = iter.next();
+-                if (instances.get(key).equals(ALIVE))
+-                {
+-                    instances.put(key, INTERRUPT);
+-                }
+-            }
+-            // Set global flag to allow detection of it in other classes.
+-            // Do not set it to thread because an exec will then be stoped.
+-            setInterruptDesired(true);
+-        }
+-    }
+-
+-    /**
+-     * Initiate interrupt of all alive Unpacker and waits until all Unpacker are interrupted or the
+-     * wait time has arrived. If the doNotInterrupt flag in InstallerListener is set to true, the
+-     * interrupt will be discarded.
+-     * 
+-     * @param waitTime wait time in millisecounds
+-     * @return true if the interrupt will be performed, false if the interrupt will be discarded
+-     */
+-    public static boolean interruptAll(long waitTime)
+-    {
+-        long t0 = System.currentTimeMillis();
+-        if (isDiscardInterrupt()) return (false);
+-        setInterruptAll();
+-        while (!isInterruptReady())
+-        {
+-            if (System.currentTimeMillis() - t0 &gt; waitTime) return (true);
+-            try
+-            {
+-                Thread.sleep(100);
+-            }
+-            catch (InterruptedException e)
+-            {}
+-        }
+-        return (true);
+-    }
+-
+-    private static boolean isInterruptReady()
+-    {
+-        synchronized (instances)
+-        {
+-            Iterator iter = instances.keySet().iterator();
+-            while (iter.hasNext())
+-            {
+-                Object key = iter.next();
+-                if (!instances.get(key).equals(INTERRUPTED)) return (false);
+-            }
+-            return (true);
+-        }
+-
+-    }
+-
+-    /**
+-     * Sets the interrupt flag for this Unpacker to INTERRUPTED if the previos state was INTERRUPT
+-     * or INTERRUPTED and returns whether interrupt was initiate or not.
+-     * 
+-     * @return whether interrupt was initiate or not
+-     */
+-    private boolean performInterrupted()
+-    {
+-        synchronized (instances)
+-        {
+-            Object doIt = instances.get(this);
+-            if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED)))
+-            {
+-                instances.put(this, INTERRUPTED);
+-                this.result = false;
+-                return (true);
+-            }
+-            return (false);
+-        }
+-    }
+-
+-    /**
+-     * Returns whether interrupt was initiate or not for this Unpacker.
+-     * 
+-     * @return whether interrupt was initiate or not
+-     */
+-    private boolean shouldInterrupt()
+-    {
+-        synchronized (instances)
+-        {
+-            Object doIt = instances.get(this);
+-            if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED))) { return (true); }
+-            return (false);
+-        }
+-
+-    }
+-
+     protected File enterNextMediaMessage(String volumename, boolean lastcorrupt)
+     {
+         if (lastcorrupt)
+@@ -837,555 +622,5 @@
+             Debug.trace(&quot;Error while writing config information in MultiVolumeUnpacker: &quot;
+                     + e.getMessage());
+         }
+-    }
+-
+-    /**
+-     * Return the state of the operation.
+-     * 
+-     * @return true if the operation was successful, false otherwise.
+-     */
+-    public boolean getResult()
+-    {
+-        return this.result;
+-    }
+-
+-    /**
+-     * @param updatechecks
+-     */
+-    private void performUpdateChecks(ArrayList updatechecks)
+-    {
+-        ArrayList include_patterns = new ArrayList();
+-        ArrayList exclude_patterns = new ArrayList();
+-
+-        RECompiler recompiler = new RECompiler();
+-
+-        this.absolute_installpath = new File(idata.getInstallPath()).getAbsoluteFile();
+-
+-        // at first, collect all patterns
+-        for (Iterator iter = updatechecks.iterator(); iter.hasNext();)
+-        {
+-            UpdateCheck uc = (UpdateCheck) iter.next();
+-
+-            if (uc.includesList != null)
+-                include_patterns.addAll(preparePatterns(uc.includesList, recompiler));
+-
+-            if (uc.excludesList != null)
+-                exclude_patterns.addAll(preparePatterns(uc.excludesList, recompiler));
+-        }
+-
+-        // do nothing if no update checks were specified
+-        if (include_patterns.size() == 0) return;
+-
+-        // now collect all files in the installation directory and figure
+-        // out files to check for deletion
+-
+-        // use a treeset for fast access
+-        TreeSet installed_files = new TreeSet();
+-
+-        for (Iterator if_it = this.udata.getInstalledFilesList().iterator(); if_it.hasNext();)
+-        {
+-            String fname = (String) if_it.next();
+-
+-            File f = new File(fname);
+-
+-            if (!f.isAbsolute())
+-            {
+-                f = new File(this.absolute_installpath, fname);
+-            }
+-
+-            installed_files.add(f.getAbsolutePath());
+-        }
+-
+-        // now scan installation directory (breadth first), contains Files of
+-        // directories to scan
+-        // (note: we'll recurse infinitely if there are circular links or
+-        // similar nasty things)
+-        Stack scanstack = new Stack();
+-
+-        // contains File objects determined for deletion
+-        ArrayList files_to_delete = new ArrayList();
+-
+-        try
+-        {
+-            scanstack.add(absolute_installpath);
+-
+-            while (!scanstack.empty())
+-            {
+-                File f = (File) scanstack.pop();
+-
+-                File[] files = f.listFiles();
+-
+-                if (files == null) { throw new IOException(f.getPath() + &quot;is not a directory!&quot;); }
+-
+-                for (int i = 0; i &lt; files.length; i++)
+-                {
+-                    File newf = files[i];
+-
+-                    String newfname = newf.getPath();
+-
+-                    // skip files we just installed
+-                    if (installed_files.contains(newfname)) continue;
+-
+-                    if (fileMatchesOnePattern(newfname, include_patterns)
+-                            &amp;&amp; (!fileMatchesOnePattern(newfname, exclude_patterns)))
+-                    {
+-                        files_to_delete.add(newf);
+-                    }
+-
+-                    if (newf.isDirectory())
+-                    {
+-                        scanstack.push(newf);
+-                    }
+-
+-                }
+-            }
+-        }
+-        catch (IOException e)
+-        {
+-            this.handler.emitError(&quot;error while performing update checks&quot;, e.toString());
+-        }
+-
+-        for (Iterator f_it = files_to_delete.iterator(); f_it.hasNext();)
+-        {
+-            File f = (File) f_it.next();
+-
+-            if (!f.isDirectory())
+-            // skip directories - they cannot be removed safely yet
+-            {
+-//                this.handler.emitNotification(&quot;deleting &quot; + f.getPath());
+-                f.delete();
+-            }
+-
+-        }
+-
+-    }
+-
+-    /**
+-     * @param filename
+-     * @param patterns
+-     * 
+-     * @return true if the file matched one pattern, false if it did not
+-     */
+-    private boolean fileMatchesOnePattern(String filename, ArrayList patterns)
+-    {
+-        // first check whether any include matches
+-        for (Iterator inc_it = patterns.iterator(); inc_it.hasNext();)
+-        {
+-            RE pattern = (RE) inc_it.next();
+-
+-            if (pattern.match(filename)) { return true; }
+-        }
+-
+-        return false;
+-    }
+-
+-    /**
+-     * @param list A list of file name patterns (in ant fileset syntax)
+-     * @param recompiler The regular expression compiler (used to speed up RE compiling).
+-     * 
+-     * @return List of org.apache.regexp.RE
+-     */
+-    private List preparePatterns(ArrayList list, RECompiler recompiler)
+-    {
+-        ArrayList result = new ArrayList();
+-
+-        for (Iterator iter = list.iterator(); iter.hasNext();)
+-        {
+-            String element = (String) iter.next();
+-
+-            if ((element != null) &amp;&amp; (element.length() &gt; 0))
+-            {
+-                // substitute variables in the pattern
+-                element = this.vs.substitute(element, &quot;plain&quot;);
+-
+-                // check whether the pattern is absolute or relative
+-                File f = new File(element);
+-
+-                // if it is relative, make it absolute and prepend the
+-                // installation path
+-                // (this is a bit dangerous...)
+-                if (!f.isAbsolute())
+-                {
+-                    element = new File(this.absolute_installpath, element).toString();
+-                }
+-
+-                // now parse the element and construct a regular expression from
+-                // it
+-                // (we have to parse it one character after the next because
+-                // every
+-                // character should only be processed once - it's not possible
+-                // to get this
+-                // correct using regular expression replacing)
+-                StringBuffer element_re = new StringBuffer();
+-
+-                int lookahead = -1;
+-
+-                int pos = 0;
+-
+-                while (pos &lt; element.length())
+-                {
+-                    char c;
+-
+-                    if (lookahead != -1)
+-                    {
+-                        c = (char) lookahead;
+-                        lookahead = -1;
+-                    }
+-                    else
+-                        c = element.charAt(pos++);
+-
+-                    switch (c)
+-                    {
+-                    case '/': {
+-                        element_re.append(File.separator);
+-                        break;
+-                    }
+-                        // escape backslash and dot
+-                    case '\\':
+-                    case '.': {
+-                        element_re.append(&quot;\\&quot;);
+-                        element_re.append(c);
+-                        break;
+-                    }
+-                    case '*': {
+-                        if (pos == element.length())
+-                        {
+-                            element_re.append(&quot;[^&quot;).append(File.separator).append(&quot;]*&quot;);
+-                            break;
+-                        }
+-
+-                        lookahead = element.charAt(pos++);
+-
+-                        // check for &quot;**&quot;
+-                        if (lookahead == '*')
+-                        {
+-                            element_re.append(&quot;.*&quot;);
+-                            // consume second star
+-                            lookahead = -1;
+-                        }
+-                        else
+-                        {
+-                            element_re.append(&quot;[^&quot;).append(File.separator).append(&quot;]*&quot;);
+-                            // lookahead stays there
+-                        }
+-                        break;
+-                    }
+-                    default: {
+-                        element_re.append(c);
+-                        break;
+-                    }
+-                    } // switch
+-
+-                }
+-
+-                // make sure that the whole expression is matched
+-                element_re.append('$');
+-
+-                // replace \ by \\ and create a RE from the result
+-                try
+-                {
+-                    result.add(new RE(recompiler.compile(element_re.toString())));
+-                }
+-                catch (RESyntaxException e)
+-                {
+-                    this.handler.emitNotification(&quot;internal error: pattern \&quot;&quot; + element
+-                            + &quot;\&quot; produced invalid RE \&quot;&quot; + f.getPath() + &quot;\&quot;&quot;);
+-                }
+-
+-            }
+-        }
+-
+-        return result;
+-    }
+-
+-    /**
+-     * Puts the uninstaller.
+-     * 
+-     * @exception Exception Description of the Exception
+-     */
+-    private void putUninstaller() throws Exception
+-    {
+-        // get the uninstaller base, returning if not found so that
+-        // idata.uninstallOutJar remains null
+-        InputStream[] in = new InputStream[2];
+-        in[0] = MultiVolumeUnpacker.class.getResourceAsStream(&quot;/res/IzPack.uninstaller&quot;);
+-        if (in[0] == null) return;
+-        // The uninstaller extension is facultative; it will be exist only
+-        // if a native library was marked for uninstallation.
+-        in[1] = MultiVolumeUnpacker.class.getResourceAsStream(&quot;/res/IzPack.uninstaller-ext&quot;);
+-
+-        // Me make the .uninstaller directory
+-        String dest = IoHelper.translatePath(&quot;$INSTALL_PATH&quot;, vs) + File.separator + &quot;Uninstaller&quot;;
+-        String jar = dest + File.separator + idata.info.getUninstallerName();
+-        File pathMaker = new File(dest);
+-        pathMaker.mkdirs();
+-
+-        // We log the uninstaller deletion information
+-        udata.setUninstallerJarFilename(jar);
+-        udata.setUninstallerPath(dest);
+-
+-        // We open our final jar file
+-        FileOutputStream out = new FileOutputStream(jar);
+-        // Intersect a buffer else byte for byte will be written to the file.
+-        BufferedOutputStream bos = new BufferedOutputStream(out);
+-        ZipOutputStream outJar = new ZipOutputStream(bos);
+-        idata.uninstallOutJar = outJar;
+-        outJar.setLevel(9);
+-        udata.addFile(jar, true);
+-
+-        // We copy the uninstallers
+-        HashSet doubles = new HashSet();
+-
+-        for (int i = 0; i &lt; in.length; ++i)
+-        {
+-            if (in[i] == null) continue;
+-            ZipInputStream inRes = new ZipInputStream(in[i]);
+-            ZipEntry zentry = inRes.getNextEntry();
+-            while (zentry != null)
+-            {
+-                // Puts a new entry, but not twice like META-INF
+-                if (!doubles.contains(zentry.getName()))
+-                {
+-                    doubles.add(zentry.getName());
+-                    outJar.putNextEntry(new ZipEntry(zentry.getName()));
+-
+-                    // Byte to byte copy
+-                    int unc = inRes.read();
+-                    while (unc != -1)
+-                    {
+-                        outJar.write(unc);
+-                        unc = inRes.read();
+-                    }
+-
+-                    // Next one please
+-                    inRes.closeEntry();
+-                    outJar.closeEntry();
+-                }
+-                zentry = inRes.getNextEntry();
+-            }
+-            inRes.close();
+-        }
+-
+-        // We put the langpack
+-        InputStream in2 = MultiVolumeUnpacker.class.getResourceAsStream(&quot;/langpacks/&quot;
+-                + idata.localeISO3 + &quot;.xml&quot;);
+-        outJar.putNextEntry(new ZipEntry(&quot;langpack.xml&quot;));
+-        int read = in2.read();
+-        while (read != -1)
+-        {
+-            outJar.write(read);
+-            read = in2.read();
+-        }
+-        outJar.closeEntry();
+-    }
+-
+-    // CUSTOM ACTION STUFF -------------- start -----------------
+-
+-    /**
+-     * Informs all listeners which would be informed at the given action type.
+-     * 
+-     * @param customActions array of lists with the custom action objects
+-     * @param action identifier for which callback should be called
+-     * @param firstParam first parameter for the call
+-     * @param secondParam second parameter for the call
+-     * @param thirdParam third parameter for the call
+-     */
+-    private void informListeners(List[] customActions, int action, Object firstParam,
+-            Object secondParam, Object thirdParam) throws Exception
+-    {
+-        List listener = null;
+-        // select the right action list.
+-        switch (action)
+-        {
+-        case InstallerListener.BEFORE_FILE:
+-        case InstallerListener.AFTER_FILE:
+-        case InstallerListener.BEFORE_DIR:
+-        case InstallerListener.AFTER_DIR:
+-            listener = customActions[customActions.length - 1];
+-            break;
+-        default:
+-            listener = customActions[0];
+-            break;
+-        }
+-        if (listener == null) return;
+-        // Iterate the action list.
+-        Iterator iter = listener.iterator();
+-        while (iter.hasNext())
+-        {
+-            if (shouldInterrupt()) return;
+-            InstallerListener il = (InstallerListener) iter.next();
+-            switch (action)
+-            {
+-            case InstallerListener.BEFORE_FILE:
+-                il.beforeFile((File) firstParam, (PackFile) secondParam);
+-                break;
+-            case InstallerListener.AFTER_FILE:
+-                il.afterFile((File) firstParam, (PackFile) secondParam);
+-                break;
+-            case InstallerListener.BEFORE_DIR:
+-                il.beforeDir((File) firstParam, (PackFile) secondParam);
+-                break;
+-            case InstallerListener.AFTER_DIR:
+-                il.afterDir((File) firstParam, (PackFile) secondParam);
+-                break;
+-            case InstallerListener.BEFORE_PACK:
+-                il.beforePack((Pack) firstParam, (Integer) secondParam,
+-                        (AbstractUIProgressHandler) thirdParam);
+-                break;
+-            case InstallerListener.AFTER_PACK:
+-                il.afterPack((Pack) firstParam, (Integer) secondParam,
+-                        (AbstractUIProgressHandler) thirdParam);
+-                break;
+-            case InstallerListener.BEFORE_PACKS:
+-                il.beforePacks((AutomatedInstallData) firstParam, (Integer) secondParam,
+-                        (AbstractUIProgressHandler) thirdParam);
+-                break;
+-            case InstallerListener.AFTER_PACKS:
+-                il.afterPacks((AutomatedInstallData) firstParam,
+-                        (AbstractUIProgressHandler) secondParam);
+-                break;
+-
+-            }
+-        }
+-    }
+-
+-    /**
+-     * Returns the defined custom actions split into types including a constructed type for the file
+-     * related installer listeners.
+-     * 
+-     * @return array of lists of custom action data like listeners
+-     */
+-    private List[] getCustomActions()
+-    {
+-        String[] listenerNames = AutomatedInstallData.CUSTOM_ACTION_TYPES;
+-        List[] retval = new List[listenerNames.length + 1];
+-        int i;
+-        for (i = 0; i &lt; listenerNames.length; ++i)
+-        {
+-            retval[i] = (List) idata.customData.get(listenerNames[i]);
+-            if (retval[i] == null)
+-            // Make a dummy list, then iterator is ever callable.
+-                retval[i] = new ArrayList();
+-        }
+-        if (retval[AutomatedInstallData.INSTALLER_LISTENER_INDEX].size() &gt; 0)
+-        { // Installer listeners exist
+-            // Create file related installer listener list in the last
+-            // element of custom action array.
+-            i = retval.length - 1; // Should be so, but safe is safe ...
+-            retval[i] = new ArrayList();
+-            Iterator iter = ((List) retval[AutomatedInstallData.INSTALLER_LISTENER_INDEX])
+-                    .iterator();
+-            while (iter.hasNext())
+-            {
+-                // If we get a class cast exception many is wrong and
+-                // we must fix it.
+-                InstallerListener li = (InstallerListener) iter.next();
+-                if (li.isFileListener()) retval[i].add(li);
+-            }
+-
+-        }
+-        return (retval);
+-    }
+-
+-    /**
+-     * Adds additional unistall data to the uninstall data object.
+-     * 
+-     * @param udata unistall data
+-     * @param customData array of lists of custom action data like uninstaller listeners
+-     */
+-    private void handleAdditionalUninstallData(UninstallData udata, List[] customData)
+-    {
+-        // Handle uninstall libs
+-        udata.addAdditionalData(&quot;__uninstallLibs__&quot;,
+-                customData[AutomatedInstallData.UNINSTALLER_LIBS_INDEX]);
+-        // Handle uninstaller listeners
+-        udata.addAdditionalData(&quot;uninstallerListeners&quot;,
+-                customData[AutomatedInstallData.UNINSTALLER_LISTENER_INDEX]);
+-        // Handle uninstaller jars
+-        udata.addAdditionalData(&quot;uninstallerJars&quot;,
+-                customData[AutomatedInstallData.UNINSTALLER_JARS_INDEX]);
+-    }
+-
+-    // This method is only used if a file related custom action exist.
+-    /**
+-     * Creates the given directory recursive and calls the method &quot;afterDir&quot; of each listener with
+-     * the current file object and the pack file object. On error an exception is raised.
+-     * 
+-     * @param dest the directory which should be created
+-     * @param pf current pack file object
+-     * @param customActions all defined custom actions
+-     * @return false on error, true else
+-     * @throws Exception
+-     */
+-
+-    private boolean mkDirsWithEnhancement(File dest, PackFile pf, List[] customActions)
+-            throws Exception
+-    {
+-        String path = &quot;unknown&quot;;
+-        if (dest != null) path = dest.getAbsolutePath();
+-        if (dest != null &amp;&amp; !dest.exists() &amp;&amp; dest.getParentFile() != null)
+-        {
+-            if (dest.getParentFile().exists())
+-                informListeners(customActions, InstallerListener.BEFORE_DIR, dest, pf, null);
+-            if (!dest.mkdir())
+-            {
+-                mkDirsWithEnhancement(dest.getParentFile(), pf, customActions);
+-                if (!dest.mkdir()) dest = null;
+-            }
+-            informListeners(customActions, InstallerListener.AFTER_DIR, dest, pf, null);
+-        }
+-        if (dest == null)
+-        {
+-            handler.emitError(&quot;Error creating directories&quot;, &quot;Could not create directory\n&quot; + path);
+-            handler.stopAction();
+-            return (false);
+-        }
+-        return (true);
+-    }
+-
+-    // CUSTOM ACTION STUFF -------------- end -----------------
+-
+-    /**
+-     * Returns whether an interrupt request should be discarded or not.
+-     * 
+-     * @return Returns the discard interrupt flag
+-     */
+-    public static synchronized boolean isDiscardInterrupt()
+-    {
+-        return discardInterrupt;
+-    }
+-
+-    /**
+-     * Sets the discard interrupt flag.
+-     * 
+-     * @param di the discard interrupt flag to set
+-     */
+-    public static synchronized void setDiscardInterrupt(boolean di)
+-    {
+-        discardInterrupt = di;
+-        setInterruptDesired(false);
+-    }
+-
+-    /**
+-     * Returns the interrupt desired state.
+-     * 
+-     * @return the interrupt desired state
+-     */
+-    public static boolean isInterruptDesired()
+-    {
+-        return interruptDesired;
+-    }
+-
+-    /**
+-     * @param interruptDesired The interrupt desired flag to set
+-     */
+-    private static void setInterruptDesired(boolean interruptDesired)
+-    {
+-        MultiVolumeUnpacker.interruptDesired = interruptDesired;
+-    }
+-
+-    public void setRules(RulesEngine rules)
+-    {
+-        this.rules = rules;        
+-    }
++    }      
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-11-16 13:42:26 UTC (rev 1906)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-11-16 14:20:55 UTC (rev 1907)
+@@ -23,7 +23,6 @@
+ package com.izforge.izpack.installer;
+ 
+ import java.io.BufferedInputStream;
+-import java.io.BufferedOutputStream;
+ import java.io.File;
+ import java.io.FileInputStream;
+ import java.io.FileNotFoundException;
+@@ -34,34 +33,19 @@
+ import java.lang.reflect.Constructor;
+ import java.net.URL;
+ import java.util.ArrayList;
+-import java.util.HashMap;
+-import java.util.HashSet;
+-import java.util.Iterator;
+ import java.util.List;
+-import java.util.Stack;
+-import java.util.TreeSet;
+-import java.util.zip.ZipEntry;
+-import java.util.zip.ZipInputStream;
+-import java.util.zip.ZipOutputStream;
+ 
+-import org.apache.regexp.RE;
+-import org.apache.regexp.RECompiler;
+-import org.apache.regexp.RESyntaxException;
+-
+ import com.izforge.izpack.ExecutableFile;
+-import com.izforge.izpack.LocaleDatabase;
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.PackFile;
+ import com.izforge.izpack.ParsableFile;
+ import com.izforge.izpack.UpdateCheck;
+ import com.izforge.izpack.event.InstallerListener;
+-import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.AbstractUIHandler;
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
+ import com.izforge.izpack.util.FileExecutor;
+ import com.izforge.izpack.util.IoHelper;
+ import com.izforge.izpack.util.OsConstraint;
+-import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ /**
+  * Unpacker class.
+@@ -69,52 +53,11 @@
+  * @author Julien Ponge
+  * @author Johannes Lehtinen
+  */
+-public class Unpacker implements IUnpacker
+-{
+-
+-    /** The installdata. */
+-    private AutomatedInstallData idata;
+-
+-    /** The installer listener. */
+-    private AbstractUIProgressHandler handler;
+-
+-    /** The uninstallation data. */
+-    private UninstallData udata;
+-
+-    /** The variables substitutor. */
+-    private VariableSubstitutor vs;
+-
+-    /** The instances of the unpacker objects. */
+-    private static HashMap instances = new HashMap();
+-
+-    /** The absolute path of the installation. (NOT the canonical!) */
+-    private File absolute_installpath;
+-
+-    /** The packs locale database. */
+-    private LocaleDatabase langpack = null;
+-
+-    /** Interrupt flag if global interrupt is desired. */
+-    private static boolean interruptDesired = false;
+-
+-    /** Do not perform a interrupt call. */
+-    private static boolean discardInterrupt = false;
+-
+-    /** The name of the XML file that specifies the panel langpack */
+-    private static final String LANG_FILE_NAME = &quot;packsLang.xml&quot;;
+-
+-    public static final String ALIVE = &quot;alive&quot;;
+-
+-    public static final String INTERRUPT = &quot;doInterrupt&quot;;
+-
+-    public static final String INTERRUPTED = &quot;interruppted&quot;;
+-
+-    /** The result of the operation. */
+-    private boolean result = true;
+-    
++public class Unpacker extends UnpackerBase
++{      
+     private static final String tempPath = &quot;$INSTALL_PATH/Uninstaller/IzpackWebTemp&quot;;
++       
+     
+-    private RulesEngine rules;
+-    
+     /**
+      * The constructor.
+      * 
+@@ -123,161 +66,9 @@
+      */
+     public Unpacker(AutomatedInstallData idata, AbstractUIProgressHandler handler)
+     {
+-        //super(&quot;IzPack - Unpacker thread&quot;);
+-        try
+-        {
+-            String resource = LANG_FILE_NAME + &quot;_&quot; + idata.localeISO3;
+-            this.langpack = new LocaleDatabase(ResourceManager.getInstance().getInputStream(
+-                    resource));
+-        }
+-        catch (Throwable exception)
+-        {}
++        super(idata,handler);
++    }              
+ 
+-        this.idata = idata;
+-        this.handler = handler;
+-
+-        // Initialize the variable substitutor
+-        vs = new VariableSubstitutor(idata.getVariables());
+-    }
+-
+-    /**
+-     * Returns a copy of the active unpacker instances.
+-     * 
+-     * @return a copy of active unpacker instances
+-     */
+-    public static HashMap getRunningInstances()
+-    {
+-        synchronized (instances)
+-        { // Return a shallow copy to prevent a
+-            // ConcurrentModificationException.
+-            return (HashMap) (instances.clone());
+-        }
+-    }
+-
+-    /**
+-     * Adds this to the map of all existent instances of Unpacker.
+-     */
+-    private void addToInstances()
+-    {
+-        synchronized (instances)
+-        {
+-            instances.put(this, ALIVE);
+-        }
+-    }
+-
+-    /**
+-     * Removes this from the map of all existent instances of Unpacker.
+-     */
+-    private void removeFromInstances()
+-    {
+-        synchronized (instances)
+-        {
+-            instances.remove(this);
+-        }
+-    }
+-
+-    /**
+-     * Initiate interrupt of all alive Unpacker. This method does not interrupt the Unpacker objects
+-     * else it sets only the interrupt flag for the Unpacker objects. The dispatching of interrupt
+-     * will be performed by the Unpacker objects self.
+-     */
+-    private static void setInterruptAll()
+-    {
+-        synchronized (instances)
+-        {
+-            Iterator iter = instances.keySet().iterator();
+-            while (iter.hasNext())
+-            {
+-                Object key = iter.next();
+-                if (instances.get(key).equals(ALIVE))
+-                {
+-                    instances.put(key, INTERRUPT);
+-                }
+-            }
+-            // Set global flag to allow detection of it in other classes.
+-            // Do not set it to thread because an exec will then be stoped.
+-            setInterruptDesired(true);
+-        }
+-    }
+-
+-    /**
+-     * Initiate interrupt of all alive Unpacker and waits until all Unpacker are interrupted or the
+-     * wait time has arrived. If the doNotInterrupt flag in InstallerListener is set to true, the
+-     * interrupt will be discarded.
+-     * 
+-     * @param waitTime wait time in millisecounds
+-     * @return true if the interrupt will be performed, false if the interrupt will be discarded
+-     */
+-    public static boolean interruptAll(long waitTime)
+-    {
+-        long t0 = System.currentTimeMillis();
+-        if (isDiscardInterrupt()) return (false);
+-        setInterruptAll();
+-        while (!isInterruptReady())
+-        {
+-            if (System.currentTimeMillis() - t0 &gt; waitTime) return (true);
+-            try
+-            {
+-                Thread.sleep(100);
+-            }
+-            catch (InterruptedException e)
+-            {}
+-        }
+-        return (true);
+-    }
+-
+-    private static boolean isInterruptReady()
+-    {
+-        synchronized (instances)
+-        {
+-            Iterator iter = instances.keySet().iterator();
+-            while (iter.hasNext())
+-            {
+-                Object key = iter.next();
+-                if (!instances.get(key).equals(INTERRUPTED)) return (false);
+-            }
+-            return (true);
+-        }
+-
+-    }
+-
+-    /**
+-     * Sets the interrupt flag for this Unpacker to INTERRUPTED if the previos state was INTERRUPT
+-     * or INTERRUPTED and returns whether interrupt was initiate or not.
+-     * 
+-     * @return whether interrupt was initiate or not
+-     */
+-    private boolean performInterrupted()
+-    {
+-        synchronized (instances)
+-        {
+-            Object doIt = instances.get(this);
+-            if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED)))
+-            {
+-                instances.put(this, INTERRUPTED);
+-                this.result = false;
+-                return (true);
+-            }
+-            return (false);
+-        }
+-    }
+-
+-    /**
+-     * Returns whether interrupt was initiate or not for this Unpacker.
+-     * 
+-     * @return whether interrupt was initiate or not
+-     */
+-    private boolean shouldInterrupt()
+-    {
+-        synchronized (instances)
+-        {
+-            Object doIt = instances.get(this);
+-            if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED))) { return (true); }
+-            return (false);
+-        }
+-
+-    }
+-
+     /* (non-Javadoc)
+      * @see com.izforge.izpack.installer.IUnpacker#run()
+      */
+@@ -309,7 +100,7 @@
+             for (int i = 0; i &lt; npacks; i++)
+             {
+                 // We get the pack stream
+-                int n = idata.allPacks.indexOf(packs.get(i));
++                //int n = idata.allPacks.indexOf(packs.get(i));
+                 Pack p = (Pack) packs.get(i);
+                 
+                 // evaluate condition
+@@ -685,345 +476,7 @@
+         }
+     }
+ 
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.installer.IUnpacker#getResult()
+-     */
+-    public boolean getResult()
+-    {
+-        return this.result;
+-    }
+-    
+     /**
+-     * @param updatechecks
+-     */
+-    private void performUpdateChecks(ArrayList updatechecks)
+-    {
+-        ArrayList include_patterns = new ArrayList();
+-        ArrayList exclude_patterns = new ArrayList();
+-
+-        RECompiler recompiler = new RECompiler();
+-
+-        this.absolute_installpath = new File(idata.getInstallPath()).getAbsoluteFile();
+-
+-        // at first, collect all patterns
+-        for (Iterator iter = updatechecks.iterator(); iter.hasNext();)
+-        {
+-            UpdateCheck uc = (UpdateCheck) iter.next();
+-
+-            if (uc.includesList != null)
+-                include_patterns.addAll(preparePatterns(uc.includesList, recompiler));
+-
+-            if (uc.excludesList != null)
+-                exclude_patterns.addAll(preparePatterns(uc.excludesList, recompiler));
+-        }
+-
+-        // do nothing if no update checks were specified
+-        if (include_patterns.size() == 0) return;
+-
+-        // now collect all files in the installation directory and figure
+-        // out files to check for deletion
+-
+-        // use a treeset for fast access
+-        TreeSet installed_files = new TreeSet();
+-
+-        for (Iterator if_it = this.udata.getInstalledFilesList().iterator(); if_it.hasNext();)
+-        {
+-            String fname = (String) if_it.next();
+-
+-            File f = new File(fname);
+-
+-            if (!f.isAbsolute())
+-            {
+-                f = new File(this.absolute_installpath, fname);
+-            }
+-
+-            installed_files.add(f.getAbsolutePath());
+-        }
+-
+-        // now scan installation directory (breadth first), contains Files of
+-        // directories to scan
+-        // (note: we'll recurse infinitely if there are circular links or
+-        // similar nasty things)
+-        Stack scanstack = new Stack();
+-
+-        // contains File objects determined for deletion
+-        ArrayList files_to_delete = new ArrayList();
+-
+-        try
+-        {
+-            scanstack.add(absolute_installpath);
+-
+-            while (!scanstack.empty())
+-            {
+-                File f = (File) scanstack.pop();
+-
+-                File[] files = f.listFiles();
+-
+-                if (files == null) { throw new IOException(f.getPath() + &quot;is not a directory!&quot;); }
+-
+-                for (int i = 0; i &lt; files.length; i++)
+-                {
+-                    File newf = files[i];
+-
+-                    String newfname = newf.getPath();
+-
+-                    // skip files we just installed
+-                    if (installed_files.contains(newfname)) continue;
+-
+-                    if (fileMatchesOnePattern(newfname, include_patterns)
+-                            &amp;&amp; (!fileMatchesOnePattern(newfname, exclude_patterns)))
+-                    {
+-                        files_to_delete.add(newf);
+-                    }
+-
+-                    if (newf.isDirectory())
+-                    {
+-                        scanstack.push(newf);
+-                    }
+-
+-                }
+-            }
+-        }
+-        catch (IOException e)
+-        {
+-            this.handler.emitError(&quot;error while performing update checks&quot;, e.toString());
+-        }
+-
+-        for (Iterator f_it = files_to_delete.iterator(); f_it.hasNext();)
+-        {
+-            File f = (File) f_it.next();
+-
+-            if (!f.isDirectory())
+-            // skip directories - they cannot be removed safely yet
+-            {
+-//                this.handler.emitNotification(&quot;deleting &quot; + f.getPath());
+-                f.delete();
+-            }
+-
+-        }
+-
+-    }
+-
+-    /**
+-     * @param filename
+-     * @param patterns
+-     * 
+-     * @return true if the file matched one pattern, false if it did not
+-     */
+-    private boolean fileMatchesOnePattern(String filename, ArrayList patterns)
+-    {
+-        // first check whether any include matches
+-        for (Iterator inc_it = patterns.iterator(); inc_it.hasNext();)
+-        {
+-            RE pattern = (RE) inc_it.next();
+-
+-            if (pattern.match(filename)) { return true; }
+-        }
+-
+-        return false;
+-    }
+-
+-    /**
+-     * @param list A list of file name patterns (in ant fileset syntax)
+-     * @param recompiler The regular expression compiler (used to speed up RE compiling).
+-     * 
+-     * @return List of org.apache.regexp.RE
+-     */
+-    private List preparePatterns(ArrayList list, RECompiler recompiler)
+-    {
+-        ArrayList result = new ArrayList();
+-
+-        for (Iterator iter = list.iterator(); iter.hasNext();)
+-        {
+-            String element = (String) iter.next();
+-
+-            if ((element != null) &amp;&amp; (element.length() &gt; 0))
+-            {
+-                // substitute variables in the pattern
+-                element = this.vs.substitute(element, &quot;plain&quot;);
+-
+-                // check whether the pattern is absolute or relative
+-                File f = new File(element);
+-
+-                // if it is relative, make it absolute and prepend the
+-                // installation path
+-                // (this is a bit dangerous...)
+-                if (!f.isAbsolute())
+-                {
+-                    element = new File(this.absolute_installpath, element).toString();
+-                }
+-
+-                // now parse the element and construct a regular expression from
+-                // it
+-                // (we have to parse it one character after the next because
+-                // every
+-                // character should only be processed once - it's not possible
+-                // to get this
+-                // correct using regular expression replacing)
+-                StringBuffer element_re = new StringBuffer();
+-
+-                int lookahead = -1;
+-
+-                int pos = 0;
+-
+-                while (pos &lt; element.length())
+-                {
+-                    char c;
+-
+-                    if (lookahead != -1)
+-                    {
+-                        c = (char) lookahead;
+-                        lookahead = -1;
+-                    }
+-                    else
+-                        c = element.charAt(pos++);
+-
+-                    switch (c)
+-                    {
+-                    case '/': {
+-                        element_re.append(File.separator);
+-                        break;
+-                    }
+-                    // escape backslash and dot
+-                    case '\\':
+-                    case '.': {
+-                        element_re.append(&quot;\\&quot;);
+-                        element_re.append(c);
+-                        break;
+-                    }
+-                    case '*': {
+-                        if (pos == element.length())
+-                        {
+-                            element_re.append(&quot;[^&quot;).append(File.separator).append(&quot;]*&quot;);
+-                            break;
+-                        }
+-
+-                        lookahead = element.charAt(pos++);
+-
+-                        // check for &quot;**&quot;
+-                        if (lookahead == '*')
+-                        {
+-                            element_re.append(&quot;.*&quot;);
+-                            // consume second star
+-                            lookahead = -1;
+-                        }
+-                        else
+-                        {
+-                            element_re.append(&quot;[^&quot;).append(File.separator).append(&quot;]*&quot;);
+-                            // lookahead stays there
+-                        }
+-                        break;
+-                    }
+-                    default: {
+-                        element_re.append(c);
+-                        break;
+-                    }
+-                    } // switch
+-
+-                }
+-
+-                // make sure that the whole expression is matched
+-                element_re.append('$');
+-
+-                // replace \ by \\ and create a RE from the result
+-                try
+-                {
+-                    result.add(new RE(recompiler.compile(element_re.toString())));
+-                }
+-                catch (RESyntaxException e)
+-                {
+-                    this.handler.emitNotification(&quot;internal error: pattern \&quot;&quot; + element
+-                            + &quot;\&quot; produced invalid RE \&quot;&quot; + f.getPath() + &quot;\&quot;&quot;);
+-                }
+-
+-            }
+-        }
+-
+-        return result;
+-    }
+-
+-    /**
+-     * Puts the uninstaller.
+-     * 
+-     * @exception Exception Description of the Exception
+-     */
+-    private void putUninstaller() throws Exception
+-    {
+-        // get the uninstaller base, returning if not found so that
+-        // idata.uninstallOutJar remains null
+-        InputStream[] in = new InputStream[2];
+-        in[0] = Unpacker.class.getResourceAsStream(&quot;/res/IzPack.uninstaller&quot;);
+-        if (in[0] == null) return;
+-        // The uninstaller extension is facultative; it will be exist only
+-        // if a native library was marked for uninstallation.
+-        in[1] = Unpacker.class.getResourceAsStream(&quot;/res/IzPack.uninstaller-ext&quot;);
+-
+-        // Me make the .uninstaller directory
+-        String dest = IoHelper.translatePath(&quot;$INSTALL_PATH&quot;, vs) + File.separator + &quot;Uninstaller&quot;;
+-        String jar = dest + File.separator + idata.info.getUninstallerName();
+-        File pathMaker = new File(dest);
+-        pathMaker.mkdirs();
+-
+-        // We log the uninstaller deletion information
+-        udata.setUninstallerJarFilename(jar);
+-        udata.setUninstallerPath(dest);
+-
+-        // We open our final jar file
+-        FileOutputStream out = new FileOutputStream(jar);
+-        // Intersect a buffer else byte for byte will be written to the file.
+-        BufferedOutputStream bos = new BufferedOutputStream(out);
+-        ZipOutputStream outJar = new ZipOutputStream(bos);
+-        idata.uninstallOutJar = outJar;
+-        outJar.setLevel(9);
+-        udata.addFile(jar, true);
+-
+-        // We copy the uninstallers
+-        HashSet doubles = new HashSet();
+-
+-        for (int i = 0; i &lt; in.length; ++i)
+-        {
+-            if (in[i] == null) continue;
+-            ZipInputStream inRes = new ZipInputStream(in[i]);
+-            ZipEntry zentry = inRes.getNextEntry();
+-            while (zentry != null)
+-            {
+-                // Puts a new entry, but not twice like META-INF
+-                if (!doubles.contains(zentry.getName()))
+-                {
+-                    doubles.add(zentry.getName());
+-                    outJar.putNextEntry(new ZipEntry(zentry.getName()));
+-
+-                    // Byte to byte copy
+-                    int unc = inRes.read();
+-                    while (unc != -1)
+-                    {
+-                        outJar.write(unc);
+-                        unc = inRes.read();
+-                    }
+-
+-                    // Next one please
+-                    inRes.closeEntry();
+-                    outJar.closeEntry();
+-                }
+-                zentry = inRes.getNextEntry();
+-            }
+-            inRes.close();
+-        }
+-
+-        // We put the langpack
+-        InputStream in2 = Unpacker.class.getResourceAsStream(&quot;/langpacks/&quot; + idata.localeISO3
+-                + &quot;.xml&quot;);
+-        outJar.putNextEntry(new ZipEntry(&quot;langpack.xml&quot;));
+-        int read = in2.read();
+-        while (read != -1)
+-        {
+-            outJar.write(read);
+-            read = in2.read();
+-        }
+-        outJar.closeEntry();
+-    }
+-
+-    /**
+      * Returns a stream to a pack, location depending on if it's web based.
+      * 
+      * @param n The pack number.
+@@ -1099,215 +552,5 @@
+ 
+         }
+         return in;
+-    }
+-
+-    // CUSTOM ACTION STUFF -------------- start -----------------
+-
+-    /**
+-     * Informs all listeners which would be informed at the given action type.
+-     * 
+-     * @param customActions array of lists with the custom action objects
+-     * @param action identifier for which callback should be called
+-     * @param firstParam first parameter for the call
+-     * @param secondParam second parameter for the call
+-     * @param thirdParam third parameter for the call
+-     */
+-    private void informListeners(List[] customActions, int action, Object firstParam,
+-            Object secondParam, Object thirdParam) throws Exception
+-    {
+-        List listener = null;
+-        // select the right action list.
+-        switch (action)
+-        {
+-        case InstallerListener.BEFORE_FILE:
+-        case InstallerListener.AFTER_FILE:
+-        case InstallerListener.BEFORE_DIR:
+-        case InstallerListener.AFTER_DIR:
+-            listener = customActions[customActions.length - 1];
+-            break;
+-        default:
+-            listener = customActions[0];
+-            break;
+-        }
+-        if (listener == null) return;
+-        // Iterate the action list.
+-        Iterator iter = listener.iterator();
+-        while (iter.hasNext())
+-        {
+-            if (shouldInterrupt()) return;
+-            InstallerListener il = (InstallerListener) iter.next();
+-            switch (action)
+-            {
+-            case InstallerListener.BEFORE_FILE:
+-                il.beforeFile((File) firstParam, (PackFile) secondParam);
+-                break;
+-            case InstallerListener.AFTER_FILE:
+-                il.afterFile((File) firstParam, (PackFile) secondParam);
+-                break;
+-            case InstallerListener.BEFORE_DIR:
+-                il.beforeDir((File) firstParam, (PackFile) secondParam);
+-                break;
+-            case InstallerListener.AFTER_DIR:
+-                il.afterDir((File) firstParam, (PackFile) secondParam);
+-                break;
+-            case InstallerListener.BEFORE_PACK:
+-                il.beforePack((Pack) firstParam, (Integer) secondParam,
+-                        (AbstractUIProgressHandler) thirdParam);
+-                break;
+-            case InstallerListener.AFTER_PACK:
+-                il.afterPack((Pack) firstParam, (Integer) secondParam,
+-                        (AbstractUIProgressHandler) thirdParam);
+-                break;
+-            case InstallerListener.BEFORE_PACKS:
+-                il.beforePacks((AutomatedInstallData) firstParam, (Integer) secondParam,
+-                        (AbstractUIProgressHandler) thirdParam);
+-                break;
+-            case InstallerListener.AFTER_PACKS:
+-                il.afterPacks((AutomatedInstallData) firstParam,
+-                        (AbstractUIProgressHandler) secondParam);
+-                break;
+-
+-            }
+-        }
+-    }
+-
+-    /**
+-     * Returns the defined custom actions split into types including a constructed type for the file
+-     * related installer listeners.
+-     * 
+-     * @return array of lists of custom action data like listeners
+-     */
+-    private List[] getCustomActions()
+-    {
+-        String[] listenerNames = AutomatedInstallData.CUSTOM_ACTION_TYPES;
+-        List[] retval = new List[listenerNames.length + 1];
+-        int i;
+-        for (i = 0; i &lt; listenerNames.length; ++i)
+-        {
+-            retval[i] = (List) idata.customData.get(listenerNames[i]);
+-            if (retval[i] == null)
+-            // Make a dummy list, then iterator is ever callable.
+-                retval[i] = new ArrayList();
+-        }
+-        if (retval[AutomatedInstallData.INSTALLER_LISTENER_INDEX].size() &gt; 0)
+-        { // Installer listeners exist
+-            // Create file related installer listener list in the last
+-            // element of custom action array.
+-            i = retval.length - 1; // Should be so, but safe is safe ...
+-            retval[i] = new ArrayList();
+-            Iterator iter = ((List) retval[AutomatedInstallData.INSTALLER_LISTENER_INDEX])
+-                    .iterator();
+-            while (iter.hasNext())
+-            {
+-                // If we get a class cast exception many is wrong and
+-                // we must fix it.
+-                InstallerListener li = (InstallerListener) iter.next();
+-                if (li.isFileListener()) retval[i].add(li);
+-            }
+-
+-        }
+-        return (retval);
+-    }
+-
+-    /**
+-     * Adds additional unistall data to the uninstall data object.
+-     * 
+-     * @param udata unistall data
+-     * @param customData array of lists of custom action data like uninstaller listeners
+-     */
+-    private void handleAdditionalUninstallData(UninstallData udata, List[] customData)
+-    {
+-        // Handle uninstall libs
+-        udata.addAdditionalData(&quot;__uninstallLibs__&quot;,
+-                customData[AutomatedInstallData.UNINSTALLER_LIBS_INDEX]);
+-        // Handle uninstaller listeners
+-        udata.addAdditionalData(&quot;uninstallerListeners&quot;,
+-                customData[AutomatedInstallData.UNINSTALLER_LISTENER_INDEX]);
+-        // Handle uninstaller jars
+-        udata.addAdditionalData(&quot;uninstallerJars&quot;,
+-                customData[AutomatedInstallData.UNINSTALLER_JARS_INDEX]);
+-    }
+-
+-    // This method is only used if a file related custom action exist.
+-    /**
+-     * Creates the given directory recursive and calls the method &quot;afterDir&quot; of each listener with
+-     * the current file object and the pack file object. On error an exception is raised.
+-     * 
+-     * @param dest the directory which should be created
+-     * @param pf current pack file object
+-     * @param customActions all defined custom actions
+-     * @return false on error, true else
+-     * @throws Exception
+-     */
+-
+-    private boolean mkDirsWithEnhancement(File dest, PackFile pf, List[] customActions)
+-            throws Exception
+-    {
+-        String path = &quot;unknown&quot;;
+-        if (dest != null) path = dest.getAbsolutePath();
+-        if (dest != null &amp;&amp; !dest.exists() &amp;&amp; dest.getParentFile() != null)
+-        {
+-            if (dest.getParentFile().exists())
+-                informListeners(customActions, InstallerListener.BEFORE_DIR, dest, pf, null);
+-            if (!dest.mkdir())
+-            {
+-                mkDirsWithEnhancement(dest.getParentFile(), pf, customActions);
+-                if (!dest.mkdir()) dest = null;
+-            }
+-            informListeners(customActions, InstallerListener.AFTER_DIR, dest, pf, null);
+-        }
+-        if (dest == null)
+-        {
+-            handler.emitError(&quot;Error creating directories&quot;, &quot;Could not create directory\n&quot; + path);
+-            handler.stopAction();
+-            return (false);
+-        }
+-        return (true);
+-    }
+-
+-    // CUSTOM ACTION STUFF -------------- end -----------------
+-
+-    /**
+-     * Returns whether an interrupt request should be discarded or not.
+-     * 
+-     * @return Returns the discard interrupt flag
+-     */
+-    public static synchronized boolean isDiscardInterrupt()
+-    {
+-        return discardInterrupt;
+-    }
+-
+-    /**
+-     * Sets the discard interrupt flag.
+-     * 
+-     * @param di the discard interrupt flag to set
+-     */
+-    public static synchronized void setDiscardInterrupt(boolean di)
+-    {
+-        discardInterrupt = di;
+-        setInterruptDesired(false);
+-    }
+-
+-    /**
+-     * Returns the interrupt desired state.
+-     * 
+-     * @return the interrupt desired state
+-     */
+-    public static boolean isInterruptDesired()
+-    {
+-        return interruptDesired;
+-    }
+-
+-    /**
+-     * @param interruptDesired The interrupt desired flag to set
+-     */
+-    private static void setInterruptDesired(boolean interruptDesired)
+-    {
+-        Unpacker.interruptDesired = interruptDesired;
+-    }
+-
+-    public void setRules(RulesEngine rules)
+-    {        
+-        this.rules = rules;        
+-    }
++    }   
+ }
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerBase.java	2007-11-16 13:42:26 UTC (rev 1906)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/UnpackerBase.java	2007-11-16 14:20:55 UTC (rev 1907)
+@@ -0,0 +1,809 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.installer;
++
++import java.io.BufferedOutputStream;
++import java.io.File;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Stack;
++import java.util.TreeSet;
++import java.util.zip.ZipEntry;
++import java.util.zip.ZipInputStream;
++import java.util.zip.ZipOutputStream;
++
++import org.apache.regexp.RE;
++import org.apache.regexp.RECompiler;
++import org.apache.regexp.RESyntaxException;
++
++import com.izforge.izpack.LocaleDatabase;
++import com.izforge.izpack.Pack;
++import com.izforge.izpack.PackFile;
++import com.izforge.izpack.UpdateCheck;
++import com.izforge.izpack.event.InstallerListener;
++import com.izforge.izpack.rules.RulesEngine;
++import com.izforge.izpack.util.AbstractUIProgressHandler;
++import com.izforge.izpack.util.IoHelper;
++import com.izforge.izpack.util.VariableSubstitutor;
++
++/**
++ * Abstract base class for all unpacker implementations.
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">izpack at reil-online.de</A>&gt;
++ */
++public abstract class UnpackerBase implements IUnpacker
++{    
++    /** The installdata. */
++    protected AutomatedInstallData idata;
++
++    /** The installer listener. */
++    protected AbstractUIProgressHandler handler;
++
++    /** The uninstallation data. */
++    protected UninstallData udata;
++
++    /** The variables substitutor. */
++    protected VariableSubstitutor vs;    
++
++    /** The absolute path of the installation. (NOT the canonical!) */
++    protected File absolute_installpath;
++
++    /** The packs locale database. */
++    protected LocaleDatabase langpack = null;    
++
++    /** The result of the operation. */
++    protected boolean result = true;    
++
++    /** The instances of the unpacker objects. */
++    protected static HashMap instances = new HashMap();
++    
++    /** Interrupt flag if global interrupt is desired. */
++    protected static boolean interruptDesired = false;
++
++    /** Do not perform a interrupt call. */
++    protected static boolean discardInterrupt = false;
++
++    /** The name of the XML file that specifies the panel langpack */
++    protected static final String LANG_FILE_NAME = &quot;packsLang.xml&quot;;
++
++    public static final String ALIVE = &quot;alive&quot;;
++
++    public static final String INTERRUPT = &quot;doInterrupt&quot;;
++
++    public static final String INTERRUPTED = &quot;interruppted&quot;;
++    
++    protected RulesEngine rules;
++       
++    /**
++     * The constructor.
++     * 
++     * @param idata The installation data.
++     * @param handler The installation progress handler.
++     */
++    public UnpackerBase(AutomatedInstallData idata, AbstractUIProgressHandler handler)
++    {        
++        try
++        {
++            String resource = LANG_FILE_NAME + &quot;_&quot; + idata.localeISO3;
++            this.langpack = new LocaleDatabase(ResourceManager.getInstance().getInputStream(resource));
++        }
++        catch (Throwable exception)
++        {}
++
++        this.idata = idata;
++        this.handler = handler;
++
++        // Initialize the variable substitutor
++        vs = new VariableSubstitutor(idata.getVariables());
++    }    
++    
++    public void setRules(RulesEngine rules)
++    {
++        this.rules = rules;
++    }
++   
++    /**
++     * Returns a copy of the active unpacker instances.
++     * 
++     * @return a copy of active unpacker instances
++     */
++    public static HashMap getRunningInstances()
++    {
++        synchronized (instances)
++        { // Return a shallow copy to prevent a
++            // ConcurrentModificationException.
++            return (HashMap) (instances.clone());
++        }
++    }
++    
++    /**
++     * Adds this to the map of all existent instances of Unpacker.
++     */
++    protected void addToInstances()
++    {
++        synchronized (instances)
++        {
++            instances.put(this, ALIVE);
++        }
++    }
++
++    /**
++     * Removes this from the map of all existent instances of Unpacker.
++     */
++    protected void removeFromInstances()
++    {
++        synchronized (instances)
++        {
++            instances.remove(this);
++        }
++    }
++
++    /**
++     * Initiate interrupt of all alive Unpacker. This method does not interrupt the Unpacker objects
++     * else it sets only the interrupt flag for the Unpacker objects. The dispatching of interrupt
++     * will be performed by the Unpacker objects self.
++     */
++    private static void setInterruptAll()
++    {
++        synchronized (instances)
++        {
++            Iterator iter = instances.keySet().iterator();
++            while (iter.hasNext())
++            {
++                Object key = iter.next();
++                if (instances.get(key).equals(ALIVE))
++                {
++                    instances.put(key, INTERRUPT);
++                }
++            }
++            // Set global flag to allow detection of it in other classes.
++            // Do not set it to thread because an exec will then be stoped.
++            setInterruptDesired(true);
++        }
++    }
++    
++    /**
++     * Initiate interrupt of all alive Unpacker and waits until all Unpacker are interrupted or the
++     * wait time has arrived. If the doNotInterrupt flag in InstallerListener is set to true, the
++     * interrupt will be discarded.
++     * 
++     * @param waitTime wait time in millisecounds
++     * @return true if the interrupt will be performed, false if the interrupt will be discarded
++     */
++    public static boolean interruptAll(long waitTime)
++    {
++        long t0 = System.currentTimeMillis();
++        if (isDiscardInterrupt()) return (false);
++        setInterruptAll();
++        while (!isInterruptReady())
++        {
++            if (System.currentTimeMillis() - t0 &gt; waitTime) return (true);
++            try
++            {
++                Thread.sleep(100);
++            }
++            catch (InterruptedException e)
++            {}
++        }
++        return (true);
++    }      
++    
++    private static boolean isInterruptReady()
++    {
++        synchronized (instances)
++        {
++            Iterator iter = instances.keySet().iterator();
++            while (iter.hasNext())
++            {
++                Object key = iter.next();
++                if (!instances.get(key).equals(INTERRUPTED)) return (false);
++            }
++            return (true);
++        }
++
++    }
++
++    /**
++     * Sets the interrupt flag for this Unpacker to INTERRUPTED if the previos state was INTERRUPT
++     * or INTERRUPTED and returns whether interrupt was initiate or not.
++     * 
++     * @return whether interrupt was initiate or not
++     */
++    protected boolean performInterrupted()
++    {
++        synchronized (instances)
++        {
++            Object doIt = instances.get(this);
++            if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED)))
++            {
++                instances.put(this, INTERRUPTED);
++                this.result = false;
++                return (true);
++            }
++            return (false);
++        }
++    }
++
++    /**
++     * Returns whether interrupt was initiate or not for this Unpacker.
++     * 
++     * @return whether interrupt was initiate or not
++     */
++    private boolean shouldInterrupt()
++    {
++        synchronized (instances)
++        {
++            Object doIt = instances.get(this);
++            if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED))) { return (true); }
++            return (false);
++        }
++
++    }
++    
++    /**
++     * Return the state of the operation.
++     * 
++     * @return true if the operation was successful, false otherwise.
++     */
++    public boolean getResult()
++    {
++        return this.result;
++    }
++    
++    /**
++     * @param filename
++     * @param patterns
++     * 
++     * @return true if the file matched one pattern, false if it did not
++     */
++    private boolean fileMatchesOnePattern(String filename, ArrayList patterns)
++    {
++        // first check whether any include matches
++        for (Iterator inc_it = patterns.iterator(); inc_it.hasNext();)
++        {
++            RE pattern = (RE) inc_it.next();
++
++            if (pattern.match(filename)) { return true; }
++        }
++
++        return false;
++    }
++
++    /**
++     * @param list A list of file name patterns (in ant fileset syntax)
++     * @param recompiler The regular expression compiler (used to speed up RE compiling).
++     * 
++     * @return List of org.apache.regexp.RE
++     */
++    private List preparePatterns(ArrayList list, RECompiler recompiler)
++    {
++        ArrayList result = new ArrayList();
++
++        for (Iterator iter = list.iterator(); iter.hasNext();)
++        {
++            String element = (String) iter.next();
++
++            if ((element != null) &amp;&amp; (element.length() &gt; 0))
++            {
++                // substitute variables in the pattern
++                element = this.vs.substitute(element, &quot;plain&quot;);
++
++                // check whether the pattern is absolute or relative
++                File f = new File(element);
++
++                // if it is relative, make it absolute and prepend the
++                // installation path
++                // (this is a bit dangerous...)
++                if (!f.isAbsolute())
++                {
++                    element = new File(this.absolute_installpath, element).toString();
++                }
++
++                // now parse the element and construct a regular expression from
++                // it
++                // (we have to parse it one character after the next because
++                // every
++                // character should only be processed once - it's not possible
++                // to get this
++                // correct using regular expression replacing)
++                StringBuffer element_re = new StringBuffer();
++
++                int lookahead = -1;
++
++                int pos = 0;
++
++                while (pos &lt; element.length())
++                {
++                    char c;
++
++                    if (lookahead != -1)
++                    {
++                        c = (char) lookahead;
++                        lookahead = -1;
++                    }
++                    else
++                        c = element.charAt(pos++);
++
++                    switch (c)
++                    {
++                    case '/': {
++                        element_re.append(File.separator);
++                        break;
++                    }
++                    // escape backslash and dot
++                    case '\\':
++                    case '.': {
++                        element_re.append(&quot;\\&quot;);
++                        element_re.append(c);
++                        break;
++                    }
++                    case '*': {
++                        if (pos == element.length())
++                        {
++                            element_re.append(&quot;[^&quot;).append(File.separator).append(&quot;]*&quot;);
++                            break;
++                        }
++
++                        lookahead = element.charAt(pos++);
++
++                        // check for &quot;**&quot;
++                        if (lookahead == '*')
++                        {
++                            element_re.append(&quot;.*&quot;);
++                            // consume second star
++                            lookahead = -1;
++                        }
++                        else
++                        {
++                            element_re.append(&quot;[^&quot;).append(File.separator).append(&quot;]*&quot;);
++                            // lookahead stays there
++                        }
++                        break;
++                    }
++                    default: {
++                        element_re.append(c);
++                        break;
++                    }
++                    } // switch
++
++                }
++
++                // make sure that the whole expression is matched
++                element_re.append('$');
++
++                // replace \ by \\ and create a RE from the result
++                try
++                {
++                    result.add(new RE(recompiler.compile(element_re.toString())));
++                }
++                catch (RESyntaxException e)
++                {
++                    this.handler.emitNotification(&quot;internal error: pattern \&quot;&quot; + element
++                            + &quot;\&quot; produced invalid RE \&quot;&quot; + f.getPath() + &quot;\&quot;&quot;);
++                }
++
++            }
++        }
++
++        return result;
++    }
++
++ // CUSTOM ACTION STUFF -------------- start -----------------
++
++    /**
++     * Informs all listeners which would be informed at the given action type.
++     * 
++     * @param customActions array of lists with the custom action objects
++     * @param action identifier for which callback should be called
++     * @param firstParam first parameter for the call
++     * @param secondParam second parameter for the call
++     * @param thirdParam third parameter for the call
++     */
++    protected void informListeners(List[] customActions, int action, Object firstParam,
++            Object secondParam, Object thirdParam) throws Exception
++    {
++        List listener = null;
++        // select the right action list.
++        switch (action)
++        {
++        case InstallerListener.BEFORE_FILE:
++        case InstallerListener.AFTER_FILE:
++        case InstallerListener.BEFORE_DIR:
++        case InstallerListener.AFTER_DIR:
++            listener = customActions[customActions.length - 1];
++            break;
++        default:
++            listener = customActions[0];
++            break;
++        }
++        if (listener == null) return;
++        // Iterate the action list.
++        Iterator iter = listener.iterator();
++        while (iter.hasNext())
++        {
++            if (shouldInterrupt()) return;
++            InstallerListener il = (InstallerListener) iter.next();
++            switch (action)
++            {
++            case InstallerListener.BEFORE_FILE:
++                il.beforeFile((File) firstParam, (PackFile) secondParam);
++                break;
++            case InstallerListener.AFTER_FILE:
++                il.afterFile((File) firstParam, (PackFile) secondParam);
++                break;
++            case InstallerListener.BEFORE_DIR:
++                il.beforeDir((File) firstParam, (PackFile) secondParam);
++                break;
++            case InstallerListener.AFTER_DIR:
++                il.afterDir((File) firstParam, (PackFile) secondParam);
++                break;
++            case InstallerListener.BEFORE_PACK:
++                il.beforePack((Pack) firstParam, (Integer) secondParam,
++                        (AbstractUIProgressHandler) thirdParam);
++                break;
++            case InstallerListener.AFTER_PACK:
++                il.afterPack((Pack) firstParam, (Integer) secondParam,
++                        (AbstractUIProgressHandler) thirdParam);
++                break;
++            case InstallerListener.BEFORE_PACKS:
++                il.beforePacks((AutomatedInstallData) firstParam, (Integer) secondParam,
++                        (AbstractUIProgressHandler) thirdParam);
++                break;
++            case InstallerListener.AFTER_PACKS:
++                il.afterPacks((AutomatedInstallData) firstParam,
++                        (AbstractUIProgressHandler) secondParam);
++                break;
++
++            }
++        }
++    }
++
++    /**
++     * Returns the defined custom actions split into types including a constructed type for the file
++     * related installer listeners.
++     * 
++     * @return array of lists of custom action data like listeners
++     */
++    protected List[] getCustomActions()
++    {
++        String[] listenerNames = AutomatedInstallData.CUSTOM_ACTION_TYPES;
++        List[] retval = new List[listenerNames.length + 1];
++        int i;
++        for (i = 0; i &lt; listenerNames.length; ++i)
++        {
++            retval[i] = (List) idata.customData.get(listenerNames[i]);
++            if (retval[i] == null)
++            // Make a dummy list, then iterator is ever callable.
++                retval[i] = new ArrayList();
++        }
++        if (retval[AutomatedInstallData.INSTALLER_LISTENER_INDEX].size() &gt; 0)
++        { // Installer listeners exist
++            // Create file related installer listener list in the last
++            // element of custom action array.
++            i = retval.length - 1; // Should be so, but safe is safe ...
++            retval[i] = new ArrayList();
++            Iterator iter = ((List) retval[AutomatedInstallData.INSTALLER_LISTENER_INDEX])
++                    .iterator();
++            while (iter.hasNext())
++            {
++                // If we get a class cast exception many is wrong and
++                // we must fix it.
++                InstallerListener li = (InstallerListener) iter.next();
++                if (li.isFileListener()) retval[i].add(li);
++            }
++
++        }
++        return (retval);
++    }
++    
++    // This method is only used if a file related custom action exist.
++    /**
++     * Creates the given directory recursive and calls the method &quot;afterDir&quot; of each listener with
++     * the current file object and the pack file object. On error an exception is raised.
++     * 
++     * @param dest the directory which should be created
++     * @param pf current pack file object
++     * @param customActions all defined custom actions
++     * @return false on error, true else
++     * @throws Exception
++     */
++
++    protected boolean mkDirsWithEnhancement(File dest, PackFile pf, List[] customActions)
++            throws Exception
++    {
++        String path = &quot;unknown&quot;;
++        if (dest != null) path = dest.getAbsolutePath();
++        if (dest != null &amp;&amp; !dest.exists() &amp;&amp; dest.getParentFile() != null)
++        {
++            if (dest.getParentFile().exists())
++                informListeners(customActions, InstallerListener.BEFORE_DIR, dest, pf, null);
++            if (!dest.mkdir())
++            {
++                mkDirsWithEnhancement(dest.getParentFile(), pf, customActions);
++                if (!dest.mkdir()) dest = null;
++            }
++            informListeners(customActions, InstallerListener.AFTER_DIR, dest, pf, null);
++        }
++        if (dest == null)
++        {
++            handler.emitError(&quot;Error creating directories&quot;, &quot;Could not create directory\n&quot; + path);
++            handler.stopAction();
++            return (false);
++        }
++        return (true);
++    }
++
++    // CUSTOM ACTION STUFF -------------- end -----------------
++    
++    /**
++     * Returns whether an interrupt request should be discarded or not.
++     * 
++     * @return Returns the discard interrupt flag
++     */
++    public static synchronized boolean isDiscardInterrupt()
++    {
++        return discardInterrupt;
++    }
++
++    /**
++     * Sets the discard interrupt flag.
++     * 
++     * @param di the discard interrupt flag to set
++     */
++    public static synchronized void setDiscardInterrupt(boolean di)
++    {
++        discardInterrupt = di;
++        setInterruptDesired(false);
++    }
++
++    /**
++     * Returns the interrupt desired state.
++     * 
++     * @return the interrupt desired state
++     */
++    public static boolean isInterruptDesired()
++    {
++        return interruptDesired;
++    }
++
++    /**
++     * @param interruptDesired The interrupt desired flag to set
++     */
++    private static void setInterruptDesired(boolean interruptDesired)
++    {
++        UnpackerBase.interruptDesired = interruptDesired;
++    }   
++    
++    /**
++     * Puts the uninstaller.
++     * 
++     * @exception Exception Description of the Exception
++     */
++    protected void putUninstaller() throws Exception
++    {
++        // get the uninstaller base, returning if not found so that
++        // idata.uninstallOutJar remains null
++        InputStream[] in = new InputStream[2];
++        in[0] = UnpackerBase.class.getResourceAsStream(&quot;/res/IzPack.uninstaller&quot;);
++        if (in[0] == null) return;
++        // The uninstaller extension is facultative; it will be exist only
++        // if a native library was marked for uninstallation.
++        in[1] = UnpackerBase.class.getResourceAsStream(&quot;/res/IzPack.uninstaller-ext&quot;);
++
++        // Me make the .uninstaller directory
++        String dest = IoHelper.translatePath(&quot;$INSTALL_PATH&quot;, vs) + File.separator + &quot;Uninstaller&quot;;
++        String jar = dest + File.separator + idata.info.getUninstallerName();
++        File pathMaker = new File(dest);
++        pathMaker.mkdirs();
++
++        // We log the uninstaller deletion information
++        udata.setUninstallerJarFilename(jar);
++        udata.setUninstallerPath(dest);
++
++        // We open our final jar file
++        FileOutputStream out = new FileOutputStream(jar);
++        // Intersect a buffer else byte for byte will be written to the file.
++        BufferedOutputStream bos = new BufferedOutputStream(out);
++        ZipOutputStream outJar = new ZipOutputStream(bos);
++        idata.uninstallOutJar = outJar;
++        outJar.setLevel(9);
++        udata.addFile(jar, true);
++
++        // We copy the uninstallers
++        HashSet doubles = new HashSet();
++
++        for (int i = 0; i &lt; in.length; ++i)
++        {
++            if (in[i] == null) continue;
++            ZipInputStream inRes = new ZipInputStream(in[i]);
++            ZipEntry zentry = inRes.getNextEntry();
++            while (zentry != null)
++            {
++                // Puts a new entry, but not twice like META-INF
++                if (!doubles.contains(zentry.getName()))
++                {
++                    doubles.add(zentry.getName());
++                    outJar.putNextEntry(new ZipEntry(zentry.getName()));
++
++                    // Byte to byte copy
++                    int unc = inRes.read();
++                    while (unc != -1)
++                    {
++                        outJar.write(unc);
++                        unc = inRes.read();
++                    }
++
++                    // Next one please
++                    inRes.closeEntry();
++                    outJar.closeEntry();
++                }
++                zentry = inRes.getNextEntry();
++            }
++            inRes.close();
++        }
++
++        // We put the langpack
++        InputStream in2 = Unpacker.class.getResourceAsStream(&quot;/langpacks/&quot; + idata.localeISO3 + &quot;.xml&quot;);
++        outJar.putNextEntry(new ZipEntry(&quot;langpack.xml&quot;));
++        int read = in2.read();
++        while (read != -1)
++        {
++            outJar.write(read);
++            read = in2.read();
++        }
++        outJar.closeEntry();
++    }   
++    
++    /**
++     * Adds additional unistall data to the uninstall data object.
++     * 
++     * @param udata unistall data
++     * @param customData array of lists of custom action data like uninstaller listeners
++     */
++    protected void handleAdditionalUninstallData(UninstallData udata, List[] customData)
++    {
++        // Handle uninstall libs
++        udata.addAdditionalData(&quot;__uninstallLibs__&quot;, customData[AutomatedInstallData.UNINSTALLER_LIBS_INDEX]);
++        // Handle uninstaller listeners
++        udata.addAdditionalData(&quot;uninstallerListeners&quot;, customData[AutomatedInstallData.UNINSTALLER_LISTENER_INDEX]);
++        // Handle uninstaller jars
++        udata.addAdditionalData(&quot;uninstallerJars&quot;, customData[AutomatedInstallData.UNINSTALLER_JARS_INDEX]);
++    }
++
++    public abstract void run();   
++    
++    /**
++     * @param updatechecks
++     */
++    protected void performUpdateChecks(ArrayList updatechecks)
++    {
++        ArrayList include_patterns = new ArrayList();
++        ArrayList exclude_patterns = new ArrayList();
++
++        RECompiler recompiler = new RECompiler();
++
++        this.absolute_installpath = new File(idata.getInstallPath()).getAbsoluteFile();
++
++        // at first, collect all patterns
++        for (Iterator iter = updatechecks.iterator(); iter.hasNext();)
++        {
++            UpdateCheck uc = (UpdateCheck) iter.next();
++
++            if (uc.includesList != null)
++                include_patterns.addAll(preparePatterns(uc.includesList, recompiler));
++
++            if (uc.excludesList != null)
++                exclude_patterns.addAll(preparePatterns(uc.excludesList, recompiler));
++        }
++
++        // do nothing if no update checks were specified
++        if (include_patterns.size() == 0) return;
++
++        // now collect all files in the installation directory and figure
++        // out files to check for deletion
++
++        // use a treeset for fast access
++        TreeSet installed_files = new TreeSet();
++
++        for (Iterator if_it = this.udata.getInstalledFilesList().iterator(); if_it.hasNext();)
++        {
++            String fname = (String) if_it.next();
++
++            File f = new File(fname);
++
++            if (!f.isAbsolute())
++            {
++                f = new File(this.absolute_installpath, fname);
++            }
++
++            installed_files.add(f.getAbsolutePath());
++        }
++
++        // now scan installation directory (breadth first), contains Files of
++        // directories to scan
++        // (note: we'll recurse infinitely if there are circular links or
++        // similar nasty things)
++        Stack scanstack = new Stack();
++
++        // contains File objects determined for deletion
++        ArrayList files_to_delete = new ArrayList();
++
++        try
++        {
++            scanstack.add(absolute_installpath);
++
++            while (!scanstack.empty())
++            {
++                File f = (File) scanstack.pop();
++
++                File[] files = f.listFiles();
++
++                if (files == null) { throw new IOException(f.getPath() + &quot;is not a directory!&quot;); }
++
++                for (int i = 0; i &lt; files.length; i++)
++                {
++                    File newf = files[i];
++
++                    String newfname = newf.getPath();
++
++                    // skip files we just installed
++                    if (installed_files.contains(newfname)) continue;
++
++                    if (fileMatchesOnePattern(newfname, include_patterns)
++                            &amp;&amp; (!fileMatchesOnePattern(newfname, exclude_patterns)))
++                    {
++                        files_to_delete.add(newf);
++                    }
++
++                    if (newf.isDirectory())
++                    {
++                        scanstack.push(newf);
++                    }
++
++                }
++            }
++        }
++        catch (IOException e)
++        {
++            this.handler.emitError(&quot;error while performing update checks&quot;, e.toString());
++        }
++
++        for (Iterator f_it = files_to_delete.iterator(); f_it.hasNext();)
++        {
++            File f = (File) f_it.next();
++
++            if (!f.isDirectory())
++            // skip directories - they cannot be removed safely yet
++            {
++//                this.handler.emitNotification(&quot;deleting &quot; + f.getPath());
++                f.delete();
++            }
++
++        }
++
++    }
++}
++
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000652.html">[izpack-changes] r1906 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000654.html">[izpack-changes] r1908 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#653">[ date ]</a>
+              <a href="thread.html#653">[ thread ]</a>
+              <a href="subject.html#653">[ subject ]</a>
+              <a href="author.html#653">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

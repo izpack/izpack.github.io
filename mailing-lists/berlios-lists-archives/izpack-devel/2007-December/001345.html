@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Problem with InputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Problem%20with%20InputPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001344.html">
+   <LINK REL="Next"  HREF="001346.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Problem with InputPanel</H1>
+    <B>Julien</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Problem%20with%20InputPanel&In-Reply-To="
+       TITLE="[izpack-devel] Problem with InputPanel">ciryus432 at gmail.com
+       </A><BR>
+    <I>Wed Dec 19 22:44:15 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001344.html">[izpack-devel] IzPack 3.11.0-beta2
+</A></li>
+        <LI>Next message: <A HREF="001346.html">[izpack-devel] Problem with InputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1345">[ date ]</a>
+              <a href="thread.html#1345">[ thread ]</a>
+              <a href="subject.html#1345">[ subject ]</a>
+              <a href="author.html#1345">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+First, I'm using the svn version of Izpack. Updated today.
+
+I've noticed a strange behavior of the InputPanel. I have a 'search' 
+field type. I've noticed that if I click the 'browse' button to find my 
+path, the variable will be set. However, if I type directly the path in 
+the field, the variable doesn't get set. I noticed this behavior under 
+Linux (Ubuntu 7.10 to be precise), with Java 6. Also under CentOS 5, 
+also using Java 6.
+
+
+
+Another bug I encountered is that when I get to the finish panel, when 
+the uninstaller should be written, I get the following exception:
+
+&gt;<i> java.lang.NullPointerException
+</I>&gt;<i>         at java.io.Writer.write(Writer.java:140)
+</I>&gt;<i>         at com.izforge.izpack.installer.InstallerFrame.writeUninstallData(InstallerFrame.java:1020)
+</I>&gt;<i>         at com.izforge.izpack.installer.InstallerFrame.exit(InstallerFrame.java:1268)
+</I>&gt;<i>         at com.izforge.izpack.installer.InstallerFrame$NavigationHandler.actionPerformed(InstallerFrame.java:1628)
+</I>&gt;<i>         at javax.swing.AbstractButton.fireActionPerformed(AbstractButton.java:1995)
+</I>&gt;<i>         at javax.swing.AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)
+</I>&gt;<i>         at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButtonModel.java:387)
+</I>&gt;<i>         at javax.swing.DefaultButtonModel.setPressed(DefaultButtonModel.java:242)
+</I> &gt;         ...
+
+I've linked it back to UninstallData.java, around line 90:
+
+         if(path != null)
+             installedFilesList.add(path);
+             if (uninstall) uninstallableFilesList.add(path);
+
+Should be:
+
+         if(path != null) {
+             installedFilesList.add(path);
+             if (uninstall) uninstallableFilesList.add(path);
+         }
+
+For some reason, some null paths get passed in in my installation.
+
+
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001344.html">[izpack-devel] IzPack 3.11.0-beta2
+</A></li>
+	<LI>Next message: <A HREF="001346.html">[izpack-devel] Problem with InputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1345">[ date ]</a>
+              <a href="thread.html#1345">[ thread ]</a>
+              <a href="subject.html#1345">[ subject ]</a>
+              <a href="author.html#1345">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

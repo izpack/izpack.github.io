@@ -1,0 +1,643 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1868 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1868%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000613.html">
+   <LINK REL="Next"  HREF="000615.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1868 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1868%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1868 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Mon Aug 20 22:26:51 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000613.html">[izpack-changes] r1867 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000615.html">[izpack-changes] r1869 - in izpack-src/trunk: .	bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#614">[ date ]</a>
+              <a href="thread.html#614">[ thread ]</a>
+              <a href="subject.html#614">[ subject ]</a>
+              <a href="author.html#614">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-08-20 22:26:21 +0200 (Mon, 20 Aug 2007)
+New Revision: 1868
+
+Modified:
+   izpack-src/trunk/IzPack-head.iml
+   izpack-src/trunk/IzPack-head.ipr
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/OsConstraint.java
+Log:
+File / fileset Os constraints: addition of a JRE version test (e.g., &lt;os jre=&quot;1.5&quot; /&gt;)
+(Gilles Wiart via Julien Ponge)
+
+
+
+Modified: izpack-src/trunk/IzPack-head.iml
+===================================================================
+--- izpack-src/trunk/IzPack-head.iml	2007-08-09 20:33:59 UTC (rev 1867)
++++ izpack-src/trunk/IzPack-head.iml	2007-08-20 20:26:21 UTC (rev 1868)
+@@ -1,6 +1,5 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;module version=&quot;4&quot; relativePaths=&quot;true&quot; type=&quot;JAVA_MODULE&quot;&gt;
+-  &lt;component name=&quot;ModuleRootManager&quot; /&gt;
++&lt;module relativePaths=&quot;true&quot; type=&quot;JAVA_MODULE&quot; version=&quot;4&quot;&gt;
+   &lt;component name=&quot;NewModuleRootManager&quot; inherit-compiler-output=&quot;false&quot;&gt;
+     &lt;output url=&quot;<A HREF="file://$MODULE_DIR$/.idea-classes&quot;">file://$MODULE_DIR$/.idea-classes&quot;</A> /&gt;
+     &lt;exclude-output /&gt;
+
+Modified: izpack-src/trunk/IzPack-head.ipr
+===================================================================
+--- izpack-src/trunk/IzPack-head.ipr	2007-08-09 20:33:59 UTC (rev 1867)
++++ izpack-src/trunk/IzPack-head.ipr	2007-08-20 20:26:21 UTC (rev 1868)
+@@ -1,5 +1,5 @@
+ &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;project version=&quot;4&quot; relativePaths=&quot;true&quot;&gt;
++&lt;project relativePaths=&quot;true&quot; version=&quot;4&quot;&gt;
+   &lt;component name=&quot;AntConfiguration&quot;&gt;
+     &lt;defaultAnt bundledAnt=&quot;true&quot; /&gt;
+     &lt;buildFile url=&quot;<A HREF="file://$PROJECT_DIR$/src/build.xml&quot;">file://$PROJECT_DIR$/src/build.xml&quot;</A>&gt;
+@@ -40,11 +40,12 @@
+       &lt;entry name=&quot;?*.tld&quot; /&gt;
+     &lt;/wildcardResourcePatterns&gt;
+   &lt;/component&gt;
+-  &lt;component name=&quot;DataSourceManagerImpl&quot; /&gt;
+   &lt;component name=&quot;DependenciesAnalyzeManager&quot;&gt;
+     &lt;option name=&quot;myForwardDirection&quot; value=&quot;false&quot; /&gt;
+   &lt;/component&gt;
+-  &lt;component name=&quot;DependencyValidationManager&quot; /&gt;
++  &lt;component name=&quot;DependencyValidationManager&quot;&gt;
++    &lt;option name=&quot;SKIP_IMPORT_STATEMENTS&quot; value=&quot;false&quot; /&gt;
++  &lt;/component&gt;
+   &lt;component name=&quot;EclipseCompilerSettings&quot;&gt;
+     &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
+     &lt;option name=&quot;GENERATE_NO_WARNINGS&quot; value=&quot;true&quot; /&gt;
+@@ -60,14 +61,13 @@
+     &lt;option name=&quot;MAXIMUM_HEAP_SIZE&quot; value=&quot;128&quot; /&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;EntryPointsManager&quot;&gt;
+-    &lt;entry_points /&gt;
++    &lt;entry_points version=&quot;2.0&quot; /&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;ExportToHTMLSettings&quot;&gt;
+     &lt;option name=&quot;PRINT_LINE_NUMBERS&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;OPEN_IN_BROWSER&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;OUTPUT_DIRECTORY&quot; /&gt;
+   &lt;/component&gt;
+-  &lt;component name=&quot;GUI Designer component loader factory&quot; /&gt;
+   &lt;component name=&quot;IdProvider&quot; IDEtalkID=&quot;F66F8E4B88443419F1E5C108B16FCE75&quot; /&gt;
+   &lt;component name=&quot;InspectionProjectProfileManager&quot;&gt;
+     &lt;option name=&quot;PROJECT_PROFILE&quot; value=&quot;Project Default&quot; /&gt;
+@@ -77,26 +77,9 @@
+       &lt;profile version=&quot;1.0&quot; is_locked=&quot;false&quot;&gt;
+         &lt;option name=&quot;myName&quot; value=&quot;Project Default&quot; /&gt;
+         &lt;option name=&quot;myLocal&quot; value=&quot;false&quot; /&gt;
+-        &lt;used_levels&gt;
+-          &lt;error&gt;
+-            &lt;option name=&quot;myName&quot; value=&quot;ERROR&quot; /&gt;
+-            &lt;option name=&quot;myVal&quot; value=&quot;400&quot; /&gt;
+-          &lt;/error&gt;
+-          &lt;warning&gt;
+-            &lt;option name=&quot;myName&quot; value=&quot;WARNING&quot; /&gt;
+-            &lt;option name=&quot;myVal&quot; value=&quot;300&quot; /&gt;
+-          &lt;/warning&gt;
+-          &lt;information&gt;
+-            &lt;option name=&quot;myName&quot; value=&quot;INFO&quot; /&gt;
+-            &lt;option name=&quot;myVal&quot; value=&quot;200&quot; /&gt;
+-          &lt;/information&gt;
+-          &lt;server&gt;
+-            &lt;option name=&quot;myName&quot; value=&quot;SERVER PROBLEM&quot; /&gt;
+-            &lt;option name=&quot;myVal&quot; value=&quot;100&quot; /&gt;
+-          &lt;/server&gt;
+-        &lt;/used_levels&gt;
+       &lt;/profile&gt;
+     &lt;/profiles&gt;
++    &lt;list size=&quot;0&quot; /&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;JavacSettings&quot;&gt;
+     &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
+@@ -257,13 +240,20 @@
+       &lt;/item&gt;
+     &lt;/group&gt;
+   &lt;/component&gt;
++  &lt;component name=&quot;ProjectFileVersion&quot; converted=&quot;true&quot; /&gt;
+   &lt;component name=&quot;ProjectModuleManager&quot;&gt;
+     &lt;modules&gt;
+       &lt;module fileurl=&quot;<A HREF="file://$PROJECT_DIR$/IzPack-head.iml&quot;">file://$PROJECT_DIR$/IzPack-head.iml&quot;</A> filepath=&quot;$PROJECT_DIR$/IzPack-head.iml&quot; /&gt;
+     &lt;/modules&gt;
+   &lt;/component&gt;
+   &lt;component name=&quot;ProjectRootManager&quot; version=&quot;2&quot; assert-keyword=&quot;true&quot; jdk-15=&quot;false&quot; project-jdk-name=&quot;1.5&quot; /&gt;
+-  &lt;component name=&quot;ProjectRunConfigurationManager&quot; /&gt;
++  &lt;component name=&quot;ResourceManagerContainer&quot;&gt;
++    &lt;option name=&quot;myResourceBundles&quot;&gt;
++      &lt;value&gt;
++        &lt;list size=&quot;0&quot; /&gt;
++      &lt;/value&gt;
++    &lt;/option&gt;
++  &lt;/component&gt;
+   &lt;component name=&quot;RmicSettings&quot;&gt;
+     &lt;option name=&quot;IS_EANABLED&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;DEBUGGING_INFO&quot; value=&quot;true&quot; /&gt;
+@@ -271,9 +261,9 @@
+     &lt;option name=&quot;GENERATE_IIOP_STUBS&quot; value=&quot;false&quot; /&gt;
+     &lt;option name=&quot;ADDITIONAL_OPTIONS_STRING&quot; value=&quot;&quot; /&gt;
+   &lt;/component&gt;
+-  &lt;component name=&quot;StarteamVcsAdapter&quot; /&gt;
+-  &lt;component name=&quot;VssVcs&quot; /&gt;
+-  &lt;component name=&quot;XSLT-Support.FileAssociationsManager&quot; /&gt;
++  &lt;component name=&quot;VcsDirectoryMappings&quot;&gt;
++    &lt;mapping directory=&quot;&quot; vcs=&quot;svn&quot; /&gt;
++  &lt;/component&gt;
+   &lt;component name=&quot;com.intellij.jsf.UserDefinedFacesConfigs&quot;&gt;
+     &lt;option name=&quot;USER_DEFINED_CONFIGS&quot;&gt;
+       &lt;value&gt;
+@@ -281,12 +271,10 @@
+       &lt;/value&gt;
+     &lt;/option&gt;
+   &lt;/component&gt;
+-  &lt;component name=&quot;libraryTable&quot; /&gt;
+   &lt;component name=&quot;uidesigner-configuration&quot;&gt;
+     &lt;option name=&quot;INSTRUMENT_CLASSES&quot; value=&quot;true&quot; /&gt;
+     &lt;option name=&quot;COPY_FORMS_RUNTIME_TO_OUTPUT&quot; value=&quot;true&quot; /&gt;
+     &lt;option name=&quot;DEFAULT_LAYOUT_MANAGER&quot; value=&quot;GridLayoutManager&quot; /&gt;
+   &lt;/component&gt;
+-  &lt;UsedPathMacros /&gt;
+ &lt;/project&gt;
+ 
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-08-09 20:33:59 UTC (rev 1867)
++++ izpack-src/trunk/Versions.txt	2007-08-20 20:26:21 UTC (rev 1868)
+@@ -28,6 +28,8 @@
+ - Workaround for layout problems in UserInputPanel when clicking previous button (Dennis Reil)
+ - Nimbus look and feel support (Julien Ponge)
+ - Try to load a 64-bit dll if the 32-bit load fails and 64-bit ShellLink (Vladimir Ralev)
++- File / fileset Os constraints: addition of a JRE version test (e.g., &lt;os jre=&quot;1.5&quot; /&gt;)
++  (Gilles Wiart via Julien Ponge)
+ 
+   &gt; 3.10.3 (build xxxx.xx.xx)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/OsConstraint.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/OsConstraint.java	2007-08-09 20:33:59 UTC (rev 1867)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/OsConstraint.java	2007-08-20 20:26:21 UTC (rev 1868)
+@@ -1,80 +1,135 @@
+ /*
+  * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
+- * 
++ *
+  * <A HREF="http://izpack.org/">http://izpack.org/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+- * 
++ *
+  * Copyright 2002 Olexij Tkatchenko
+- * 
++ *
+  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+- *     
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-
+ package com.izforge.izpack.util;
+ 
++
++import net.n3.nanoxml.XMLElement;
++
+ import java.util.ArrayList;
+ import java.util.Iterator;
+ import java.util.List;
+ 
+-import net.n3.nanoxml.XMLElement;
+ 
+ /**
+  * Encapsulates OS constraints specified on creation time and allows to check them against the
+  * current OS.
+- * 
++ * &lt;p/&gt;
+  * For example, this is used for &amp;lt;executable&amp;gt;s to check whether the executable is suitable for
+  * the current OS.
+- * 
++ *
+  * @author Olexij Tkatchenko &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">ot at parcs.de</A>&gt;
+  */
+-public class OsConstraint implements java.io.Serializable
++public class OsConstraint
++        implements java.io.Serializable
+ {
++    //~ Static variables/initializers &#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;
+ 
+     /**
+-     * 
++     *
+      */
+     private static final long serialVersionUID = 3762248660406450488L;
+ 
+-    /** The OS family */
++    //~ Instance variables &#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;
++
++    /**
++     * OS architecture from java system properties
++     */
++    private String arch;
++
++    /**
++     * The OS family
++     */
+     private String family;
+ 
+-    /** OS name from java system properties */
++    /**
++     * JRE version used for installation
++     */
++    private String jre;
++
++    /**
++     * OS name from java system properties
++     */
+     private String name;
+ 
+-    /** OS version from java system properties */
++    /**
++     * OS version from java system properties
++     */
+     private String version;
+ 
+-    /** OS architecture from java system properties */
+-    private String arch;
++    //~ Constructors &#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;
+ 
+     /**
+      * Constructs a new instance. Please remember, MacOSX belongs to Unix family.
+-     * 
+-     * @param family The OS family (unix, windows or mac).
+-     * @param name The exact OS name.
++     *
++     * @param family  The OS family (unix, windows or mac).
++     * @param name    The exact OS name.
+      * @param version The exact OS version (check property &lt;code&gt;os.version&lt;/code&gt; for values).
+-     * @param arch The machine architecture (check property &lt;code&gt;os.arch&lt;/code&gt; for values).
++     * @param arch    The machine architecture (check property &lt;code&gt;os.arch&lt;/code&gt; for values).
++     * @param jre     The Java version used for installation (check property &lt;code&gt;java.version&lt;/code&gt; for values).
+      */
+-    public OsConstraint(String family, String name, String version, String arch)
++    public OsConstraint(String family,
++                        String name,
++                        String version,
++                        String arch,
++                        String jre)
+     {
+-        this.family = family != null ? family.toLowerCase() : null;
+-        this.name = name != null ? name.toLowerCase() : null;
+-        this.version = version != null ? version.toLowerCase() : null;
+-        this.arch = arch != null ? arch.toLowerCase() : null;
+-    }
++        this.family = (family != null)
++                ? family.toLowerCase()
++                : null;
++        this.name = (name != null)
++                ? name.toLowerCase()
++                : null;
++        this.version = (version != null)
++                ? version.toLowerCase()
++                : null;
++        this.arch = (arch != null)
++                ? arch.toLowerCase()
++                : null;
++        this.jre = (jre != null)
++                ? jre.toLowerCase()
++                : null;
++    }    // end OsConstraint()
+ 
++
+     /**
++     * Creates a new instance. Please remember, MacOSX belongs to Unix family.
++     *
++     * @param family  The OS family (unix, windows or mac).
++     * @param name    The exact OS name.
++     * @param version The exact OS version (check property &lt;code&gt;os.version&lt;/code&gt; for values).
++     * @param arch    The machine architecture (check property &lt;code&gt;os.arch&lt;/code&gt; for values).
++     */
++    public OsConstraint(String family,
++                        String name,
++                        String version,
++                        String arch)
++    {
++        this(family, name, version, arch, null);
++    }    // end OsConstraint()
++
++    //~ Methods &#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;&#183;
++
++    /**
+      * Matches OS specification in this class against current system properties.
+-     * 
++     *
+      * @return Description of the Return Value
+      */
+     public boolean matchCurrentSystem()
+@@ -82,166 +137,212 @@
+         boolean match = true;
+         String osName = System.getProperty(&quot;os.name&quot;).toLowerCase();
+ 
+-        if (arch != null &amp;&amp; arch.length() != 0)
++
++        if ((arch != null) &amp;&amp; (arch.length() != 0))
+         {
+             match = System.getProperty(&quot;os.arch&quot;).toLowerCase().equals(arch);
+-        }
+-        if (match &amp;&amp; version != null &amp;&amp; version.length() != 0)
++        }    // end if
++
++        if (match &amp;&amp; (version != null) &amp;&amp; (version.length() != 0))
+         {
+             match = System.getProperty(&quot;os.version&quot;).toLowerCase().equals(version);
+-        }
+-        if (match &amp;&amp; name != null &amp;&amp; name.length() != 0)
++        }    // end if
++
++        if (match &amp;&amp; (name != null) &amp;&amp; (name.length() != 0))
+         {
+             match = osName.equals(name);
+-        }
+-        if (match &amp;&amp; family != null)
++        }    // end if
++
++        if (match &amp;&amp; (family != null))
+         {
+             if (&quot;windows&quot;.equals(family))
+             {
+                 match = OsVersion.IS_WINDOWS;
+-            }
++            }    // end if
+             else if (&quot;mac&quot;.equals(family) || &quot;osx&quot;.equals(family))
+             {
+                 match = OsVersion.IS_OSX;
+-            }
++            }    // end else if
+             else if (&quot;unix&quot;.equals(family))
+             {
+                 match = OsVersion.IS_UNIX;
+-            }
+-        }
++            }    // end else if
++        }    // end if
+ 
+-        return match &amp;&amp; (family != null || name != null || version != null || arch != null);
+-    }
++        if (match &amp;&amp; (jre != null) &amp;&amp; (jre.length() &gt; 0))
++        {
++            match = System.getProperty(&quot;java.version&quot;).toLowerCase().startsWith(jre);
++        }    // end if
+ 
++        return match
++                &amp;&amp; ((family != null) || (name != null) || (version != null) || (arch != null) || (jre != null));
++    }    // end matchCurrentSystem()
++
++
+     /**
+      * Extract a list of OS constraints from given element.
+-     * 
++     *
+      * @param element parent XMLElement
+      * @return List of OsConstraint (or empty List if no constraints found)
+      */
+-    static public List getOsList(XMLElement element)
++    public static List getOsList(XMLElement element)
+     {
+         // get os info on this executable
+         ArrayList osList = new ArrayList();
+         Iterator osIterator = element.getChildrenNamed(&quot;os&quot;).iterator();
++
++
+         while (osIterator.hasNext())
+         {
+             XMLElement os = (XMLElement) osIterator.next();
+-            osList.add(new OsConstraint(os.getAttribute(&quot;family&quot;, null), os.getAttribute(&quot;name&quot;,
+-                    null), os.getAttribute(&quot;version&quot;, null), os.getAttribute(&quot;arch&quot;, null)));
+-        }
+ 
++
++            osList.add(new OsConstraint(os.getAttribute(&quot;family&quot;,
++                    null),
++                    os.getAttribute(&quot;name&quot;,
++                            null),
++                    os.getAttribute(&quot;version&quot;,
++                            null),
++                    os.getAttribute(&quot;arch&quot;,
++                            null),
++                    os.getAttribute(&quot;jre&quot;,
++                            null)));
++        }    // end while
++
+         // backward compatibility: still support os attribute
+         String osattr = element.getAttribute(&quot;os&quot;);
+-        if (osattr != null &amp;&amp; osattr.length() &gt; 0)
++
++
++        if ((osattr != null) &amp;&amp; (osattr.length() &gt; 0))
+         {
+             // add the &quot;os&quot; attribute as a family constraint
+-            osList.add(new OsConstraint(osattr, null, null, null));
+-        }
++            osList.add(new OsConstraint(osattr,
++                    null,
++                    null,
++                    null,
++                    null));
++        }    // end if
+ 
+         return osList;
+-    }
++    }    // end getOsList()
+ 
++
+     /**
+      * Helper function: Scan a list of OsConstraints for a match.
+-     * 
++     *
+      * @param constraint_list List of OsConstraint to check
+-     * 
+      * @return true if one of the OsConstraints matched the current system or constraint_list is
+-     * null (no constraints), false if none of the OsConstraints matched
++     *         null (no constraints), false if none of the OsConstraints matched
+      */
+     public static boolean oneMatchesCurrentSystem(List constraint_list)
+     {
+-        if (constraint_list == null) return true;
++        if (constraint_list == null)
++        {
++            return true;
++        }    // end if
+ 
+         Iterator constraint_it = constraint_list.iterator();
+ 
+         // no constraints at all - matches!
+-        if (!constraint_it.hasNext()) return true;
++        if (!constraint_it.hasNext())
++        {
++            return true;
++        }    // end if
+ 
+         while (constraint_it.hasNext())
+         {
+             OsConstraint osc = (OsConstraint) constraint_it.next();
+ 
++
+             Debug.trace(&quot;checking if os constraints &quot; + osc + &quot; match current OS&quot;);
+ 
+             // check for match
+             if (osc.matchCurrentSystem())
+             {
+                 Debug.trace(&quot;matched current OS.&quot;);
+-                return true; // bail out on first match
+-            }
+ 
+-        }
++                return true;    // bail out on first match
++            }    // end if
++        }    // end while
+ 
+         Debug.trace(&quot;no match with current OS!&quot;);
++
+         // no match found
+         return false;
+-    }
++    }    // end oneMatchesCurrentSystem()
+ 
++
+     /**
+      * Helper function: Check whether the given XMLElement is &quot;suitable&quot; for the current OS.
+-     * 
++     *
+      * @param el The XMLElement to check for OS constraints.
+-     * 
+      * @return true if there were no OS constraints or the constraints matched the current OS.
+-     * 
+      */
+     public static boolean oneMatchesCurrentSystem(XMLElement el)
+     {
+         return oneMatchesCurrentSystem(getOsList(el));
+-    }
++    }    // end oneMatchesCurrentSystem()
+ 
++
+     public void setFamily(String f)
+     {
+         family = f.toLowerCase();
+-    }
++    }    // end setFamily()
+ 
++
+     public String getFamily()
+     {
+         return family;
+-    }
++    }    // end getFamily()
+ 
++
+     public void setName(String n)
+     {
+         name = n.toLowerCase();
+-    }
++    }    // end setName()
+ 
++
+     public String getName()
+     {
+         return name;
+-    }
++    }    // end getName()
+ 
+     public void setVersion(String v)
+     {
+         version = v.toLowerCase();
+-    }
++    }    // end setVersion()
+ 
++
+     public String getVersion()
+     {
+         return version;
+-    }
++    }    // end getVersion()
+ 
++
+     public void setArch(String a)
+     {
+         arch = a.toLowerCase();
+-    }
++    }    // end setArch()
+ 
++
+     public String getArch()
+     {
+         return arch;
+-    }
++    }    // end getArch()
+ 
+     public String toString()
+     {
+         StringBuffer retval = new StringBuffer();
++
++
+         retval.append(&quot;[Os &quot;);
+         retval.append(&quot; family &quot;).append(family);
+         retval.append(&quot; name &quot;).append(name);
+         retval.append(&quot; version &quot;).append(version);
+         retval.append(&quot; arch &quot;).append(arch);
++        retval.append(&quot; jre &quot;).append(jre);
+         retval.append(&quot; ]&quot;);
++
+         return retval.toString();
+-    }
+-
+-}
++    }    // end toString()
++}    // end OsConstraint
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000613.html">[izpack-changes] r1867 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000615.html">[izpack-changes] r1869 - in izpack-src/trunk: .	bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#614">[ date ]</a>
+              <a href="thread.html#614">[ thread ]</a>
+              <a href="subject.html#614">[ subject ]</a>
+              <a href="author.html#614">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

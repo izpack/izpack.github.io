@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] The icon for the done button
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20The%20icon%20for%20the%20done%20button&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000434.html">
+   <LINK REL="Next"  HREF="000442.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] The icon for the done button</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20The%20icon%20for%20the%20done%20button&In-Reply-To="
+       TITLE="[izpack-devel] The icon for the done button">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Aug 24 09:21:53 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000434.html">[izpack-devel] The icon for the done button
+</A></li>
+        <LI>Next message: <A HREF="000442.html">[izpack-devel] The icon for the done button
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#441">[ date ]</a>
+              <a href="thread.html#441">[ thread ]</a>
+              <a href="subject.html#441">[ subject ]</a>
+              <a href="author.html#441">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Ryan,
+OK, no facultativity of a new feature. I use no button icons, therefor
+no problem for me, but...
+in general it is possible to switch off buttons. This will be
+done by the com.izforge.izpack.util.ButtonFactory.
+Unfortunately there is current no public getter for useButtonIcons.
+I can make one or use eval it in setQuitButtonIcon(String iconName)
+    public void setQuitButtonIcon(String iconName)
+    {
+        String doIt = idata.guiPrefs.modifier.containsKey(&quot;useButtonIcons&quot;);
+        if ( doIt == null || &quot;yes&quot;.equalsIgnoreCase(doIt))
+            quitButton.setIcon(icons.getImageIcon(iconName));
+    }
+If not possible, I will fix your changes.
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Ryan
+</I>&gt;<i>Shillington
+</I>&gt;<i>Sent: Wednesday, August 23, 2006 11:35 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-devel] The icon for the done button
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Here's my change for the done button.  What do you think?
+</I>&gt;<i>
+</I>&gt;<i>Index: lib/com/izforge/izpack/panels/FinishPanel.java
+</I>&gt;<i>===================================================================
+</I>&gt;<i>--- lib/com/izforge/izpack/panels/FinishPanel.java      (revision 1529)
+</I>&gt;<i>+++ lib/com/izforge/izpack/panels/FinishPanel.java      (working copy)
+</I>&gt;<i>@@ -48,10 +48,10 @@
+</I>&gt;<i>     private static final long serialVersionUID = 3257282535107998009L;
+</I>&gt;<i>
+</I>&gt;<i>     /** The automated installers generation button. */
+</I>&gt;<i>-    private JButton autoButton;
+</I>&gt;<i>+    protected JButton autoButton;
+</I>&gt;<i>
+</I>&gt;<i>     /** The variables substitutor. */
+</I>&gt;<i>-    private VariableSubstitutor vs;
+</I>&gt;<i>+    protected VariableSubstitutor vs;
+</I>&gt;<i>
+</I>&gt;<i>     /**
+</I>&gt;<i>      * The constructor.
+</I>&gt;<i>@@ -84,6 +84,7 @@
+</I>&gt;<i>         parent.lockNextButton();
+</I>&gt;<i>         parent.lockPrevButton();
+</I>&gt;<i> 
+</I>&gt;<i>parent.setQuitButtonText(parent.langpack.getString(&quot;FinishPanel
+</I>&gt;<i>.done&quot;));
+</I>&gt;<i>+        parent.setQuitButtonIcon(&quot;done&quot;);
+</I>&gt;<i>         if (idata.installSuccess)
+</I>&gt;<i>         {
+</I>&gt;<i>             // We set the information
+</I>&gt;<i>@@ -159,7 +160,7 @@
+</I>&gt;<i>      * @param destination The path to translate.
+</I>&gt;<i>      * @return The translated path.
+</I>&gt;<i>      */
+</I>&gt;<i>-    private String translatePath(String destination)
+</I>&gt;<i>+    protected String translatePath(String destination)
+</I>&gt;<i>     {
+</I>&gt;<i>         // Parse for variables
+</I>&gt;<i>         destination = vs.substitute(destination, null);
+</I>&gt;<i>Index: lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+</I>&gt;<i>===================================================================
+</I>&gt;<i>--- lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+</I>&gt;<i>(revision 1529)
+</I>&gt;<i>+++ lib/com/izforge/izpack/panels/SimpleFinishPanel.java       
+</I>&gt;<i> (working
+</I>&gt;<i>copy)
+</I>&gt;<i>@@ -78,6 +78,7 @@
+</I>&gt;<i>         parent.lockNextButton();
+</I>&gt;<i>         parent.lockPrevButton();
+</I>&gt;<i> 
+</I>&gt;<i>parent.setQuitButtonText(parent.langpack.getString(&quot;FinishPanel
+</I>&gt;<i>.done&quot;));
+</I>&gt;<i>+        parent.setQuitButtonIcon(&quot;done&quot;);
+</I>&gt;<i>         if (idata.installSuccess)
+</I>&gt;<i>         {
+</I>&gt;<i>
+</I>&gt;<i>Index: lib/com/izforge/izpack/installer/InstallerFrame.java
+</I>&gt;<i>===================================================================
+</I>&gt;<i>--- lib/com/izforge/izpack/installer/InstallerFrame.java
+</I>&gt;<i>(revision 1529)
+</I>&gt;<i>+++ lib/com/izforge/izpack/installer/InstallerFrame.java       
+</I>&gt;<i> (working
+</I>&gt;<i>copy)
+</I>&gt;<i>@@ -972,6 +972,11 @@
+</I>&gt;<i>         quitButton.setText(text1);
+</I>&gt;<i>     }
+</I>&gt;<i>
+</I>&gt;<i>+    public void setQuitButtonIcon(String iconName)
+</I>&gt;<i>+    {
+</I>&gt;<i>+        quitButton.setIcon(icons.getImageIcon(iconName));
+</I>&gt;<i>+    }
+</I>&gt;<i>+
+</I>&gt;<i>     /*
+</I>&gt;<i>      * FocusTraversalPolicy objects to handle keybord blocking; the
+</I>&gt;<i>declaration os Object allows to
+</I>&gt;<i>      * use a pre version 1.4 VM.
+</I>&gt;<i>Index: lib/com/izforge/izpack/installer/icons.xml
+</I>&gt;<i>===================================================================
+</I>&gt;<i>--- lib/com/izforge/izpack/installer/icons.xml  (revision 1529)
+</I>&gt;<i>+++ lib/com/izforge/izpack/installer/icons.xml  (working copy)
+</I>&gt;<i>@@ -5,6 +5,7 @@
+</I>&gt;<i>     &lt;icon res=&quot;/img/leftarrow.png&quot; id=&quot;stepback&quot;/&gt;
+</I>&gt;<i>     &lt;icon res=&quot;/img/rightarrow.png&quot; id=&quot;stepforward&quot;/&gt;
+</I>&gt;<i>     &lt;icon res=&quot;/img/stop.png&quot; id=&quot;stop&quot;/&gt;
+</I>&gt;<i>+    &lt;icon res=&quot;/img/done.png&quot; id=&quot;done&quot;/&gt;
+</I>&gt;<i>     &lt;icon res=&quot;/img/kcontrol.png&quot; id=&quot;host&quot;/&gt;
+</I>&gt;<i>     &lt;icon res=&quot;/img/info.png&quot; id=&quot;information&quot;/&gt;
+</I>&gt;<i>     &lt;icon res=&quot;/img/contents.png&quot; id=&quot;history&quot;/&gt;
+</I>&gt;<i>Index: img/installer/img/done.png
+</I>&gt;<i>===================================================================
+</I>&gt;<i>Cannot display: file marked as a binary type.
+</I>&gt;<i>svn:mime-type = application/octet-stream
+</I>&gt;<i>
+</I>&gt;<i>Property changes on: img\installer\img\done.png
+</I>&gt;<i>___________________________________________________________________
+</I>&gt;<i>Name: svn:mime-type
+</I>&gt;<i>   + application/octet-stream
+</I>&gt;<i>
+</I>&lt;snip&gt;
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000434.html">[izpack-devel] The icon for the done button
+</A></li>
+	<LI>Next message: <A HREF="000442.html">[izpack-devel] The icon for the done button
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#441">[ date ]</a>
+              <a href="thread.html#441">[ thread ]</a>
+              <a href="subject.html#441">[ subject ]</a>
+              <a href="author.html#441">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

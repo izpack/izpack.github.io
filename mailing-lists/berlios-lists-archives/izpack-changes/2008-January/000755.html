@@ -1,0 +1,300 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2009 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2009%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000754.html">
+   <LINK REL="Next"  HREF="000756.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2009 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2009%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r2009 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 24 20:30:39 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000754.html">[izpack-changes] r2008 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000756.html">[izpack-changes] r2010 - izpack-src/trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#755">[ date ]</a>
+              <a href="thread.html#755">[ thread ]</a>
+              <a href="subject.html#755">[ subject ]</a>
+              <a href="author.html#755">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-24 20:30:35 +0100 (Thu, 24 Jan 2008)
+New Revision: 2009
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+Added auto-install info for selected directory
+Added error messages for no directory and not a directory
+Added showMessage() method to encapsulate message dialog
+Added auto-install info for selected file
+Added error messages for no file and not a file
+Added JavaDoc comments for specifying PasswordEqualityValidator and PasswordKeystoreValidator
+Added use of multiple validators for password field
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2008-01-24 19:29:48 UTC (rev 2008)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2008-01-24 19:30:35 UTC (rev 2009)
+@@ -76,6 +76,8 @@
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.OsVersion;
+ import com.izforge.izpack.util.VariableSubstitutor;
++import java.util.ArrayList;
++import java.util.List;
+ 
+ /*---------------------------------------------------------------------------*/
+ /**
+@@ -1060,13 +1062,16 @@
+                 File ffile = new File(file);
+                 if (ffile.isDirectory()){
+                     idata.setVariable((String) field[POS_VARIABLE],file);
++                    entries.add(new TextValuePair((String) field[POS_VARIABLE],file));
+                     return true;
+                 }
+                 else {
++                    showMessage(&quot;dir.notdirectory&quot;);
+                     return false;
+                 }                
+             }
+             else {
++                showMessage(&quot;dir.nodirectory&quot;);
+                 return false;
+             }               
+         }
+@@ -1078,6 +1083,13 @@
+         }
+     }
+ 
++    private void showMessage(String messageType)
++    {
++        JOptionPane.showMessageDialog(parent, parent.langpack.getString(&quot;UserInputPanel.&quot; + messageType + &quot;.message&quot;),
++                parent.langpack.getString(&quot;UserInputPanel.&quot; + messageType + &quot;.caption&quot;),
++                JOptionPane.WARNING_MESSAGE);
++    }
++
+     private boolean readFileField(Object[] field)
+     {
+         try {
+@@ -1088,13 +1100,16 @@
+                 File ffile = new File(file);
+                 if (ffile.isFile()){
+                     idata.setVariable((String) field[POS_VARIABLE],file);
++                    entries.add(new TextValuePair((String) field[POS_VARIABLE],file));
+                     return true;
+                 }
+                 else {
++                    showMessage(&quot;file.notfile&quot;);
+                     return false;
+                 }                
+             }
+             else {
++                showMessage(&quot;file.nofile&quot;);
+                 return false;
+             }               
+         }
+@@ -1973,8 +1988,24 @@
+      *        &amp;lt;processor class=&amp;quot;com.izforge.sample.PWDEncryptor&amp;quot;/&amp;gt;
+      *      &amp;lt;/field&amp;gt;
+      *      
++     * &lt;/pre&gt;
++     * Additionally, parameters and multiple validators can be used to provide
++     * separate validation and error messages for each case.
++     * &lt;pre&gt;
+      *     
+-     *    
++     *    &amp;lt;field type=&amp;quot;password&amp;quot; align=&amp;quot;left&amp;quot; variable=&amp;quot;keystore.password&amp;quot;&amp;gt;
++     *      &amp;lt;spec&amp;gt;
++     *        &amp;lt;pwd txt=&amp;quot;Keystore Password:&amp;quot; size=&amp;quot;25&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
++     *        &amp;lt;pwd txt=&amp;quot;Retype Password:&amp;quot; size=&amp;quot;25&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
++     *      &amp;lt;/spec&amp;gt;
++     *      &amp;lt;validator class=&amp;quot;com.izforge.izpack.util.PasswordEqualityValidator&amp;quot; txt=&amp;quot;Both keystore passwords must match.&amp;quot; id=&amp;quot;key for the error text&amp;quot;/&amp;gt;
++     *      &amp;lt;validator class=&amp;quot;com.izforge.izpack.util.PasswordKeystoreValidator&amp;quot; txt=&amp;quot;Could not validate keystore with password and alias provided.&amp;quot; id=&amp;quot;key for the error text&amp;quot;&amp;gt;
++     *        &amp;lt;param name=&amp;quot;keystoreFile&amp;quot; value=&amp;quot;${existing.ssl.keystore}&amp;quot;/&amp;gt;
++     *        &amp;lt;param name=&amp;quot;keystoreType&amp;quot; value=&amp;quot;JKS&amp;quot;/&amp;gt;
++     *        &amp;lt;param name=&amp;quot;keystoreAlias&amp;quot; value=&amp;quot;${keystore.key.alias}&amp;quot;/&amp;gt;
++     *      &amp;lt;/validator&amp;gt;
++     *    &amp;lt;/field&amp;gt;
++     *      
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the set of password
+@@ -1986,12 +2017,15 @@
+         Vector forPacks = spec.getChildrenNamed(SELECTEDPACKS);
+         Vector forOs = spec.getChildrenNamed(OS);
+         String variable = spec.getAttribute(VARIABLE);
+-        String validator = null;
+         String message = null;
+         String processor = null;
+         XMLElement element = null;
+         PasswordGroup group = null;
+         int size = 0;
++        // For multiple validator support
++        Vector validatorsElem = null;
++        List validatorsList = new ArrayList();
++        int vsize = 0;
+ 
+         // ----------------------------------------------------
+         // get the description and add it to the list of UI
+@@ -2003,11 +2037,36 @@
+         // ----------------------------------------------------
+         // get the validator and processor if they are defined
+         // ----------------------------------------------------
+-        element = spec.getFirstChildNamed(VALIDATOR);
+-        if (element != null)
++
++        validatorsElem = spec.getChildrenNamed(VALIDATOR);
++        if (validatorsElem != null &amp;&amp; validatorsElem.size() &gt; 0)
+         {
+-            validator = element.getAttribute(CLASS);
+-            message = getText(element);
++            vsize = validatorsElem.size();
++            for (int i = 0; i &lt; vsize; i++)
++            {
++                element = (XMLElement) validatorsElem.get(i);
++                String validator = element.getAttribute(CLASS);
++                message = getText(element);
++                HashMap validateParamMap = new HashMap();
++                // ----------------------------------------------------------
++                // check and see if we have any parameters for this validator.
++                // If so, then add them to validateParamMap.
++                // ----------------------------------------------------------
++                Vector validateParams = element.getChildrenNamed(RULE_PARAM);
++                if (validateParams != null &amp;&amp; validateParams.size() &gt; 0)
++                {
++                    Iterator iter = validateParams.iterator();
++                    while (iter.hasNext())
++                    {
++                        element = (XMLElement) iter.next();
++                        String paramName = element.getAttribute(RULE_PARAM_NAME);
++                        String paramValue = element.getAttribute(RULE_PARAM_VALUE);
++                        // System.out.println(&quot;Adding parameter: &quot;+paramName+&quot;=&quot;+paramValue);
++                        validateParamMap.put(paramName, paramValue);
++                    }
++                }
++                validatorsList.add(new ValidatorContainer(validator, message, validateParamMap));
++            }
+         }
+ 
+         element = spec.getFirstChildNamed(PROCESSOR);
+@@ -2016,7 +2075,7 @@
+             processor = element.getAttribute(CLASS);
+         }
+ 
+-        group = new PasswordGroup(validator, processor);
++        group = new PasswordGroup(idata, validatorsList, processor);
+ 
+         // ----------------------------------------------------
+         // extract the specification details
+@@ -2067,8 +2126,14 @@
+                 TwoColumnConstraints constraints2 = new TwoColumnConstraints();
+                 constraints2.position = TwoColumnConstraints.EAST;
+ 
+-                uiElements.add(new Object[] { null, PWD_FIELD, variable, constraints2, field,
+-                        forPacks, forOs, null, null, message, group});
++                // Removed message to support pulling from multiple validators
++                uiElements.add(new Object[]{null, PWD_FIELD, variable, constraints2, field,
++                    forPacks, forOs, null, null, null, group
++                });
++                // Original
++//        uiElements.add(new Object[]{null, PWD_FIELD, variable, constraints2, field,
++//          forPacks, forOs, null, null, message, group
++//        });
+                 group.addField(field);
+             }
+         }
+@@ -2097,7 +2162,8 @@
+         {
+             group = (PasswordGroup) field[POS_GROUP];
+             variable = (String) field[POS_VARIABLE];
+-            message = (String) field[POS_MESSAGE];
++        // Removed to support grabbing the message from multiple validators
++        // message = (String) field[POS_MESSAGE];
+         }
+         catch (Throwable exception)
+         {
+@@ -2106,16 +2172,40 @@
+         if ((variable == null) || (passwordGroupsRead.contains(group))) { return (true); }
+         passwordGroups.add(group);
+ 
+-        boolean success = !validating || group.validateContents();
++
++        //boolean success = !validating || group.validateContents();
++        boolean success = !validating;
++
++        // Use each validator to validate contents
+         if (!success)
+         {
+-            showWarningMessageDialog(parentFrame, message);
+-            return (false);
++            int size = group.validatorSize();
++            // System.out.println(&quot;Found &quot;+(size)+&quot; validators&quot;);
++            for (int i = 0; i &lt; size; i++)
++            {
++                success = group.validateContents(i);
++                if (!success)
++                {
++                    JOptionPane.showMessageDialog(parentFrame, group.getValidatorMessage(i),
++                            parentFrame.langpack.getString(&quot;UserInputPanel.error.caption&quot;),
++                            JOptionPane.WARNING_MESSAGE);
++                    break;
++                }
++            }
+         }
+ 
+-        idata.setVariable(variable, group.getPassword());
+-        entries.add(new TextValuePair(variable, group.getPassword()));
+-        return (true);
++//    // Changed to show messages for each validator
++//    if (!success) {
++//      JOptionPane.showMessageDialog(parentFrame, message, parentFrame.langpack.getString(&quot;UserInputPanel.error.caption&quot;), JOptionPane.WARNING_MESSAGE);
++//      return (false);
++//    }
++
++        if (success)
++        {
++            idata.setVariable(variable, group.getPassword());
++            entries.add(new TextValuePair(variable, group.getPassword()));
++        }
++        return success;
+     }
+ 
+     /*--------------------------------------------------------------------------*/
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000754.html">[izpack-changes] r2008 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000756.html">[izpack-changes] r2010 - izpack-src/trunk/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#755">[ date ]</a>
+              <a href="thread.html#755">[ thread ]</a>
+              <a href="subject.html#755">[ subject ]</a>
+              <a href="author.html#755">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

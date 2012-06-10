@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Izpack custom panels  With Maven2
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Izpack%20custom%20panels%20%20With%20Maven2&In-Reply-To=200703131015.25247.eric%40forge.com.au">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001367.html">
+   <LINK REL="Next"  HREF="001368.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Izpack custom panels  With Maven2</H1>
+    <B>Mandeep Saini</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Izpack%20custom%20panels%20%20With%20Maven2&In-Reply-To=200703131015.25247.eric%40forge.com.au"
+       TITLE="[izpack-users] Izpack custom panels  With Maven2">Mandeep.Saini at dante.org.uk
+       </A><BR>
+    <I>Wed Mar 14 19:00:44 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001367.html">[izpack-users] Izpack custom panels  With Maven2
+</A></li>
+        <LI>Next message: <A HREF="001368.html">[izpack-users] Langpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1375">[ date ]</a>
+              <a href="thread.html#1375">[ thread ]</a>
+              <a href="subject.html#1375">[ subject ]</a>
+              <a href="author.html#1375">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Eric,
+
+Thanks for the reply.
+
+Regards
+Mandeep
+
+Eric Rose wrote:
+&gt;<i> On Wednesday 14 February 2007 01:00, Mandeep Saini wrote:
+</I>&gt;&gt;<i> Hi all,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I am trying to use Izpack with maven2. I have tried to use the maven-
+</I>&gt;&gt;<i> izpack-plugin but its not working for me. It would be very nice if any
+</I>&gt;&gt;<i> one of you can provide me a working example for this. I have already
+</I>&gt;&gt;<i> checked the mail on the forum related to this topic but even the blog
+</I>&gt;&gt;<i> link posted in those mails is not solving my problem.
+</I>&gt;<i> 
+</I>&gt;<i> Mandeep,
+</I>&gt;<i> 
+</I>&gt;<i> I have been moving all our projects to use maven2, and have created a custom 
+</I>&gt;<i> archetype that I'm testing for creation of installers. It's all a bit of a 
+</I>&gt;<i> hack, IMO, but it seems to work.
+</I>&gt;<i> 
+</I>&gt;&gt;<i> Along with this, I am writing few custom panels for my installer. Is
+</I>&gt;&gt;<i> there any way to make jar file of those panels and move it to bin/panels
+</I>&gt;&gt;<i> directory by using the maven izpack plugin. If not what is the right way
+</I>&gt;&gt;<i> to incorporate the custom panels using maven2.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> In order to write custom panels I am importing few panel classes like
+</I>&gt;&gt;<i> com.izforge.izpack.panels.UserInputPanel in my panel classes. I have
+</I>&gt;&gt;<i> defined the dependency on standalone-compiler.jar file but because this
+</I>&gt;&gt;<i> jar file does not contain the panel classes so not able to compile the
+</I>&gt;&gt;<i> code. Please suggest me how can I define dependency on these panel jar
+</I>&gt;&gt;<i> files. Should I deploy jar file of each panel on my remote repository.
+</I>&gt;&gt;<i> Or there is another way to deal with it.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> My setup is to create a multiproject hierarchy with one panel per subproject. 
+</I>&gt;<i> I've found it sufficient (but maybe not necessary) to add 4 artifacts from 
+</I>&gt;<i> IzPack to my internal repository:
+</I>&gt;<i> 
+</I>&gt;<i> * InstallPanel 
+</I>&gt;<i> * UserInputPanel 
+</I>&gt;<i> * izevent 
+</I>&gt;<i> * standalone-compiler
+</I>&gt;<i> 
+</I>&gt;<i> Each of my custom panels depends on some of these artifacts and is then 
+</I>&gt;<i> deployed to the company repository. Once they're in there, I can use them in 
+</I>&gt;<i> any installer as necessary.
+</I>&gt;<i> 
+</I>&gt;<i> The hacky bit really kicks in when I create the installer. I have a structure 
+</I>&gt;<i> as follows
+</I>&gt;<i> 
+</I>&gt;<i> src
+</I>&gt;<i>  /-main
+</I>&gt;<i>   /-izpack
+</I>&gt;<i>     /-lang
+</I>&gt;<i>     /-en
+</I>&gt;<i>     /-...
+</I>&gt;<i> 
+</I>&gt;<i> where the main izpack configuration files live in src/main/izpack whch is 
+</I>&gt;<i> treated as a resource directory and filtered so I can have parameters like 
+</I>&gt;<i> ${pom.version} and the resources plugin looks in target/izpack for the output 
+</I>&gt;<i> of the filtering process.
+</I>&gt;<i> 
+</I>&gt;<i> Some properties from my settings define where Izpack lives
+</I>&gt;<i> 
+</I>&gt;<i>   &lt;properties&gt;
+</I>&gt;<i>     &lt;izpack.native&gt;/usr/local/IzPack-3.9.0-patched//bin/native&lt;/izpack.native&gt;
+</I>&gt;<i>     &lt;izpack.basedir&gt;/usr/local/IzPack-3.9.0-patched/&lt;/izpack.basedir&gt;
+</I>&gt;<i>     &lt;izpack.panels&gt;/usr/local/IzPack-3.9.0-patched//bin/panels&lt;/izpack.panels&gt;
+</I>&gt;<i> 
+</I>&gt;<i> and I use the dependency plugin for the panels I need (defined in the 
+</I>&gt;<i> dependencies section) to copy the artifacts created by the subprojects from 
+</I>&gt;<i> my repository into bin/panels.
+</I>&gt;<i> 
+</I>&gt;<i> Really, this should all be put into a custom plugin with a couple of mojos for 
+</I>&gt;<i> panels, native code, etc. The archetype I created is a POM skeleton  for the 
+</I>&gt;<i> plugin invocations. It  has the basic outline for jogging the memory of me or 
+</I>&gt;<i> coworkers as to what needs to be done in creating a new installer (which 
+</I>&gt;<i> should be rare enough that our memories will need jogging). It certainly 
+</I>&gt;<i> wouldn't create a valid installer out of the box :(
+</I>&gt;<i> 
+</I>&gt;<i> What I have cobbled together seems to work so far for our needs. I just need 
+</I>&gt;<i> to get time to refine it. If you want I can send you copy of what I've done.
+</I>&gt;<i> 
+</I>&gt;<i> The more I use  maven, the more I like it as a project development model, and 
+</I>&gt;<i> it'd be nice if there was momentum to make IzPack a maven project. I fear 
+</I>&gt;<i> that it's a lot of work, however.
+</I>&gt;<i> 
+</I>&gt;<i> Eric
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001367.html">[izpack-users] Izpack custom panels  With Maven2
+</A></li>
+	<LI>Next message: <A HREF="001368.html">[izpack-users] Langpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1375">[ date ]</a>
+              <a href="thread.html#1375">[ thread ]</a>
+              <a href="subject.html#1375">[ subject ]</a>
+              <a href="author.html#1375">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

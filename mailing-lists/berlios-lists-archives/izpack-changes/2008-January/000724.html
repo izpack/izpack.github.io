@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1978 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/panels lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1978%20-%20in%20izpack-src/trunk/src%3A%20.%0A%09lib/com/izforge/izpack/panels%20lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000723.html">
+   <LINK REL="Next"  HREF="000725.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1978 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/panels lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1978%20-%20in%20izpack-src/trunk/src%3A%20.%0A%09lib/com/izforge/izpack/panels%20lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1978 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/panels lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Sat Jan 12 12:13:20 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000723.html">[izpack-changes] r1977 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000725.html">[izpack-changes] r1979 - in izpack-src/trunk: .	bin/langpacks/installer src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#724">[ date ]</a>
+              <a href="thread.html#724">[ thread ]</a>
+              <a href="subject.html#724">[ subject ]</a>
+              <a href="author.html#724">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-01-12 12:13:15 +0100 (Sat, 12 Jan 2008)
+New Revision: 1978
+
+Modified:
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java
+Log:
+- build.xml: include the new L&amp;F jars (Jeff Gordon via Julien Ponge)
+- FileExecutor: fix a blank dialog prompting the user to continue if there's a failure (Jeff Gordon via Julien Ponge)
+- Italian translation update (Roberto Boriotti, Sylvain Gaudard via Julien Ponge)
+- PacksPanelAutomationHelper fix (Jeff Gordon via Julien Ponge)
+
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2008-01-09 17:18:48 UTC (rev 1977)
++++ izpack-src/trunk/src/build.xml	2008-01-12 11:13:15 UTC (rev 1978)
+@@ -362,6 +362,8 @@
+                 &lt;include name=&quot;lib/metouia.jar&quot; /&gt;
+                 &lt;include name=&quot;lib/looks.jar&quot; /&gt;
+                 &lt;include name=&quot;lib/ant.jar&quot; /&gt;
++                &lt;include name=&quot;lib/nimbus.jar&quot; /&gt;
++                &lt;include name=&quot;lib/substance.jar&quot; /&gt;
+                 &lt;exclude name=&quot;**/CVS&quot; /&gt;
+             &lt;/fileset&gt;
+         &lt;/jar&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java	2008-01-09 17:18:48 UTC (rev 1977)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java	2008-01-12 11:13:15 UTC (rev 1978)
+@@ -98,7 +98,10 @@
+                         int index = Integer.parseInt(index_str);
+                         if ((index &gt;= 0) &amp;&amp; (index &lt; idata.availablePacks.size()))
+                         {
++                          if (el.getAttribute(&quot;selected&quot;).equalsIgnoreCase(&quot;true&quot;) ||
++                              el.getAttribute(&quot;selected&quot;).equalsIgnoreCase(&quot;on&quot;)) {
+                             idata.selectedPacks.add(idata.availablePacks.get(index));
++                          }
+                         }
+                         else
+                         {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java	2008-01-09 17:18:48 UTC (rev 1977)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java	2008-01-12 11:13:15 UTC (rev 1978)
+@@ -337,7 +337,7 @@
+                     else
+                     {
+                         if (handler
+-                                .askQuestion(null, &quot;Continue?&quot;, AbstractUIHandler.CHOICES_YES_NO) == AbstractUIHandler.ANSWER_YES)
++                                .askQuestion(&quot;Execution Failed&quot;, message+&quot;\nContinue Installation?&quot;, AbstractUIHandler.CHOICES_YES_NO) == AbstractUIHandler.ANSWER_YES)
+                             exitStatus = 0;
+                     }
+ 
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000723.html">[izpack-changes] r1977 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000725.html">[izpack-changes] r1979 - in izpack-src/trunk: .	bin/langpacks/installer src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#724">[ date ]</a>
+              <a href="thread.html#724">[ thread ]</a>
+              <a href="subject.html#724">[ subject ]</a>
+              <a href="author.html#724">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

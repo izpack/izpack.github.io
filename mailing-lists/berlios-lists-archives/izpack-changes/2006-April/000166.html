@@ -1,0 +1,358 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r189 - in izpack-frontend/trunk/src: . izpack/frontend/view/stages/configure/panels utils
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r189%20-%20in%20izpack-frontend/trunk/src%3A%20.%20izpack/frontend/view/stages/configure/panels%20utils&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000165.html">
+   <LINK REL="Next"  HREF="000167.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r189 - in izpack-frontend/trunk/src: . izpack/frontend/view/stages/configure/panels utils</H1>
+    <B>gumbo at BerliOS</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r189%20-%20in%20izpack-frontend/trunk/src%3A%20.%20izpack/frontend/view/stages/configure/panels%20utils&In-Reply-To="
+       TITLE="[izpack-changes] r189 - in izpack-frontend/trunk/src: . izpack/frontend/view/stages/configure/panels utils">gumbo at berlios.de
+       </A><BR>
+    <I>Mon Apr 10 17:29:21 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000165.html">[izpack-changes] izpack-src/src build.xml,1.128,1.129
+</A></li>
+        <LI>Next message: <A HREF="000167.html">[izpack-changes] r190 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/model/files izpack/frontend/model/stages izpack/frontend/view/stages/configure/panels utils
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#166">[ date ]</a>
+              <a href="thread.html#166">[ thread ]</a>
+              <a href="subject.html#166">[ subject ]</a>
+              <a href="author.html#166">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gumbo
+Date: 2006-04-10 17:29:20 +0200 (Mon, 10 Apr 2006)
+New Revision: 189
+
+Modified:
+   izpack-frontend/trunk/src/build.xml
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/License.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ShortcutPanel.java
+   izpack-frontend/trunk/src/utils/XMLAggregator.java
+Log:
+Removed tests from the build.  Fixed the XML aggregator -it should work completely now
+
+Modified: izpack-frontend/trunk/src/build.xml
+===================================================================
+--- izpack-frontend/trunk/src/build.xml	2006-04-07 00:16:07 UTC (rev 188)
++++ izpack-frontend/trunk/src/build.xml	2006-04-10 15:29:20 UTC (rev 189)
+@@ -32,7 +32,8 @@
+ 			srcdir=&quot;.&quot;
+ 			destdir=&quot;build/classes&quot;			
+ 			deprecation=&quot;on&quot;
+-			verbose=&quot;true&quot;&gt;
++			verbose=&quot;true&quot;
++			excludes=&quot;tests/**&quot;&gt;
+ 			&lt;classpath refid=&quot;build.classpath&quot; /&gt;
+ 		&lt;/javac&gt;
+ 		
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/License.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/License.java	2006-04-07 00:16:07 UTC (rev 188)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/License.java	2006-04-10 15:29:20 UTC (rev 189)
+@@ -74,9 +74,6 @@
+     public void initFromXML(Document xmlFile)
+     {
+         String license = XML.getResourceValueAsPath(xmlFile, &quot;LicencePanel.licence&quot;);
+-     
+-        if (xmlFile.getDocumentURI() != null)
+-            license = new File(xmlFile.getDocumentURI()).getParent() + System.getProperty(&quot;file.separator&quot;) + license;
+         
+         if (license != null)
+             updateEditorDisplay(license);
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ShortcutPanel.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ShortcutPanel.java	2006-04-07 00:16:07 UTC (rev 188)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/ShortcutPanel.java	2006-04-10 15:29:20 UTC (rev 189)
+@@ -226,10 +226,8 @@
+         
+         Element nativeLib = XML.createElement(&quot;native&quot;, doc);
+         nativeLib.setAttribute(&quot;type&quot;, &quot;izpack&quot;);
+-        nativeLib.setAttribute(&quot;name&quot;, &quot;ShellLink.dll&quot;);        
++        nativeLib.setAttribute(&quot;name&quot;, &quot;ShellLink.dll&quot;);
+         
+-        nativeLib.appendChild(XML.createElement(&quot;test&quot;, doc));
+-        
+         root.appendChild(nativeLib);
+         
+         return root;
+
+Modified: izpack-frontend/trunk/src/utils/XMLAggregator.java
+===================================================================
+--- izpack-frontend/trunk/src/utils/XMLAggregator.java	2006-04-07 00:16:07 UTC (rev 188)
++++ izpack-frontend/trunk/src/utils/XMLAggregator.java	2006-04-10 15:29:20 UTC (rev 189)
+@@ -1,33 +1,24 @@
+ /*
+- * Created on Apr 3, 2005
+- * 
+- * $Id: XMLAggregator.java Feb 8, 2004 izpack-frontend
+- * Copyright (C) 2005 Andy Gombos
+- * 
+- * File : XMLAggregator.java 
+- * Description : TODO Add description
+- * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
+- * 
+- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- * 
+- *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+- *     
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
++ * Created on Apr 3, 2005 $Id: XMLAggregator.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos File : XMLAggregator.java Description : TODO
++ * Add description Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A> Licensed under the
++ * Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A> Unless required by applicable law
++ * or agreed to in writing, software distributed under the License is
++ * distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
++ * KIND, either express or implied. See the License for the specific language
++ * governing permissions and limitations under the License.
+  */
+ 
+ package utils;
+ 
+ import java.util.ArrayList;
+-import java.util.ListIterator;
++import java.util.Iterator;
+ 
++import org.w3c.dom.Attr;
+ import org.w3c.dom.Document;
+-import org.w3c.dom.Element;
++import org.w3c.dom.NamedNodeMap;
+ import org.w3c.dom.Node;
+ import org.w3c.dom.NodeList;
+ 
+@@ -36,85 +27,134 @@
+  */
+ public class XMLAggregator
+ {
+-    public static Element mergeElements (Element top)
++    public XMLAggregator(Document doc)
++    {
++        Node root = doc.getDocumentElement();
++        
++        ArrayList&lt;MergeableElements&gt; duplicates = findCombinableNodes(root);
++        
++        System.out.println(duplicates);
++        
++        for (MergeableElements elements : duplicates)
++        {
++            elements.merge();
++        }
++        
++        XML.printXML(doc);        
++    }
++
++    private ArrayList&lt;MergeableElements&gt; findCombinableNodes(Node root)
+     {        
+-        storeParents(top);        
+-     
+-        for (int i = 0; i &lt; parentNodes.size(); i++)
+-        {
+-            Element node = (Element) parentNodes.get(i);            
+-            
+-            int index = 0;
+-            if ( (index = containsNotElement(node, i) ) != -1)
++        
++        ArrayList&lt;MergeableElements&gt; duplicates = new ArrayList&lt;MergeableElements&gt;();
++        
++        NodeList children = root.getChildNodes();
++        
++        for (int i = 0; i &lt; children.getLength(); i++)
++        {   
++            for (int j = 0; j &lt; children.getLength(); j++)
+             {   
+-                Element donor = (Element) parentNodes.get(index);
+-                Element source = node;
+-                Document sourceDoc = source.getOwnerDocument();
+-                
+-                NodeList donorChildren = donor.getChildNodes();
+-                for (int j = 0; j &lt; donorChildren.getLength(); j++)
+-                {
+-                    //Copy and remove the donor node's children
+-                    Node importedDonor = sourceDoc.importNode(donorChildren.item(j), true);
+-                    donor.removeChild(donorChildren.item(j));
++                if (i != j &amp;&amp; children.item(i).getNodeType() == Node.ELEMENT_NODE &amp;&amp; children.item(j).getNodeType() == Node.ELEMENT_NODE &amp;&amp;
++                                areNodesEqual(children.item(i), children.item(j)))
++                {   
++                    MergeableElements me = new MergeableElements(children.item(i), children.item(j));
+                     
+-                    source.appendChild(importedDonor);
++                    if (!duplicates.contains(me))
++                        duplicates.add(me);
+                 }
+-                
+-                //Remove the donor node
+-                parentNodes.remove(index);
+-                donor.getParentNode().removeChild(donor);
+             }
+-            
+         }
+         
+-        //Remove the fake top node that was just to combine the different documents
+-        //For some reason, the document contains random text nodes
+-        //Search for the actual child node                        
+-        Node realTop = top.getFirstChild();
++        for (int i = 0; i &lt; children.getLength(); i++)
++        {
++            if (children.item(i).getNodeType() == Node.ELEMENT_NODE)
++            {   
++                duplicates.addAll(findCombinableNodes(children.item(i)));
++            }
++        }
+         
+-        Document doc = XML.getNewDocument();
+-        Node imported = doc.importNode(realTop, true);   
+-        doc.appendChild(imported);
+-        
+-        return (Element) imported;
++        return duplicates;
+     }
+     
+-    private static void storeParents(Element start)
++    private boolean areNodesEqual(Node n1, Node n2)
+     {
+-        NodeList children = start.getChildNodes();
++        if (! n1.getNodeName().equals(n2.getNodeName()))
++            return false;
+         
+-        if (children == null)
+-            return;
++        NamedNodeMap attr1 = n1.getAttributes();
++        NamedNodeMap attr2 = n2.getAttributes();
+         
+-        for (int i = 0; i &lt; children.getLength(); i++)
++        if (attr1 != null &amp;&amp; attr2 != null)
+         {
+-            Node child = children.item(i);
+-            if (child.hasChildNodes())
+-            {                
+-                parentNodes.add(child);
+-            	storeParents( (Element) child );
++            if (attr1.getLength() == attr2.getLength())
++            {
++                for (int i = 0; i &lt; attr1.getLength(); i++)
++                {
++                    Node attrNode1 = attr1.item(i);
++                    Node attrNode2 = attr2.getNamedItem(attrNode1.getNodeName());
++                    
++                    if (attrNode2 == null)
++                        return false;
++                    
++                    if (! attrNode1.getNodeValue().equals(attrNode2.getNodeValue()) )
++                        return false;
++                }
+             }
+         }
++        else if ( (attr1 != null &amp;&amp; attr2 == null) || (attr1 == null &amp;&amp; attr2 != null))
++            return false;
++        
++        if (n1.getNodeValue() != null &amp;&amp; !n1.getNodeValue().equals(n2.getNodeValue()))
++            return false;
++        
++        if (! n1.getOwnerDocument().equals(n2.getOwnerDocument()))
++            return false;
++        
++        return true;
+     }
+     
+-    private static int containsNotElement(Element node, int index)
++    private class MergeableElements
+     {
+-        for (ListIterator iter = parentNodes.listIterator(); iter.hasNext();)
++        public MergeableElements(Node n1, Node n2)
+         {
+-            Element element = (Element) iter.next();
++            this.n1 = n1;
++            this.n2 = n2;
++        }
++        
++        public void merge()
++        {
++            Node source = n1;
++            Node dest = n2;                    
+             
+-            if (element.getNodeName().equals(node.getNodeName()))
+-            {                
+-                int idx = iter.nextIndex() - 1;
+-                
+-                if (idx != index)
+-                    return idx;
+-            }
++            NodeList sourceChildren = source.getChildNodes();
++            
++            for (int k = 0; k &lt; sourceChildren.getLength(); k++)
++            {
++                if (sourceChildren.item(k).getNodeType() == Node.ELEMENT_NODE)
++                {   
++                    dest.appendChild(sourceChildren.item(k));
++                }
++            }               
++        
++            if (source.getParentNode() != null)
++                source.getParentNode().removeChild(source);
+         }
+         
+-        return -1;
++        @Override
++        public boolean equals(Object obj)
++        {
++            MergeableElements me = (MergeableElements) obj;
++            
++            return ( (n1.isSameNode(me.n1) &amp;&amp; n2.isSameNode(me.n2)) || (n1.isSameNode(me.n2) &amp;&amp; n2.isSameNode(me.n1)) );
++        }
++        
++        @Override
++        public String toString()
++        {
++            return &quot;{&quot; + n1 + &quot;=&gt;&quot; + n2 + &quot;}&quot;;
++        }
++        
++        public Node n1;
++        public Node n2;
+     }
+-    
+-    private static ArrayList parentNodes = new ArrayList();
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000165.html">[izpack-changes] izpack-src/src build.xml,1.128,1.129
+</A></li>
+	<LI>Next message: <A HREF="000167.html">[izpack-changes] r190 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/model/files izpack/frontend/model/stages izpack/frontend/view/stages/configure/panels utils
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#166">[ date ]</a>
+              <a href="thread.html#166">[ thread ]</a>
+              <a href="subject.html#166">[ subject ]</a>
+              <a href="author.html#166">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1065 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r184 - in izpack-frontend/trunk/src: conf/pages/en izpack/frontend/actions izpack/frontend/model/shortcut izpack/frontend/view/components izpack/frontend/view/stages/configure/panels izpack/frontend/view/stages/configure/panels/shortcut izpack/frontend/view/win32 lib
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r184%20-%20in%20izpack-frontend/trunk/src%3A%20conf/pages/en%20izpack/frontend/actions%20izpack/frontend/model/shortcut%20izpack/frontend/view/components%20izpack/frontend/view/stages/configure/panels%20izpack/frontend/view/stages/configure/panels/shortcut%20izpack/frontend/view/win32%20lib&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000097.html">
+   <LINK REL="Next"  HREF="000099.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r184 - in izpack-frontend/trunk/src: conf/pages/en izpack/frontend/actions izpack/frontend/model/shortcut izpack/frontend/view/components izpack/frontend/view/stages/configure/panels izpack/frontend/view/stages/configure/panels/shortcut izpack/frontend/view/win32 lib</H1>
+    <B>gumbo at BerliOS</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r184%20-%20in%20izpack-frontend/trunk/src%3A%20conf/pages/en%20izpack/frontend/actions%20izpack/frontend/model/shortcut%20izpack/frontend/view/components%20izpack/frontend/view/stages/configure/panels%20izpack/frontend/view/stages/configure/panels/shortcut%20izpack/frontend/view/win32%20lib&In-Reply-To="
+       TITLE="[izpack-changes] r184 - in izpack-frontend/trunk/src: conf/pages/en izpack/frontend/actions izpack/frontend/model/shortcut izpack/frontend/view/components izpack/frontend/view/stages/configure/panels izpack/frontend/view/stages/configure/panels/shortcut izpack/frontend/view/win32 lib">gumbo at berlios.de
+       </A><BR>
+    <I>Tue Jan 17 21:03:03 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000097.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/panels UserInputPanel.java,1.42.4.3,1.42.4.4
+</A></li>
+        <LI>Next message: <A HREF="000099.html">[izpack-changes] [Bug #6059] Wrong Installation Path for Windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gumbo
+Date: 2006-01-17 21:02:47 +0100 (Tue, 17 Jan 2006)
+New Revision: 184
+
+Added:
+   izpack-frontend/trunk/src/izpack/frontend/view/components/HTMLEditor.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/FileEdit.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLInfo.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLLicense.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/Info.java
+   izpack-frontend/trunk/src/lib/gnu-regexp-1.1.4.jar
+   izpack-frontend/trunk/src/lib/kafenio-config.jar
+   izpack-frontend/trunk/src/lib/kafenio-icons.jar
+   izpack-frontend/trunk/src/lib/kafenio.jar
+Modified:
+   izpack-frontend/trunk/src/conf/pages/en/Shortcut.xml
+   izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java
+   izpack-frontend/trunk/src/izpack/frontend/model/shortcut/Shortcut.java
+   izpack-frontend/trunk/src/izpack/frontend/model/shortcut/ShortcutSet.java
+   izpack-frontend/trunk/src/izpack/frontend/view/components/AbstractListSelect.java
+   izpack-frontend/trunk/src/izpack/frontend/view/components/JFileChooserIconPreview.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/XInfo.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/shortcut/ShortcutView.java
+   izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeCleanupShutdownHook.java
+   izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIcon.java
+Log:
+Started HTML editors with Kafenio, improved shortcut stuff, started refactoring of config panels for plain text and HTML types
+
+Modified: izpack-frontend/trunk/src/conf/pages/en/Shortcut.xml
+===================================================================
+--- izpack-frontend/trunk/src/conf/pages/en/Shortcut.xml	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/conf/pages/en/Shortcut.xml	2006-01-17 20:02:47 UTC (rev 184)
+@@ -22,7 +22,7 @@
+ --&gt;
+ 
+ &lt;!-- IzPack frontend panel config file. --&gt;
+-&lt;izpack-panel name=&quot;Shortcut Panel&quot; classname=&quot;ShortcutPanel&quot; editingClass=&quot;Shortcut&quot;&gt;
++&lt;izpack-panel name=&quot;Shortcut Panel&quot; classname=&quot;ShortcutPanel&quot; editingClass=&quot;ShortcutPanel&quot;&gt;
+ 	&lt;panel-version&gt;1.0&lt;/panel-version&gt;
+ 	&lt;panel-desc-short&gt;Configure shortcuts&lt;/panel-desc-short&gt;
+ 	&lt;panel-desc-long&gt;Allow user to configure shortcuts (desktop, etc.) Currently Windows only.&lt;/panel-desc-long&gt;
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -110,7 +110,7 @@
+                 
+                 dialog.add(displayer);
+                 dialog.pack();
+-                dialog.show();
++                dialog.setVisible(true);
+             }
+             
+         }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/model/shortcut/Shortcut.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/model/shortcut/Shortcut.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/model/shortcut/Shortcut.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -26,22 +26,6 @@
+ 
+ public class Shortcut extends Model implements Cloneable
+ {
+-    public Shortcut()
+-    {
+-        Document doc;
+-        try
+-        {
+-            doc = XML.createDocument(&quot;shortcutSpec.xml&quot;);
+-            
+-            initFromXML(doc.getElementsByTagName(&quot;shortcut&quot;).item(0));
+-        }
+-        catch (DocumentCreationException e)
+-        {
+-            // TODO Auto-generated catch block
+-            e.printStackTrace();
+-        }        
+-    }
+-    
+     @Override
+     public Object clone() throws CloneNotSupportedException
+     {
+@@ -56,9 +40,38 @@
+     
+     public Element writeXML(Document doc)
+     {           
+-        Element shortcut = XML.createElement(&quot;singlefile&quot;, doc);
++        Element shortcut = XML.createElement(&quot;shorcut&quot;, doc);
+         
++        setOptionalAttribute(shortcut, &quot;name&quot;, name);
++        setOptionalAttribute(shortcut, &quot;target&quot;, target);
+         
++        setOptionalAttribute(shortcut, &quot;commandLine&quot;, commandLine);
++        setOptionalAttribute(shortcut, &quot;workingDirectory&quot;, workingDirectory);
++        setOptionalAttribute(shortcut, &quot;description&quot;, description);
++        
++        setOptionalAttribute(shortcut, &quot;iconFile&quot;, iconFile);        
++        
++        if (iconIndex != -1)
++            setOptionalAttribute(shortcut, &quot;iconIndex&quot;, Integer.toString(iconIndex));
++        
++        if (initialState != null)
++            setOptionalAttribute(shortcut, &quot;initialState&quot;, initialState.toString());        
++        
++        setOptionalAttribute(shortcut, &quot;programGroup&quot;, programGroup);
++        setOptionalAttribute(shortcut, &quot;desktop&quot;, desktop);
++        setOptionalAttribute(shortcut, &quot;applications&quot;, applications);
++        setOptionalAttribute(shortcut, &quot;startup&quot;, startup);
++        setOptionalAttribute(shortcut, &quot;startMenu&quot;, startMenu);        
++        
++        if (type != null)
++            setOptionalAttribute(shortcut, &quot;type&quot;, type.toString());        
++        
++        setOptionalAttribute(shortcut, &quot;url&quot;, url);
++        
++        setOptionalAttribute(shortcut, &quot;terminal&quot;, terminal);
++        
++        setOptionalAttribute(shortcut, &quot;KdeSubstUID&quot;, KdeSubstUID);        
++        
+         return shortcut;
+     }
+ 
+@@ -77,7 +90,11 @@
+         
+         try
+         {
+-            iconIndex = Integer.parseInt(getOptionalAttribute(attributes, &quot;iconIndex&quot;));
++            //See if icon index was specified
++            if (getOptionalAttribute(attributes, &quot;iconIndex&quot;).equals(&quot;&quot;))
++                iconIndex = -1;
++            else                
++                iconIndex = Integer.parseInt(getOptionalAttribute(attributes, &quot;iconIndex&quot;));
+         }
+         catch (NumberFormatException nfe)
+         {
+@@ -89,7 +106,7 @@
+         String initialStateStr = getOptionalAttribute(attributes, &quot;initialState&quot;);
+         for (INITIAL_STATE state : INITIAL_STATE.values())
+         {
+-            if (state.toString().equals(initialStateStr))
++            if (state.toString().equalsIgnoreCase(initialStateStr))
+                 initialState = state;
+         }
+         
+@@ -107,7 +124,7 @@
+             
+             for (TYPE typeElem : TYPE.values())
+             {
+-                if (typeElem.toString().equals(typeStr))                    
++                if (typeElem.toString().equalsIgnoreCase(typeStr))                    
+                     type = typeElem;
+             }   
+         }
+@@ -119,6 +136,26 @@
+         KdeSubstUID = getOptionalAttribute(attributes, &quot;KdeSubstUID&quot;);
+     }
+     
++    private void setOptionalAttribute(Element elem, String attribute, String value)
++    {
++        if (value != null &amp;&amp; ! value.equals(&quot;&quot;))
++        {            
++            //Make the attribute name have a first lowercase letter
++            //Not the most efficient, but it's only going to be called a little bit
++            attribute = attribute.substring(0, 1).toLowerCase() + attribute.substring(1);
++            
++            elem.setAttribute(attribute, value);
++        }
++    }
++    
++    private void setOptionalAttribute(Element elem, String attribute, boolean value)
++    {
++        if (value)
++            elem.setAttribute(attribute, &quot;yes&quot;);
++        else
++            elem.setAttribute(attribute, &quot;no&quot;);
++    }
++    
+     private String getOptionalAttribute(NamedNodeMap attributes, String attribute)
+     {
+         if (attributes.getNamedItem(attribute) != null)
+@@ -149,7 +186,7 @@
+ 
+     // Main functionality on Windows
+     private String  iconFile;
+-    private int     iconIndex;
++    private int     iconIndex = -1;
+     private INITIAL_STATE initialState;
+     private boolean programGroup;
+     private boolean desktop;
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/model/shortcut/ShortcutSet.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/model/shortcut/ShortcutSet.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/model/shortcut/ShortcutSet.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -23,13 +23,24 @@
+ 
+ package izpack.frontend.model.shortcut;
+ 
++import izpack.frontend.model.shortcut.Shortcut.INITIAL_STATE;
++
+ import java.beans.PropertyChangeListener;
+ import java.beans.PropertyChangeSupport;
+ import java.util.ArrayList;
+-import java.util.Vector;
+ 
+ import javax.swing.table.DefaultTableModel;
+ 
++import org.w3c.dom.Document;
++import org.w3c.dom.Element;
++import org.w3c.dom.NamedNodeMap;
++import org.w3c.dom.Node;
++import org.w3c.dom.NodeList;
++
++import com.sun.org.apache.bcel.internal.generic.LCONST;
++
++import utils.XML;
++
+ /**
+  * Provides a container to store Shortcut instances, and perform operations on them.
+  * 
+@@ -44,6 +55,75 @@
+         //TODO make format same as renderer in pseudo columns
+         this.addColumn(&quot;OS       Name                                Target&quot;);
+     }
++    
++    //XML input/output stuff
++    public Document writeXML()
++    {        
++        Document doc = XML.createDocument();
++        
++        Element shortcutsRoot = XML.createElement(&quot;shortcuts&quot;, doc);
++        doc.appendChild(shortcutsRoot);
++        
++        //Add a node if we should skip when we can't create a shortcut
++        if (skipIfNotSupported)
++        {
++           shortcutsRoot.appendChild(XML.createElement(&quot;skipIfNotSupported&quot;, doc));
++        }
++        
++        Element programGroup = XML.createElement(&quot;programGroup&quot;, doc);
++        
++        if (defaultName != null)
++            programGroup.setAttribute(&quot;defaultName&quot;, defaultName);
++        
++        if (location != null)
++            programGroup.setAttribute(&quot;location&quot;, location.toString());
++        
++        shortcutsRoot.appendChild(programGroup);
++        
++        //Add each shortcut in the set to the file
++        ArrayList&lt;Shortcut&gt; shortcuts = getShortcuts();
++        
++        for (Shortcut shortcut : shortcuts)
++        {
++            shortcutsRoot.appendChild(shortcut.writeXML(doc));
++        }
++        
++        return doc;
++    }
++    
++    public void initXML(Document doc)
++    {
++        if (doc.getElementsByTagName(&quot;skipIfNotSupported&quot;).getLength() != 0)
++            skipIfNotSupported = true;
++        
++        NodeList programGroup = doc.getElementsByTagName(&quot;programGroup&quot;);        
++        if (programGroup.getLength() != 0)
++        {
++            Node programGroupElem = programGroup.item(0);
++            
++            NamedNodeMap attributes = programGroupElem.getAttributes();
++            
++            defaultName = attributes.getNamedItem(&quot;defaultName&quot;).getNodeValue();
++            
++            String locationStr = attributes.getNamedItem(&quot;location&quot;).getNodeValue();
++            
++            for (LOCATION loc : LOCATION.values())
++            {
++                if (loc.toString().equalsIgnoreCase(locationStr))
++                    location = loc;
++            }
++        }
++        
++        NodeList shortcuts = doc.getElementsByTagName(&quot;shortcut&quot;);
++        for (int i = 0; i &lt; shortcuts.getLength(); i++)
++        {            
++            Shortcut s = new Shortcut();
++            s.initFromXML(shortcuts.item(i));
++            
++            addShortcut(s);            
++        }
++    }
++    
+ 
+     public ArrayList&lt;Shortcut&gt; getShortcuts()
+     {
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/components/AbstractListSelect.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/components/AbstractListSelect.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/components/AbstractListSelect.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -49,7 +49,7 @@
+ /**
+  * @author Andy Gombos
+  */
+-public abstract class AbstractListSelect extends IzPackPanel implements ActionListener, FocusListener, ListSelectionListener
++public abstract class AbstractListSelect extends JPanel implements ActionListener, FocusListener, ListSelectionListener
+ {
+     public AbstractListSelect()
+     {
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/components/HTMLEditor.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/components/HTMLEditor.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/components/HTMLEditor.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -0,0 +1,151 @@
++/*
++ * Created on Jan 12, 2006
++ * 
++ * $Id: HTMLEditor.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : HTMLEditor.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package izpack.frontend.view.components;
++
++import java.awt.BorderLayout;
++import java.awt.GridLayout;
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.IOException;
++import java.io.InputStreamReader;
++
++import javax.swing.JPanel;
++import javax.swing.JTabbedPane;
++import javax.swing.JToolBar;
++import javax.swing.event.ChangeEvent;
++import javax.swing.event.ChangeListener;
++import javax.swing.text.BadLocationException;
++
++import utils.UI;
++import de.xeinfach.kafenio.KafenioPanel;
++import de.xeinfach.kafenio.KafenioPanelConfiguration;
++import de.xeinfach.kafenio.component.ExtendedHTMLDocument;
++import de.xeinfach.kafenio.component.ExtendedHTMLEditorKit;
++
++/**
++ * Provide a tabbed 
++ * @author Andy Gombos
++ */
++public class HTMLEditor extends JPanel implements ChangeListener
++{
++    public HTMLEditor()
++    {
++        setLayout(new BorderLayout());        
++        
++        //TODO move to another method
++        KafenioPanelConfiguration conf = new KafenioPanelConfiguration();        
++                
++        conf.setCustomToolBar1(&quot;CUT,COPY,PASTE,SEPARATOR,BOLD&quot;
++        + &quot;,ITALIC,UNDERLINE,SEPARATOR,LEFT,CENTER,RIGHT,JUSTIFY&quot;);        
++
++        editor = new KafenioPanel(conf);
++        editor.setKafenioParent(UI.getApplicationFrame());
++        
++        JPanel toolbarPanel = new JPanel();
++        toolbarPanel.setLayout(new GridLayout(2, 1));
++        toolbarPanel.add(editor.getJToolBar1());
++        toolbarPanel.add(editor.getJToolBar2());
++        
++        display = new JPanel();
++        tabs = new JTabbedPane();
++        
++        display.add(editor);
++        
++        tabs.addChangeListener(this);
++        tabs.setTabPlacement(JTabbedPane.BOTTOM);
++
++        tabs.addTab(&quot;WYSIWYG&quot;, editor.getHTMLScrollPane());
++        tabs.addTab(&quot;Source&quot;, editor.getSrcScrollPane());
++        
++        add(toolbarPanel, BorderLayout.NORTH);
++        add(tabs, BorderLayout.SOUTH);
++        add(display, BorderLayout.CENTER);
++        
++        try
++        {
++            loadDocument(&quot;F:/program files/izpack/src/dist-files/install-readme.html&quot;);
++        }
++        catch (IOException e)
++        {
++            // TODO Auto-generated catch block
++            e.printStackTrace();
++        }
++        catch (BadLocationException e)
++        {
++            // TODO Auto-generated catch block
++            e.printStackTrace();
++        }
++    }
++
++    public void stateChanged(ChangeEvent e)
++    {        
++        //WYSIWYG tab is displayed        
++        if(tabs.getSelectedIndex() == 0)
++        {
++            //Copy source to WYSIWYG            
++            editor.getTextPane().setText(editor.getSourcePane().getText());
++            
++            //Enable the toolbars
++            JToolBar toolbar1 = editor.getJToolBar1();
++            for (int i = 0; i &lt; toolbar1.getComponentCount(); i++)
++                toolbar1.getComponent(i).setEnabled(true);
++            
++            JToolBar toolbar2 = editor.getJToolBar2();
++            for (int i = 0; i &lt; toolbar2.getComponentCount(); i++)
++                toolbar2.getComponent(i).setEnabled(true);
++        }
++        else
++        {
++            //Copy WYSIWYG to source
++            editor.getSourcePane().setText(editor.getTextPane().getText());
++            
++            //Disable the toolbars
++            JToolBar toolbar1 = editor.getJToolBar1();
++            for (int i = 0; i &lt; toolbar1.getComponentCount(); i++)
++                toolbar1.getComponent(i).setEnabled(false);
++            
++            JToolBar toolbar2 = editor.getJToolBar2();
++            for (int i = 0; i &lt; toolbar2.getComponentCount(); i++)
++                toolbar2.getComponent(i).setEnabled(false);
++        }        
++    }
++    
++    public void loadDocument(String file) throws IOException, BadLocationException
++    {        
++        ExtendedHTMLEditorKit htmlKit = editor.getExtendedHtmlKit();
++        ExtendedHTMLDocument htmlDoc = (ExtendedHTMLDocument)(htmlKit.createDefaultDocument());
++                    
++        InputStreamReader isr = new InputStreamReader(new FileInputStream(new File(file)));       
++            
++        htmlKit.read(isr, htmlDoc, 0);
++        isr.close();
++        
++        editor.registerDocument(htmlDoc);
++        editor.refreshOnUpdate();
++    }
++    
++    private KafenioPanel editor;
++    private JPanel display;
++    private JTabbedPane tabs;
++}
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/components/JFileChooserIconPreview.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/components/JFileChooserIconPreview.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/components/JFileChooserIconPreview.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -73,6 +73,7 @@
+     public void propertyChange(PropertyChangeEvent evt)
+     {
+         Icon icon = null;
++        
+         if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt
+                         .getPropertyName()))
+         {
+@@ -100,7 +101,10 @@
+                     iconDisplay.add(previewWindowsIcon(filename));
+                 }
+                 
+-                configurePreview((JComponent) iconDisplay.getComponent(0));
++                
++                //Make sure we have a preview visible
++                if (iconDisplay.getComponentCount() &gt; 0)
++                    configurePreview((JComponent) iconDisplay.getComponent(0));
+             }
+          
+             this.validate();
+@@ -118,17 +122,28 @@
+                     
+                     //TODO only scale when oversized
+                     float width = img.getWidth();
++                    
++                    Icon icon;
++                    
++                    if (width &gt; maxImgWidth)
++                    {
++                        
+                     float height = img.getHeight();
+                     float scale = height / width;
+                     width = maxImgWidth;
+                     height = (width * scale); // height should be scaled
+                                                 // from new width
+-                    Icon icon = new ImageIcon(img.getScaledInstance(Math.max(1,
++                    icon = new ImageIcon(img.getScaledInstance(Math.max(1,
+                                     (int) width),
+                                     Math.max(1, (int) height),
+                                     Image.SCALE_FAST));
++                    }
++                    else
++                    {
++                        icon = new ImageIcon(img);
++                    }
+                     
+-                    JLabel label = new JLabel(icon);
++                    JLabel label = new JLabel(icon);                   
+                     
+                     return label;
+                 }
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/FileEdit.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/FileEdit.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/FileEdit.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -0,0 +1,121 @@
++/*
++ * Created on Jan 10, 2006
++ * 
++ * $Id: FileEdit.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : FileEdit.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package izpack.frontend.view.stages.configure.panels;
++
++import java.awt.BorderLayout;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++
++import javax.swing.Box;
++import javax.swing.BoxLayout;
++import javax.swing.JButton;
++import javax.swing.JComponent;
++import javax.swing.JFileChooser;
++import javax.swing.JLabel;
++import javax.swing.JPanel;
++import javax.swing.JTextField;
++import javax.swing.SwingConstants;
++import javax.swing.border.EmptyBorder;
++import javax.swing.filechooser.FileFilter;
++
++/**
++ * A base class that gives the user a spot to load a file, as well as a text field to edit the file onscreen
++ * 
++ * Subclasses implement all knowledge about how to handle thier specific type (text editors just dump the file, HTML editors
++ * provide a source and rendered pane, etc)
++ * 
++ * @author Andy Gombos
++ */
++public abstract class FileEdit extends JPanel implements ConfigurePanel, ActionListener
++{
++    public FileEdit()
++    {
++        setLayout(new BorderLayout());
++        
++//      The browsing panel that displays the filename
++        JPanel filePanel = new JPanel();
++        filePanel.setLayout(new BoxLayout(filePanel, BoxLayout.X_AXIS));
++        
++        JButton browse = new JButton(&quot;Browse&quot;);
++        browse.addActionListener(this);
++        
++        filePanel.add(new JLabel(&quot;Filename:&quot;));
++        filePanel.add(Box.createHorizontalStrut(10));
++        filePanel.add(filename = new JTextField());
++        filePanel.add(Box.createHorizontalStrut(15));
++        filePanel.add(browse);
++        
++        add(filePanel, BorderLayout.SOUTH);
++        
++        chooser = new JFileChooser();        
++        
++        editorHolder = new JPanel();
++        editorHolder.setBorder(new EmptyBorder(5, 5, 5, 5));        
++        add(editorHolder, BorderLayout.CENTER);
++    }
++    
++    protected void setTextEditor(JComponent textEditor)
++    {
++        this.textEditor = textEditor;
++        editorHolder.removeAll();
++        editorHolder.add(textEditor);
++    }
++    
++    protected JComponent getTextEditor()
++    {
++        return textEditor;
++    }    
++    
++    protected void addFileFilter(FileFilter filter)
++    {
++        chooser.addChoosableFileFilter(filter);
++    }
++    
++    /**
++     * Shows the browsing dialog, and then tells the subclass to update it's display
++     */    
++    public void actionPerformed(ActionEvent e)
++    {
++        //Only update if user didn't click cancel
++        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
++        {
++            String file = chooser.getSelectedFile().getAbsolutePath();
++            filename.setText(file);
++            
++            updateEditorDisplay(file);
++        }        
++    }
++    
++    /** 
++     * Allow subclasses to be notified whenever the file selection changes, but without requiring them to bind to anything
++     * 
++     * @param filename The new filename to load
++     */
++    protected abstract void updateEditorDisplay(String filename);    
++    
++    private JPanel editorHolder;
++    private JComponent textEditor;
++    private JTextField filename;
++    private JFileChooser chooser;
++}
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLInfo.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLInfo.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLInfo.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -0,0 +1,88 @@
++/*
++ * Created on Jan 17, 2006
++ * 
++ * $Id: HTMLInfo.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : HTMLInfo.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package izpack.frontend.view.stages.configure.panels;
++
++import izpack.frontend.view.components.HTMLEditor;
++
++import java.awt.Dimension;
++import java.io.File;
++import java.io.IOException;
++
++import javax.swing.JScrollPane;
++import javax.swing.JTextArea;
++import javax.swing.text.BadLocationException;
++
++import org.w3c.dom.Document;
++import org.w3c.dom.Element;
++
++import utils.IO;
++import utils.UI;
++
++/** Implement the information panel.  This allows the user to select or create
++ * a README type file - plain text that is
++ * 
++ * @author Andy Gombos
++ */
++public class HTMLInfo extends FileEdit
++{
++    public HTMLInfo()
++    {   
++        super();
++        
++        editor = new HTMLEditor();        
++                
++        setTextEditor(editor);
++    }
++    
++    @Override
++    protected void updateEditorDisplay(String filename)
++    {
++        try
++        {
++            editor.loadDocument(filename);
++        }
++        catch (IOException ioe)        
++        {
++            UI.showError(ioe.getLocalizedMessage(), &quot;IO error&quot;);
++        }
++        catch (BadLocationException e)
++        {
++            //Ignore, I don't think this can happen
++        }
++    }
++
++    public Element createXML(Document doc)
++    {
++        // TODO Auto-generated method stub
++        return null;
++    }
++
++    public void initFromXML(Document xmlFile)
++    {
++        // TODO Auto-generated method stub
++        
++    }
++    
++    private HTMLEditor editor;
++}
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLLicense.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLLicense.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/HTMLLicense.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -0,0 +1,32 @@
++/*
++ * Created on Jan 17, 2006
++ * 
++ * $Id: HTMLLicense.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : HTMLLicense.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package izpack.frontend.view.stages.configure.panels;
++
++public class HTMLLicense
++{
++    public HTMLLicense()
++    {
++        throw new RuntimeException(&quot;Not implemented&quot;);
++    }
++}
+
+Added: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/Info.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/Info.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/Info.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -0,0 +1,78 @@
++/*
++ * Created on Jan 10, 2006
++ * 
++ * $Id: Info.java Feb 8, 2004 izpack-frontend
++ * Copyright (C) 2005 Andy Gombos
++ * 
++ * File : Info.java 
++ * Description : TODO Add description
++ * Author's email : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">gumbo at users.berlios.de</A>
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package izpack.frontend.view.stages.configure.panels;
++
++import java.awt.Dimension;
++import java.io.File;
++
++import javax.swing.JScrollPane;
++import javax.swing.JTextArea;
++
++import org.w3c.dom.Document;
++import org.w3c.dom.Element;
++
++import utils.IO;
++
++/** Implement the information panel.  This allows the user to select or create
++ * a README type file - plain text that is
++ * 
++ * @author Andy Gombos
++ */
++public class Info extends FileEdit
++{
++    public Info()
++    {
++        super();
++        
++        JScrollPane scrollPane = new JScrollPane();
++        editor = new JTextArea();
++        
++        scrollPane.getViewport().add(editor);
++        scrollPane.setPreferredSize(new Dimension(500, 350));
++        editor.setWrapStyleWord(true);
++        
++        setTextEditor(scrollPane);
++    }
++    
++    @Override
++    protected void updateEditorDisplay(String filename)
++    {
++        editor.setText(IO.loadFileIntoString(new File(filename)));
++    }
++
++    public Element createXML(Document doc)
++    {
++        // TODO Auto-generated method stub
++        return null;
++    }
++
++    public void initFromXML(Document xmlFile)
++    {
++        // TODO Auto-generated method stub
++        
++    }
++    
++    private JTextArea editor;
++
++}
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/XInfo.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/XInfo.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/XInfo.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -50,7 +50,7 @@
+  * 
+  * @author Andy Gombos
+  */
+-public class XInfo extends JPanel implements ConfigurePanel, ActionListener
++public class XInfo extends FileEdit
+ {    
+     public XInfo()
+     {
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/shortcut/ShortcutView.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/shortcut/ShortcutView.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/configure/panels/shortcut/ShortcutView.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -32,6 +32,7 @@
+ import java.awt.CardLayout;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
++import java.io.File;
+ 
+ import javax.swing.ImageIcon;
+ import javax.swing.JButton;
+@@ -57,6 +58,7 @@
+ import com.jgoodies.forms.factories.DefaultComponentFactory;
+ import com.jgoodies.forms.layout.FormLayout;
+ 
++//TODO Add pack-specific creation
+ public class ShortcutView extends JPanel
+ {
+     /**
+@@ -237,6 +239,7 @@
+     
+     private void configureListeners()
+     {
++        //TODO make sure if icon is a file, is included in installer files
+         iconBrowse.addActionListener(new ActionListener()
+         {
+             // TODO Make code not a copy-and-paste from the javalobby article
+@@ -250,7 +253,13 @@
+                 chooser.addPropertyChangeListener(previewPane);
+                 
+                 chooser.addChoosableFileFilter(iconFilter);
+-                chooser.addChoosableFileFilter(new IconFilter());               
++                chooser.addChoosableFileFilter(new IconFilter());
++                
++                //Set the selected file
++                if (icon.getText() != &quot;&quot;)
++                {
++                    chooser.setSelectedFile(new File(icon.getText()));
++                }
+                     
+                 if (chooser.showDialog(UI.getApplicationFrame(), &quot;Load icon&quot;) == JFileChooser.APPROVE_OPTION)
+                 {
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeCleanupShutdownHook.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeCleanupShutdownHook.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeCleanupShutdownHook.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -27,8 +27,7 @@
+ {
+     @Override
+     public void run()
+-    {
+-        System.out.println(&quot;Cleaning up&quot;);
++    {        
+         NativeIconAccessor.cleanupCreatedAccessors();
+     }
+ }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIcon.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIcon.java	2006-01-13 15:18:24 UTC (rev 183)
++++ izpack-frontend/trunk/src/izpack/frontend/view/win32/NativeIcon.java	2006-01-17 20:02:47 UTC (rev 184)
+@@ -25,14 +25,18 @@
+  * limitations under the License.
+  */
+ 
+-public class NativeIcon
++public final class NativeIcon
+ {
+-    public NativeIcon(ByteBuffer icon, ByteBuffer mask)
+-    {        
++    public NativeIcon(ByteBuffer icon, ByteBuffer mask, int width, int height)
++    {    
+         this.icon = icon;
+-        this.mask = mask;        
+-    }
++        this.mask = mask;
++        
++        this.width = width;
++        this.height = height;
++    }    
+     
+     protected ByteBuffer icon;
+     protected ByteBuffer mask;
++    protected int width, height;
+ }
+
+Added: izpack-frontend/trunk/src/lib/gnu-regexp-1.1.4.jar
+===================================================================
+(Binary files differ)
+
+
+Property changes on: izpack-frontend/trunk/src/lib/gnu-regexp-1.1.4.jar
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: izpack-frontend/trunk/src/lib/kafenio-config.jar
+===================================================================
+(Binary files differ)
+
+
+Property changes on: izpack-frontend/trunk/src/lib/kafenio-config.jar
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: izpack-frontend/trunk/src/lib/kafenio-icons.jar
+===================================================================
+(Binary files differ)
+
+
+Property changes on: izpack-frontend/trunk/src/lib/kafenio-icons.jar
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: izpack-frontend/trunk/src/lib/kafenio.jar
+===================================================================
+(Binary files differ)
+
+
+Property changes on: izpack-frontend/trunk/src/lib/kafenio.jar
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000097.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/panels UserInputPanel.java,1.42.4.3,1.42.4.4
+</A></li>
+	<LI>Next message: <A HREF="000099.html">[izpack-changes] [Bug #6059] Wrong Installation Path for Windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

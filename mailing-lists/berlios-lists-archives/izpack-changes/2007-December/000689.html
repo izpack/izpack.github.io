@@ -1,0 +1,1311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1943 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1943%20-%20in%20izpack-src/trunk%3A%20.%0A%09bin/langpacks/installer%20src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000688.html">
+   <LINK REL="Next"  HREF="000690.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1943 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1943%20-%20in%20izpack-src/trunk%3A%20.%0A%09bin/langpacks/installer%20src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1943 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Tue Dec 11 15:46:34 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000688.html">[izpack-changes] r1942 - izpack-utils/trunk/izpack2exe
+</A></li>
+        <LI>Next message: <A HREF="000690.html">[izpack-changes] r1944 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#689">[ date ]</a>
+              <a href="thread.html#689">[ thread ]</a>
+              <a href="subject.html#689">[ subject ]</a>
+              <a href="author.html#689">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-12-11 15:46:21 +0100 (Tue, 11 Dec 2007)
+New Revision: 1943
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistory.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistoryTableCellRenderer.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistoryTableModel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistory.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistoryTableCellRenderer.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistoryTableModel.java
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/bin/langpacks/installer/deu.xml
+   izpack-src/trunk/bin/langpacks/installer/eng.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+Log:
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/Versions.txt	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -62,6 +62,7 @@
+ - Added dynamic variables (Dennis Reil)
+ - IzPack installer: check that users are actually launching the latest version by checking from
+   the <A HREF="http://izpack.org/">http://izpack.org/</A> website (Julien Ponge)
++- Added debugging for variables and conditions (Dennis Reil)
+ 
+   
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/bin/langpacks/installer/deu.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/deu.xml	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/bin/langpacks/installer/deu.xml	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -266,5 +266,6 @@
+     &lt;str id=&quot;InstallationGroupPanel.colNameInstallType&quot; txt=&quot;Installationstyp&quot; /&gt;
+     &lt;str id=&quot;InstallationGroupPanel.colNameSize&quot; txt=&quot;Gr&#246;sse&quot; /&gt;
+     
++    &lt;str id=&quot;debug.changevariable&quot; txt=&quot;Wert &#228;ndern&quot;/&gt;
+ &lt;/langpack&gt;
+ 
+
+Modified: izpack-src/trunk/bin/langpacks/installer/eng.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/eng.xml	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/bin/langpacks/installer/eng.xml	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -264,4 +264,5 @@
+     &lt;str id=&quot;InstallationGroupPanel.colNameInstallType&quot; txt=&quot;InstallType&quot; /&gt;
+     &lt;str id=&quot;InstallationGroupPanel.colNameSize&quot; txt=&quot;Size&quot; /&gt;
+ 
++	&lt;str id=&quot;debug.changevariable&quot; txt=&quot;modify value&quot;/&gt;
+ &lt;/langpack&gt;
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistory.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistory.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistory.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -0,0 +1,125 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2007 Dennis Reil
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.installer;
++
++import java.util.ArrayList;
++import java.util.List;
++
++import com.izforge.izpack.rules.Condition;
++
++/**
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class ConditionHistory
++{
++    private Condition condition;
++    private List values;
++    
++    private boolean newcondition;
++    private boolean changedcondition;    
++
++    
++    public ConditionHistory(Condition condition) {
++        this.condition = condition;
++        values = new ArrayList();
++        newcondition = true;
++        changedcondition = true;        
++    }
++    
++    public void addValue(boolean value,String comment) {
++        if ((values.size() == 0) || value != getLastValue()) {
++            Object[] valuecomment = new Object[2];
++            valuecomment[0] = Boolean.valueOf(value);
++            valuecomment[1] = comment;
++            this.values.add(valuecomment);
++            if (values.size() == 1) {
++                newcondition = true;
++                changedcondition = true;
++            }
++            else {
++                changedcondition = true;
++            }
++        }
++    }       
++    
++    public boolean getLastValue() {
++        if (values.size() &gt; 0) {
++            return ((Boolean)((Object[]) values.get(values.size() - 1))[0]).booleanValue();
++        }
++        else {
++            return false;
++        }
++    }
++    
++    public int getValueCount() {
++        return values.size();
++    }
++    
++    public void clearState() {
++        newcondition = false;
++        changedcondition = false;
++    }
++    
++    /**
++     * @return the newcondition
++     */
++    public boolean isNewcondition()
++    {
++        return this.newcondition;
++    }
++
++    
++    /**
++     * @return the changedcondition
++     */
++    public boolean isChangedcondition()
++    {
++        return this.changedcondition;
++    }
++    
++    public String toString() {
++        return Boolean.toString(getLastValue());
++    }
++    
++    public String getConditionHistoryDetails() {
++        StringBuffer details = new StringBuffer();
++        details.append(&quot;&lt;html&gt;&lt;body&gt;&quot;);
++        details.append(&quot;&lt;h3&gt;Details of &lt;b&gt;&quot;);
++        details.append(this.condition.getId());
++        details.append(&quot;&lt;/b&gt;&lt;/h3&gt;&quot;);
++        for (int i = values.size()-1; i &gt;= 0; i--)
++        {
++            Object[] condcomment = (Object[]) values.get(i);
++            details.append(i+1);
++            details.append(&quot;. &quot;);
++            details.append(((Boolean)condcomment[0]).toString());
++            details.append(&quot; (&quot;);
++            details.append(condcomment[1]);
++            details.append(&quot;)&lt;br&gt;&quot;);            
++        }
++        details.append(&quot;&lt;/body&gt;&lt;/html&gt;&quot;);
++        return details.toString();
++    }
++}
++
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistoryTableCellRenderer.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistoryTableCellRenderer.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistoryTableCellRenderer.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -0,0 +1,84 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2007 Dennis Reil
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.installer;
++
++import java.awt.Color;
++import java.awt.Component;
++import java.util.Iterator;
++import java.util.Map;
++
++import javax.swing.JComponent;
++import javax.swing.JLabel;
++import javax.swing.JTable;
++import javax.swing.table.DefaultTableCellRenderer;
++
++
++/**
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class ConditionHistoryTableCellRenderer extends DefaultTableCellRenderer
++{           
++    private static final long serialVersionUID = 6779914244548965230L;
++    private Map conditionhistory;
++    
++    public ConditionHistoryTableCellRenderer(Map conditionhistory) {
++        this.conditionhistory = conditionhistory;
++    }
++    
++    
++    /* (non-Javadoc)
++     * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
++     */
++    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
++            boolean hasFocus, int row, int column)
++    {
++        JComponent comp = null;                               
++        
++        ConditionHistory ch = (ConditionHistory) value;               
++        
++        JLabel label = new JLabel(); 
++        label.setAutoscrolls(true);
++        comp = label;            
++        
++        label.setText(ch.toString());
++       
++        comp.setOpaque(true);
++        if (ch.isNewcondition()) {
++            comp.setBackground(Color.green);
++        }
++        else if(ch.isChangedcondition()) {
++            comp.setBackground(Color.yellow);
++        }
++        return comp;
++    }
++    
++    public void clearState() {        
++        for (Iterator iterator = conditionhistory.keySet().iterator(); iterator.hasNext();)
++        {
++            ConditionHistory ch = (ConditionHistory) conditionhistory.get(iterator.next());
++            ch.clearState();            
++        }
++    }            
++}
++
++
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistoryTableModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistoryTableModel.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistoryTableModel.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -0,0 +1,110 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2007 Dennis Reil
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.installer;
++
++import java.util.Arrays;
++import java.util.Map;
++
++import javax.swing.table.AbstractTableModel;
++
++
++/**
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class ConditionHistoryTableModel extends AbstractTableModel
++{
++    private static final long serialVersionUID = 5966543100431588652L;
++    
++    public static final String[] columnheader = {&quot;Id&quot;,&quot;Value&quot;};
++    private Map conditionvalues;
++            
++    public ConditionHistoryTableModel(Map values) {        
++        this.conditionvalues = values;        
++    }
++    
++    /* (non-Javadoc)
++     * @see javax.swing.table.TableModel#getColumnCount()
++     */
++    public int getColumnCount()
++    {        
++        return columnheader.length;
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.TableModel#getRowCount()
++     */
++    public int getRowCount()
++    {                
++        return this.conditionvalues == null ? 0 : this.conditionvalues.keySet().size();
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.TableModel#getValueAt(int, int)
++     */
++    public Object getValueAt(int rowIndex, int columnIndex)
++    {        
++        switch (columnIndex)
++        {
++            case 0:               
++                String[] keys = (String[]) this.conditionvalues.keySet().toArray(new String[this.conditionvalues.keySet().size()]);
++                Arrays.sort(keys);                    
++                return keys[rowIndex];
++            
++            case 1:           
++                String conditionid = (String) getValueAt(rowIndex, 0);
++                ConditionHistory ch = (ConditionHistory) conditionvalues.get(conditionid);
++                return ch;        
++        }
++        return null;
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.AbstractTableModel#getColumnName(int)
++     */
++    public String getColumnName(int column)
++    {
++        return columnheader[column];        
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int)
++     */
++    public boolean isCellEditable(int rowIndex, int columnIndex)
++    {
++       return false;       
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
++     */
++    public Class getColumnClass(int columnIndex)
++    {
++        if (columnIndex == 1) {
++            return ConditionHistory.class;
++        }
++        else {
++            return String.class;
++        }        
++    }
++}
++
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -0,0 +1,378 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2007 Dennis Reil
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.installer;
++
++import java.awt.BorderLayout;
++import java.awt.Container;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++import java.awt.event.MouseEvent;
++import java.awt.event.MouseListener;
++import java.util.Enumeration;
++import java.util.HashMap;
++import java.util.Map;
++import java.util.Properties;
++
++import javax.swing.BorderFactory;
++import javax.swing.BoxLayout;
++import javax.swing.JButton;
++import javax.swing.JFrame;
++import javax.swing.JLabel;
++import javax.swing.JPanel;
++import javax.swing.JScrollPane;
++import javax.swing.JTabbedPane;
++import javax.swing.JTable;
++import javax.swing.JTextField;
++import javax.swing.JTextPane;
++import javax.swing.ListSelectionModel;
++
++import com.izforge.izpack.Panel;
++import com.izforge.izpack.gui.ButtonFactory;
++import com.izforge.izpack.gui.IconsDatabase;
++import com.izforge.izpack.rules.Condition;
++import com.izforge.izpack.rules.RulesEngine;
++
++/**
++ * Class for debugging variables and conditions.
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class Debugger
++{         
++    private RulesEngine rules;
++    private InstallData idata;
++    
++    private Properties lasttimevariables;
++    
++    private JTextPane debugtxt;
++    private IconsDatabase icons;
++    private Map variableshistory;
++    private Map conditionhistory;
++    
++    private JTable variablestable;
++    private VariableHistoryTableModel variablesmodel;
++    private VariableHistoryTableCellRenderer variablesrenderer;
++    private ConditionHistoryTableModel conditionhistorymodel;
++    private ConditionHistoryTableCellRenderer conditionhistoryrenderer;
++    
++    public Debugger(InstallData installdata, IconsDatabase icons, RulesEngine rules) {
++        idata = installdata;
++        this.rules = rules;        
++        lasttimevariables = (Properties) idata.variables.clone();
++        this.icons = icons;
++        this.variableshistory = new HashMap();   
++        this.conditionhistory = new HashMap();
++        this.init();
++    }
++    
++    private void getCurrentConditionState(boolean updateconditionhistory, String comment) {       
++                     
++    }
++    
++    private void init() {
++        String[] variablekeys = (String[]) lasttimevariables.keySet().toArray(new String[lasttimevariables.size()]);
++        for (int i = 0; i &lt; variablekeys.length; i++)
++        {
++            String variablename = variablekeys[i];
++            VariableHistory vh = new VariableHistory(variablename);
++            vh.addValue(lasttimevariables.getProperty(variablename), &quot;initial value&quot;);
++            variableshistory.put(variablename, vh);
++        }
++        String[] conditionids = this.rules.getKnownConditionIds();
++        for (int i = 0; i &lt; conditionids.length; i++)
++        {
++            String conditionid = conditionids[i];
++            Condition currentcondition = RulesEngine.getCondition(conditionid);
++            boolean result = this.rules.isConditionTrue(currentcondition);
++                        
++            ConditionHistory ch = null;
++            ch = new ConditionHistory(currentcondition);
++            
++            ch.addValue(result, &quot;initial value&quot;);
++            conditionhistory.put(conditionid, ch);
++            
++        }  
++    }
++    
++    private void debugVariables(Panel nextpanelmetadata, Panel lastpanelmetadata) {
++        getChangedVariables(nextpanelmetadata,lastpanelmetadata);       
++        lasttimevariables = (Properties) idata.variables.clone(); 
++    }
++    
++    private void debugConditions(Panel nextpanelmetadata, Panel lastpanelmetadata) {
++        conditionhistoryrenderer.clearState();
++        updateChangedConditions(&quot;changed after panel switch from &quot; + lastpanelmetadata.getPanelid() + &quot; to &quot; + nextpanelmetadata.getPanelid());
++    }
++    
++    private void updateChangedConditions(String comment) {       
++        String[] conditionids = this.rules.getKnownConditionIds();
++        for (int i = 0; i &lt; conditionids.length; i++)
++        {
++            String conditionid = conditionids[i];
++            Condition currentcondition = RulesEngine.getCondition(conditionid);
++            ConditionHistory ch = null;
++            if (!conditionhistory.containsKey(conditionid)) {
++                // new condition
++                ch = new ConditionHistory(currentcondition);
++                conditionhistory.put(conditionid, ch);                
++            }
++            else {
++                ch = (ConditionHistory) conditionhistory.get(conditionid);
++            }
++            ch.addValue(this.rules.isConditionTrue(currentcondition), comment);               
++        }
++        conditionhistorymodel.fireTableDataChanged();
++    }
++    
++    private Properties getChangedVariables(Panel nextpanelmetadata, Panel lastpanelmetadata) {
++        Properties currentvariables = (Properties) idata.variables.clone();        
++        Properties changedvariables = new Properties();
++       
++        variablesrenderer.clearState();
++        // check for changed and new variables        
++        Enumeration currentvariableskeys = currentvariables.keys();
++        boolean changes = false;
++        while (currentvariableskeys.hasMoreElements()) {
++            String key = (String) currentvariableskeys.nextElement();
++            String currentvalue = currentvariables.getProperty(key);
++            String oldvalue = lasttimevariables.getProperty(key);
++            
++            if ((oldvalue == null)) {               
++                VariableHistory vh = new VariableHistory(key);
++                vh.addValue(currentvalue, &quot;new after panel &quot; + lastpanelmetadata.getPanelid());
++                variableshistory.put(key, vh);                
++                changes = true;                
++                changedvariables.put(key, currentvalue);
++            }
++            else {
++                if (!currentvalue.equals(oldvalue)) {
++                    VariableHistory vh = (VariableHistory) variableshistory.get(key);
++                    vh.addValue(currentvalue, &quot;changed value after panel &quot; + lastpanelmetadata.getPanelid());                                       
++                    changes = true;
++                    changedvariables.put(key, currentvalue);
++                }
++            }
++        }       
++        if (changes) {
++            variablesmodel.fireTableDataChanged();
++        }
++        return changedvariables;
++    }
++
++    private void modifyVariableManually(String varnametxt, String varvaluetxt)
++    {
++        lasttimevariables = (Properties) idata.variables.clone();
++        VariableHistory vh = (VariableHistory) variableshistory.get(varnametxt);
++        if (vh != null) {
++            vh.addValue(varvaluetxt, &quot;modified manually&quot;);
++        }
++        variablesmodel.fireTableDataChanged();
++        updateChangedConditions(&quot;after manual modification of variable &quot; + varnametxt);        
++    }
++    
++    public JPanel getDebugPanel() {
++        JPanel debugpanel = new JPanel();
++        debugpanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10));
++        debugpanel.setLayout(new BorderLayout());            
++
++        variablesmodel = new VariableHistoryTableModel(variableshistory);
++        variablesrenderer = new VariableHistoryTableCellRenderer(variableshistory);
++        variablestable = new JTable(variablesmodel);           
++        variablestable.setDefaultRenderer(VariableHistory.class, variablesrenderer);
++        variablestable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
++        variablestable.setRowSelectionAllowed(true);
++        
++        JScrollPane scrollpane = new JScrollPane(variablestable);
++        
++        debugpanel.add(scrollpane,BorderLayout.CENTER);   
++                
++        JPanel varchangepanel = new JPanel();
++        varchangepanel.setLayout(new BoxLayout(varchangepanel,BoxLayout.LINE_AXIS));
++        
++        final JTextField varname = new JTextField();
++        varchangepanel.add(varname);
++        JLabel label = new JLabel(&quot;=&quot;);
++        varchangepanel.add(label);
++        final JTextField varvalue = new JTextField();
++        varchangepanel.add(varvalue);
++        JButton changevarbtn = ButtonFactory.createButton(idata.langpack.getString(&quot;debug.changevariable&quot;), icons.getImageIcon(&quot;debug.changevariable&quot;), idata.buttonsHColor);
++        changevarbtn.addActionListener(new ActionListener() {
++
++            public void actionPerformed(ActionEvent e)
++            {
++                String varnametxt = varname.getText();
++                String varvaluetxt = varvalue.getText();
++                if ((varnametxt != null) &amp;&amp; (varnametxt.length() &gt; 0)) {
++                    if ((varvaluetxt != null) &amp;&amp; (varvaluetxt.length() &gt; 0)){
++                        idata.setVariable(varnametxt, varvaluetxt);
++                        modifyVariableManually(varnametxt,varvaluetxt);
++                    }                       
++                }                    
++            }               
++        });
++        variablestable.addMouseListener(new MouseListener() {
++
++            public void mouseClicked(MouseEvent e)
++            {
++                int selectedrow = variablestable.getSelectedRow();
++                String selectedvariable = (String) variablesmodel.getValueAt(selectedrow, 0);
++                
++                if (e.getClickCount() == 1) {                                        
++                    varname.setText(selectedvariable);
++                }
++                else {
++                    VariableHistory vh = (VariableHistory) variableshistory.get(selectedvariable);
++                    
++                    JFrame variabledetails = new JFrame(&quot;Details&quot;);
++                    
++                    JTextPane detailspane = new JTextPane();                    
++                    detailspane.setContentType(&quot;text/html&quot;);
++                    detailspane.setText(vh.getValueHistoryDetails());
++                    detailspane.setEditable(false);
++                    JScrollPane scroller = new JScrollPane(detailspane);
++                    
++                    Container con = variabledetails.getContentPane();
++                    con.setLayout(new BorderLayout());
++                    con.add(scroller,BorderLayout.CENTER);                    
++                    
++                    variabledetails.pack();
++                    variabledetails.setVisible(true);
++                }
++            }
++
++            public void mouseEntered(MouseEvent e)
++            {
++                // TODO Auto-generated method stub
++                
++            }
++
++            public void mouseExited(MouseEvent e)
++            {
++                // TODO Auto-generated method stub
++                
++            }
++
++            public void mousePressed(MouseEvent e)
++            {
++                // TODO Auto-generated method stub
++                
++            }
++
++            public void mouseReleased(MouseEvent e)
++            {
++                // TODO Auto-generated method stub
++                
++            }
++            
++        });
++        varchangepanel.add(changevarbtn);
++        debugpanel.add(varchangepanel,BorderLayout.SOUTH);
++        
++        JPanel conditionpanel = new JPanel();
++        conditionpanel.setLayout(new BorderLayout());
++        
++        conditionhistorymodel = new ConditionHistoryTableModel(conditionhistory);
++        final JTable conditiontable = new JTable(conditionhistorymodel);
++        conditionhistoryrenderer = new ConditionHistoryTableCellRenderer(conditionhistory);
++        conditiontable.setDefaultRenderer(ConditionHistory.class, conditionhistoryrenderer);
++        conditiontable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
++        conditiontable.setRowSelectionAllowed(true);
++        conditiontable.addMouseListener(new MouseListener() {
++
++            public void mouseClicked(MouseEvent e)
++            {
++                int selectedrow = conditiontable.getSelectedRow();
++                
++                String selectedcondition = (String) conditiontable.getModel().getValueAt(selectedrow, 0);
++                
++                if (e.getClickCount() == 2) {                                        
++                    
++                    ConditionHistory ch = (ConditionHistory) conditionhistory.get(selectedcondition);
++                    
++                    JFrame variabledetails = new JFrame(&quot;Details&quot;);
++                    
++                    JTextPane detailspane = new JTextPane();                    
++                    detailspane.setContentType(&quot;text/html&quot;);
++                    detailspane.setText(ch.getConditionHistoryDetails());
++                    detailspane.setEditable(false);
++                    JScrollPane scroller = new JScrollPane(detailspane);
++                    
++                    Container con = variabledetails.getContentPane();
++                    con.setLayout(new BorderLayout());
++                    con.add(scroller,BorderLayout.CENTER);                    
++                    
++                    variabledetails.pack();
++                    variabledetails.setVisible(true);
++                }
++                
++            }
++
++            public void mouseEntered(MouseEvent e)
++            {
++                // TODO Auto-generated method stub
++                
++            }
++
++            public void mouseExited(MouseEvent e)
++            {
++                // TODO Auto-generated method stub
++                
++            }
++
++            public void mousePressed(MouseEvent e)
++            {
++                // TODO Auto-generated method stub
++                
++            }
++
++            public void mouseReleased(MouseEvent e)
++            {
++                // TODO Auto-generated method stub
++                
++            }
++            
++        });
++        
++        JScrollPane conditionscroller = new JScrollPane(conditiontable);
++        conditionpanel.add(conditionscroller,BorderLayout.CENTER);
++        
++        JTabbedPane tabpane = new JTabbedPane(JTabbedPane.TOP);
++        tabpane.insertTab(&quot;Variable settings&quot;, null, debugpanel, &quot;&quot;, 0);
++        tabpane.insertTab(&quot;Condition settings&quot;, null, conditionpanel, &quot;&quot;, 1);
++        JPanel mainpanel = new JPanel();
++        mainpanel.setLayout(new BorderLayout());
++        mainpanel.add(tabpane,BorderLayout.CENTER);
++        return mainpanel;
++    }
++
++    /**
++     * Debug state changes after panel switch.
++     * @param nextpanelmetadata
++     * @param lastpanelmetadata
++     */
++    public void switchPanel(Panel nextpanelmetadata, Panel lastpanelmetadata)
++    {
++        this.debugVariables(nextpanelmetadata, lastpanelmetadata);  
++        this.debugConditions(nextpanelmetadata, lastpanelmetadata);
++    }
++}
++
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -76,6 +76,7 @@
+ import javax.swing.JPanel;
+ import javax.swing.JProgressBar;
+ import javax.swing.JSeparator;
++import javax.swing.JTextPane;
+ import javax.swing.SwingUtilities;
+ import javax.swing.UIManager;
+ import javax.swing.WindowConstants;
+@@ -234,6 +235,10 @@
+     
+     private Map dynamicvariables;
+     private VariableSubstitutor substitutor;
++    
++    
++    private JTextPane debugtxt;
++    private Debugger debugger;
+ 
+     /**
+      * The constructor (normal mode).
+@@ -584,6 +589,24 @@
+         quitButton.addActionListener(navHandler);
+         contentPane.add(navPanel, BorderLayout.SOUTH);
+ 
++        // create a debug panel if TRACE is enabled
++        if (Debug.isTRACE()) {            
++            debugger = new Debugger(installdata,icons,rules);
++            JPanel debugpanel = debugger.getDebugPanel();
++            if (installdata.guiPrefs.modifier.containsKey(&quot;showDebugWindow&quot;)) {
++                if (Boolean.valueOf((String) installdata.guiPrefs.modifier.get(&quot;showDebugWindow&quot;)).booleanValue()) {
++                    JFrame debugframe = new JFrame(&quot;Debug information&quot;);                    
++                    debugframe.setContentPane(debugpanel);
++                    debugframe.setSize(new Dimension(400,400));
++                    debugframe.setVisible(true);
++                }
++                else {
++                    debugpanel.setPreferredSize(new Dimension(200,400));                        
++                    contentPane.add(debugpanel,BorderLayout.EAST);
++                }                            
++            }
++        }
++        
+         try
+         {
+             ImageIcon icon = loadIcon(ICON_RESOURCE, 0, true);
+@@ -786,7 +809,7 @@
+     protected void switchPanel(int last)
+     {
+         // refresh dynamic variables every time, a panel switch is done
+-        refreshDynamicVariables();
++        refreshDynamicVariables();          
+         try
+         {
+             if (installdata.curPanelNumber &lt; last)
+@@ -796,6 +819,9 @@
+             panelsContainer.setVisible(false);
+             IzPanel panel = (IzPanel) installdata.panels.get(installdata.curPanelNumber);
+             IzPanel l_panel = (IzPanel) installdata.panels.get(last);
++            if (Debug.isTRACE()) {
++                debugger.switchPanel(panel.getMetadata(),l_panel.getMetadata());
++            }
+             Log.getInstance().addDebugMessage(
+                     &quot;InstallerFrame.switchPanel: try switching panel from {0} to {1} ({2} to {3})&quot;,
+                     new String[] { l_panel.getClass().getName(), panel.getClass().getName(),
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistory.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistory.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistory.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -0,0 +1,151 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2007 Dennis Reil
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.installer;
++
++import java.util.ArrayList;
++import java.util.List;
++
++
++/**
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class VariableHistory
++{
++    private String name;
++    private List values;
++    private boolean newvariable;
++    private boolean changed;
++    
++    
++    public VariableHistory(String variable) {
++        name = variable;
++        values = new ArrayList();            
++    }
++
++    
++    /**
++     * @return the name
++     */
++    public String getName()
++    {
++        return this.name;
++    }
++
++    
++    /**
++     * @param name the name to set
++     */
++    public void setName(String name)
++    {
++        this.name = name;
++    }
++    
++    public void addValue(String value, String comment) {
++       String[] valuecomment = new String[2];
++       valuecomment[0] = value;
++       valuecomment[1] = comment;
++       values.add(valuecomment);
++       if (values.size() == 1) {
++           newvariable = true;
++           changed = true;
++       }
++       else {           
++           changed =true;
++       }
++    }
++    
++    public String[] getValueComment(int index) {
++        return (String[]) values.get(index);
++    }
++    
++    public int getValuesCount() {
++        return values.size();
++    }
++    
++    public String getLastValue() {
++        if (values.size() &gt; 0) {
++            String[] valuecomment = (String[]) values.get(values.size() - 1);
++            return valuecomment[0];
++        }
++        else {
++            return &quot;&quot;;
++        }
++    }     
++    
++    /**
++     * @return the newvariable
++     */
++    public boolean isNewvariable()
++    {
++        return this.newvariable;
++    }
++
++
++    
++    /**
++     * @return the changed
++     */
++    public boolean isChanged()
++    {
++        return this.changed;
++    }
++
++
++    
++    /**
++     * @param changed the changed to set
++     */
++    public void setChanged(boolean changed)
++    {
++        this.changed = changed;
++    }
++    
++    public void clearState() {
++        newvariable = false;
++        changed = false;
++    }
++    
++    public String getValueHistoryDetails() {
++        StringBuffer details = new StringBuffer();
++        details.append(&quot;&lt;html&gt;&lt;body&gt;&quot;);
++        details.append(&quot;&lt;h3&gt;Details of &lt;b&gt;&quot;);
++        details.append(this.name);
++        details.append(&quot;&lt;/b&gt;&lt;/h3&gt;&quot;);
++        for (int i = values.size()-1; i &gt;= 0; i--)
++        {
++            String[] valuecomment = (String[]) values.get(i);
++            details.append(i+1);
++            details.append(&quot;. &quot;);
++            details.append(valuecomment[0]);
++            details.append(&quot; (&quot;);
++            details.append(valuecomment[1]);
++            details.append(&quot;)&lt;br&gt;&quot;);            
++        }
++        details.append(&quot;&lt;/body&gt;&lt;/html&gt;&quot;);
++        return details.toString();
++    }
++    
++    public String toString() {
++        return this.getLastValue();
++    }
++}
+\ No newline at end of file
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistoryTableCellRenderer.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistoryTableCellRenderer.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistoryTableCellRenderer.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -0,0 +1,83 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2007 Dennis Reil
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.installer;
++
++import java.awt.Color;
++import java.awt.Component;
++import java.util.Iterator;
++import java.util.Map;
++
++import javax.swing.JComponent;
++import javax.swing.JLabel;
++import javax.swing.JTable;
++import javax.swing.table.DefaultTableCellRenderer;
++
++
++/**
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class VariableHistoryTableCellRenderer extends DefaultTableCellRenderer
++{           
++    private static final long serialVersionUID = 6779914244548965230L;
++    private Map variablehistory;
++    
++    public VariableHistoryTableCellRenderer(Map variablehistory) {
++        this.variablehistory = variablehistory;
++    }
++    
++    
++    /* (non-Javadoc)
++     * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
++     */
++    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
++            boolean hasFocus, int row, int column)
++    {
++        JComponent comp = null;                               
++        
++        VariableHistory vh = (VariableHistory) value;               
++        
++        JLabel label = new JLabel(); 
++        label.setAutoscrolls(true);
++        comp = label;            
++        
++        label.setText(vh.getLastValue());
++       
++        comp.setOpaque(true);
++        if (vh.isNewvariable()) {
++            comp.setBackground(Color.green);
++        }
++        else if(vh.isChanged()) {
++            comp.setBackground(Color.yellow);
++        }
++        return comp;
++    }
++    
++    public void clearState() {        
++        for (Iterator iterator = variablehistory.keySet().iterator(); iterator.hasNext();)
++        {
++            VariableHistory vh = (VariableHistory) variablehistory.get(iterator.next());
++            vh.clearState();            
++        }
++    }            
++}
++
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistoryTableModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistoryTableModel.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/VariableHistoryTableModel.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -0,0 +1,118 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2007 Dennis Reil
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.installer;
++
++import java.util.Arrays;
++import java.util.Map;
++
++import javax.swing.table.AbstractTableModel;
++
++
++/**
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * @version $Id: $
++ */
++public class VariableHistoryTableModel extends AbstractTableModel
++{
++    private static final long serialVersionUID = 5966543100431588652L;
++    
++    public static final String[] columnheader = {&quot;Name&quot;,&quot;Value&quot;};
++    private Map variablevalues;
++            
++    public VariableHistoryTableModel(Map values) {        
++        this.variablevalues = values;        
++    }
++    
++    /* (non-Javadoc)
++     * @see javax.swing.table.TableModel#getColumnCount()
++     */
++    public int getColumnCount()
++    {        
++        return columnheader.length;
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.TableModel#getRowCount()
++     */
++    public int getRowCount()
++    {                
++        return this.variablevalues == null ? 0 : this.variablevalues.keySet().size();
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.TableModel#getValueAt(int, int)
++     */
++    public Object getValueAt(int rowIndex, int columnIndex)
++    {        
++        switch (columnIndex)
++        {
++            case 0:               
++                String[] keys = (String[]) this.variablevalues.keySet().toArray(new String[this.variablevalues.keySet().size()]);
++                Arrays.sort(keys);                    
++                return keys[rowIndex];
++            
++            case 1:           
++                String variablename = (String) getValueAt(rowIndex, 0);
++                VariableHistory vh = (VariableHistory) variablevalues.get(variablename);
++                return vh;        
++        }
++        return null;
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.AbstractTableModel#getColumnName(int)
++     */
++    public String getColumnName(int column)
++    {
++        return columnheader[column];        
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int)
++     */
++    public boolean isCellEditable(int rowIndex, int columnIndex)
++    {
++       return false;
++       /*
++       if (columnIndex == 0) {
++           return false;
++       }
++       else {
++           return true;
++       }
++       */
++    }
++
++    /* (non-Javadoc)
++     * @see javax.swing.table.AbstractTableModel#getColumnClass(int)
++     */
++    public Class getColumnClass(int columnIndex)
++    {
++        if (columnIndex == 1) {
++            return VariableHistory.class;
++        }
++        else {
++            return String.class;
++        }        
++    }
++}
++
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-12-10 12:18:05 UTC (rev 1942)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-12-11 14:46:21 UTC (rev 1943)
+@@ -20,6 +20,7 @@
+  */
+ package com.izforge.izpack.rules;
+ 
++import java.util.Arrays;
+ import java.util.Hashtable;
+ import java.util.Iterator;
+ import java.util.Map;
+@@ -56,7 +57,7 @@
+         this.panelconditions = new Hashtable();
+         this.packconditions = new Hashtable();
+         this.optionalpackconditions = new Hashtable();
+-    }
++    }      
+     
+     /**
+      * 
+@@ -80,6 +81,16 @@
+             condition.setInstalldata(installdata);
+         }
+     }
++    
++    /**
++     * Returns the current known condition ids.
++     * @return
++     */
++    public String[] getKnownConditionIds() {
++        String[] conditionids = (String[]) this.conditionsmap.keySet().toArray(new String[this.conditionsmap.size()]);
++        Arrays.sort(conditionids);
++        return conditionids;
++    }
+ 
+     /**
+      * Checks if an attribute for an xmlelement is set.
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000688.html">[izpack-changes] r1942 - izpack-utils/trunk/izpack2exe
+</A></li>
+	<LI>Next message: <A HREF="000690.html">[izpack-changes] r1944 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#689">[ date ]</a>
+              <a href="thread.html#689">[ thread ]</a>
+              <a href="subject.html#689">[ subject ]</a>
+              <a href="author.html#689">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

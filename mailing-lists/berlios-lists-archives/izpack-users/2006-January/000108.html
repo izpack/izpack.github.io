@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Is it possible to stop a service via the install.xml?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Is%20it%20possible%20to%20stop%20a%20service%20via%20the%20install.xml%3F&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000106.html">
+   <LINK REL="Next"  HREF="000109.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Is it possible to stop a service via the install.xml?</H1>
+    <B>Miraodb</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Is%20it%20possible%20to%20stop%20a%20service%20via%20the%20install.xml%3F&In-Reply-To="
+       TITLE="[izpack-users] Is it possible to stop a service via the install.xml?">miraodb at hotmail.com
+       </A><BR>
+    <I>Thu Jan 12 11:10:17 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000106.html">[izpack-users] Is it possible to stop a service via the install.xml?
+</A></li>
+        <LI>Next message: <A HREF="000109.html">[izpack-users] Is it possible to stop a service via the install.xml?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+I'm so happy to see i'm not the only struggling with services.
+Here's my opinion on the subject.
+
+I had to sart and stop the application i install with IzPack as a service
+and i found myself in a very tricky situation. Shall i use JNI or shall i
+simply run a command line call just like you did.
+I tried both and ended up with JNI for some obvious reasons.
+First of all, the command line can get very bothering when you have to use
+it on different machines with different OSs. even though it's W32 it can be
+XP, 2000, 98 whatever... which don't have the same system folders and so on.
+
+I simply hate MicroBullSh$$$ for that matter. (A personnal statement though
+:<i>-) ).
+</I>
+So what did i do ?
+
+I created an executable (since we're talking about win32 app) using C++
+Service API. i can share the code no problem. This code can start, stop,
+create or delete services. and i use it in two ways.
+First one at installation i call it with a set of arguments from a batch in
+the processpanel. (i'm a fan of processpanel).
+Second one, i generate a specific executable to stop the service coz this
+one is what i could call a &quot;sub-sub-service&quot;. One call the other... i needed
+to find the parent process ID and so on...  but that's a personal problem
+that you might not have to deal with.
+
+In anyways you have also the possibily to use java-service-wrapper
+<A HREF="http://wrapper.tanukisoftware.org/doc/english/introduction.html">http://wrapper.tanukisoftware.org/doc/english/introduction.html</A>
+it's a wonderful tool that can create a service from a java class. Once the
+service created the wrapper can do almost everything you ever dreamed for
+with it.
+
+Now the last solution. the command line.
+For one thing i don't understand why you use this mysql.xml ? Why not simply
+use a batch or sh from the processpanel ? it's fairly easy and have some
+advantages.one of them is that you can pass it arguments which can be parsed
+during installation such as variables
+
+Alright, this might be a bit messy. lots of info and not so much details.
+If anything of what i said fits your requierements i would be happy to help
+you to go further.
+
+Cheers,
+fabrice
+
+----- Original Message ----- 
+From: &quot;Yossi Baram&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">yossiba at eldat.com</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+Sent: Thursday, January 12, 2006 8:24 AM
+Subject: [izpack-users] Is it possible to stop a service via the
+install.xml?
+
+
+Hi guys,
+After installation I have mysql service and jboss(service I have
+created) running.
+During uninstall I need to stop those services in order to delete mysql
+and jboss llibrary.
+Trying to use the following in mysql.xml:
+
+
+       &lt;target name=&quot;uninstall_target&quot;&gt;
+                &lt;exec executable=&quot;c:\winnt\system32\net&quot;&gt;
+                        &lt;arg value=&quot;STOP&quot;/&gt;
+                        &lt;arg value=&quot;mysql&quot;/&gt;
+                &lt;/exec&gt;
+                &lt;deltree dir=&quot;${MYSQL_ADMINISTRATOR_FOLDER}&quot;/&gt;
+                &lt;deltree dir=&quot;${MYSQL_FOLDER}&quot;/&gt;
+                &lt;delete file=&quot;${MY.INI}&quot;/&gt;
+                &lt;deltree dir=&quot;${MYSQL_LOG_FILE}&quot;/&gt;
+       &lt;/target&gt;
+
+Doesnt stop mysql service and an error is raised - cannot delete file
+mysqld-max-nt.exe because it may be in use.
+It happens because the service wasnt stoped and trying to delete mysql
+library cannot take place.
+
+How can I make mysql service to stop?
+Can I do it in mysql.xml? or better in install.xml file?
+
+Thanks guys
+
+Yossi
+
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000106.html">[izpack-users] Is it possible to stop a service via the install.xml?
+</A></li>
+	<LI>Next message: <A HREF="000109.html">[izpack-users] Is it possible to stop a service via the install.xml?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

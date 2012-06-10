@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1914 - in izpack-src/trunk:	bin/langpacks/installer src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1914%20-%20in%20izpack-src/trunk%3A%0A%09bin/langpacks/installer%20src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000659.html">
+   <LINK REL="Next"  HREF="000661.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1914 - in izpack-src/trunk:	bin/langpacks/installer src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1914%20-%20in%20izpack-src/trunk%3A%0A%09bin/langpacks/installer%20src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1914 - in izpack-src/trunk:	bin/langpacks/installer src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Nov 22 16:02:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000659.html">[izpack-changes] r1913 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000661.html">[izpack-changes] r1915 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#660">[ date ]</a>
+              <a href="thread.html#660">[ thread ]</a>
+              <a href="subject.html#660">[ subject ]</a>
+              <a href="author.html#660">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-22 16:02:51 +0100 (Thu, 22 Nov 2007)
+New Revision: 1914
+
+Modified:
+   izpack-src/trunk/bin/langpacks/installer/deu.xml
+   izpack-src/trunk/bin/langpacks/installer/eng.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PathInputPanel.java
+Log:
+added modify installation mode.
+
+Modified: izpack-src/trunk/bin/langpacks/installer/deu.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/deu.xml	2007-11-21 20:06:23 UTC (rev 1913)
++++ izpack-src/trunk/bin/langpacks/installer/deu.xml	2007-11-22 15:02:51 UTC (rev 1914)
+@@ -74,6 +74,7 @@
+     &lt;str id=&quot;InstallationTypePanel.modify&quot; txt=&quot;Installation anpassen&quot; /&gt;
+     
+     &lt;str id=&quot;PathInputPanel.required&quot; txt=&quot;Das gew&#228;hlte Verzeichnis muss existieren.&quot;/&gt;
++    &lt;str id=&quot;PathInputPanel.required.forModificationInstallation&quot; txt=&quot;Das gew&#228;hlte Verzeichnis muss existieren.&quot;/&gt;
+     &lt;str id=&quot;PathInputPanel.notValid&quot; txt=&quot;Das gew&#228;hlte Verzeichnis enth&#228;lt nicht das ben&#246;tigte Produkt.&quot;/&gt;
+ 
+     &lt;str id=&quot;TargetPanel.info&quot; txt=&quot;W&#228;hlen Sie den Installationspfad:&quot;/&gt;
+
+Modified: izpack-src/trunk/bin/langpacks/installer/eng.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/eng.xml	2007-11-21 20:06:23 UTC (rev 1913)
++++ izpack-src/trunk/bin/langpacks/installer/eng.xml	2007-11-22 15:02:51 UTC (rev 1914)
+@@ -75,6 +75,7 @@
+     &lt;str id=&quot;InfoPanel.info&quot; txt=&quot;Please read the following information: &quot;/&gt;
+     
+     &lt;str id=&quot;PathInputPanel.required&quot; txt=&quot;The chosen directory should exist.&quot;/&gt;
++    &lt;str id=&quot;PathInputPanel.required.forModificationInstallation&quot; txt=&quot;The chosen directory should exist.&quot;/&gt;    
+     &lt;str id=&quot;PathInputPanel.notValid&quot; txt=&quot;The chosen directory does not contain the required product.&quot;/&gt;
+ 
+     &lt;str id=&quot;TargetPanel.info&quot; txt=&quot;Select the installation path: &quot;/&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PathInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PathInputPanel.java	2007-11-21 20:06:23 UTC (rev 1913)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PathInputPanel.java	2007-11-22 15:02:51 UTC (rev 1914)
+@@ -30,6 +30,7 @@
+ import java.io.InputStreamReader;
+ 
+ import com.izforge.izpack.gui.IzPanelLayout;
++import com.izforge.izpack.installer.AutomatedInstallData;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
+@@ -138,7 +139,20 @@
+     {
+         String chosenPath = pathSelectionPanel.getPath();
+         boolean ok = true;
+-
++        
++        boolean modifyinstallation = Boolean.valueOf(idata.getVariable(InstallData.MODIFY_INSTALLATION)).booleanValue();
++        if (modifyinstallation) {
++            // installation directory has to exist in a modification installation
++            mustExist = true;
++            
++            File installationinformation = new File(pathSelectionPanel.getPath() + File.separator + AutomatedInstallData.INSTALLATION_INFORMATION);
++            if (!installationinformation.exists()) {
++                emitError(parent.langpack.getString(&quot;installer.error&quot;), parent.langpack.getString(&quot;PathInputPanel.required.forModificationInstallation&quot;));
++                
++                return false;
++            }
++        }
++        
+         // We put a warning if the specified target is nameless
+         if (chosenPath.length() == 0)
+         {
+@@ -194,7 +208,7 @@
+ 			            + chosenPath);
+ 			
+ 			}
+-        }
++        }        
+         return ok;
+     }
+ 
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000659.html">[izpack-changes] r1913 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000661.html">[izpack-changes] r1915 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#660">[ date ]</a>
+              <a href="thread.html#660">[ thread ]</a>
+              <a href="subject.html#660">[ subject ]</a>
+              <a href="author.html#660">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

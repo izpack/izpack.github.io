@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1782 - in	izpack-src/trunk/src/lib/com/izforge/izpack: event installer	panels util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1782%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20event%20installer%0A%09panels%20util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000527.html">
+   <LINK REL="Next"  HREF="000529.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1782 - in	izpack-src/trunk/src/lib/com/izforge/izpack: event installer	panels util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1782%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20event%20installer%0A%09panels%20util&In-Reply-To="
+       TITLE="[izpack-changes] r1782 - in	izpack-src/trunk/src/lib/com/izforge/izpack: event installer	panels util">noreply at berlios.de
+       </A><BR>
+    <I>Tue Mar 13 18:03:12 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000527.html">[izpack-changes] r1781 - in izpack-src/trunk: . bin/langpacks/flags	bin/langpacks/installer
+</A></li>
+        <LI>Next message: <A HREF="000529.html">[izpack-changes] r1783 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#528">[ date ]</a>
+              <a href="thread.html#528">[ thread ]</a>
+              <a href="subject.html#528">[ subject ]</a>
+              <a href="author.html#528">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2007-03-13 18:03:11 +0100 (Tue, 13 Mar 2007)
+New Revision: 1782
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/event/RegistryInstallerListener.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/Log.java
+Log:
+Activating new Logging stuff; three calls to addDebugMessage added
+to InstallerFrame.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/event/RegistryInstallerListener.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/event/RegistryInstallerListener.java	2007-03-13 14:17:47 UTC (rev 1781)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/event/RegistryInstallerListener.java	2007-03-13 17:03:11 UTC (rev 1782)
+@@ -117,6 +117,7 @@
+             // No interrupt desired after writing registry entries.
+             Unpacker.setDiscardInterrupt(true);
+             rh.activateLogging();
++
+             if (getSpecHelper().getSpec() != null)
+             {
+                 VariableSubstitutor substitutor = new VariableSubstitutor(idata.getVariables());
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-03-13 14:17:47 UTC (rev 1781)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-03-13 17:03:11 UTC (rev 1782)
+@@ -98,8 +98,10 @@
+ import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
+ import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.DebugConstants;
+ import com.izforge.izpack.util.Housekeeper;
+ import com.izforge.izpack.util.IoHelper;
++import com.izforge.izpack.util.Log;
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
+@@ -729,6 +731,12 @@
+             panelsContainer.setVisible(false);
+             IzPanel panel = (IzPanel) installdata.panels.get(installdata.curPanelNumber);
+             IzPanel l_panel = (IzPanel) installdata.panels.get(last);
++            Log.getInstance().addDebugMessage(
++                    &quot;InstallerFrame.switchPanel: try switching panel from {0} to {1} ({2} to {3})&quot;,
++                    new String[] { l_panel.getClass().getName(), panel.getClass().getName(),
++                            Integer.toString(last), Integer.toString(installdata.curPanelNumber)},
++                    DebugConstants.PANEL_TRACE, null);
++
+             // instead of writing data here which leads to duplicated entries in
+             // auto-installation script (bug # 4551), let's make data only immediately before
+             // writing out that script.
+@@ -764,6 +772,7 @@
+                 public void run()
+                 {
+                    JButton cdb = null;
++                   String buttonName = &quot;next&quot;;
+                    if (nextButton.isEnabled()) {
+                      cdb = nextButton;
+                      quitButton.setDefaultCapable(false);
+@@ -771,11 +780,16 @@
+                      nextButton.setDefaultCapable(true);
+                    } else if (quitButton.isEnabled()) {
+                      cdb = quitButton;
++                     buttonName = &quot;quit&quot;;
+                      quitButton.setDefaultCapable(true);
+                      prevButton.setDefaultCapable(false);
+                      nextButton.setDefaultCapable(false);
+                    }
+                    getRootPane().setDefaultButton(cdb);
++                   Log.getInstance().addDebugMessage(&quot;InstallerFrame.switchPanel: setting {0} as default button&quot;, 
++                           new String[] { buttonName }, 
++                           DebugConstants.PANEL_TRACE,
++                             null);
+                  }
+             });
+ 
+@@ -835,6 +849,8 @@
+             }
+             isBack = false;
+             callGUIListener(GUIListener.PANEL_SWITCHED);
++            Log.getInstance().addDebugMessage(&quot;InstallerFrame.switchPanel: switched&quot;, null,
++                    DebugConstants.PANEL_TRACE, null);
+         }
+         catch (Exception err)
+         {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java	2007-03-13 14:17:47 UTC (rev 1781)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java	2007-03-13 17:03:11 UTC (rev 1782)
+@@ -35,6 +35,7 @@
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.util.Log;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ /**
+@@ -113,6 +114,7 @@
+             add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.fail&quot;),
+                     parent.icons.getImageIcon(&quot;information&quot;), LEADING), NEXT_LINE);
+         getLayoutHelper().completeLayout(); // Call, or call not?
++        Log.getInstance().informUser();
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java	2007-03-13 14:17:47 UTC (rev 1781)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java	2007-03-13 17:03:11 UTC (rev 1782)
+@@ -26,6 +26,7 @@
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.util.Log;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ /**
+@@ -98,7 +99,7 @@
+             add(LabelFactory.create(parent.langpack.getString(&quot;FinishPanel.fail&quot;),
+                     parent.icons.getImageIcon(&quot;information&quot;),  LEADING));
+         getLayoutHelper().completeLayout(); // Call, or call not?
+-
++        Log.getInstance().informUser();
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/Log.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/Log.java	2007-03-13 14:17:47 UTC (rev 1781)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/Log.java	2007-03-13 17:03:11 UTC (rev 1782)
+@@ -220,6 +220,8 @@
+             // ----------------------------------------------------
+             // get the list of debug channels requested
+             // ----------------------------------------------------
++            recordedChannels = new Hashtable();
++            channels = new Vector();
+             temp = System.getProperty(CHANNEL_LIST);
+             if ((temp != null) &amp;&amp; (temp.toUpperCase().equals(&quot;ON&quot;)))
+             {
+@@ -232,8 +234,6 @@
+             temp = System.getProperty(CHANNEL_SPEC);
+             if (temp != null)
+             {
+-                channels = new Vector();
+-                recordedChannels = new Hashtable();
+                 String[] channelList = temp.split(&quot;,&quot;);
+ 
+                 for (int i = 0; i &lt; channelList.length; i++)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000527.html">[izpack-changes] r1781 - in izpack-src/trunk: . bin/langpacks/flags	bin/langpacks/installer
+</A></li>
+	<LI>Next message: <A HREF="000529.html">[izpack-changes] r1783 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#528">[ date ]</a>
+              <a href="thread.html#528">[ thread ]</a>
+              <a href="subject.html#528">[ subject ]</a>
+              <a href="author.html#528">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] izpack variable issue
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20izpack%20variable%20issue&In-Reply-To=1166701567.5407.0.camel%40wkspc-dre">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001214.html">
+   <LINK REL="Next"  HREF="001216.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] izpack variable issue</H1>
+    <B>Mandeep Saini</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20izpack%20variable%20issue&In-Reply-To=1166701567.5407.0.camel%40wkspc-dre"
+       TITLE="[izpack-users] izpack variable issue">Mandeep.Saini at dante.org.uk
+       </A><BR>
+    <I>Thu Dec 21 12:52:12 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001214.html">[izpack-users] izpack variable issue
+</A></li>
+        <LI>Next message: <A HREF="001216.html">[izpack-users] Controlling the order of shortcuts
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1215">[ date ]</a>
+              <a href="thread.html#1215">[ thread ]</a>
+              <a href="subject.html#1215">[ subject ]</a>
+              <a href="author.html#1215">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thanks Dennis, I will do it and will let the users list know when I will 
+do it...so Carmel if you can please wait for some time because we need 
+to look for the appropriate procedure to check in.
+
+Regards
+Mandeep
+Dennis Reil wrote:
+&gt;<i> Hi Mandeep,
+</I>&gt;<i> 
+</I>&gt;<i> No problem, you can check it in. Thanks!
+</I>&gt;<i> 
+</I>&gt;<i> regards,
+</I>&gt;<i>   Dennis
+</I>&gt;<i> 
+</I>&gt;&gt;<i> Hi Carmel,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I can commit my changes to the IzPack Trunk but I don't know what is the 
+</I>&gt;&gt;<i> procedure to take the permission from the IzPack developers. I think 
+</I>&gt;&gt;<i> Dennis Reil did  the commit which introduces the UpdateUIElements in 
+</I>&gt;&gt;<i> UserInputPanel class but this method wasn't implemented completely.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> So Dennis if you are reading this mail, can you please tell me should I 
+</I>&gt;&gt;<i> do the commit because we (my colleague) have just completed the 
+</I>&gt;&gt;<i> implementation of method introduced by you and obviously introduced few 
+</I>&gt;&gt;<i> more methods (like setFieldContents in RuleInputField class to work it 
+</I>&gt;&gt;<i> properly).Or you will do it and if I should do it then what is the 
+</I>&gt;&gt;<i> procedure.
+</I>&gt;&gt;<i> and the most important thing if other users are interested in it.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> There was also a bug related to the validation which is now fixed. so it 
+</I>&gt;&gt;<i> can also be committed.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Regards
+</I>&gt;&gt;<i> Mandeep
+</I>&gt;&gt;<i> Carmel Morrissey wrote:
+</I>&gt;&gt;&gt;<i> Hi Mandeep
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Can you send on/update the trunk version of RuleInputField? ... it currently
+</I>&gt;&gt;&gt;<i> does not contain a setFieldContents method.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Thanks
+</I>&gt;&gt;&gt;<i> Carmel
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;&gt;<i> From: Mandeep Saini [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Mandeep.Saini at dante.org.uk</A>] 
+</I>&gt;&gt;&gt;<i> Sent: 20 December 2006 18:49
+</I>&gt;&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;<i> Subject: Re: [izpack-users] izpack variable issue
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Hi Carmel,
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Try this :
+</I>&gt;&gt;&gt;<i> else if (RULE_FIELD.equals(element[POS_TYPE]))
+</I>&gt;&gt;&gt;<i> {
+</I>&gt;&gt;&gt;<i>     RuleInputField rulef = (RuleInputField) element[POS_FIELD];
+</I>&gt;&gt;&gt;<i>     String variable = (String) element[POS_VARIABLE];
+</I>&gt;&gt;&gt;<i>     for (int l = 0; l &lt; rulef.getNumFields(); l++) {
+</I>&gt;&gt;&gt;<i>   	 value = idata.getVariable(variable + '.' + l);
+</I>&gt;&gt;&gt;<i>           if (value != null &amp;&amp; value.length() &gt; 0)
+</I>&gt;&gt;&gt;<i>           rulef.setFieldContents(value, l)
+</I>&gt;&gt;&gt;<i>     }
+</I>&gt;&gt;&gt;<i> }
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> How you are taking the value of port number at run time. if you are 
+</I>&gt;&gt;&gt;<i> taking it from user then you must be storing it inside a variable say 
+</I>&gt;&gt;&gt;<i> 'port' declared in Install.xml.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> If we assume that variable name is 'port' then you have to write:
+</I>&gt;&gt;&gt;<i>   &lt;field type=&quot;rule&quot; variable=&quot;AppServerPort&quot;&gt;
+</I>&gt;&gt;&gt;<i>     &lt;description align=&quot;left&quot; txt=&quot;&quot; id=&quot;description1.text&quot;/&gt;
+</I>&gt;&gt;&gt;<i>     &lt;spec txt=&quot;Enter web site port:&quot; layout=&quot;N:15:5&quot; set=&quot;0:${port}&quot;/&gt;
+</I>&gt;&gt;&gt;<i>     validator class=&quot;com.izforge.izpack.util.NotEmptyValidator&quot; 
+</I>&gt;&gt;&gt;<i> txt=&quot;Please enter a valid port number&quot;/&gt;
+</I>&gt;&gt;&gt;<i> &lt;/field&gt;	
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> and in Install.xml you can define the default value of port variable as 
+</I>&gt;&gt;&gt;<i> 8888.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> I think this will help bcoz its working for me.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Mandeep	
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Carmel Morrissey wrote:
+</I>&gt;&gt;&gt;&gt;<i> Hi Mandeep
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> The update of the RULE_FIELD does not work within UserInputPanel
+</I>&gt;&gt;&gt;&gt;<i> updateUIElements method asI would have expected.  The value is not getting
+</I>&gt;&gt;&gt;&gt;<i> updated within the RuleInputField.  There is no setText() method or
+</I>&gt;&gt;&gt;<i> similar
+</I>&gt;&gt;&gt;&gt;<i> with the RuleInputField class.  I would have expected similar processing
+</I>&gt;&gt;&gt;<i> as
+</I>&gt;&gt;&gt;&gt;<i> the TEXT_FIELD functionality.
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> 		else if (TEXT_FIELD.equals(element[POS_TYPE]))
+</I>&gt;&gt;&gt;&gt;<i>             {
+</I>&gt;&gt;&gt;&gt;<i>                 // update TextField
+</I>&gt;&gt;&gt;&gt;<i>                 JTextField textf = (JTextField) element[POS_FIELD];
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>                 // System.out.println(&quot;Textfield: &quot; + value);
+</I>&gt;&gt;&gt;&gt;<i>                 if (value == null)
+</I>&gt;&gt;&gt;&gt;<i>                 {
+</I>&gt;&gt;&gt;&gt;<i>                     value = textf.getText();
+</I>&gt;&gt;&gt;&gt;<i>                 }
+</I>&gt;&gt;&gt;&gt;<i>                 textf.setText(vs.substitute(value, null));
+</I>&gt;&gt;&gt;&gt;<i>                 element[POS_FIELD] = textf;
+</I>&gt;&gt;&gt;&gt;<i>             }
+</I>&gt;&gt;&gt;&gt;<i> 		else if (RULE_FIELD.equals(element[POS_TYPE]))
+</I>&gt;&gt;&gt;&gt;<i>             {
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>                 RuleInputField rulef = (RuleInputField)
+</I>&gt;&gt;&gt;<i> element[POS_FIELD];
+</I>&gt;&gt;&gt;&gt;<i>                 // System.out.println(&quot;RuleInputField: &quot; + value);
+</I>&gt;&gt;&gt;&gt;<i>                 if (value == null)
+</I>&gt;&gt;&gt;&gt;<i>                 {
+</I>&gt;&gt;&gt;&gt;<i>                     value = rulef.getText();
+</I>&gt;&gt;&gt;&gt;<i>                 }               
+</I>&gt;&gt;&gt;&gt;<i>             }
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Is there any easy way of updating the text within the RuleInputField?
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> In particular I want to update NODE 'set' within ELEMENT 'spec' (see
+</I>&gt;&gt;&gt;<i> sample
+</I>&gt;&gt;&gt;&gt;<i> excerpt from userInputSpec.xml.  I want to update the default port 8888 to
+</I>&gt;&gt;&gt;<i> a
+</I>&gt;&gt;&gt;&gt;<i> value set at runtime.
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> &lt;field type=&quot;rule&quot; variable=&quot;AppServerPort&quot;&gt;
+</I>&gt;&gt;&gt;&gt;<i>   &lt;description align=&quot;left&quot; txt=&quot;&quot; id=&quot;description1.text&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;<i>   &lt;spec txt=&quot;Enter web site port:&quot; layout=&quot;N:15:5&quot; set=&quot;0:8888&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;<i>   validator class=&quot;com.izforge.izpack.util.NotEmptyValidator&quot; txt=&quot;Please
+</I>&gt;&gt;&gt;&gt;<i> enter a valid port number&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;<i> &lt;/field&gt;			
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Any ideas?
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Thanks!
+</I>&gt;&gt;&gt;&gt;<i> Carmel
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;&gt;&gt;<i> From: Mandeep Saini [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Mandeep.Saini at dante.org.uk</A>] 
+</I>&gt;&gt;&gt;&gt;<i> Sent: 20 December 2006 15:54
+</I>&gt;&gt;&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;<i> Subject: Re: [izpack-users] izpack variable issue
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Hi Carmel,
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Try to checkout the recent IzPack from SVN repository on 
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="http://svn.berlios.de/svnroot/repos/izpack/izpack-src/trunk/.">http://svn.berlios.de/svnroot/repos/izpack/izpack-src/trunk/.</A> You will 
+</I>&gt;&gt;&gt;&gt;<i> get the latest code here.
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Regards
+</I>&gt;&gt;&gt;&gt;<i> Mandeep
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Carmel Morrissey wrote:
+</I>&gt;&gt;&gt;&gt;&gt;<i> Hi Mandeep
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> I have downloaded the latest source code from IzPack and the
+</I>&gt;&gt;&gt;&gt;<i> UserInputPanel
+</I>&gt;&gt;&gt;&gt;&gt;<i> class does not contain any updateUIElements method.  Would it be possible
+</I>&gt;&gt;&gt;&gt;<i> to
+</I>&gt;&gt;&gt;&gt;&gt;<i> get a copy of the code?  I am trying to update default values on the
+</I>&gt;&gt;&gt;&gt;&gt;<i> UserInputPanel at runtime.
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Regards
+</I>&gt;&gt;&gt;&gt;&gt;<i> Carmel
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;&gt;&gt;&gt;<i> From: Mandeep Saini [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Mandeep.Saini at dante.org.uk</A>] 
+</I>&gt;&gt;&gt;&gt;&gt;<i> Sent: 20 December 2006 11:43
+</I>&gt;&gt;&gt;&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Subject: Re: [izpack-users] izpack variable issue
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Hi Sonal,
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> In IzPack graphical interface is build only once and it happens in the 
+</I>&gt;&gt;&gt;&gt;&gt;<i> very beginning so if you are setting a field with the value of a 
+</I>&gt;&gt;&gt;&gt;&gt;<i> variable which you are taking as input from user will not be displayed 
+</I>&gt;&gt;&gt;&gt;&gt;<i> in the field because the graphical interface was already build at that 
+</I>&gt;&gt;&gt;&gt;&gt;<i> time and will not be able to show the recent value.
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> But if you checkout the recent IzPack from the trunk then its possible. 
+</I>&gt;&gt;&gt;&gt;&gt;<i> Because a new method updateUIElements has been added in the 
+</I>&gt;&gt;&gt;&gt;&gt;<i> UserInputPanel class which  updates the UI elements. Although it has not 
+</I>&gt;&gt;&gt;&gt;&gt;<i> been implemented completely  . It updates the rule field, text field but 
+</I>&gt;&gt;&gt;&gt;&gt;<i> doesn't do it for search field and other fields. But you can write your 
+</I>&gt;&gt;&gt;&gt;&gt;<i> own code to update Search field inside this method.
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Hope this will help you.
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Regards
+</I>&gt;&gt;&gt;&gt;&gt;<i> Mandeep
+</I>&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">sonal.deshpande at tcs.com</A> wrote:
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Hi,
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> I want to use a variable for file tag in search field in
+</I>&gt;&gt;&gt;&gt;<i> userInputSpc.xml.
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> e.g:
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;field filename=VAR type=&quot;search&quot; variable=&quot;db2_home&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> where VAR is variable set in some radiobutton control.
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Is it possible and how?
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Regards
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Sonal B Deshpande
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Tata Consultancy Services
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Mailto: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">sonal.deshpande at tcs.com</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Website: <A HREF="http://www.tcs.com">http://www.tcs.com</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> =====-----=====-----=====
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Notice: The information contained in this e-mail
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> message and/or attachments to it may contain 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> confidential or privileged information. If you are 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> not the intended recipient, any dissemination, use, 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> review, distribution, printing or copying of the 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> information contained in this e-mail message 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> and/or attachments to it are strictly prohibited. If 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> you have received this communication in error, 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> please notify us by reply e-mail or telephone and 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> immediately and permanently delete the message 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> and any attachments. Thank you
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001214.html">[izpack-users] izpack variable issue
+</A></li>
+	<LI>Next message: <A HREF="001216.html">[izpack-users] Controlling the order of shortcuts
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1215">[ date ]</a>
+              <a href="thread.html#1215">[ thread ]</a>
+              <a href="subject.html#1215">[ subject ]</a>
+              <a href="author.html#1215">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

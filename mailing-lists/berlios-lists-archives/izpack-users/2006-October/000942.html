@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Problems with search field in UserInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problems%20with%20search%20field%20in%20UserInputPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000941.html">
+   <LINK REL="Next"  HREF="000943.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Problems with search field in UserInputPanel</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problems%20with%20search%20field%20in%20UserInputPanel&In-Reply-To="
+       TITLE="[izpack-users] Problems with search field in UserInputPanel">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue Oct 10 15:00:27 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000941.html">[izpack-users] Problems with search field in UserInputPanel
+</A></li>
+        <LI>Next message: <A HREF="000943.html">[izpack-users] PathSelectionPanel without using TargetPanel in 3.9 Show full header
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#942">[ date ]</a>
+              <a href="thread.html#942">[ thread ]</a>
+              <a href="subject.html#942">[ subject ]</a>
+              <a href="author.html#942">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Philip,
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of 
+</I>&gt;<i>Philip Reimer
+</I>&gt;<i>Sent: Tuesday, October 10, 2006 2:38 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-users] Problems with search field in 
+</I>&gt;<i>UserInputPanel
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Bartz, Klaus schrieb:
+</I>&gt;&gt;<i> Hi Philip,
+</I>&gt;<i>
+</I>&gt;<i>Hi Klaus,
+</I>&gt;<i>
+</I>&gt;&gt;<i> for the UserInputPanel I can say nothing.
+</I>&gt;&gt;<i> For things you need I use the PathInputPanel (or an
+</I>&gt;&gt;<i> derived class of it). Some times ago I have written
+</I>&gt;&gt;<i> a panel to select a JRE. See above.
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> You can set a version range in the install.xml using
+</I>&gt;&gt;<i> the IzPack variables &quot;JREPathPanel.minVersion&quot; and
+</I>&gt;&gt;<i> &quot;JREPathPanel.maxVersion&quot;. If the VM which is used by the
+</I>&gt;&gt;<i> installation has a version in the range, it will be the default.
+</I>&gt;&gt;<i> The question is,where should the VM be? On my box the 1.3 is on
+</I>&gt;&gt;<i> c:\jdk1.3, the 1.4 is on f:\j2sdk1.4.2_06, the 1.5 is on
+</I>&gt;&gt;<i> F:\Programme\Java\jdk1.5.0_06 and so on. Not so easy to create
+</I>&gt;&gt;<i> a search rule.
+</I>&gt;&gt;<i> You can add to scan the registry on windows. but this need extended
+</I>&gt;&gt;<i> knowledge of java and IzPack.
+</I>&gt;<i>
+</I>&gt;<i>I don't want to do an extended search. That's not so important. I would
+</I>&gt;<i>just look in C:\Programme\Java, C:\Program Files\Java since that is the
+</I>&gt;<i>default installation location Sun's windows installer recommends, if I
+</I>&gt;<i>recall correctly (at least in all my jre 1.5 versions and my 
+</I>&gt;<i>app needs a jre 1.5). 
+</I>
+PathInputPanel does not search in the default path for applications,
+else it looks to the VM which drives the installation. If only one
+VM exist this is the same. To change this behavior needs changes in
+panelActivate.
+
+&gt;<i>I was just wondering, why the JRE was not detected by the
+</I>&gt;<i>search field although I copied the code from the documentation.
+</I>&gt;<i>
+</I>&gt;&gt;<i> If a wrong version will be selected, a warning will be placed.
+</I>&gt;&gt;<i> If no VM will be selected, an error will be placed.
+</I>&gt;&gt;<i> I think that is what you need.
+</I>&gt;<i>
+</I>&gt;<i>Yes, that's definetly more important than a successful 
+</I>&gt;<i>automatic search.
+</I>&gt;<i>Frankly, I haven't been aware of the existence of a 
+</I>&gt;<i>PathInputPanel until
+</I>&gt;<i>now. So, I'll have a look at that and take a closer look at the
+</I>&gt;<i>documentation. BTW, where can I find a more recent version 
+</I>&gt;<i>since the one
+</I>&gt;<i>mentioned on <A HREF="http://www.izforge.com/izpack/downloads">http://www.izforge.com/izpack/downloads</A> is marked 
+</I>&gt;<i>as outdated?
+</I>&gt;<i>
+</I>
+Really? Or only the PDF manual? whatever, the project is located at
+
+<A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Install also the sources. In %IZ_HOME%\src there is build.xml
+which is the configuration for building IzPack with Ant. To add
+a custom panel to the build.xml and use Ant for rebuilding is the
+simplest way to create.
+In the docu there is a chapter how to build a custom panel. In the
+moment we are work on an extended version.
+
+&gt;&gt;<i> Only that this need to handle creation of custom panels can be
+</I>&gt;&gt;<i> a barricade.
+</I>&gt;<i>
+</I>&gt;<i>Anyway, thanks for the hints.
+</I>&gt;<i>
+</I>&gt;<i>Greetings, Philip
+</I>
+Cheers
+
+Klaus
+
+
+&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000941.html">[izpack-users] Problems with search field in UserInputPanel
+</A></li>
+	<LI>Next message: <A HREF="000943.html">[izpack-users] PathSelectionPanel without using TargetPanel in 3.9 Show full header
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#942">[ date ]</a>
+              <a href="thread.html#942">[ thread ]</a>
+              <a href="subject.html#942">[ subject ]</a>
+              <a href="author.html#942">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

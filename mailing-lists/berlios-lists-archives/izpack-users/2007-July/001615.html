@@ -1,0 +1,516 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Windows XP Registry Entries cleaning up
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Windows%20XP%20Registry%20Entries%20cleaning%20up&In-Reply-To=71e79c840707241111g3502c019q4510549e4010e051%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001614.html">
+   <LINK REL="Next"  HREF="001616.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Windows XP Registry Entries cleaning up</H1>
+    <B>fxa</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Windows%20XP%20Registry%20Entries%20cleaning%20up&In-Reply-To=71e79c840707241111g3502c019q4510549e4010e051%40mail.gmail.com"
+       TITLE="[izpack-users] Windows XP Registry Entries cleaning up">fxa_01 at yahoo.com
+       </A><BR>
+    <I>Wed Jul 25 00:27:45 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001614.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+        <LI>Next message: <A HREF="001616.html">[izpack-users] Some Issues with IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1615">[ date ]</a>
+              <a href="thread.html#1615">[ thread ]</a>
+              <a href="subject.html#1615">[ subject ]</a>
+              <a href="author.html#1615">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Look at the case for CHANGED_VALUE:  If value has changed it gets replaced
+with old value, not being deleted.  So if you had version 1.0 and upgrade to
+1.1 then on uninstall it will not be removed just reset to version 1.0
+
+
+
+Daniel Silva-3 wrote:
+&gt;<i> 
+</I>&gt;<i> Sorry,  but what does it mean &quot;roll entries back&quot;?
+</I>&gt;<i> 
+</I>&gt;<i> I looked at RegistryImpl (thats probably the one used) and I couldnt
+</I>&gt;<i> figure
+</I>&gt;<i> out on witch case of the rli.getType() the execution falls. It should fall
+</I>&gt;<i> on the RegistryLogItem.CREATED_VALUE or RegistryLogItem.CREATED_KEY case,
+</I>&gt;<i> for those are the ones that delete entries. But this name, &quot;CREATED&quot;, is
+</I>&gt;<i> really strange for a deleting process.
+</I>&gt;<i> 
+</I>&gt;<i> Intuitively, it falls on the RegistryLogItem.REMOVED_KEY or
+</I>&gt;<i> RegistryLogItem.REMOVED_VALUE. But thoses cases actually creates entries
+</I>&gt;<i> 
+</I>&gt;<i> the switch clause in the RegistryImpl.rewind() is like this:
+</I>&gt;<i> 
+</I>&gt;<i> switch (rli.getType())
+</I>&gt;<i>                 {
+</I>&gt;<i>                 case RegistryLogItem.CREATED_KEY:
+</I>&gt;<i>                     deleteKeyIfEmpty(rli.getRoot(), rli.getKey());
+</I>&gt;<i>                     break;
+</I>&gt;<i>                 case RegistryLogItem.REMOVED_KEY:
+</I>&gt;<i>                     createKeyN(rli.getRoot(), rli.getKey());
+</I>&gt;<i>                     break;
+</I>&gt;<i>                 case RegistryLogItem.CREATED_VALUE:
+</I>&gt;<i>                     RegDataContainer currentContents = null;
+</I>&gt;<i>                     // Delete value only if reg entry exists and is equal
+</I>&gt;<i> to
+</I>&gt;<i> the stored value.
+</I>&gt;<i>                     try
+</I>&gt;<i>                     {
+</I>&gt;<i>                         currentContents = getValue(rli.getRoot(),
+</I>&gt;<i> rli.getKey(),
+</I>&gt;<i> rliValueName);
+</I>&gt;<i>                     }
+</I>&gt;<i>                     catch (NativeLibException nle)
+</I>&gt;<i>                     {
+</I>&gt;<i>                         break;
+</I>&gt;<i>                     }
+</I>&gt;<i>                     if (currentContents.equals(rli.getNewValue()))
+</I>&gt;<i>                     {
+</I>&gt;<i>                         deleteValueN(rli.getRoot(), rli.getKey(),
+</I>&gt;<i> rliValueName);
+</I>&gt;<i>                     }
+</I>&gt;<i>                     // TODO: what todo if value has changed?
+</I>&gt;<i>                     break;
+</I>&gt;<i>                 case RegistryLogItem.REMOVED_VALUE:
+</I>&gt;<i>                     // Set old value only if reg entry not exists.
+</I>&gt;<i>                     try
+</I>&gt;<i>                     {
+</I>&gt;<i>                         getValue(rli.getRoot(), rli.getKey(),
+</I>&gt;<i> rliValueName);
+</I>&gt;<i>                     }
+</I>&gt;<i>                     catch (NativeLibException nle)
+</I>&gt;<i>                     {
+</I>&gt;<i>                         setValueN(rli.getRoot(), rli.getKey(),
+</I>&gt;<i> rliValueName,
+</I>&gt;<i> rli
+</I>&gt;<i>                                 .getOldValue());
+</I>&gt;<i>                     }
+</I>&gt;<i>                     break;
+</I>&gt;<i>                 case RegistryLogItem.CHANGED_VALUE:
+</I>&gt;<i>                     // Change to old value only if reg entry exists and
+</I>&gt;<i> equal to
+</I>&gt;<i>                     // the
+</I>&gt;<i>                     // stored value.
+</I>&gt;<i>                     try
+</I>&gt;<i>                     {
+</I>&gt;<i>                         currentContents = getValue(rli.getRoot(),
+</I>&gt;<i> rli.getKey(),
+</I>&gt;<i> rliValueName);
+</I>&gt;<i>                     }
+</I>&gt;<i>                     catch (NativeLibException nle)
+</I>&gt;<i>                     {
+</I>&gt;<i>                         break;
+</I>&gt;<i>                     }
+</I>&gt;<i>                     if (currentContents.equals(rli.getNewValue()))
+</I>&gt;<i>                     {
+</I>&gt;<i>                         setValueN(rli.getRoot(), rli.getKey(),
+</I>&gt;<i> rliValueName,
+</I>&gt;<i> rli
+</I>&gt;<i>                                 .getOldValue());
+</I>&gt;<i>                     }
+</I>&gt;<i>                     break;
+</I>&gt;<i>                 }
+</I>&gt;<i> 
+</I>&gt;<i> On 7/24/07, fxa &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">fxa_01 at yahoo.com</A>&gt; wrote:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Actually what is happening is:  it rolls back entries.  Look at &quot;rewind&quot;
+</I>&gt;&gt;<i> method in registry handler.  If you start with no entries, uninstall will
+</I>&gt;&gt;<i> delete entries otherwise it roll them back to previous settings.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Bartz, Klaus wrote:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; Hi Daniel,
+</I>&gt;&gt;<i> &gt; I am not secure that I have understand right. Do it now work or not?
+</I>&gt;&gt;<i> &gt; You can have as much Listener as you need. The RegistryHandler will be
+</I>&gt;&gt;<i> &gt; used internal
+</I>&gt;&gt;<i> &gt; in the RegistryInstallerListener, but it can be used also at an other
+</I>&gt;&gt;<i> &gt; place. Then it is needed
+</I>&gt;&gt;<i> &gt; to use only one instance of it. But I assume that you do not use
+</I>&gt;&gt;<i> registry
+</I>&gt;&gt;<i> &gt; at an other point.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; I have just tested the IzPack 3.10.2 installation and uninstallation.
+</I>&gt;&gt;<i> It
+</I>&gt;&gt;<i> &gt; works as assumed.
+</I>&gt;&gt;<i> &gt; My box has Windows XP SP2, I use Java SDK 1.5.0_11.
+</I>&gt;&gt;<i> &gt; If the uninstallation of IzPack after a clean installation (without
+</I>&gt;&gt;<i> &gt; preexistent keys)
+</I>&gt;&gt;<i> &gt; will not clean the regkeys I do not know why. Test it on an other
+</I>&gt;&gt;<i> &gt; computer.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; Cheers
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; Klaus
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;       -----Original Message-----
+</I>&gt;&gt;<i> &gt;       From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt; [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Daniel
+</I>&gt;&gt;<i> Silva
+</I>&gt;&gt;<i> &gt;       Sent: Tuesday, July 24, 2007 1:48 PM
+</I>&gt;&gt;<i> &gt;       To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt;       Subject: Re: [izpack-users] Windows XP Registry Entries cleaning
+</I>&gt;&gt;<i> up
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;       also, I&#180;m using Windows XP as an administrator, so I must have
+</I>&gt;&gt;<i> all
+</I>&gt;&gt;<i> the
+</I>&gt;&gt;<i> &gt; rights to change the registry.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;       On 7/24/07, Daniel Silva &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">ddso.01 at gmail.com</A>&gt; wrote:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               Hi Klaus, thanks again.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               I removed the registries myself after uninstalling.
+</I>&gt;&gt;<i> Installed again and
+</I>&gt;&gt;<i> &gt; uninstalled all over. The registries are still not automatically
+</I>&gt;&gt;<i> removed.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               I didnt understand what you said about using a second
+</I>&gt;&gt;<i> RegistryHandler,
+</I>&gt;&gt;<i> &gt; but the registries that my installation process creates never change.
+</I>&gt;&gt;<i> I&#180;m
+</I>&gt;&gt;<i> &gt; only using one for the installation and one for the uninstallation:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               &lt;listener  installer=&quot;RegistryInstallerListener&quot;
+</I>&gt;&gt;<i> &gt;                             uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
+</I>&gt;&gt;<i> &gt;                             &lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;&gt;<i> &gt;               &lt;/listener&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               I&#180;m using another for the installation, but there&#180;s
+</I>&gt;&gt;<i> nothing to do with
+</I>&gt;&gt;<i> &gt; the registry:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               &lt;listener installer=&quot;SummaryLoggerInstallerListener&quot;/&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               Also, I changed the $APP_NAME to $UNINSTALL_NAME in
+</I>&gt;&gt;<i> RegistrySpec.xml and
+</I>&gt;&gt;<i> &gt; CheckedHelloPanel started working the way the manual said it would.
+</I>&gt;&gt;<i> That&#180;s
+</I>&gt;&gt;<i> &gt; something, all right. Thanks for that clue.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               On 7/24/07, Bartz, Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A> &gt; wrote:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                       Hi Daniel,
+</I>&gt;&gt;<i> &gt;                       if you do not use a second RegistryHandler all
+</I>&gt;&gt;<i> keys (except some with
+</I>&gt;&gt;<i> &gt; format multi string) have to
+</I>&gt;&gt;<i> &gt;                       be removed after uninstall, if the have not
+</I>&gt;&gt;<i> changed after install.
+</I>&gt;&gt;<i> &gt;                       If the keys exist before installing, they will
+</I>&gt;&gt;<i> also exist after
+</I>&gt;&gt;<i> &gt; uninstall. This can be if you have forgotten the dll
+</I>&gt;&gt;<i> &gt;                       in the uninstaller (keyword &quot;both&quot;) in a previos
+</I>&gt;&gt;<i> test. The uninstaller
+</I>&gt;&gt;<i> &gt; do not simple remove the entries else
+</I>&gt;&gt;<i> &gt;                       it changes the entries to the state before
+</I>&gt;&gt;<i> installation.
+</I>&gt;&gt;<i> &gt;                       Therefore remove the not automatically removed
+</I>&gt;&gt;<i> keys after uninstall and
+</I>&gt;&gt;<i> &gt; test again with install - uninstall.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                       This work only with a direct call of the
+</I>&gt;&gt;<i> uninstaller.jar, not at
+</I>&gt;&gt;<i> &gt; debugging with e.g. Eclipse. For the last
+</I>&gt;&gt;<i> &gt;                       see my email to &quot;fxa&quot;.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                       Cheers
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                       Klaus
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                               -----Original Message-----
+</I>&gt;&gt;<i> &gt;                               From:
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt; [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Daniel
+</I>&gt;&gt;<i> Silva
+</I>&gt;&gt;<i> &gt;                               Sent: Monday, July 23, 2007 7:53 PM
+</I>&gt;&gt;<i> &gt;                               To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                               Subject: Re: [izpack-users] Windows XP
+</I>&gt;&gt;<i> Registry Entries cleaning up
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                               Hi Klaus, thans for the reply.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                               the &quot;registryEntries&quot;,
+</I>&gt;&gt;<i> native\COIOSHelper.dll  and the
+</I>&gt;&gt;<i> &gt; com\izforge\izpack\event\RegistryUninstallerListener.class are all
+</I>&gt;&gt;<i> there.
+</I>&gt;&gt;<i> &gt;                               I really dont know if the key are
+</I>&gt;&gt;<i> persistent or not. How do I know
+</I>&gt;&gt;<i> &gt; that?
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                               Even izPack entries are not erase when I
+</I>&gt;&gt;<i> uninstall it.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                               On 7/23/07, Bartz, Klaus &lt;
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A> &gt; wrote:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       Hi Daniel,
+</I>&gt;&gt;<i> &gt;                                       sorry for late answer, but I was
+</I>&gt;&gt;<i> on a workshop.
+</I>&gt;&gt;<i> &gt;                                       I do not really know why
+</I>&gt;&gt;<i> uninstall
+</I>&gt;&gt;<i> do not work correctly with your
+</I>&gt;&gt;<i> &gt; program.
+</I>&gt;&gt;<i> &gt;                                       We use $UNINSTALL_NAME instead of
+</I>&gt;&gt;<i> $APP_NAME, but this should produce
+</I>&gt;&gt;<i> &gt; only problems
+</I>&gt;&gt;<i> &gt;                                       with multiple installations of
+</I>&gt;&gt;<i> the
+</I>&gt;&gt;<i> same program.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       Try with some additional other
+</I>&gt;&gt;<i> keys, may be with the root HKCU.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       Are all keys persistent, or only
+</I>&gt;&gt;<i> some?
+</I>&gt;&gt;<i> &gt;                                       Look into your
+</I>&gt;&gt;<i> uninstaller.jar(may be with an unzipper or with jar).
+</I>&gt;&gt;<i> &gt;                                       Is there a file &quot;registryEntries&quot;
+</I>&gt;&gt;<i> in the root? It is a java object
+</I>&gt;&gt;<i> &gt; stream, but with some editors
+</I>&gt;&gt;<i> &gt;                                       you can look into. If you can, is
+</I>&gt;&gt;<i> there the entry
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\&lt;your APP_NAME&gt;
+</I>&gt;&gt;<i> &gt; ?
+</I>&gt;&gt;<i> &gt;                                       Is in the uninstaller
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> com\izforge\izpack\event\RegistryUninstallerListener.class
+</I>&gt;&gt;<i> &gt;                                       and
+</I>&gt;&gt;<i> &gt;                                       native\COIOSHelper.dll        ?
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       Cheers
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       Klaus
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       -----Original Message-----
+</I>&gt;&gt;<i> &gt;                                       From:
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt; [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Daniel
+</I>&gt;&gt;<i> Silva
+</I>&gt;&gt;<i> &gt;                                       Sent: Monday, July 16, 2007 10:38
+</I>&gt;&gt;<i> PM
+</I>&gt;&gt;<i> &gt;                                       To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt;                                       Subject: [izpack-users] Windows
+</I>&gt;&gt;<i> XP
+</I>&gt;&gt;<i> Registry Entries cleaning up
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       Hi,
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       I&#180;ve just started using izPack
+</I>&gt;&gt;<i> for
+</I>&gt;&gt;<i> my applications and I had some
+</I>&gt;&gt;<i> &gt; trouble with Windows XP registry entries.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       I have a InstallSpec.xml file for
+</I>&gt;&gt;<i> the installer creating procedure
+</I>&gt;&gt;<i> &gt; with the following lines
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       &lt;?xml version=&quot;1.0&quot;
+</I>&gt;&gt;<i> encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+</I>&gt;&gt;<i> &gt;                                       &lt;installation version=&quot;1.0&quot;&gt;
+</I>&gt;&gt;<i> &gt;                                          (...)
+</I>&gt;&gt;<i> &gt;                                          &lt;native type=&quot;izpack&quot; name=&quot;
+</I>&gt;&gt;<i> ShellLink.dll&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                             &lt;native type=&quot;3rdparty&quot;
+</I>&gt;&gt;<i> name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+</I>&gt;&gt;<i> &gt;                                             &lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                          &lt;/native&gt;
+</I>&gt;&gt;<i> &gt;                                          (...)
+</I>&gt;&gt;<i> &gt;                                          &lt;resources&gt;
+</I>&gt;&gt;<i> &gt;                                             (...)
+</I>&gt;&gt;<i> &gt;                                             &lt;res
+</I>&gt;&gt;<i> src=&quot;./spec/RegistrySpec.xml&quot; id=&quot;RegistrySpec.xml&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                             (...)
+</I>&gt;&gt;<i> &gt;                                          &lt;/resources&gt;
+</I>&gt;&gt;<i> &gt;                                          (...)
+</I>&gt;&gt;<i> &gt;                                          &lt;listeners&gt;
+</I>&gt;&gt;<i> &gt;                                             &lt;listener
+</I>&gt;&gt;<i> installer=&quot;SummaryLoggerInstallerListener&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                             &lt;listener
+</I>&gt;&gt;<i> installer=&quot;RegistryInstallerListener&quot;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> &gt;                                                         
+</I>&gt;&gt;<i> uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
+</I>&gt;&gt;<i> &gt;                                                &lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                             &lt;/listener&gt;
+</I>&gt;&gt;<i> &gt;                                          &lt;/listeners&gt;
+</I>&gt;&gt;<i> &gt;                                          (...)
+</I>&gt;&gt;<i> &gt;                                       &lt;/installation&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       And a RegistrySpec.xml like this:
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       &lt;?xml version=&quot;1.0&quot;
+</I>&gt;&gt;<i> encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       &lt;registry&gt;
+</I>&gt;&gt;<i> &gt;                                        &lt;pack name=&quot;UninstallStuff&quot;&gt;
+</I>&gt;&gt;<i> &gt;                                         &lt;value name=&quot;DisplayName&quot;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; keypath=&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$APP_NAME&quot;
+</I>&gt;&gt;<i> &gt;                                          root=&quot;HKLM&quot;
+</I>&gt;&gt;<i> &gt;                                          string=&quot;$APP_NAME&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                         &lt;value name=&quot;UninstallString&quot;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; keypath=&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$APP_NAME&quot;
+</I>&gt;&gt;<i> &gt;                                          root=&quot;HKLM&quot;
+</I>&gt;&gt;<i> &gt;                                         
+</I>&gt;&gt;<i> string=&quot;&quot;$JAVA_HOME\bin\javaw.exe&quot;
+</I>&gt;&gt;<i> -jar
+</I>&gt;&gt;<i> &gt; &quot;$INSTALL_PATH\Uninstaller\uninstaller.jar&quot;&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                         &lt;value name=&quot;DisplayIcon&quot;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; keypath=&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$APP_NAME&quot;
+</I>&gt;&gt;<i> &gt;                                          root=&quot;HKLM&quot;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> &gt;                                         
+</I>&gt;&gt;<i> string=&quot;$INSTALL_PATH\icons\SCarimbo.ico&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                         &lt;value name=&quot;HelpLink&quot;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; keypath=&quot;SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$APP_NAME&quot;
+</I>&gt;&gt;<i> &gt;                                          root=&quot;HKLM&quot;
+</I>&gt;&gt;<i> &gt;                                          string=&quot;$APP_URL&quot;/&gt;
+</I>&gt;&gt;<i> &gt;                                             &lt;/pack&gt;
+</I>&gt;&gt;<i> &gt;                                       &lt;/registry&gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       I'm using CheckedHelloPanel, so
+</I>&gt;&gt;<i> $APP_NAME is declared. My problem is
+</I>&gt;&gt;<i> &gt; that when I uninstall the application, the registry entries are not
+</I>&gt;&gt;<i> &gt; erased. The application is still listed as installed in Control Panel
+</I>&gt;&gt;<i> -&gt;
+</I>&gt;&gt;<i> &gt; Add or Remove Programs.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       Am I doing something wrong?
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                                       Obs.: I've notice that when I
+</I>&gt;&gt;<i> uninstall izPack itself, its registry
+</I>&gt;&gt;<i> &gt; entries are not erased either.
+</I>&gt;&gt;<i> &gt;                                       --
+</I>&gt;&gt;<i> &gt;                                       Abra&#231;os,
+</I>&gt;&gt;<i> &gt;                                       Daniel Silva
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> &gt;                                       izpack-users mailing list
+</I>&gt;&gt;<i> &gt;                                       <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                               --
+</I>&gt;&gt;<i> &gt;                               Abra&#231;os,
+</I>&gt;&gt;<i> &gt;                               Daniel Silva
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;                       _______________________________________________
+</I>&gt;&gt;<i> &gt;                       izpack-users mailing list
+</I>&gt;&gt;<i> &gt;                       <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;               --
+</I>&gt;&gt;<i> &gt;               Abra&#231;os,
+</I>&gt;&gt;<i> &gt;               Daniel Silva
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;       --
+</I>&gt;&gt;<i> &gt;       Abra&#231;os,
+</I>&gt;&gt;<i> &gt;       Daniel Silva
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt; _______________________________________________
+</I>&gt;&gt;<i> &gt; izpack-users mailing list
+</I>&gt;&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> --
+</I>&gt;&gt;<i> View this message in context:
+</I>&gt;&gt;<i> <A HREF="http://www.nabble.com/Windows-XP-Registry-Entries-cleaning-up-tf4091026.html#a11766768">http://www.nabble.com/Windows-XP-Registry-Entries-cleaning-up-tf4091026.html#a11766768</A>
+</I>&gt;&gt;<i> Sent from the izpack users mailing list archive at Nabble.com.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i> Abra&#231;os,
+</I>&gt;<i> Daniel Silva
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+-- 
+View this message in context: <A HREF="http://www.nabble.com/Windows-XP-Registry-Entries-cleaning-up-tf4091026.html#a11773078">http://www.nabble.com/Windows-XP-Registry-Entries-cleaning-up-tf4091026.html#a11773078</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001614.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+	<LI>Next message: <A HREF="001616.html">[izpack-users] Some Issues with IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1615">[ date ]</a>
+              <a href="thread.html#1615">[ thread ]</a>
+              <a href="subject.html#1615">[ subject ]</a>
+              <a href="author.html#1615">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

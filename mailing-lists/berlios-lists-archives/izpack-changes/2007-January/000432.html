@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1687 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1687%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000431.html">
+   <LINK REL="Next"  HREF="000433.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1687 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1687%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1687 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sun Jan  7 18:11:07 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000431.html">[izpack-changes] r1686 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000433.html">[izpack-changes] r1688 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#432">[ date ]</a>
+              <a href="thread.html#432">[ thread ]</a>
+              <a href="subject.html#432">[ subject ]</a>
+              <a href="author.html#432">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-01-07 18:11:02 +0100 (Sun, 07 Jan 2007)
+New Revision: 1687
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+Log:
+Going back and forth between profile selection and packs selection made packs selection unavailable (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)  
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-01-07 14:04:48 UTC (rev 1686)
++++ izpack-src/trunk/Versions.txt	2007-01-07 17:11:02 UTC (rev 1687)
+@@ -38,6 +38,8 @@
+ - Selected packs not being refreshed in the collection when the PackPanel is initialized
+   (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ - Finnish localization updates (Ari Voutilainen via Julien Ponge)
++- Going back and forth between profile selection and packs selection made packs selection unavailable
++  (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)  
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	2007-01-07 14:04:48 UTC (rev 1686)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	2007-01-07 17:11:02 UTC (rev 1687)
+@@ -114,7 +114,6 @@
+             return;
+         }
+ 
+-
+         // Build the table model from the unique groups
+         groupTableModel = getModel(installGroups);
+         groupsTable.setModel(groupTableModel);
+@@ -146,6 +145,7 @@
+      */
+     public void panelDeactivate()
+     {
++
+         Debug.trace(&quot;InstallationGroupPanel.panelDeactivate, selectedGroup=&quot;+selectedGroup);
+         if( selectedGroup &gt;= 0 )
+         {
+@@ -254,6 +254,11 @@
+         while( iter.hasNext() )
+         {
+             Pack p = (Pack) iter.next();
++
++            //reverse dependencies must be reset in case the user is going
++            //back and forth between the group selection panel and the packs selection panel
++            p.revDependencies = null;
++
+             if( data.packNames.contains(p.name) == false )
+             {
+                 iter.remove();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000431.html">[izpack-changes] r1686 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000433.html">[izpack-changes] r1688 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#432">[ date ]</a>
+              <a href="thread.html#432">[ thread ]</a>
+              <a href="subject.html#432">[ subject ]</a>
+              <a href="author.html#432">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

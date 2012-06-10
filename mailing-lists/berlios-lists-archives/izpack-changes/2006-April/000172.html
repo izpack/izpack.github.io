@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] izpack-src/src/dist-files start.sh,1.1,1.1.2.1
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/dist-files%20start.sh%2C1.1%2C1.1.2.1&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000171.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] izpack-src/src/dist-files start.sh,1.1,1.1.2.1</H1>
+    <B>eppelman</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/dist-files%20start.sh%2C1.1%2C1.1.2.1&In-Reply-To="
+       TITLE="[izpack-changes] izpack-src/src/dist-files start.sh,1.1,1.1.2.1">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr 25 16:47:05 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000171.html">[izpack-changes] izpack-src IzPack-head.iml,NONE,1.1 IzPack-head.ipr,NONE,1.1
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/izpack/izpack-src/src/dist-files
+In directory sheep:/tmp/cvs-serv11805/src/dist-files
+
+Modified Files:
+      Tag: branch-3-8
+	start.sh 
+Log Message:
+fixed lookForRunningGecko() - function to work with current firefox releases too. Unfortunately the -remote ping() always returns 0 even if there is no local running FF.
+
+Index: start.sh
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/dist-files/start.sh,v
+retrieving revision 1.1
+retrieving revision 1.1.2.1
+diff -u -d -r1.1 -r1.1.2.1
+--- start.sh	9 Sep 2005 07:15:38 -0000	1.1
++++ start.sh	25 Apr 2006 14:47:29 -0000	1.1.2.1
+@@ -60,19 +60,28 @@
+ 
+ function lookForRunningGecko(){
+   if command -v firefox &amp;&gt;/dev/null; then
+-    if command firefox -remote &quot;ping()&quot; &amp;&gt;/dev/null; then
+-      echo firefox # firefox -remote \&quot;openurl(&quot;$1&quot;,new-tab)\&quot;
++    tempfile=`mktemp`
++  	
++    firefox -remote &quot;ping()&quot; 2&gt; $tempfile
++    
++  	if [ -s $tempfile ]; then
++      rm $tempfile
++      echo &quot;none&quot; # is not running :-)
++      return 1
++  	else
++  	  rm $tempfile      
++  	  echo firefox # is running :-)
+       return 0
+-    fi
++  	fi    
+   fi    # firefox &quot;$1&quot;
+   if command -v mozilla &amp;&gt;/dev/null; then
+     #if mozilla -remote &quot;ping()&quot; 
+     if command mozilla -remote &quot;ping()&quot; &amp;&gt;/dev/null; then
+-      echo mozilla # firefox -remote \&quot;openurl(&quot;$1&quot;,new-tab)\&quot;
++      echo mozilla # is running :-)
+       return 0
+     fi
+   fi
+-  echo none
++  echo &quot;none&quot;
+   
+   return 1
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000171.html">[izpack-changes] izpack-src IzPack-head.iml,NONE,1.1 IzPack-head.ipr,NONE,1.1
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1680 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/event src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1680%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/event%20src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000424.html">
+   <LINK REL="Next"  HREF="000426.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1680 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/event src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1680%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/event%20src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1680 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/event src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Sat Jan  6 12:55:04 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000424.html">[izpack-changes] r1679 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000426.html">[izpack-changes] r1681 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-01-06 12:54:55 +0100 (Sat, 06 Jan 2007)
+New Revision: 1680
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/event/SummaryLoggerInstallerListener.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/SummaryProcessor.java
+Log:
+Non-English installation path could be displayed garbled in InstallSummary.html (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-01-06 11:51:55 UTC (rev 1679)
++++ izpack-src/trunk/Versions.txt	2007-01-06 11:54:55 UTC (rev 1680)
+@@ -33,6 +33,8 @@
+   Ubuntu (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ - Installations could fail if the installation path contained non-english characters
+   (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
++- Non-English installation path could be displayed garbled in InstallSummary.html
++  (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/event/SummaryLoggerInstallerListener.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/event/SummaryLoggerInstallerListener.java	2007-01-06 11:51:55 UTC (rev 1679)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/event/SummaryLoggerInstallerListener.java	2007-01-06 11:54:55 UTC (rev 1680)
+@@ -74,18 +74,12 @@
+         {
+             parent.mkdirs();
+         }
+-        PrintWriter logfile = null;
+-        try
+-        {
+-            logfile = new PrintWriter(new FileOutputStream(path), true);
+-        }
+-        catch (IOException e)
+-        {
+-            Debug.error(e);
+-        }
++      
+         String summary = SummaryProcessor.getSummary(getInstalldata());
+-        logfile.print(summary);
+-        logfile.close();
++        java.io.OutputStream out = new FileOutputStream(path);
++        
++        out.write(summary.getBytes(&quot;utf-8&quot;));
++        out.close();
+     }
+ 
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/SummaryProcessor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/SummaryProcessor.java	2007-01-06 11:51:55 UTC (rev 1679)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/SummaryProcessor.java	2007-01-06 11:54:55 UTC (rev 1680)
+@@ -54,7 +54,8 @@
+         // Initialize HTML header and footer.
+         StringBuffer sb = new StringBuffer(256);
+         sb.append(&quot;&lt;!DOCTYPE HTML PUBLIC \&quot;-//W3C//DTD HTML 4.0 Transitional//EN\&quot;&gt;\n&quot;).append(
+-                &quot;&lt;html&gt;\n&lt;head&gt;\n&lt;STYLE TYPE=\&quot;text/css\&quot; media=screen,print&gt;\n&quot;).append(
++                &quot;&lt;html&gt;\n&quot; + &quot;&lt;meta http-equiv=\&quot;content-type\&quot; content=\&quot;text/html; charset=UTF-8\&quot;&gt;&quot; +
++                &quot;&lt;head&gt;\n&lt;STYLE TYPE=\&quot;text/css\&quot; media=screen,print&gt;\n&quot;).append(
+                 &quot;h1{\n  font-size: 100%;\n  margin: 1em 0 0 0;\n  padding: 0;\n}\n&quot;).append(
+                 &quot;div.body {\n  font-size: 100%;\n  margin: 0mm 2mm 0  8mm;\n  padding: 0;\n}\n&quot;)
+                 .append(&quot;&lt;/STYLE&gt;\n&lt;/head&gt;\n&lt;body&gt;\n&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000424.html">[izpack-changes] r1679 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000426.html">[izpack-changes] r1681 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

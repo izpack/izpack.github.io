@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Custom Actions NPE, patch
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Custom%20Actions%20NPE%2C%20patch&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000915.html">
+   <LINK REL="Next"  HREF="000917.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Custom Actions NPE, patch</H1>
+    <B>Scott Plante</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Custom%20Actions%20NPE%2C%20patch&In-Reply-To="
+       TITLE="[izpack-devel] Custom Actions NPE, patch">splante at insightsys.com
+       </A><BR>
+    <I>Thu Mar  8 03:55:05 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000915.html">[izpack-devel] Changing pack attributes at runtime?
+</A></li>
+        <LI>Next message: <A HREF="000917.html">[izpack-devel] Distrubuted install.xml files ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#916">[ date ]</a>
+              <a href="thread.html#916">[ thread ]</a>
+              <a href="subject.html#916">[ subject ]</a>
+              <a href="author.html#916">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I discovered today that to create a custom listener you have to name the 
+class the same as the listener. If you do not, you get a very unhelpful 
+NullPointerException at the installer run time. I would like to propose 
+that this patch be included in the next version. It will check, and 
+cause an error at installer compile time if there is no matching class 
+in the listener. This is an &quot;svn diff&quot;, if there is a better way to 
+submit patches, please let me know.
+
+
+Index: lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- lib/com/izforge/izpack/compiler/Compiler.java       (revision 1753)
++++ lib/com/izforge/izpack/compiler/Compiler.java       (working copy)
+@@ -730,6 +730,12 @@
+         URL url = findIzPackResource(jarPath, &quot;CustomAction jar file&quot;);
+         List filePaths = getContainedFilePaths(url);
+         String fullClassName = getFullClassName(url, className);
++        if (fullClassName == null)
++        {
++          throw new CompilerException(
++              &quot;CustomListener class '&quot; + className + &quot;' not found in '&quot;
++              + url + &quot;'. The class and listener name must match&quot;);
++        }
+         CustomData ca = new CustomData(fullClassName, filePaths, 
+constraints, type);
+         packager.addCustomJar(ca, url);
+     }
+
+
+-- 
+Scott Plante, CTO
+Insight Systems, Inc.
+(+1) 404 873 0058 x104
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">splante at insightsys.com</A>
+<A HREF="http://zyross.com">http://zyross.com</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000915.html">[izpack-devel] Changing pack attributes at runtime?
+</A></li>
+	<LI>Next message: <A HREF="000917.html">[izpack-devel] Distrubuted install.xml files ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#916">[ date ]</a>
+              <a href="thread.html#916">[ thread ]</a>
+              <a href="subject.html#916">[ subject ]</a>
+              <a href="author.html#916">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

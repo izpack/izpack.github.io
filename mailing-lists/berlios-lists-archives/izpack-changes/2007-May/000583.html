@@ -1,0 +1,1050 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1837 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1837%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000582.html">
+   <LINK REL="Next"  HREF="000584.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1837 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1837%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1837 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Tue May 15 16:33:23 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000582.html">[izpack-changes] r1836 - in izpack-src/trunk: . lib src/dist-files	src/doc-ng/XHTML src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000584.html">[izpack-changes] r1838 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#583">[ date ]</a>
+              <a href="thread.html#583">[ thread ]</a>
+              <a href="subject.html#583">[ subject ]</a>
+              <a href="author.html#583">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2007-05-15 16:33:22 +0200 (Tue, 15 May 2007)
+New Revision: 1837
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+Log:
+Abstract intermediate packager base class added to have common 
+methods in one copy.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-05-14 12:28:47 UTC (rev 1836)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-05-15 14:33:22 UTC (rev 1837)
+@@ -66,59 +66,15 @@
+  * 
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  */
+-public class MultiVolumePackager implements IPackager
++public class MultiVolumePackager extends PackagerBase
+ {
+ 
+     public static final String INSTALLER_PAK_NAME = &quot;installer&quot;;
+ 
+-    /** Path to the skeleton installer. */
+-    public static final String SKELETON_SUBPATH = &quot;lib/installer.jar&quot;;
+-
+-    /** Base file name of all jar files. This has no &quot;.jar&quot; suffix. */
+-    private File baseFile = null;
+-
+     /** Executable zipped output stream. First to open, last to close. */
+     private ZipOutputStream primaryJarStream;
+ 
+-    /** Basic installer info. */
+-    private Info info = null;
+ 
+-    /** Gui preferences of instatller. */
+-    private GUIPrefs guiPrefs = null;
+-
+-    /** The variables used in the project */
+-    private Properties variables = new Properties();
+-
+-    /** The ordered panels informations. */
+-    private List panelList = new ArrayList();
+-
+-    /** The ordered packs informations (as PackInfo objects). */
+-    private List packsList = new ArrayList();
+-
+-    /** The ordered langpack ISO3 names. */
+-    private List langpackNameList = new ArrayList();
+-
+-    /** The ordered custom actions informations. */
+-    private List customDataList = new ArrayList();
+-
+-    /** The langpack URLs keyed by ISO3 name. */
+-    private Map installerResourceURLMap = new HashMap();
+-
+-    /** Jar file URLs who's contents will be copied into the installer. */
+-    private Set includedJarURLs = new HashSet();
+-
+-    /** Each pack is created in a separte jar if webDirURL is non-null. */
+-    private boolean packJarsSeparate = false;
+-
+-    /** The listeners. */
+-    private PackagerListener listener;
+-
+-    /** The compression format to be used for pack compression */
+-    private PackCompressor compressor;
+-
+-    /** Files which are always written into the container file */
+-    private HashMap alreadyWrittenFiles = new HashMap();
+-    
+     private XMLElement configdata = null;
+ 
+     /**
+@@ -152,7 +108,7 @@
+      */
+     public MultiVolumePackager(String compr_format, int compr_level) throws CompilerException
+     {
+-        setCompressorOptions(compr_format, compr_level);
++        initPackCompressor(compr_format, compr_level);
+     }
+ 
+     /**
+@@ -237,227 +193,7 @@
+         }         
+     }
+ 
+-    /**
+-     * Get the PackagerListener.
+-     * 
+-     * @return the current PackagerListener
+-     */
+-    public PackagerListener getPackagerListener()
+-    {
+-        return listener;
+-    }
+-
+-    /**
+-     * Adds a listener.
+-     * 
+-     * @param listener The listener.
+-     */
+-    public void setPackagerListener(PackagerListener listener)
+-    {
+-        this.listener = listener;
+-    }
+-
+-    /**
+-     * Dispatches a message to the listeners.
+-     * 
+-     * @param job The job description.
+-     */
+-    private void sendMsg(String job)
+-    {
+-        sendMsg(job, PackagerListener.MSG_INFO);
+-    }
+-
+-    /**
+-     * Dispatches a message to the listeners at specified priority.
+-     * 
+-     * @param job The job description.
+-     * @param priority The message priority.
+-     */
+-    private void sendMsg(String job, int priority)
+-    {
+-        Debug.trace(job);
+-        if (listener != null) listener.packagerMsg(job, priority);
+-    }
+-
+-    /** Dispatches a start event to the listeners. */
+-    private void sendStart()
+-    {
+-        if (listener != null) listener.packagerStart();
+-    }
+-
+-    /** Dispatches a stop event to the listeners. */
+-    private void sendStop()
+-    {
+-        if (listener != null) listener.packagerStop();
+-    }
+-
+     /***********************************************************************************************
+-     * Public methods to add data to the Installer being packed
+-     **********************************************************************************************/
+-
+-    /**
+-     * Sets the informations related to this installation.
+-     * 
+-     * @param info The info section.
+-     * @exception Exception Description of the Exception
+-     */
+-    public void setInfo(Info info) throws Exception
+-    {
+-        sendMsg(&quot;Setting the installer information&quot;, PackagerListener.MSG_VERBOSE);
+-        this.info = info;
+-        if (!getCompressor().useStandardCompression()
+-                &amp;&amp; getCompressor().getDecoderMapperName() != null)
+-        {
+-            this.info.setPackDecoderClassName(getCompressor().getDecoderMapperName());
+-        }
+-    }
+-
+-    /**
+-     * Sets the GUI preferences.
+-     * 
+-     * @param prefs The new gUIPrefs value
+-     */
+-    public void setGUIPrefs(GUIPrefs prefs)
+-    {
+-        sendMsg(&quot;Setting the GUI preferences&quot;, PackagerListener.MSG_VERBOSE);
+-        guiPrefs = prefs;
+-    }
+-
+-    /**
+-     * Allows access to add, remove and update the variables for the project, which are maintained
+-     * in the packager.
+-     * 
+-     * @return map of variable names to values
+-     */
+-    public Properties getVariables()
+-    {
+-        return variables;
+-    }
+-
+-    /**
+-     * Add a panel, where order is important. Only one copy of the class files neeed are inserted in
+-     * the installer.
+-     */
+-    public void addPanelJar(Panel panel, URL jarURL)
+-    {
+-        panelList.add(panel); // serialized to keep order/variables correct
+-        addJarContent(jarURL); // each included once, no matter how many times
+-        // added
+-    }
+-
+-    /**
+-     * Add a custom data like custom actions, where order is important. Only one copy of the class
+-     * files neeed are inserted in the installer.
+-     * 
+-     * @param ca custom action object
+-     * @param url the URL to include once
+-     */
+-    public void addCustomJar(CustomData ca, URL url)
+-    {
+-        customDataList.add(ca); // serialized to keep order/variables correct
+-        addJarContent(url); // each included once, no matter how many times
+-        // added
+-    }
+-
+-    /**
+-     * Adds a pack, order is mostly irrelevant.
+-     * 
+-     * @param pack contains all the files and items that go with a pack
+-     */
+-    public void addPack(PackInfo pack)
+-    {
+-        packsList.add(pack);
+-    }
+-
+-    /**
+-     * Gets the packages list
+-     */
+-    public List getPacksList()
+-    {
+-        return packsList;
+-    }
+-
+-    /**
+-     * Adds a language pack.
+-     * 
+-     * @param iso3 The ISO3 code.
+-     * @param xmlURL The location of the xml local info
+-     * @param flagURL The location of the flag image resource
+-     */
+-    public void addLangPack(String iso3, URL xmlURL, URL flagURL)
+-    {
+-        sendMsg(&quot;Adding langpack: &quot; + iso3, PackagerListener.MSG_VERBOSE);
+-        // put data &amp; flag as entries in installer, and keep array of iso3's
+-        // names
+-        langpackNameList.add(iso3);
+-        addResource(&quot;flag.&quot; + iso3, flagURL);
+-        installerResourceURLMap.put(&quot;langpacks/&quot; + iso3 + &quot;.xml&quot;, xmlURL);
+-    }
+-
+-    /**
+-     * Adds a resource.
+-     * 
+-     * @param resId The resource Id.
+-     * @param url The location of the data
+-     */
+-    public void addResource(String resId, URL url)
+-    {
+-        sendMsg(&quot;Adding resource: &quot; + resId, PackagerListener.MSG_VERBOSE);
+-        installerResourceURLMap.put(&quot;res/&quot; + resId, url);
+-    }
+-
+-    /**
+-     * Adds a native library.
+-     * 
+-     * @param name The native library name.
+-     * @param url The url to get the data from.
+-     * @exception Exception Description of the Exception
+-     */
+-    public void addNativeLibrary(String name, URL url) throws Exception
+-    {
+-        sendMsg(&quot;Adding native library: &quot; + name, PackagerListener.MSG_VERBOSE);
+-        installerResourceURLMap.put(&quot;native/&quot; + name, url);
+-    }
+-
+-    /**
+-     * Adds a jar file content to the installer. Package structure is maintained. Need mechanism to
+-     * copy over signed entry information.
+-     * 
+-     * @param jarURL The url of the jar to add to the installer. We use a URL so the jar may be
+-     * nested within another.
+-     */
+-    public void addJarContent(URL jarURL)
+-    {
+-        addJarContent(jarURL, null);
+-    }
+-
+-    /**
+-     * Adds a jar file content to the installer. Package structure is maintained. Need mechanism to
+-     * copy over signed entry information.
+-     * 
+-     * @param jarURL The url of the jar to add to the installer. We use a URL so the jar may be
+-     * nested within another.
+-     */
+-    public void addJarContent(URL jarURL, List files)
+-    {
+-        Object[] cont = { jarURL, files};
+-        sendMsg(&quot;Adding content of jar: &quot; + jarURL.getFile(), PackagerListener.MSG_VERBOSE);
+-        includedJarURLs.add(cont);
+-    }
+-
+-    /**
+-     * Marks a native library to be added to the uninstaller.
+-     * 
+-     * @param data the describing custom action data object
+-     */
+-    public void addNativeUninstallerLibrary(CustomData data)
+-    {
+-        customDataList.add(data); // serialized to keep order/variables
+-        // correct
+-
+-    }
+-
+-    /***********************************************************************************************
+      * Private methods used when writing out the installer to jar files.
+      **********************************************************************************************/
+ 
+@@ -933,29 +669,12 @@
+         return bytesCopied;
+     }
+ 
+-    /**
+-     * Returns the current pack compressor
+-     * 
+-     * @return Returns the current pack compressor.
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addConfigurationInformation(net.n3.nanoxml.XMLElement)
+      */
+-    public PackCompressor getCompressor()
+-    {
+-        return compressor;
+-    }
+-
+-    public void setCompressorOptions(String compr_format, int compr_level) throws CompilerException
+-    {
+-        compressor = PackCompressorFactory.get(compr_format);
+-        compressor.setCompressionLevel(compr_level);
+-    }
+-
+     public void addConfigurationInformation(XMLElement data)
+     {
+        this.configdata = data;        
+     }
+ 
+-    public void initPackCompressor(String compr_format, int compr_level) throws CompilerException
+-    {       
+-        this.setCompressorOptions(compr_format, compr_level);        
+-    }
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-05-14 12:28:47 UTC (rev 1836)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-05-15 14:33:22 UTC (rev 1837)
+@@ -27,37 +27,21 @@
+ import java.io.ObjectOutputStream;
+ import java.io.OutputStream;
+ import java.net.URL;
+-import java.util.ArrayList;
+ import java.util.HashMap;
+ import java.util.HashSet;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+-import java.util.Properties;
+-import java.util.Set;
+ import java.util.zip.Deflater;
++import java.util.zip.ZipEntry;
+ import java.util.zip.ZipException;
+ import java.util.zip.ZipInputStream;
+ 
+ import net.n3.nanoxml.XMLElement;
+ 
+-// The declarations for ZipOutputStreams will be done
+-// as full qualified to clear at the use point that
+-// we do not use the standard class else the extended
+-// from apache.
+-//import org.apache.tools.zip.ZipOutputStream; 
+-//import org.apache.tools.zip.ZipEntry;
+-
+-import com.izforge.izpack.CustomData;
+-import com.izforge.izpack.GUIPrefs;
+-import com.izforge.izpack.Info;
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.PackFile;
+-import com.izforge.izpack.Panel;
+-import com.izforge.izpack.compressor.PackCompressor;
+-import com.izforge.izpack.compressor.PackCompressorFactory;
+ import com.izforge.izpack.util.FileUtil;
+-//import com.izforge.izpack.util.JarOutputStream;
+ 
+ /**
+  * The packager class. The packager is used by the compiler to put files into an installer, and
+@@ -66,57 +50,13 @@
+  * @author Julien Ponge
+  * @author Chadwick McHenry
+  */
+-public class Packager implements IPackager
++public class Packager extends PackagerBase
+ {
+ 
+-    /** Path to the skeleton installer. */
+-    public static final String SKELETON_SUBPATH = &quot;lib/installer.jar&quot;;
+-
+-    /** Base file name of all jar files. This has no &quot;.jar&quot; suffix. */
+-    private File baseFile = null;
+-
+     /** Executable zipped output stream. First to open, last to close. 
+      *  Attention! This is our own JarOutputStream, not the java standard! */
+     private com.izforge.izpack.util.JarOutputStream primaryJarStream;
+ 
+-    /** Basic installer info. */
+-    private Info info = null;
+-
+-    /** Gui preferences of instatller. */
+-    private GUIPrefs guiPrefs = null;
+-
+-    /** The variables used in the project */
+-    private Properties variables = new Properties();
+-
+-    /** The ordered panels informations. */
+-    private List panelList = new ArrayList();
+-
+-    /** The ordered packs informations (as PackInfo objects). */
+-    private List packsList = new ArrayList();
+-
+-    /** The ordered langpack ISO3 names. */
+-    private List langpackNameList = new ArrayList();
+-
+-    /** The ordered custom actions informations. */
+-    private List customDataList = new ArrayList();
+-
+-    /** The langpack URLs keyed by ISO3 name. */
+-    private Map installerResourceURLMap = new HashMap();
+-
+-    /** Jar file URLs who's contents will be copied into the installer. */
+-    private Set includedJarURLs = new HashSet();
+-
+-    /** Each pack is created in a separte jar if webDirURL is non-null. */
+-    private boolean packJarsSeparate = false;
+-
+-    /** The listeners. */
+-    private PackagerListener listener;
+-
+-    /** The compression format to be used for pack compression */
+-    private PackCompressor compressor;
+-    
+-    /** Files which are always written into the container file */
+-    private HashMap alreadyWrittenFiles = new HashMap();
+     /** The constructor. 
+      * @throws CompilerException*/
+     public Packager() throws CompilerException
+@@ -144,8 +84,7 @@
+      */
+     public Packager(String compr_format, int compr_level) throws CompilerException
+     {
+-        compressor = PackCompressorFactory.get( compr_format);
+-        compressor.setCompressionLevel(compr_level);
++        initPackCompressor(compr_format, compr_level);
+     }
+     
+     
+@@ -201,188 +140,6 @@
+     }
+ 
+     /***********************************************************************************************
+-     * Listener assistance
+-     **********************************************************************************************/
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#getPackagerListener()
+-     */
+-    public PackagerListener getPackagerListener()
+-    {
+-        return listener;
+-    }
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#setPackagerListener(com.izforge.izpack.compiler.PackagerListener)
+-     */
+-    public void setPackagerListener(PackagerListener listener)
+-    {
+-        this.listener = listener;
+-    }
+-
+-    /**
+-     * Dispatches a message to the listeners.
+-     * 
+-     * @param job The job description.
+-     */
+-    private void sendMsg(String job)
+-    {
+-        sendMsg(job, PackagerListener.MSG_INFO);
+-    }
+-
+-    /**
+-     * Dispatches a message to the listeners at specified priority.
+-     * 
+-     * @param job The job description.
+-     * @param priority The message priority.
+-     */
+-    private void sendMsg(String job, int priority)
+-    {
+-        if (listener != null) listener.packagerMsg(job, priority);
+-    }
+-
+-    /** Dispatches a start event to the listeners. */
+-    private void sendStart()
+-    {
+-        if (listener != null) listener.packagerStart();
+-    }
+-
+-    /** Dispatches a stop event to the listeners. */
+-    private void sendStop()
+-    {
+-        if (listener != null) listener.packagerStop();
+-    }
+-
+-    /***********************************************************************************************
+-     * Public methods to add data to the Installer being packed
+-     **********************************************************************************************/
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#setInfo(com.izforge.izpack.Info)
+-     */
+-    public void setInfo(Info info) throws Exception
+-    {
+-        sendMsg(&quot;Setting the installer information&quot;, PackagerListener.MSG_VERBOSE);
+-        this.info = info;
+-        if( ! getCompressor().useStandardCompression() &amp;&amp; 
+-                getCompressor().getDecoderMapperName() != null  )
+-        {
+-            this.info.setPackDecoderClassName(getCompressor().getDecoderMapperName());
+-        }
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#setGUIPrefs(com.izforge.izpack.GUIPrefs)
+-     */
+-    public void setGUIPrefs(GUIPrefs prefs)
+-    {
+-        sendMsg(&quot;Setting the GUI preferences&quot;, PackagerListener.MSG_VERBOSE);
+-        guiPrefs = prefs;
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#getVariables()
+-     */
+-    public Properties getVariables()
+-    {
+-        return variables;
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addPanelJar(com.izforge.izpack.Panel, java.net.URL)
+-     */
+-    public void addPanelJar(Panel panel, URL jarURL)
+-    {
+-        panelList.add(panel); // serialized to keep order/variables correct
+-        addJarContent(jarURL); // each included once, no matter how many times
+-        // added
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addCustomJar(com.izforge.izpack.CustomData, java.net.URL)
+-     */
+-    public void addCustomJar(CustomData ca, URL url)
+-    {
+-        customDataList.add(ca); // serialized to keep order/variables correct
+-        addJarContent(url); // each included once, no matter how many times
+-        // added
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addPack(com.izforge.izpack.compiler.PackInfo)
+-     */
+-    public void addPack(PackInfo pack)
+-    {
+-        packsList.add(pack);
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#getPacksList()
+-     */
+-    public List getPacksList()
+-    {
+-        return packsList;
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addLangPack(java.lang.String, java.net.URL, java.net.URL)
+-     */
+-    public void addLangPack(String iso3, URL xmlURL, URL flagURL)
+-    {
+-        sendMsg(&quot;Adding langpack: &quot; + iso3, PackagerListener.MSG_VERBOSE);
+-        // put data &amp; flag as entries in installer, and keep array of iso3's
+-        // names
+-        langpackNameList.add(iso3);
+-        addResource(&quot;flag.&quot; + iso3, flagURL);
+-        installerResourceURLMap.put(&quot;langpacks/&quot; + iso3 + &quot;.xml&quot;, xmlURL);
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addResource(java.lang.String, java.net.URL)
+-     */
+-    public void addResource(String resId, URL url)
+-    {
+-        sendMsg(&quot;Adding resource: &quot; + resId, PackagerListener.MSG_VERBOSE);
+-        installerResourceURLMap.put(&quot;res/&quot; + resId, url);
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addNativeLibrary(java.lang.String, java.net.URL)
+-     */
+-    public void addNativeLibrary(String name, URL url) throws Exception
+-    {
+-        sendMsg(&quot;Adding native library: &quot; + name, PackagerListener.MSG_VERBOSE);
+-        installerResourceURLMap.put(&quot;native/&quot; + name, url);
+-    }
+-
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addJarContent(java.net.URL)
+-     */
+-    public void addJarContent(URL jarURL)
+-    {
+-        addJarContent(jarURL, null);
+-    }
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addJarContent(java.net.URL, java.util.List)
+-     */
+-    public void addJarContent(URL jarURL, List files)
+-    {
+-        Object [] cont = { jarURL, files };
+-        sendMsg(&quot;Adding content of jar: &quot; + jarURL.getFile(), PackagerListener.MSG_VERBOSE);
+-        includedJarURLs.add(cont);
+-    }
+-
+-    /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#addNativeUninstallerLibrary(com.izforge.izpack.CustomData)
+-     */
+-    public void addNativeUninstallerLibrary(CustomData data)
+-    {
+-        customDataList.add(data); // serialized to keep order/variables
+-        // correct
+-
+-    }
+-
+-    /***********************************************************************************************
+      * Private methods used when writing out the installer to jar files.
+      **********************************************************************************************/
+ 
+@@ -493,7 +250,7 @@
+                 new org.apache.tools.zip.ZipEntry(&quot;packs/pack&quot; + packNumber);
+             if( ! compressor.useStandardCompression())
+             {
+-                entry.setMethod(org.apache.tools.zip.ZipEntry.STORED);
++                entry.setMethod(ZipEntry.STORED);
+                 entry.setComment(compressor.getCompressionFormatSymbols()[0]);
+                 // We must set the entry before we get the compressed stream
+                 // because some writes initialize data (e.g. bzip2).
+@@ -525,10 +282,10 @@
+ 
+                 // use a back reference if file was in previous pack, and in
+                 // same jar
+-                long[] info = (long[]) storedFiles.get(file);
+-                if (info != null &amp;&amp; !packJarsSeparate)
++                long[] lInfo = (long[]) storedFiles.get(file);
++                if (lInfo != null &amp;&amp; !packJarsSeparate)
+                 {
+-                    pf.setPreviousPackFileRef((int) info[0], info[1]);
++                    pf.setPreviousPackFileRef((int) lInfo[0], lInfo[1]);
+                     addFile = false;
+                 }
+ 
+@@ -700,19 +457,8 @@
+     }
+     
+     /* (non-Javadoc)
+-     * @see com.izforge.izpack.compiler.IPackager#getCompressor()
++     * @see com.izforge.izpack.compiler.IPackager#addConfigurationInformation(net.n3.nanoxml.XMLElement)
+      */
+-    public PackCompressor getCompressor()
+-    {
+-        return compressor;
+-    }
+-
+-    public void initPackCompressor(String compr_format, int compr_level) throws CompilerException
+-    {
+-        compressor = PackCompressorFactory.get( compr_format);
+-        compressor.setCompressionLevel(compr_level);        
+-    }
+-
+     public void addConfigurationInformation(XMLElement data)
+     {
+         // TODO Auto-generated method stub
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java	2007-05-14 12:28:47 UTC (rev 1836)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java	2007-05-15 14:33:22 UTC (rev 1837)
+@@ -0,0 +1,293 @@
++/*
++ * $Id:$
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Klaus Bartz
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.compiler;
++
++import java.io.File;
++import java.net.URL;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.List;
++import java.util.Map;
++import java.util.Properties;
++import java.util.Set;
++
++import com.izforge.izpack.CustomData;
++import com.izforge.izpack.GUIPrefs;
++import com.izforge.izpack.Info;
++import com.izforge.izpack.Panel;
++import com.izforge.izpack.compressor.PackCompressor;
++import com.izforge.izpack.compressor.PackCompressorFactory;
++
++
++/**
++ * The packager base class. The packager interface &lt;code&gt;IPackager&lt;/code&gt; is used by the compiler to put files into an installer, and
++ * create the actual installer files. The packager implementation depends on different requirements (e.g. normal packager versus multi volume packager).
++ * This class implements the common used method which can also be overload as needed. 
++ * 
++ * @author Klaus Bartz
++ *
++ */
++public abstract class PackagerBase implements IPackager
++{
++
++
++    /** Path to the skeleton installer. */
++    public static final String SKELETON_SUBPATH = &quot;lib/installer.jar&quot;;
++
++    /** Base file name of all jar files. This has no &quot;.jar&quot; suffix. */
++    protected File baseFile = null;
++
++    /** Basic installer info. */
++    protected Info info = null;
++
++    /** Gui preferences of instatller. */
++    protected GUIPrefs guiPrefs = null;
++
++    /** The variables used in the project */
++    protected Properties variables = new Properties();
++
++    /** The ordered panels informations. */
++    protected List panelList = new ArrayList();
++
++    /** The ordered packs informations (as PackInfo objects). */
++    protected List packsList = new ArrayList();
++
++    /** The ordered langpack locale names. */
++    protected List langpackNameList = new ArrayList();
++
++    /** The ordered custom actions informations. */
++    protected List customDataList = new ArrayList();
++
++    /** The langpack URLs keyed by locale name (e.g. de_CH). */
++    protected Map installerResourceURLMap = new HashMap();
++
++    /** Jar file URLs who's contents will be copied into the installer. */
++    protected Set includedJarURLs = new HashSet();
++
++    /** Each pack is created in a separte jar if webDirURL is non-null. */
++    protected boolean packJarsSeparate = false;
++
++    /** The listeners. */
++    protected PackagerListener listener;
++
++    /** The compression format to be used for pack compression */
++    protected PackCompressor compressor;
++    
++    /** Files which are always written into the container file */
++    protected HashMap alreadyWrittenFiles = new HashMap();
++
++    /**
++     * Dispatches a message to the listeners.
++     * 
++     * @param job The job description.
++     */
++    protected void sendMsg(String job)
++    {
++        sendMsg(job, PackagerListener.MSG_INFO);
++    }
++
++    /**
++     * Dispatches a message to the listeners at specified priority.
++     * 
++     * @param job The job description.
++     * @param priority The message priority.
++     */
++    protected void sendMsg(String job, int priority)
++    {
++        if (listener != null) listener.packagerMsg(job, priority);
++    }
++
++    /** Dispatches a start event to the listeners. */
++    protected void sendStart()
++    {
++        if (listener != null) listener.packagerStart();
++    }
++
++    /** Dispatches a stop event to the listeners. */
++    protected void sendStop()
++    {
++        if (listener != null) listener.packagerStop();
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addCustomJar(com.izforge.izpack.CustomData, java.net.URL)
++     */
++    public void addCustomJar(CustomData ca, URL url)
++    {
++        customDataList.add(ca); // serialized to keep order/variables correct
++        addJarContent(url); // each included once, no matter how many times
++        // added
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addJarContent(java.net.URL)
++     */
++    public void addJarContent(URL jarURL)
++    {
++        addJarContent(jarURL, null);
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addJarContent(java.net.URL, java.util.List)
++     */
++    public void addJarContent(URL jarURL, List files)
++    {
++        Object [] cont = { jarURL, files };
++        sendMsg(&quot;Adding content of jar: &quot; + jarURL.getFile(), PackagerListener.MSG_VERBOSE);
++        includedJarURLs.add(cont);
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addLangPack(java.lang.String, java.net.URL, java.net.URL)
++     */
++    public void addLangPack(String iso3, URL xmlURL, URL flagURL)
++    {
++        sendMsg(&quot;Adding langpack: &quot; + iso3, PackagerListener.MSG_VERBOSE);
++        // put data &amp; flag as entries in installer, and keep array of iso3's
++        // names
++        langpackNameList.add(iso3);
++        addResource(&quot;flag.&quot; + iso3, flagURL);
++        installerResourceURLMap.put(&quot;langpacks/&quot; + iso3 + &quot;.xml&quot;, xmlURL);
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addNativeLibrary(java.lang.String, java.net.URL)
++     */
++    public void addNativeLibrary(String name, URL url) throws Exception
++    {
++        sendMsg(&quot;Adding native library: &quot; + name, PackagerListener.MSG_VERBOSE);
++        installerResourceURLMap.put(&quot;native/&quot; + name, url);
++    }
++
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addNativeUninstallerLibrary(com.izforge.izpack.CustomData)
++     */
++    public void addNativeUninstallerLibrary(CustomData data)
++    {
++        customDataList.add(data); // serialized to keep order/variables
++        // correct
++
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addPack(com.izforge.izpack.compiler.PackInfo)
++     */
++    public void addPack(PackInfo pack)
++    {
++        packsList.add(pack);
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addPanelJar(com.izforge.izpack.Panel, java.net.URL)
++     */
++    public void addPanelJar(Panel panel, URL jarURL)
++    {
++        panelList.add(panel); // serialized to keep order/variables correct
++        addJarContent(jarURL); // each included once, no matter how many times
++        // added
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#addResource(java.lang.String, java.net.URL)
++     */
++    public void addResource(String resId, URL url)
++    {
++        sendMsg(&quot;Adding resource: &quot; + resId, PackagerListener.MSG_VERBOSE);
++        installerResourceURLMap.put(&quot;res/&quot; + resId, url);
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#getCompressor()
++     */
++    public PackCompressor getCompressor()
++    {
++        return compressor;
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#getPackagerListener()
++     */
++    public PackagerListener getPackagerListener()
++    {
++        return listener;
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#getPacksList()
++     */
++    public List getPacksList()
++    {
++        return packsList;
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#getVariables()
++     */
++    public Properties getVariables()
++    {
++        return variables;
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#initPackCompressor(java.lang.String, int)
++     */
++    public void initPackCompressor(String compr_format, int compr_level) throws CompilerException
++    {
++        compressor = PackCompressorFactory.get( compr_format);
++        compressor.setCompressionLevel(compr_level);        
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#setGUIPrefs(com.izforge.izpack.GUIPrefs)
++     */
++    public void setGUIPrefs(GUIPrefs prefs)
++    {
++        sendMsg(&quot;Setting the GUI preferences&quot;, PackagerListener.MSG_VERBOSE);
++        guiPrefs = prefs;
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#setInfo(com.izforge.izpack.Info)
++     */
++    public void setInfo(Info info) throws Exception
++    {
++        sendMsg(&quot;Setting the installer information&quot;, PackagerListener.MSG_VERBOSE);
++        this.info = info;
++        if( ! getCompressor().useStandardCompression() &amp;&amp; 
++                getCompressor().getDecoderMapperName() != null  )
++        {
++            this.info.setPackDecoderClassName(getCompressor().getDecoderMapperName());
++        }
++    }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.IPackager#setPackagerListener(com.izforge.izpack.compiler.PackagerListener)
++     */
++    public void setPackagerListener(PackagerListener listener)
++    {
++        this.listener = listener;
++    }
++
++}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000582.html">[izpack-changes] r1836 - in izpack-src/trunk: . lib src/dist-files	src/doc-ng/XHTML src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000584.html">[izpack-changes] r1838 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#583">[ date ]</a>
+              <a href="thread.html#583">[ thread ]</a>
+              <a href="subject.html#583">[ subject ]</a>
+              <a href="author.html#583">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

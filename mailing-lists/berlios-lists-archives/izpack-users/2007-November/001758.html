@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] IZPack Ant task - native files are not taken from	${basedir} but from current directory
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20IZPack%20Ant%20task%20-%20native%20files%20are%20not%20taken%20from%0A%09%24%7Bbasedir%7D%20but%20from%20current%20directory&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001756.html">
+   <LINK REL="Next"  HREF="001759.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] IZPack Ant task - native files are not taken from	${basedir} but from current directory</H1>
+    <B>Ren&#233; Krell</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20IZPack%20Ant%20task%20-%20native%20files%20are%20not%20taken%20from%0A%09%24%7Bbasedir%7D%20but%20from%20current%20directory&In-Reply-To="
+       TITLE="[izpack-users] IZPack Ant task - native files are not taken from	${basedir} but from current directory">rkrell at gk-software.com
+       </A><BR>
+    <I>Wed Nov 28 15:24:46 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001756.html">[izpack-users] Ant Action Listeners and conditions
+</A></li>
+        <LI>Next message: <A HREF="001759.html">[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1758">[ date ]</a>
+              <a href="thread.html#1758">[ thread ]</a>
+              <a href="subject.html#1758">[ subject ]</a>
+              <a href="author.html#1758">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I have an Ant buildfile with the Ant task integrated:
+-------------------------------------------------
+  &lt;izpack input=&quot;${basedir}/install.xml&quot;
+	output=&quot;${dist.dir}/installer.jar&quot;
+	installerType=&quot;standard&quot;
+	basedir=&quot;${basedir}&quot;/&gt;
+-------------------------------------------------
+
+If I run it from the same directory ${basedir} as the current working 
+directory, than all goes fine.
+
+If I run it from another directory by relative or absolute paths, either by 
+ant -f ... or the &lt;ant&gt; task within another buildfile from a different 
+directory, the task fails:
+-------------------------------------------------
+install.xml:30: Native Library not found: bin/native/3rdparty/win32jni.dll
+-------------------------------------------------
+
+The file is really there, but assumably the &lt;native&gt; tag in the installer 
+description install.xml:
+-------------------------------------------------
+  &lt;native type=&quot;3rdparty&quot; name=&quot;win32jni.dll&quot; stage=&quot;both&quot;&gt;
+    &lt;os family=&quot;windows&quot;/&gt;
+  &lt;/native&gt;
+-------------------------------------------------
+does not look in the current Ant project's ${basedir}, but in the current 
+working directory, which must not be necessarily the same. Ant tasks by 
+default use ${basedir} as the prefix for relative paths, so it would be fine 
+if the IZPack Ant task would do so, too. The current working directory is 
+normally unpredictable and does not guarantee a clean Ant build.
+
+Thanks, R.
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001756.html">[izpack-users] Ant Action Listeners and conditions
+</A></li>
+	<LI>Next message: <A HREF="001759.html">[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1758">[ date ]</a>
+              <a href="thread.html#1758">[ thread ]</a>
+              <a href="subject.html#1758">[ subject ]</a>
+              <a href="author.html#1758">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

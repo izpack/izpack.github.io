@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Patch for embedding panel configuration in the	single install.xml
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20for%20embedding%20panel%20configuration%20in%20the%0A%09single%20install.xml&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000410.html">
+   <LINK REL="Next"  HREF="000426.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Patch for embedding panel configuration in the	single install.xml</H1>
+    <B>Sylvain RIBEYRON</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20for%20embedding%20panel%20configuration%20in%20the%0A%09single%20install.xml&In-Reply-To="
+       TITLE="[izpack-devel] Patch for embedding panel configuration in the	single install.xml">sylvain at alveole-studio.com
+       </A><BR>
+    <I>Sun Aug 20 11:11:39 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000410.html">[izpack-devel] Addition of one more attribute 'createForField'	to make installer more dynamic
+</A></li>
+        <LI>Next message: <A HREF="000426.html">[izpack-devel] Patch for embedding panel configuration in the	single install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#409">[ date ]</a>
+              <a href="thread.html#409">[ thread ]</a>
+              <a href="subject.html#409">[ subject ]</a>
+              <a href="author.html#409">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all.
+
+As I'm not a submitter, I send you this patch to enable IzPack to easily 
+contain Panel configurations in the single Install.xml.
+
+As an example, users will now be able to directly declare all fields of 
+their UserInput panels, just inside the &lt;panel&gt; tag, in their single 
+install.xml file. For example, here is an extract of my install.xml:
+
+        &lt;panel classname=&quot;InfoPanel&quot;/&gt;
+        &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+        &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+        &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+        &lt;panel classname=&quot;UserInputPanel&quot;&gt;
+            &lt;field type=&quot;title&quot; txt=&quot;My panel title&quot;/&gt;
+            &lt;field type=&quot;divider&quot;/&gt;
+            &lt;field type=&quot;text&quot; variable=&quot;a_field&quot;&gt;
+                &lt;description align=&quot;left&quot; txt=&quot;A field to fill&quot;/&gt;
+                &lt;spec txt=&quot;Field&quot; size=&quot;50&quot;/&gt;
+            &lt;/field&gt;
+        &lt;/panel&gt;
+
+
+Changes are simple:
+- Panel class now contains an XMLElement named panelConfiguation. This 
+XMLElement is the &lt;panel&gt; tag that declares the panel in the install.xml 
+file.
+- All IzPanel constructors now need a third argument: the panel. This 
+third argument is stored in IsPanel as &quot;panel&quot; member. It may be used by 
+any sub-class to read specific configuration.
+- All methods of interface AutomatedInstaller also need a Panel argument.
+
+I also changed UserInputPanel so that it checks if configuration is 
+available as embeded, or as a resource file.
+
+Here is a patch, based upon a 3.8.1 version of IzPack.
+
+I home my contribution will help.
+
+
+Sylvain.
+
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: patch.txt
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20060820/a7453c20/attachment.txt">https://lists.berlios.de/pipermail/izpack-devel/attachments/20060820/a7453c20/attachment.txt</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000410.html">[izpack-devel] Addition of one more attribute 'createForField'	to make installer more dynamic
+</A></li>
+	<LI>Next message: <A HREF="000426.html">[izpack-devel] Patch for embedding panel configuration in the	single install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#409">[ date ]</a>
+              <a href="thread.html#409">[ thread ]</a>
+              <a href="subject.html#409">[ subject ]</a>
+              <a href="author.html#409">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

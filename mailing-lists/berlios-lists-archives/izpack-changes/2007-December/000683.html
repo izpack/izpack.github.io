@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1937 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1937%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000682.html">
+   <LINK REL="Next"  HREF="000684.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1937 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1937%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1937 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Fri Dec  7 15:26:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000682.html">[izpack-changes] r1936 - izpack-src/trunk/src/dtd
+</A></li>
+        <LI>Next message: <A HREF="000684.html">[izpack-changes] r1938 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#683">[ date ]</a>
+              <a href="thread.html#683">[ thread ]</a>
+              <a href="subject.html#683">[ subject ]</a>
+              <a href="author.html#683">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-12-07 15:26:54 +0100 (Fri, 07 Dec 2007)
+New Revision: 1937
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java
+Log:
+bugfix: installdata not given to conditions
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-12-07 11:58:02 UTC (rev 1936)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-12-07 14:26:54 UTC (rev 1937)
+@@ -21,6 +21,7 @@
+ package com.izforge.izpack.rules;
+ 
+ import java.util.Hashtable;
++import java.util.Iterator;
+ import java.util.Map;
+ import java.util.Properties;
+ import java.util.Vector;
+@@ -72,6 +73,12 @@
+         this();
+         RulesEngine.installdata = installdata;
+         conditionsmap = rules;
++        Iterator keyiter = conditionsmap.keySet().iterator();
++        while (keyiter.hasNext()) {
++            String key = (String) keyiter.next();
++            Condition condition = (Condition) conditionsmap.get(key);
++            condition.setInstalldata(installdata);
++        }
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java	2007-12-07 11:58:02 UTC (rev 1936)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java	2007-12-07 14:26:54 UTC (rev 1937)
+@@ -96,14 +96,19 @@
+ 
+     public boolean isTrue()
+     {
+-        String val = this.installdata.getVariable(variablename);
+-        if (val == null)
+-        {
++        if (this.installdata != null) {
++            String val = this.installdata.getVariable(variablename);
++            if (val == null)
++            {
++                return false;
++            }
++            else
++            {
++                return val.equals(value);
++            }
++        }
++        else {
+             return false;
+         }
+-        else
+-        {
+-            return val.equals(value);
+-        }
+     }
+ }
+\ No newline at end of file
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000682.html">[izpack-changes] r1936 - izpack-src/trunk/src/dtd
+</A></li>
+	<LI>Next message: <A HREF="000684.html">[izpack-changes] r1938 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#683">[ date ]</a>
+              <a href="thread.html#683">[ thread ]</a>
+              <a href="subject.html#683">[ subject ]</a>
+              <a href="author.html#683">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

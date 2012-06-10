@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1587 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1587%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000331.html">
+   <LINK REL="Next"  HREF="000333.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1587 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1587%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1587 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Tue Sep 12 22:37:34 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000331.html">[izpack-changes] r1586 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000333.html">[izpack-changes] r1588 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#332">[ date ]</a>
+              <a href="thread.html#332">[ thread ]</a>
+              <a href="subject.html#332">[ subject ]</a>
+              <a href="author.html#332">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-12 22:37:33 +0200 (Tue, 12 Sep 2006)
+New Revision: 1587
+
+Modified:
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer/UninstallData.java
+Log:
+Optimized/Fixed UnixRootShortcutShellscript: 
+Here: store only the RootScript content
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer/UninstallData.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer/UninstallData.java	2006-09-12 20:36:53 UTC (rev 1586)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer/UninstallData.java	2006-09-12 20:37:33 UTC (rev 1587)
+@@ -55,7 +55,7 @@
+     private Map additionalData;
+     
+     /** Filesmap which should removed by the root user for another user */
+-    private Hashtable rootData;
++    private String rootScript;
+ 
+     /** The constructor. */
+     private UninstallData()
+@@ -63,10 +63,11 @@
+         filesList = new ArrayList();
+         executablesList = new ArrayList();
+         additionalData = new HashMap();
+-        rootData = new Hashtable();
++        rootScript = new String();
+     }
+     
+-    public final static String RootFiles = &quot;rootfiles&quot;;
++    /** Constant RootFiles = &quot;rootfiles&quot; */
++    public final static String ROOTSCRIPT = &quot;rootscript&quot;;
+ 
+     /**
+      * Returns the instance (it is a singleton).
+@@ -183,12 +184,11 @@
+     /**
+      * Adds the given File to delete as Root for the given User.
+      * 
+-     * @param aFilePath The file to delete.
+-     * @param aUser a User to delete for
++     * @param aRootUninstallScript The Script to exec as Root at uninstall.
+      */
+-    public void addRootAsUserFile( String aFilePath, UnixUser aUser )
++    public void addRootUninstallScript( String aRootUninstallScript )
+     {    
+-        rootData.put(aFilePath, aUser);
++        rootScript = new String( aRootUninstallScript );
+     }
+     
+     /**
+@@ -196,9 +196,9 @@
+      * 
+      * @return root data
+      */
+-    public Hashtable getRootData()
++    public String getRootScript()
+     {
+-        return rootData;
++        return rootScript;
+     }
+     
+     
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000331.html">[izpack-changes] r1586 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000333.html">[izpack-changes] r1588 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#332">[ date ]</a>
+              <a href="thread.html#332">[ thread ]</a>
+              <a href="subject.html#332">[ subject ]</a>
+              <a href="author.html#332">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

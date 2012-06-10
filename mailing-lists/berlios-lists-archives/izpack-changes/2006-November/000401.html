@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1656 - in	izpack-src/trunk/src/lib/com/coi/tools/os: izpack win
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1656%20-%20in%0A%09izpack-src/trunk/src/lib/com/coi/tools/os%3A%20izpack%20win&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000400.html">
+   <LINK REL="Next"  HREF="000402.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1656 - in	izpack-src/trunk/src/lib/com/coi/tools/os: izpack win</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1656%20-%20in%0A%09izpack-src/trunk/src/lib/com/coi/tools/os%3A%20izpack%20win&In-Reply-To="
+       TITLE="[izpack-changes] r1656 - in	izpack-src/trunk/src/lib/com/coi/tools/os: izpack win">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 28 10:50:38 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000400.html">[izpack-changes] r1655 - in izpack-src/trunk/src/lib/com:	coi/tools/os/win coi/tools/os/win/resources	izforge/izpack/panels izforge/izpack/util/os
+</A></li>
+        <LI>Next message: <A HREF="000402.html">[izpack-changes] r1657 - in izpack-src/trunk: . src/dtd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#401">[ date ]</a>
+              <a href="thread.html#401">[ thread ]</a>
+              <a href="subject.html#401">[ subject ]</a>
+              <a href="author.html#401">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-11-28 10:50:38 +0100 (Tue, 28 Nov 2006)
+New Revision: 1656
+
+Modified:
+   izpack-src/trunk/src/lib/com/coi/tools/os/izpack/COIOSHelper.java
+   izpack-src/trunk/src/lib/com/coi/tools/os/izpack/Registry.java
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/NativeLibException.java
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/RegDataContainer.java
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryLogItem.java
+Log:
+Java-doc entries corrected (no changes in the code).
+
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/izpack/COIOSHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/izpack/COIOSHelper.java	2006-11-28 09:32:35 UTC (rev 1655)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/izpack/COIOSHelper.java	2006-11-28 09:50:38 UTC (rev 1656)
+@@ -44,6 +44,9 @@
+     /**
+      * This method is used to free the library at the end of progam execution. After this call, any
+      * instance of this class will not be usable any more!
++     * 
++     * @param name the name of the library to free. Use only the name and extension but not the
++     * path.
+      */
+     private native void FreeLibrary(String name);
+ 
+@@ -57,6 +60,8 @@
+ 
+     /**
+      * Returns the one existent object of this class.
++     * 
++     * @return the one existent object of this class
+      */
+     public static synchronized COIOSHelper getInstance()
+     {
+@@ -100,6 +105,7 @@
+      * library COIOSHelper which should contain native methods for the dependant.
+      * 
+      * @param dependant to be added
++     * @throws Exception if loadLibrary for the needed lib fails
+      */
+     public void addDependant(NativeLibraryClient dependant) throws Exception
+     {
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/izpack/Registry.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/izpack/Registry.java	2006-11-28 09:32:35 UTC (rev 1655)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/izpack/Registry.java	2006-11-28 09:50:38 UTC (rev 1656)
+@@ -37,6 +37,7 @@
+ 
+     /**
+      * Default constructor.
++     * @exception Exception if initialize of native part fails
+      */
+     public Registry() throws Exception
+     {
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/win/NativeLibException.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/NativeLibException.java	2006-11-28 09:32:35 UTC (rev 1655)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/NativeLibException.java	2006-11-28 09:50:38 UTC (rev 1656)
+@@ -253,6 +253,11 @@
+         return (args);
+     }
+ 
++    /**
++     * Revise placeholder in the given message with the setted arguments 
++     * @param msg message to be revised
++     * @return revised message 
++     */
+     public String reviseMsgWithArgs(String msg)
+     {
+         for (int i = 0; i &lt; args.size(); ++i)
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/win/RegDataContainer.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/RegDataContainer.java	2006-11-28 09:32:35 UTC (rev 1655)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/RegDataContainer.java	2006-11-28 09:50:38 UTC (rev 1656)
+@@ -22,7 +22,6 @@
+ package com.coi.tools.os.win;
+ 
+ import java.io.Serializable;
+-import java.util.ArrayList;
+ 
+ /**
+  * &lt;p&gt;
+@@ -229,13 +228,13 @@
+     /**
+      * Verifies whether the given int represents a valid type or not.
+      * 
+-     * @param type value to be verified
++     * @param type0 value to be verified
+      * @return whether the given int represents a valid type or not
+      */
+-    public boolean isValidType(int type)
++    public boolean isValidType(int type0)
+     {
+         for (int i = 0; i &lt; VALID_TYPES.length; ++i)
+-            if (type == VALID_TYPES[i]) return (true);
++            if (type0 == VALID_TYPES[i]) return (true);
+         return (false);
+ 
+     }
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryLogItem.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryLogItem.java	2006-11-28 09:32:35 UTC (rev 1655)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryLogItem.java	2006-11-28 09:50:38 UTC (rev 1656)
+@@ -39,14 +39,20 @@
+     private static final long serialVersionUID = 3618134559108444211L;
+ 
+     /** Types of log items */
++    
++    /** Identifier for removed key */
+     public static final int REMOVED_KEY = 1;
+ 
++    /** Identifier for created key */
+     public static final int CREATED_KEY = 2;
+ 
++    /** Identifier for removed value */
+     public static final int REMOVED_VALUE = 3;
+ 
++    /** Identifier for created value */
+     public static final int CREATED_VALUE = 4;
+ 
++    /** Identifier for changed value */
+     public static final int CHANGED_VALUE = 5;
+ 
+     private int type;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000400.html">[izpack-changes] r1655 - in izpack-src/trunk/src/lib/com:	coi/tools/os/win coi/tools/os/win/resources	izforge/izpack/panels izforge/izpack/util/os
+</A></li>
+	<LI>Next message: <A HREF="000402.html">[izpack-changes] r1657 - in izpack-src/trunk: . src/dtd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#401">[ date ]</a>
+              <a href="thread.html#401">[ thread ]</a>
+              <a href="subject.html#401">[ subject ]</a>
+              <a href="author.html#401">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

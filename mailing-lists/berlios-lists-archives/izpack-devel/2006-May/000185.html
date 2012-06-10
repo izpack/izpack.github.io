@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Compiling Without Creating All Packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Compiling%20Without%20Creating%20All%20Packs&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000181.html">
+   <LINK REL="Next"  HREF="000182.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Compiling Without Creating All Packs</H1>
+    <B>Miraodb</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Compiling%20Without%20Creating%20All%20Packs&In-Reply-To="
+       TITLE="[izpack-devel] Compiling Without Creating All Packs">miraodb at hotmail.com
+       </A><BR>
+    <I>Mon May 15 16:57:34 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000181.html">[izpack-devel] Compiling Without Creating All Packs
+</A></li>
+        <LI>Next message: <A HREF="000182.html">[izpack-devel] Self-Extracting and Self Running Jars -- Anyone Want Info On Them?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Hal,
+
+If i understand well, you want to compile only a set of packs within your
+full install.xml.
+This is currently not possible. However, i'm sure you could reduce the time
+spent on compiling by for example merging the 4 packs into 2.
+I explain....
+I guess you're using the os attribute on the pack element for those
+packages.
+Instead of that, you could simply add the attribute to each element within
+the pack after merging windows and unix files.
+
+example:
+
+instead of this:
+&lt;pack name=&quot;Client&quot; id=&quot;clientid&quot; preselected=&quot;yes&quot; required=&quot;no&quot;
+os=&quot;windows&quot;&gt;
+   &lt;parsable targetfile=&quot;$INSTALL_PATH\axiom_batch\startomni.bat&quot;
+os=&quot;windows&quot;/&gt;
+&lt;/pack&gt;
+&lt;pack name=&quot;Client&quot; id=&quot;clientid&quot; preselected=&quot;yes&quot; required=&quot;no&quot; os=&quot;unix&quot;&gt;
+   &lt;executable type=&quot;shell&quot;
+targetfile=&quot;$INSTALL_PATH/axiom_batch/StopNamingService.sh&quot; os=&quot;unix&quot;/&gt;
+&lt;/pack&gt;
+
+
+Use this:
+&lt;pack name=&quot;Client&quot; id=&quot;clientid&quot; preselected=&quot;yes&quot; required=&quot;no&quot;&gt;
+&lt;parsable targetfile=&quot;$INSTALL_PATH\axiom_batch\startomni.bat&quot;
+os=&quot;windows&quot;/&gt;
+   &lt;executable type=&quot;shell&quot;
+targetfile=&quot;$INSTALL_PATH/axiom_batch/StopNamingService.sh&quot; os=&quot;unix&quot;/&gt;
+&lt;/pack&gt;
+
+This has two advantages.
+
+- If you need files in both systems, you don't need to repeat them (saving
+time and space)
+- If you need to add later one something to the pack, you just have to do it
+in one place.
+
+I tried both ways for my install and i saved up to 30mo and about 2
+minutes...
+
+Hope that helps,
+Cheers,
+Fabrice
+
+----- Original Message ----- 
+From: &quot;Hal Vaughan&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">hal at thresholddigital.com</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>&gt;
+Sent: Sunday, May 14, 2006 8:44 PM
+Subject: [izpack-devel] Compiling Without Creating All Packs
+
+
+&gt;<i> I sent this to the user list by mistake a few weeks ago.  Since I had no
+</I>&gt;<i> response, I'm re-sending it on this list.
+</I>&gt;<i>
+</I>&gt;<i> When I create an install for a client, I have one pack (on the web
+</I>&gt;<i> install) that is always unique.  I also have 4 other packs, 2 of
+</I>&gt;<i> OpenOffice (1 Linux, 1 Windows), and 2 of RealVNC (again, 1 Linux, 1
+</I>&gt;<i> Windows).  The OpenOffice packs take 8-10 minutes to compile and
+</I>&gt;<i> create.  These packs are the same for each client, so once they're
+</I>&gt;<i> created the 1st time for the first client, there is no need to
+</I>&gt;<i> re-create them.
+</I>&gt;<i>
+</I>&gt;<i> Is there any way I can compile a web install that is supposed to include
+</I>&gt;<i> some packs but without actually compiling them?
+</I>&gt;<i>
+</I>&gt;<i> I suppose I could hack the code, but it'll be a couple months before I
+</I>&gt;<i> get to that.  Is there another way to do it from the command line?
+</I>&gt;<i>
+</I>&gt;<i> Thanks.
+</I>&gt;<i>
+</I>&gt;<i> Hal
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000181.html">[izpack-devel] Compiling Without Creating All Packs
+</A></li>
+	<LI>Next message: <A HREF="000182.html">[izpack-devel] Self-Extracting and Self Running Jars -- Anyone Want Info On Them?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

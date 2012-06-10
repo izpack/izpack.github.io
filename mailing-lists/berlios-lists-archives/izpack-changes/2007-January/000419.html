@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1674 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1674%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000418.html">
+   <LINK REL="Next"  HREF="000420.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1674 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1674%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1674 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan  4 14:18:00 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000418.html">[izpack-changes] r1673 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+        <LI>Next message: <A HREF="000420.html">[izpack-changes] r1675 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . compiler installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#419">[ date ]</a>
+              <a href="thread.html#419">[ thread ]</a>
+              <a href="subject.html#419">[ subject ]</a>
+              <a href="author.html#419">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-04 14:17:58 +0100 (Thu, 04 Jan 2007)
+New Revision: 1674
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+Added support for variables in UserInputPanel
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-01-03 08:49:13 UTC (rev 1673)
++++ izpack-src/trunk/Versions.txt	2007-01-04 13:17:58 UTC (rev 1674)
+@@ -27,6 +27,7 @@
+   (Markus Schlegel via Julien Ponge).
+ - TargetPanel.dir setting bug fix (Markus Schlegel via Julien Ponge).
+ - Added support for packaging selection (Dennis Reil)
++- Added support for variables in UserInputPanel (Dennis Reil)
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2007-01-03 08:49:13 UTC (rev 1673)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2007-01-04 13:17:58 UTC (rev 1674)
+@@ -61,6 +61,7 @@
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
+ import com.izforge.izpack.installer.ResourceManager;
++import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.MultiLineLabel;
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.OsVersion;
+@@ -291,7 +292,13 @@
+     private static final String UNSELECTEDPACKS = &quot;createForUnselectedPack&quot;; // new
+ 
+     protected static final String ATTRIBUTE_CONDITIONID_NAME = &quot;conditionid&quot;;
++    
++    protected static final String VARIABLE_NODE = &quot;variable&quot;;
+ 
++    protected static final String ATTRIBUTE_VARIABLE_NAME = &quot;name&quot;;
++
++    protected static final String ATTRIBUTE_VARIABLE_VALUE = &quot;value&quot;;
++
+     // node
+ 
+     private static final String NAME = &quot;name&quot;;
+@@ -416,6 +423,9 @@
+             return;
+         }
+ 
++        // refresh variables specified in spec
++        updateVariables();
++        
+         // ----------------------------------------------------
+         // process all field nodes. Each field node is analyzed
+         // for its type, then an appropriate memeber function
+@@ -2909,7 +2919,57 @@
+         }
+ 
+     } // private class SearchFile
++    
++    protected void updateVariables()
++    {
++        /**
++         * Look if there are new variables defined
++         */
++        Vector variables = spec.getChildrenNamed(VARIABLE_NODE);
++        RulesEngine rules = parent.getRules();
+ 
++        VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
++        for (int i = 0; i &lt; variables.size(); i++)
++        {
++            XMLElement variable = (XMLElement) variables.elementAt(i);
++            String vname = variable.getAttribute(ATTRIBUTE_VARIABLE_NAME);
++            String vvalue = variable.getAttribute(ATTRIBUTE_VARIABLE_VALUE);
++            String conditionid = variable.getAttribute(ATTRIBUTE_CONDITIONID_NAME);
++            if (conditionid != null)
++            {
++                // check if condition for this variable is fulfilled
++                if (!rules.isConditionTrue(conditionid, idata.getVariables()))
++                {
++                    continue;
++                }
++            }
++            // are there any OS-Constraints?
++            if (OsConstraint.oneMatchesCurrentSystem(variable))
++            {
++                if (vname == null)
++                {
++                    continue;
++                }
++                else
++                {
++                    // vname is given
++                    if (vvalue != null)
++                    {
++                        // try to substitute variables in value field
++                        vvalue = vs.substitute(vvalue, null);
++                        // to cut out circular references
++                        idata.setVariable(vname, &quot;&quot;);
++                        vvalue = vs.substitute(vvalue, null);
++                    }
++                    // try to set variable
++                    idata.setVariable(vname, vvalue);
++
++                    //                        
++                }
++            }
++        }
++    }
++
+ } // public class UserInputPanel
+ /*---------------------------------------------------------------------------*/
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000418.html">[izpack-changes] r1673 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+	<LI>Next message: <A HREF="000420.html">[izpack-changes] r1675 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . compiler installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#419">[ date ]</a>
+              <a href="thread.html#419">[ thread ]</a>
+              <a href="subject.html#419">[ subject ]</a>
+              <a href="author.html#419">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,516 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1704 - in izpack-src/trunk: .	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1704%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000448.html">
+   <LINK REL="Next"  HREF="000450.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1704 - in izpack-src/trunk: .	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1704%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1704 - in izpack-src/trunk: .	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Sat Jan 13 18:38:08 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000448.html">[izpack-changes] r1703 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000450.html">[izpack-changes] r1705 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#449">[ date ]</a>
+              <a href="thread.html#449">[ thread ]</a>
+              <a href="subject.html#449">[ subject ]</a>
+              <a href="author.html#449">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-01-13 18:37:25 +0100 (Sat, 13 Jan 2007)
+New Revision: 1704
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/XPackFile.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+Log:
+Loose packs fixes (Markus Schlegel via Julien Ponge)
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-01-12 15:22:52 UTC (rev 1703)
++++ izpack-src/trunk/Versions.txt	2007-01-13 17:37:25 UTC (rev 1704)
+@@ -46,6 +46,7 @@
+   no TargetPanel.dir.x resource was present (Stefan Wachter via Julien Ponge)
+ - Added MultiVolumePackager, MultiVolumeUnpacker, MultiVolumeInstaller to support splitting the installer (Dennis Reil)
+ - Added conditions for packs to PacksPanel (Dennis Reil)
++- Loose packs fixes (Markus Schlegel via Julien Ponge)
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java	2007-01-12 15:22:52 UTC (rev 1703)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java	2007-01-13 17:37:25 UTC (rev 1704)
+@@ -72,7 +72,11 @@
+ 
+     public static final int OVERRIDE_UPDATE = 4;
+ 
+-    public String sourcePath = null;
++    /** Only available when compiling. Makes no sense when installing, use relativePath instead. */
++    public transient String sourcePath = null;//should not be used anymore - may deprecate it.
++    /** The Path of the file relative to the given (compiletime's) basedirectory.
++     *  Can be resolved while installing with either current working directory or directory of &quot;installer.jar&quot;. */
++    protected String relativePath = null;
+ 
+     /** The full path name of the target file */
+     private String targetPath = null;
+@@ -102,15 +106,33 @@
+     /**
+      * Constructs and initializes from a source file.
+      * 
++     * @param baseDir the baseDirectory of the Fileselection/compilation or null
+      * @param src file which this PackFile describes
+      * @param target the path to install the file to
+      * @param osList OS constraints
+      * @param override what to do when the file already exists
+      * @throws FileNotFoundException if the specified file does not exist.
+      */
+-    public PackFile(File src, String target, List osList, int override)
++    public PackFile(File baseDir, File src, String target, List osList, int override)
+             throws FileNotFoundException
+     {
++        this(src, computeRelativePathFrom(baseDir, src), target, osList, override, null);
++    }
++    
++    /**
++     * Constructs and initializes from a source file.
++     *
++     * @param src  file which this PackFile describes
++     * @param relativeSourcePath the path relative to the compiletime's basedirectory, use computeRelativePathFrom(File, File) to compute this.
++     * @param target the path to install the file to
++     * @param osList OS constraints
++     * @param override what to do when the file already exists
++     * @param additionals additional attributes
++     * @throws FileNotFoundException if the specified file does not exist.
++     */
++    public PackFile(File src, String relativeSourcePath, String target, List osList, int override, Map additionals)
++    throws FileNotFoundException
++    {
+         if (!src.exists()) // allows cleaner client co
+             throw new FileNotFoundException(&quot;No such file: &quot; + src);
+ 
+@@ -118,6 +140,8 @@
+         if (target.endsWith(&quot;/&quot;)) target = target.substring(0, target.length() - 1);
+ 
+         this.sourcePath = src.getPath();
++        this.relativePath = relativeSourcePath; 
++
+         this.targetPath = target;
+         this.osConstraints = osList;
+         this.override = override;
+@@ -125,11 +149,13 @@
+         this.length = src.length();
+         this.mtime = src.lastModified();
+         this.isDirectory = src.isDirectory();
++        this.additionals = additionals;
+     }
+ 
+     /**
+      * Constructs and initializes from a source file.
+      * 
++     * @param baseDir The Base directory that is used to search for the files. This is used to build the relative path's
+      * @param src file which this PackFile describes
+      * @param target the path to install the file to
+      * @param osList OS constraints
+@@ -137,13 +163,36 @@
+      * @param additionals additional attributes
+      * @throws FileNotFoundException if the specified file does not exist.
+      */
+-    public PackFile(File src, String target, List osList, int override, Map additionals)
++    public PackFile(File baseDir, File src, String target, List osList, int override, Map additionals)
+             throws FileNotFoundException
+     {
+-        this(src, target, osList, override);
+-        this.additionals = additionals;
++        this(src, computeRelativePathFrom(baseDir, src), target, osList, override, additionals);
+     }
+ 
++    /**
++     * Builds the relative path of file to the baseDir.
++     * @param baseDir The Base Directory to build the relative path from
++     * @param file the file inside basDir
++     * @return null if file is not a inside baseDir
++     */
++    public static String computeRelativePathFrom(File baseDir, File file) {
++        if (baseDir==null || file == null) return null;
++        try{ //extract relative path...
++            if (file.getCanonicalPath().startsWith(baseDir.getCanonicalPath()))
++            {
++              return file.getCanonicalPath().substring(baseDir.getCanonicalPath().length()); 
++            }
++        }
++        catch(Exception x)//don't throw an exception here. return null instead!
++        {
++            //if we cannot build the relative path because of an error, the developer should be informed about.
++            x.printStackTrace();
++        }
++        
++        //we can not build a relative path for whatever reason
++        return null;
++    }
++
+     public void setPreviousPackFileRef(int previousPackNumber, long offsetInPreviousPack)
+     {
+         this.previousPackNumber = previousPackNumber;
+@@ -189,6 +238,13 @@
+     {
+         return targetPath;
+     }
++    
++    /** The Path of the file relative to the given (compiletime's) basedirectory.
++     *  Can be resolved while installing with either current working directory or directory of &quot;installer.jar&quot; */
++    public String getRelativeSourcePath() 
++    {
++        return relativePath;    
++    }
+ 
+     /**
+      * Returns the additionals map.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/XPackFile.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/XPackFile.java	2007-01-12 15:22:52 UTC (rev 1703)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/XPackFile.java	2007-01-13 17:37:25 UTC (rev 1704)
+@@ -46,10 +46,10 @@
+      * @param override
+      * @throws FileNotFoundException
+      */
+-    public XPackFile(File src, String target, List osList, int override)
++    public XPackFile(File baseDir, File src, String target, List osList, int override)
+             throws FileNotFoundException
+     {
+-        super(src, target, osList, override);
++        super(baseDir, src, target, osList, override);
+         this.archivefileposition = 0;
+     }
+ 
+@@ -61,16 +61,16 @@
+      * @param additionals
+      * @throws FileNotFoundException
+      */
+-    public XPackFile(File src, String target, List osList, int override, Map additionals)
++    public XPackFile(File baseDir, File src, String target, List osList, int override, Map additionals)
+             throws FileNotFoundException
+     {
+-        super(src, target, osList, override, additionals);
++        super(baseDir, src, target, osList, override, additionals);
+         this.archivefileposition = 0;
+     }
+ 
+     public XPackFile(PackFile packf) throws FileNotFoundException
+     {
+-        super(new File(packf.sourcePath), packf.getTargetPath(), packf.osConstraints(), packf
++        super(new File(packf.sourcePath), packf.relativePath, packf.getTargetPath(), packf.osConstraints(), packf
+                 .override(), packf.getAdditionals());
+         this.archivefileposition = 0;
+         this.packfile = packf;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-01-12 15:22:52 UTC (rev 1703)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-01-13 17:37:25 UTC (rev 1704)
+@@ -636,36 +636,38 @@
+         return 0;
+     }
+ 
+-    /**
+-     * Recursive method to add files in a pack.
+-     * 
+-     * @param file The file to add.
+-     * @param targetdir The relative path to the parent.
+-     * @param osList The target OS constraints.
+-     * @param override Overriding behaviour.
+-     * @param pack Pack to be packed into
+-     * @param additionals Map which contains additional data
+-     * @throws IOException 
+-     */
+-    protected void addRecursively(File file, String targetdir, List osList, int override,
+-            PackInfo pack, Map additionals) throws IOException
+-    {
+-        String targetfile = targetdir + &quot;/&quot; + file.getName();
+-        if (!file.isDirectory())
+-            pack.addFile(file, targetfile, osList, override, additionals);
+-        else
+-        {
+-            File[] files = file.listFiles();
+-            if (files.length == 0) // The directory is empty so must be added
+-                pack.addFile(file, targetfile, osList, override, additionals);
+-            else
+-            {
+-                // new targetdir = targetfile;
+-                for (int i = 0; i &lt; files.length; i++)
+-                    addRecursively(files[i], targetfile, osList, override, pack, additionals);
+-            }
+-        }
+-    }
++//never used here, see CompilerConfig.addRecursively(..)
++//should be deleted...
++//    /**
++//     * Recursive method to add files in a pack.
++//     * 
++//     * @param file The file to add.
++//     * @param targetdir The relative path to the parent.
++//     * @param osList The target OS constraints.
++//     * @param override Overriding behaviour.
++//     * @param pack Pack to be packed into
++//     * @param additionals Map which contains additional data
++//     * @exception FileNotFoundException if the file does not exist
++//     */
++//    protected void addRecursively(File baseDir, File file, String targetdir, List osList, int override,
++//            PackInfo pack, Map additionals) throws IOException
++//    {
++//        String targetfile = targetdir + &quot;/&quot; + file.getName();
++//        if (!file.isDirectory())
++//            pack.addFile(baseDir, file, targetfile, osList, override, additionals);
++//        else
++//        {
++//            File[] files = file.listFiles();
++//            if (files.length == 0) // The directory is empty so must be added
++//                pack.addFile(baseDir, file, targetfile, osList, override, additionals);
++//            else
++//            {
++//                // new targetdir = targetfile;
++//                for (int i = 0; i &lt; files.length; i++)
++//                    addRecursively(baseDir, files[i], targetfile, osList, override, pack, additionals);
++//            }
++//        }
++//    }
+ 
+     /**
+      * Look for an IzPack resource either in the compiler jar, or within IZPACK_HOME. The path must
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-01-12 15:22:52 UTC (rev 1703)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-01-13 17:37:25 UTC (rev 1704)
+@@ -555,6 +555,8 @@
+         Vector packElements = root.getChildrenNamed(&quot;pack&quot;);
+         if (packElements.isEmpty()) parseError(root, &quot;&lt;packs&gt; requires a &lt;pack&gt;&quot;);
+ 
++        File baseDir = new File(basedir);
++        
+         Iterator packIter = packElements.iterator();
+         while (packIter.hasNext())
+         {
+@@ -686,9 +688,9 @@
+                 try
+                 {
+                     if (unpack)
+-                        addArchiveContent(file, targetdir, osList, override, pack, additionals);
++                        addArchiveContent(baseDir, file, targetdir, osList, override, pack, additionals);
+                     else
+-                        addRecursively(file, targetdir, osList, override, pack, additionals);
++                        addRecursively(baseDir, file, targetdir, osList, override, pack, additionals);
+                 }
+                 catch (Exception x)
+                 {
+@@ -712,7 +714,7 @@
+ 
+                 try
+                 {
+-                     pack.addFile(file, target, osList, override, additionals);
++                    pack.addFile(baseDir, file, target, osList, override, additionals);
+                 }
+                 catch (FileNotFoundException x)
+                 {
+@@ -822,7 +824,7 @@
+                     {
+                         String target = new File(targetdir, files[i]).getPath();
+                         pack
+-                                .addFile(new File(dir, files[i]), target, osList, override,
++                                .addFile(baseDir, new File(dir, files[i]), target, osList, override,
+                                         additionals);
+                     }
+                     catch (FileNotFoundException x)
+@@ -835,7 +837,7 @@
+                     try
+                     {
+                         String target = new File(targetdir, dirs[i]).getPath();
+-                        pack.addFile(new File(dir, dirs[i]), target, osList, override, additionals);
++                        pack.addFile(baseDir, new File(dir, dirs[i]), target, osList, override, additionals);
+                     }
+                     catch (FileNotFoundException x)
+                     {
+@@ -1009,7 +1011,7 @@
+      * @param pack Pack to be packed into
+      * @param additionals Map which contains additional data
+      */
+-    protected void addArchiveContent(File archive, String targetdir, List osList, int override, PackInfo pack, Map additionals) throws IOException {
++    protected void addArchiveContent(File baseDir, File archive, String targetdir, List osList, int override, PackInfo pack, Map additionals) throws IOException {
+       
+       FileInputStream fin = new FileInputStream(archive);
+       ZipInputStream zin = new ZipInputStream(fin);
+@@ -1026,7 +1028,7 @@
+             PackagerHelper.copyStream(zin, out);
+             out.close();
+         
+-            pack.addFile(temp, targetdir + &quot;/&quot; + zentry.getName(), osList, override, additionals);
++            pack.addFile(baseDir, temp, targetdir + &quot;/&quot; + zentry.getName(), osList, override, additionals);
+         } catch (IOException e) {
+             throw new IOException(&quot;Couldn't create temporary file for &quot;+zentry.getName()+&quot; in archive &quot;+archive+&quot; (&quot;+e.getMessage()+&quot;)&quot;);
+         }
+@@ -1046,22 +1048,22 @@
+      * @param additionals Map which contains additional data
+      * @exception FileNotFoundException if the file does not exist
+      */
+-    protected void addRecursively(File file, String targetdir, List osList, int override,
++    protected void addRecursively(File baseDir, File file, String targetdir, List osList, int override,
+             PackInfo pack, Map additionals) throws IOException
+     {
+         String targetfile = targetdir + &quot;/&quot; + file.getName();
+         if (!file.isDirectory())
+-            pack.addFile(file, targetfile, osList, override, additionals);
++            pack.addFile(baseDir, file, targetfile, osList, override, additionals);
+         else
+         {
+             File[] files = file.listFiles();
+             if (files.length == 0) // The directory is empty so must be added
+-                pack.addFile(file, targetfile, osList, override, additionals);
++                pack.addFile(baseDir, file, targetfile, osList, override, additionals);
+             else
+             {
+                 // new targetdir = targetfile;
+                 for (int i = 0; i &lt; files.length; i++)
+-                    addRecursively(files[i], targetfile, osList, override, pack, additionals);
++                    addRecursively(baseDir, files[i], targetfile, osList, override, pack, additionals);
+             }
+         }
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-01-12 15:22:52 UTC (rev 1703)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-01-13 17:37:25 UTC (rev 1704)
+@@ -204,12 +204,12 @@
+      * until the {@link Packager#createInstaller} is invoked, thus a FileNotFoundEception will occur
+      * then, if the file is deleted in between.
+      */
+-    public void addFile(File file, String targetfile, List osList, int override, Map additionals)
++    public void addFile(File baseDir, File file, String targetfile, List osList, int override, Map additionals)
+             throws FileNotFoundException
+     {
+         if (!file.exists()) throw new FileNotFoundException(file.toString());
+ 
+-        PackFile packFile = new PackFile(file, targetfile, osList, override, additionals);
++        PackFile packFile = new PackFile(baseDir, file, targetfile, osList, override, additionals);
+         files.put(packFile, file);
+     }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-01-12 15:22:52 UTC (rev 1703)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-01-13 17:37:25 UTC (rev 1704)
+@@ -429,9 +429,6 @@
+                         }
+ 
+                         // We copy the file
+-                        out = new FileOutputStream(pathFile);
+-                        byte[] buffer = new byte[5120];
+-                        long bytesCopied = 0;
+                         InputStream pis = objIn;
+                         if (pf.isBackReference())
+                         {
+@@ -446,9 +443,56 @@
+                             // bytes)
+                         }
+                         else if (((Pack) packs.get(i)).loose)
+-                        {
++                        {                            
++                            /* Old way of doing the job by using the (absolute) sourcepath.
++                             * Since this is very likely to fail and does not confirm to the documentation,
++                             * prefer using relative path's
+                             pis = new FileInputStream(pf.sourcePath);
++                             */
++                            
++                            //take the relative path and search for the file
++                            //1. look at the location where the &quot;info&quot;-file is loaded from (jar)
++                            //2. look into the current working directory
++                            //maybe look into other other locations after that (configurable ?)
++
++                            //find directory of jar file
++                            URL url = getClass().getResource(&quot;/info&quot;);
++                            String urlPath = url.getPath();
++                            int pos = urlPath.indexOf('!');
++                            if (pos&gt;=0 &amp;&amp; urlPath.startsWith(&quot;file:/&quot;)){
++                                //remove jar-specific part
++                                urlPath = urlPath.substring(&quot;file:/&quot;.length(), pos);
++                            }
++                            File installerDir = new File(urlPath);
++                            if (!installerDir.isDirectory())
++                            {
++                                installerDir = installerDir.getParentFile();
++                            }
++
++                            File resolvedFile = new File(installerDir, pf.getRelativeSourcePath());
++                            if (!resolvedFile.exists()){
++                                //try alternative destination - the current working directory
++                                //user.dir is likely (depends on launcher type) the current directory of the executable or jar-file...
++                                final File userDir = new File(System.getProperty(&quot;user.dir&quot;));
++                                resolvedFile = new File(userDir, pf.getRelativeSourcePath());
++                            }
++                            if (resolvedFile.exists()){
++                                pis = new FileInputStream(resolvedFile);
++                                //may have a different length &amp; last modified than we had at compiletime, therefore we have to build a new PackFile for the copy process...
++                                pf = new PackFile(resolvedFile.getParentFile(), resolvedFile,  pf.getTargetPath(), pf.osConstraints(), pf.override(), pf.getAdditionals());
++                            }else{
++                                //file not found
++                                //issue a warning (logging api pending)
++                                //since this file was loosely bundled, we continue with the installation.
++                                System.out.println(&quot;Could not find loosely bundled file: &quot;+pf.getRelativeSourcePath());
++                                out.close();
++                                continue;
++                            }
+                         }
++
++                        out = new FileOutputStream(pathFile);
++                        byte[] buffer = new byte[5120];
++                        long bytesCopied = 0;
+                         while (bytesCopied &lt; pf.length())
+                         {
+                             if (performInterrupted())
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000448.html">[izpack-changes] r1703 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000450.html">[izpack-changes] r1705 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#449">[ date ]</a>
+              <a href="thread.html#449">[ thread ]</a>
+              <a href="subject.html#449">[ subject ]</a>
+              <a href="author.html#449">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

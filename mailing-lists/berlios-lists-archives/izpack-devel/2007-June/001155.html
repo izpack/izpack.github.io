@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Web installer repository
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Web%20installer%20repository&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001154.html">
+   <LINK REL="Next"  HREF="001157.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Web installer repository</H1>
+    <B>Vladimir Ralev</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Web%20installer%20repository&In-Reply-To="
+       TITLE="[izpack-devel] Web installer repository">vralev at redhat.com
+       </A><BR>
+    <I>Fri Jun  1 16:08:54 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001154.html">[izpack-devel] Over-writing installed read-only files ...
+</A></li>
+        <LI>Next message: <A HREF="001157.html">[izpack-devel] Web installer repository
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1155">[ date ]</a>
+              <a href="thread.html#1155">[ thread ]</a>
+              <a href="subject.html#1155">[ subject ]</a>
+              <a href="author.html#1155">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Currently the web installer supports downloading the hard-coded packs 
+from a remote site. I am working on an enhancement to populate the 
+available packs at runtime instead of compile-time. In order to avoid a 
+huge redesign I am using what's usually available. Here is the dir 
+repository dir structure I am working with:
+
+baseURL (from the &lt;webdir&gt; string)
+   +- install.xml (filesets are ignored because they should be compiled 
+in the pack1...N files)
+   +- packsinfo.xml (this one contains metadata of the packs not 
+available in install.xml - nbytes for example)
+   + -langpacks...
+   +-..pack1...N
+
+So, if the installer finds these files at the baseURL it will load the 
+packs data from install.xml and packsinfo.xml, after that it will expect 
+all packs (0 to N loaded from the remote install.xml) to be available at 
+the repository base. If there is no install.xml it will fallback to 
+using the static info (and still download  the remote packs as it 
+currently does), if packsinfo.xml is not found (with install.xml found) 
+the pack sizes will appear 0. packsinfo.xml is generated at installer 
+compile time together with the pack1..N files.
+
+We will probably be using it to allow users to select from multiple 
+versions of the packs for reproducibility while also allowing newest 
+versions to be available without going through the whole installer 
+release cycle.
+
+In order to keep this &quot;repository&quot; easier to maintain I am also looking 
+into replacing all internal references to pack row number with 
+references to pack ids. For example instead of naming the repository 
+packs pack1, pack2, ..packN they should be pack-(PACK_ID_1), 
+pack-(PACK_ID_2), ...N. This way you can easily replace and manage 
+individual packs given you can lookup the id. There are many other 
+internal refs to pack row number in izpack, all should be removed since 
+a simple change in the remote install.xml would change the numbers of 
+the packs (unless you add the files at the end).
+
+Does it make sense to you?
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001154.html">[izpack-devel] Over-writing installed read-only files ...
+</A></li>
+	<LI>Next message: <A HREF="001157.html">[izpack-devel] Web installer repository
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1155">[ date ]</a>
+              <a href="thread.html#1155">[ thread ]</a>
+              <a href="subject.html#1155">[ subject ]</a>
+              <a href="author.html#1155">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

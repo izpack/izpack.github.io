@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Execute Java Class
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Execute%20Java%20Class&In-Reply-To=7222992.post%40talk.nabble.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001085.html">
+   <LINK REL="Next"  HREF="001087.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Execute Java Class</H1>
+    <B>Mandeep Saini</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Execute%20Java%20Class&In-Reply-To=7222992.post%40talk.nabble.com"
+       TITLE="[izpack-users] Execute Java Class">Mandeep.Saini at dante.org.uk
+       </A><BR>
+    <I>Tue Nov  7 19:52:57 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001085.html">[izpack-users] Execute Java Class
+</A></li>
+        <LI>Next message: <A HREF="001087.html">[izpack-users] Execute Java Class
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1086">[ date ]</a>
+              <a href="thread.html#1086">[ thread ]</a>
+              <a href="subject.html#1086">[ subject ]</a>
+              <a href="author.html#1086">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Macke,
+
+Thankyou very much for the help but it hasn't solved my problem. I have 
+a feeling that I am wrong somewhere in specifying the paths. I am 
+sending you my complete files with the attachment so that you can have a 
+clear Idea of what I am doing.
+
+I have also tried with the following path in the ProcessPanel.Spec.xml:
+
+&lt;executeclass name=&quot;com.izforge.izpack.util.TestWrite&quot;&gt;
+
+Thankyou again for ur kind help.
+
+Regards
+Mandeep
+
+
+
+
+
+macke wrote:
+
+&gt;<i> Hi!
+</I>&gt;<i> 
+</I>&gt;<i> First you have to specify in your install.xml, that you want to use the
+</I>&gt;<i> ProcessPanel: 
+</I>&gt;<i> &lt;panels&gt;
+</I>&gt;<i> ...
+</I>&gt;<i> &lt;panel classname=&quot;ProcessPanel&quot;/&gt;
+</I>&gt;<i> ...
+</I>&gt;<i> &lt;/panels&gt;
+</I>&gt;<i> 
+</I>&gt;<i> In the resources section of install.xml you have to tell where the xml for
+</I>&gt;<i> it is:
+</I>&gt;<i> 
+</I>&gt;<i>     	&lt;resources&gt;
+</I>&gt;<i>                 .....
+</I>&gt;<i> 		&lt;!-- what has the ProcessPanel to do --&gt;
+</I>&gt;<i> 		&lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;PATH/TO/ProcessPanel.Spec.xml&quot;/&gt;
+</I>&gt;<i>     	&lt;/resources&gt;
+</I>&gt;<i> 
+</I>&gt;<i> And you have to include your class. Easiest way is to generate a JAR file
+</I>&gt;<i> including your class. In the install.xml you have then to add the line, e.g.
+</I>&gt;<i> &lt;jar src=&quot;PATH/TO/WriteProperties.jar&quot;/&gt;
+</I>&gt;<i> 
+</I>&gt;<i> In the ProcessPanel.Spec.xml you have to write:
+</I>&gt;<i> &lt;processing&gt;
+</I>&gt;<i> &lt;job name=&quot;name of teh job&quot;&gt;
+</I>&gt;<i> &lt;os family=&quot;windows&quot; /&gt;
+</I>&gt;<i> &lt;executeclass name=&quot;com.izforge.izpack.util.WriteProperties&quot;&gt; &lt;!-- this is
+</I>&gt;<i> an example! as you see you have to write the package path to your class. If
+</I>&gt;<i> you don't use packages, only write WriteProperties  --&gt;
+</I>&gt;<i> &lt;arg&gt;arg1&lt;/arg&gt;
+</I>&gt;<i> ...
+</I>&gt;<i> &lt;/executeclass&gt;
+</I>&gt;<i> &lt;/processing&gt;
+</I>&gt;<i> 
+</I>&gt;<i> Hope this helps. 
+</I>&gt;<i> 
+</I>&gt;<i> regards,
+</I>&gt;<i> Macke
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Mandeep wrote:
+</I>&gt;<i> 
+</I>&gt;&gt;<i>I want to execute (during or after the installation process) java class
+</I>&gt;&gt;<i>which creates a properties file . I am trying to do this with ProcessPanel
+</I>&gt;&gt;<i>and writing the following ProcessPanel.Spec.xml for the same:
+</I>&gt;&gt;<i>&lt;processing&gt;
+</I>&gt;&gt;<i>&lt;job name=&quot;any&quot;&gt;
+</I>&gt;&gt;<i>	&lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;&gt;<i>	&lt;executableclass name=&quot;$INSTALL_PATH/src/WriteProperties.class&quot;/&gt;	
+</I>&gt;&gt;<i>&lt;/job&gt;
+</I>&gt;&gt;<i>&lt;/processing&gt;
+</I>&gt;&gt;<i>is this the right way to do it...or should I so something else? Please
+</I>&gt;&gt;<i>suggest me.....I am new to IzPack.
+</I>&gt;&gt;<i>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: ProcessPanel.Spec.xml
+Type: text/xml
+Size: 139 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20061107/9a15e4e3/attachment.xml">https://lists.berlios.de/pipermail/izpack-users/attachments/20061107/9a15e4e3/attachment.xml</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: TestWrite.jar
+Type: application/octet-stream
+Size: 1145 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20061107/9a15e4e3/attachment.obj">https://lists.berlios.de/pipermail/izpack-users/attachments/20061107/9a15e4e3/attachment.obj</A> 
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: TestWrite.java
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20061107/9a15e4e3/attachment.ksh">https://lists.berlios.de/pipermail/izpack-users/attachments/20061107/9a15e4e3/attachment.ksh</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: install.xml
+Type: text/xml
+Size: 3126 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20061107/9a15e4e3/attachment-0001.xml">https://lists.berlios.de/pipermail/izpack-users/attachments/20061107/9a15e4e3/attachment-0001.xml</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001085.html">[izpack-users] Execute Java Class
+</A></li>
+	<LI>Next message: <A HREF="001087.html">[izpack-users] Execute Java Class
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1086">[ date ]</a>
+              <a href="thread.html#1086">[ thread ]</a>
+              <a href="subject.html#1086">[ subject ]</a>
+              <a href="author.html#1086">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

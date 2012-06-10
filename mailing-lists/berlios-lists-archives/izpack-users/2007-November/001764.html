@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20IZPack%20Ant%20task%20-%20native%20files%20are%20not%20taken%0A%09from%20%24%7Bbasedir%7D%20but%20from%20current%20directory&In-Reply-To=20071128175611.41EE6A1E54%40mail.ukpost.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001759.html">
+   <LINK REL="Next"  HREF="001757.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory</H1>
+    <B>Ren&#233; Krell</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20IZPack%20Ant%20task%20-%20native%20files%20are%20not%20taken%0A%09from%20%24%7Bbasedir%7D%20but%20from%20current%20directory&In-Reply-To=20071128175611.41EE6A1E54%40mail.ukpost.com"
+       TITLE="[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory">rkrell at gk-software.com
+       </A><BR>
+    <I>Fri Nov 30 13:10:20 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001759.html">[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory
+</A></li>
+        <LI>Next message: <A HREF="001757.html">[izpack-users] User Interface Glitch in the UserInputPanle
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1764">[ date ]</a>
+              <a href="thread.html#1764">[ thread ]</a>
+              <a href="subject.html#1764">[ subject ]</a>
+              <a href="author.html#1764">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Craig,
+
+Thanks. I just got to add that I found one more workaround for this - just 
+adding the attribute izPackDir with the ${basedir} value (which is not needed 
+for the standalone compiler according to the documentation), thus:
+
+&lt;izpack input=&quot;${basedir}/install.xml&quot;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;output=&quot;${dist.dir}/installer.jar&quot;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;installerType=&quot;standard&quot;
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;basedir=&quot;${basedir}&quot;
+	izPackDir=&quot;${basedir}&quot;/&gt;
+
+Ren&#233;
+
+
+On Wednesday 28 November 2007 18:56, Craig Thomson wrote:
+&gt;<i> ...
+</I>&gt;<i>
+</I>&gt;<i> &gt;If I run it from the same directory ${basedir} as the current working
+</I>&gt;<i> &gt;directory, than all goes fine.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;If I run it from another directory by relative or absolute paths, either
+</I>&gt;<i> &gt; by ant -f ... or the &lt;ant&gt; task within another buildfile from a different
+</I>&gt;<i> &gt; directory, the task fails:
+</I>&gt;<i>
+</I>&gt;<i> I encountered a similar problem. My solution was to add this to the
+</I>&gt;<i> performAction method of AntAction.java:
+</I>&gt;<i>
+</I>&gt;<i> After: antProj.setSystemProperties();
+</I>&gt;<i>
+</I>&gt;<i> // Set the working directory of the ant task to be the same as the
+</I>&gt;<i> // folder in which the xml file lives.
+</I>&gt;<i> File buildFile = new File(getBuildFile());
+</I>&gt;<i> antProj.setBaseDir(buildFile.getParentFile());
+</I>&gt;<i>
+</I>&gt;<i> I do not guarantee that this is terribly robust, but it seems to work for
+</I>&gt;<i> me.
+</I></PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001759.html">[izpack-users] IZPack Ant task - native files are not taken	from ${basedir} but from current directory
+</A></li>
+	<LI>Next message: <A HREF="001757.html">[izpack-users] User Interface Glitch in the UserInputPanle
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1764">[ date ]</a>
+              <a href="thread.html#1764">[ thread ]</a>
+              <a href="subject.html#1764">[ subject ]</a>
+              <a href="author.html#1764">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

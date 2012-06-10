@@ -1,0 +1,416 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1592 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1592%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000336.html">
+   <LINK REL="Next"  HREF="000338.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1592 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1592%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os&In-Reply-To="
+       TITLE="[izpack-changes] r1592 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os">noreply at berlios.de
+       </A><BR>
+    <I>Tue Sep 12 22:44:48 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000336.html">[izpack-changes] r1591 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os
+</A></li>
+        <LI>Next message: <A HREF="000338.html">[izpack-changes] r1593 - izpack-src/branches/branch-3.9/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#337">[ date ]</a>
+              <a href="thread.html#337">[ thread ]</a>
+              <a href="subject.html#337">[ subject ]</a>
+              <a href="author.html#337">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-12 22:44:47 +0200 (Tue, 12 Sep 2006)
+New Revision: 1592
+
+Modified:
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+Log:
+Optimized/Fixed UnixRootShortcutShellscript: 
+Here: Use a static rootScript instance to store each users copy $shortcut.desktop file instruction.
+while the new execPostAction() execute these stored RootScript.
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2006-09-12 20:41:57 UTC (rev 1591)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2006-09-12 20:44:47 UTC (rev 1592)
+@@ -50,7 +50,6 @@
+  */
+ package com.izforge.izpack.util.os;
+ 
+-import com.izforge.izpack.uninstaller.Uninstaller;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.FileExecutor;
+ import com.izforge.izpack.util.OsVersion;
+@@ -81,8 +80,6 @@
+ public class Unix_Shortcut extends Shortcut implements Unix_ShortcutConstants
+ {
+ 
+-    // ~ Static fields/initializers *********************************************************
+-
+     // ~ Static fields/initializers
+     // *******************************************************************************************************************************
+     /** version = &quot;$Id$&quot; */
+@@ -111,9 +108,12 @@
+ 
+     /** QM = &quot;\&quot;&quot; : &lt;b&gt;Q&lt;/b&gt;uotation&lt;b&gt;M&lt;/b&gt;ark */
+     private final static String QM = &quot;\&quot;&quot;;
+-
+-    // ~ Instance fields ********************************************************************
+-
++    
++    private static ShellScript rootScript = null;
++    private static ShellScript uninstallScript = null;
++    private static ArrayList users = UnixUsers.getUsersWithValidShellsExistingHomesAndDesktops();
++    //private static ArrayList tempfiles = new ArrayList();
++ 
+     // ~ Instance fields
+     // ******************************************************************************************************************************************
+     /** internal String createdDirectory */
+@@ -142,7 +142,7 @@
+      */
+     private Boolean forAll = Boolean.FALSE;
+ 
+-    /** DOCUMENT ME! */
++    /** Internal Help Buffer */
+     public StringBuffer hlp;
+ 
+     // ~ Constructors ***********************************************************************
+@@ -159,7 +159,7 @@
+         String userLanguage = System.getProperty(&quot;user.language&quot;, &quot;en&quot;);
+ 
+         hlp.append(&quot;[Desktop Entry]&quot; + N);
+-        
++
+         // TODO implement Attribute: X-KDE-StartupNotify=true
+ 
+         hlp.append(&quot;Categories=&quot; + $Categories + N);
+@@ -200,6 +200,11 @@
+         props = new Properties();
+ 
+         initProps();
++        
++        if( rootScript==null )
++            rootScript = new ShellScript();
++        if( uninstallScript == null)
++            uninstallScript = new ShellScript();
+     }
+ 
+     // ~ Methods ****************************************************************************
+@@ -402,6 +407,14 @@
+     public void save() throws Exception
+     {
+         String FS = File.separator;
++        String chmod = UnixHelper.getCustomCommand(&quot;chmod&quot;);
++        String chown = UnixHelper.getCustomCommand(&quot;chown&quot;);
++        String rm = UnixHelper.getRmCommand();
++        String copy = UnixHelper.getCpCommand();
++        String su = UnixHelper.getSuCommand();
++        
++        String myHome=System.getProperty(&quot;user.home&quot;);
++        
+         String target = null;
+ 
+         String shortCutDef = this.replace();
+@@ -412,7 +425,8 @@
+         // Create The Desktop Shortcuts
+         if (&quot;&quot;.equals(this.itsGroupName) &amp;&amp; (this.getLinkType() == Shortcut.DESKTOP))
+         {
+-            target = System.getProperty(&quot;user.home&quot;) + FS + &quot;Desktop&quot; + FS + this.itsName
++            
++            target = myHome + FS + &quot;Desktop&quot; + FS + this.itsName
+                     + DESKTOP_EXT;
+             this.itsFileName = target;
+ 
+@@ -431,23 +445,25 @@
+ 
+                 copyTo(writtenDesktopFile, tempFile);
+ 
+-                Debug.log(&quot;Wrote Tempfile: &quot; + tempFile.toString());
++                //Debug.log(&quot;Wrote Tempfile: &quot; + tempFile.toString());               
+ 
+-                String chmod = UnixHelper.getCustomCommand(&quot;chmod&quot;);
+-                String chown = UnixHelper.getCustomCommand(&quot;chown&quot;);
+-                String copy = UnixHelper.getCpCommand();
+-                String su = UnixHelper.getSuCommand();
+-
+                 FileExecutor.getExecOutput(new String[] { chmod, &quot;uga+rwx&quot;, tempFile.toString()});
+ 
+                 // su marc.eppelmann -c &quot;/bin/cp /home/marc.eppelmann/backup.job.out.txt
+                 // /home/marc.eppelmann/backup.job.out2.txt&quot;
+-                ArrayList users = UnixUsers.getUsersWithValidShellsExistingHomesAndDesktops();
++                
++                //StringBuffer script = new StringBuffer();
++                //
+ 
+                 for (int idx = 0; idx &lt; users.size(); idx++)
+                 {
+                     UnixUser user = ((UnixUser) users.get(idx));
+-
++                    
++                    if( user.getHome().equals(myHome) )
++                    {
++                       Debug.log( &quot;need not to copy for itself: &quot; + user.getHome() + &quot;==&quot; + myHome  );
++                       continue;
++                    }
+                     try
+                     {
+                         // aHomePath = userHomesList[idx];
+@@ -460,75 +476,73 @@
+                         // by# su username
+                         //
+                         // This works as well
+-                        // su username -c &quot;cp /tmp/desktopfile $HOME/Desktop/link.desktop&quot;
+-                        //
+-                        // copyTo(writtenDesktopFile, dest);
+-                        Debug.log(&quot;Will Copy: &quot; + tempFile.toString() + &quot; to &quot; + dest.toString());
++                        // su $username -c &quot;cp /tmp/desktopfile $HOME/Desktop/link.desktop&quot;
++                        // chown $username $HOME/Desktop/link.desktop
++                        
++                        //Debug.log(&quot;Will Copy: &quot; + tempFile.toString() + &quot; to &quot; + dest.toString());
+ 
+-                        StringBuffer script = new StringBuffer();
++                        rootScript.append(su);
++                        rootScript.append(S);
++                        rootScript.append(user.getName());
++                        rootScript.append(S);
++                        rootScript.append(&quot;-c&quot;);
++                        rootScript.append(S);
++                        rootScript.append('&quot;');
++                        rootScript.append(copy);
++                        rootScript.append(S);
++                        rootScript.append(tempFile.toString());
++                        rootScript.append(S);
++                        rootScript.append(StringTool.replace(dest.toString(), &quot; &quot;, &quot;\\ &quot;));
++                        rootScript.appendln('&quot;');
++                        
++                        rootScript.append('\n');
++                        
++                        //Debug.log(&quot;Will exec: &quot; + script.toString());
++                        
++                        rootScript.append( chown );
++                        rootScript.append( S );
++                        rootScript.append( user.getName() );
++                        rootScript.append( S );
++                        rootScript.appendln( StringTool.replace(dest.toString(), &quot; &quot;, &quot;\\ &quot;) );
++                        rootScript.append('\n');
++                        rootScript.append('\n');
+ 
+-                        script.append(su);
+-                        script.append(S);
+-                        script.append(user.getName());
+-                        script.append(S);
+-                        script.append(&quot;-c&quot;);
+-                        script.append(S);
+-                        script.append('&quot;');
+-                        script.append(copy);
+-                        script.append(S);
+-                        script.append(tempFile.toString());
+-                        script.append(S);
+-                        script.append(dest.toString());
+-                        script.append('&quot;');
++                        //Debug.log(&quot;Will exec: &quot; + script.toString());
++                        
++                        uninstallScript.append(su);
++                        uninstallScript.append(S);
++                        uninstallScript.append(user.getName());
++                        uninstallScript.append(S);
++                        uninstallScript.append(&quot;-c&quot;);
++                        uninstallScript.append(S);
++                        uninstallScript.append('&quot;');
++                        uninstallScript.append(rm);
++                        uninstallScript.append(S);
++                        uninstallScript.append(StringTool.replace(dest.toString(), &quot; &quot;, &quot;\\ &quot;));
++                        uninstallScript.appendln('&quot;');
++                        uninstallScript.appendln();
++                        //Debug.log(&quot;Uninstall will exec: &quot; + uninstallScript.toString());
+ 
+-                        Debug.log(&quot;Executes: &quot; + script.toString());
++                        // !TODO:DONE! move into execPostAction()
+ 
+-                        String result = ShellScript.execAndDelete(script, File.createTempFile(
+-                                this.getClass().getName(),
+-                                Long.toString(System.currentTimeMillis()) + &quot;.sh&quot;).toString());
+-
+-                        Debug.log(&quot;Result: &quot; + result);
+-
+-                        uninstaller.addRootAsUserFile(dest.toString(), user);
+-
+-                        /*
+-                         * FileExecutor.getExecOutput(new String[] { su, user.getName(), &quot;-c&quot;, &quot;\&quot;&quot; +
+-                         * copy + &quot; &quot; + tempFile.toString() + &quot; &quot; + dest.toString() + &quot;\&quot;&quot;});
+-                         */
+-                        Debug.log(&quot;Copied: &quot; + tempFile.toString() + &quot; to &quot; + dest.toString());
+-                        
+-                        try
+-                        {
+-                            FileExecutor.getExecOutput(new String[] { chown, user.getName(),
+-                                    dest.toString()});
+-                        }
+-                        catch (RuntimeException rexx)
+-                        {
+-                            System.out.println(&quot;While Chown :&quot; + rexx.getLocalizedMessage());
+-                            rexx.printStackTrace();
+-                        }
+                     }
+                     catch (Exception rex)
+                     {
+-                        System.out.println(&quot;While Su Copy:&quot; + rex.getLocalizedMessage());
++                        System.out.println(&quot;Error while su Copy: &quot; + rex.getLocalizedMessage()+&quot;\n\n&quot;);
+                         rex.printStackTrace();
+ 
+                         /* ignore */
+                         // most distros does not allow root to access any user
+                         // home (ls -la /home/user drwx------)
+                         // But try it anyway...
+-                    }
++                    }                   
++                    //!TODO:DONE! move into execPostAction()
++                }
++                
+ 
+-                    
+-                }
+-                try
+-                {
+-                    tempFile.delete();
+-                }
+-                catch (Exception e)
+-                {
+-                    tempFile.deleteOnExit();
+-                }
++                rootScript.append( rm );
++                rootScript.append( S );
++                rootScript.append( tempFile.toString());                
+             }
+         }
+ 
+@@ -540,44 +554,79 @@
+                     + DESKTOP_EXT;
+             this.itsFileName = target;
+             writeShortCut(target, shortCutDef);
+-            
++
+             if (rootUser4All)
+             {
+                 if (create4All)
+                 {
+                     // write the icon pixmaps into /usr/share/pixmaps
+-                    
+-                    File theIcon = new File( this.getIconLocation() );
+-                    File commonIcon = new File( &quot;/usr/share/pixmaps/&quot; + theIcon.getName() );
+-                    
++
++                    File theIcon = new File(this.getIconLocation());
++                    File commonIcon = new File(&quot;/usr/share/pixmaps/&quot; + theIcon.getName());
++
+                     try
+                     {
+-                      copyTo( theIcon, commonIcon  );
+-                      uninstaller.addFile(commonIcon.toString());
++                        copyTo(theIcon, commonIcon);
++                        uninstaller.addFile(commonIcon.toString());
+                     }
+-                    catch(Exception cnc)
++                    catch (Exception cnc)
+                     {
+-                        Debug.log(&quot;Could Not Copy: &quot; + theIcon + &quot; to &quot; + commonIcon + &quot;( &quot;+ cnc.getMessage() +&quot; )&quot; );                        
++                        Debug.log(&quot;Could Not Copy: &quot; + theIcon + &quot; to &quot; + commonIcon + &quot;( &quot;
++                                + cnc.getMessage() + &quot; )&quot;);
+                     }
+ 
+                     // write *.desktop.file into /usr/share/applications
+ 
+-                    String commonTarget = &quot;/usr/share/applications/&quot; + this.itsName
+-                    + DESKTOP_EXT;
++                    String commonTarget = &quot;/usr/share/applications/&quot; + this.itsName + DESKTOP_EXT;
+                     this.itsFileName = target;
+                     File writtenFile = writeShortCut(commonTarget, shortCutDef);
+-                    
++
+                     uninstaller.addFile(writtenFile.toString());
+-                      
++
+                 }
+                 else
+                 {
+                     // do nothing
+                 }
+             }
+-            
++
+         }
+     }
++    
++    
++    /**
++     * Post Exec Action especially for the Unix Root User.
++     * which executes the Root ShortCut Shellscript.
++     * to copy all ShellScripts to the users Desktop.
++     */
++    public void execPostAction()
++    {
++        Debug.log(&quot;Call of Impl. execPostAction Method in &quot; + this.getClass().getName() );
++        
++        String pseudoUnique = this.getClass().getName()+ Long.toString(System.currentTimeMillis());
++        
++        String scriptFilename = null;
++        
++        try
++        {
++            scriptFilename = File.createTempFile( pseudoUnique, &quot;.sh&quot;  ).toString();
++        }
++        catch (IOException e)
++        {
++            scriptFilename = System.getProperty(&quot;java.io.tmpdir&quot;, &quot;/tmp&quot;) + &quot;/&quot; + pseudoUnique + &quot;.sh&quot;; 
++            e.printStackTrace();
++        }
++        
++        rootScript.write(scriptFilename);
++        rootScript.exec();        
++        
++        Debug.log(rootScript);
++        
++        
++        Debug.log(uninstallScript);
++        
++        uninstaller.addRootUninstallScript( uninstallScript.getContentAsString() );
++    }
+ 
+     /**
+      * Copies the inFile file to outFile using cbuff as buffer.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000336.html">[izpack-changes] r1591 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os
+</A></li>
+	<LI>Next message: <A HREF="000338.html">[izpack-changes] r1593 - izpack-src/branches/branch-3.9/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#337">[ date ]</a>
+              <a href="thread.html#337">[ thread ]</a>
+              <a href="subject.html#337">[ subject ]</a>
+              <a href="author.html#337">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,271 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2002 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2002%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000747.html">
+   <LINK REL="Next"  HREF="000749.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2002 -	izpack-src/trunk/src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2002%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r2002 -	izpack-src/trunk/src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 24 20:16:53 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000747.html">[izpack-changes] r2001 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000749.html">[izpack-changes] r2003 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#748">[ date ]</a>
+              <a href="thread.html#748">[ thread ]</a>
+              <a href="subject.html#748">[ subject ]</a>
+              <a href="author.html#748">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-24 20:16:48 +0100 (Thu, 24 Jan 2008)
+New Revision: 2002
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/PasswordKeystoreValidator.java
+Log:
+Validates keystore and/or key access using password field
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/util/PasswordKeystoreValidator.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/PasswordKeystoreValidator.java	2008-01-24 19:14:29 UTC (rev 2001)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/PasswordKeystoreValidator.java	2008-01-24 19:16:48 UTC (rev 2002)
+@@ -0,0 +1,201 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2003 Elmar Grom
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.util;
++
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.panels.PasswordGroup;
++import com.izforge.izpack.panels.ProcessingClient;
++import com.izforge.izpack.panels.Validator;
++import java.io.FileInputStream;
++import java.security.KeyStore;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.Map;
++
++
++/**
++ * This class based on a simple validator for passwords to demonstrate
++ * the implementation of a password validator that cooperates with the
++ * password field in the &lt;code&gt;UserInputPanel&lt;/code&gt;. Additional validation may
++ * be done by utilizing the params added to the password field.
++ *
++ * @author   Elmar Grom
++ * @author   Jeff Gordon
++ */
++public class PasswordKeystoreValidator implements Validator {
++
++  /**PasswordKeystoreValidator
++   * Validates the ability to open a keystore based on the password and 
++   * parameters provided. Must specify parameter 'keystoreFile', and optionally
++   * 'keystoreType' (defaults to JKS), 'keystoreAlias' (to check for existence of a key),
++   * and 'aliasPassword' (for trying to retrieve the key).
++   * An additional parameter 'skipValidation' can be set to 'true' in a checkbox and
++   * allow the validator framework to run, but not actually do the validation.
++   * 
++   * Optionally checking the key password of multiple keys within a keystore
++   * requires the keystore password (if different from the key password) be set
++   * in the keystorePassword parameter.
++   * 
++   * @param     client   the client object using the services of this validator.
++   *
++   * @return    &lt;code&gt;true&lt;/code&gt; if the validation passes, otherwise &lt;code&gt;false&lt;/code&gt;.
++   */
++  public boolean validate(ProcessingClient client) {
++    boolean returnValue = false;
++    String keystorePassword = null;
++    String keystoreFile = null;
++    String keystoreType = &quot;JKS&quot;;
++    String skipValidation = null;
++    String alias = null;
++    String aliasPassword = null;
++    Map params = getParams(client);
++    try {
++      if (params!=null) {
++        // Don't try and open the keystore if skipValidation is true
++        skipValidation = (String)params.get(&quot;skipValidation&quot;);
++        System.out.println(&quot;skipValidation = &quot;+skipValidation);
++        if (skipValidation!=null &amp;&amp; skipValidation.equalsIgnoreCase(&quot;true&quot;)) {
++          System.out.println(&quot;Not validating keystore&quot;);
++          return true;
++        }
++        // See if keystore password is passed in or is passed through the validator
++        keystorePassword = (String)params.get(&quot;keystorePassword&quot;);
++        if (keystorePassword==null) {
++          keystorePassword = getPassword(client);
++          System.out.println(&quot;keystorePassword parameter null, using validator password for keystore&quot;);
++        } else if (keystorePassword.equalsIgnoreCase(&quot;&quot;)) {
++          keystorePassword = getPassword(client);
++          System.out.println(&quot;keystorePassword parameter empty, using validator password for keystore&quot;);
++        }
++        // See if alias (key) password is passed in or is passed through the validator
++        aliasPassword = (String)params.get(&quot;aliasPassword&quot;);
++        if (aliasPassword==null) {
++          aliasPassword = getPassword(client);
++          System.out.println(&quot;aliasPassword parameter null, using validator password for key&quot;);
++        } else if (aliasPassword.equalsIgnoreCase(&quot;&quot;)) {
++          aliasPassword = getPassword(client);
++          System.out.println(&quot;aliasPassword parameter empty, using validator password for key&quot;);
++        }
++        // Get keystore type from parameters or use default
++        keystoreType = (String)params.get(&quot;keystoreType&quot;);
++        if (keystoreFile==null) {
++          keystoreType = &quot;JKS&quot;;
++          System.out.println(&quot;keystoreType parameter null, using default of JKS&quot;);
++        } else if (keystorePassword.equalsIgnoreCase(&quot;&quot;)) {
++          keystoreType = &quot;JKS&quot;;
++          System.out.println(&quot;keystoreType parameter empty, using default of JKS&quot;);
++        }
++        // Get keystore location from params
++        keystoreFile = (String)params.get(&quot;keystoreFile&quot;);
++        if (keystoreFile!=null) {
++          System.out.println(&quot;Attempting to open keystore: &quot;+keystoreFile);
++          KeyStore ks = getKeyStore(keystoreFile, keystoreType, keystorePassword.toCharArray());
++          if (ks!=null) {
++            returnValue = true;
++            System.out.println(&quot;keystore password validated&quot;);
++            // check alias if provided
++            alias = (String)params.get(&quot;keystoreAlias&quot;);
++            if (alias!=null) {
++              returnValue = ks.containsAlias(alias);
++              if (returnValue) {
++                System.out.println(&quot;keystore alias '&quot;+alias+&quot;' found, trying to retrieve&quot;);
++                try {
++                  ks.getKey(alias, aliasPassword.toCharArray());
++                  System.out.println(&quot;keystore alias '&quot;+alias+&quot;' validated&quot;);
++                } catch (Exception e) {
++                  System.out.println(&quot;keystore alias validation failed: &quot;+e);
++                  returnValue = false;
++                }
++              } else {
++                System.out.println(&quot;keystore alias '&quot;+alias+&quot;' not found&quot;);
++              }
++            }
++          }
++        } else {
++          System.out.println(&quot;keystoreFile param not provided&quot;);
++        }
++      } else {
++        System.out.println(&quot;params not provided&quot;);
++      }
++    } catch (Exception e) {
++      System.out.println(&quot;validate() Failed: &quot;+e);
++    }
++    return (returnValue);
++  }
++  
++  private Map getParams(ProcessingClient client) {
++    Map returnValue = null;
++    PasswordGroup group = null;
++    InstallData idata = getIdata(client);
++    VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
++    try {
++      group = (PasswordGroup)client;
++      if (group.hasParams()) {
++        Map params = group.getValidatorParams();
++        returnValue = new HashMap();
++        Iterator keys = params.keySet().iterator();
++        while (keys.hasNext()) {
++          String key = (String)keys.next();
++          // Feed parameter values through vs
++          String value = vs.substitute((String)params.get(key), null);
++          // System.out.println(&quot;Adding local parameter: &quot;+key+&quot;=&quot;+value);
++          returnValue.put(key, value);
++        }
++      }
++    } catch (Exception e) {
++      System.out.println(&quot;getParams() Failed: &quot;+e);
++    }
++    return returnValue;
++  }
++  
++  private InstallData getIdata(ProcessingClient client) {
++    PasswordGroup group = null;
++    InstallData idata = null;
++    try {
++      group = (PasswordGroup)client;
++      idata = group.getIdata();
++    } catch (Exception e) {
++      System.out.println(&quot;getIdata() Failed: &quot;+e);
++    }
++    return idata;
++  }
++  
++  private String getPassword(ProcessingClient client) {
++    // ----------------------------------------------------
++    // We assume that if there is more than one field an equality validation
++    // was already performed.
++    // ----------------------------------------------------
++    return client.getFieldContents(0);
++  }
++  
++  public static KeyStore getKeyStore(String fileName, String type, char[] password) {
++    KeyStore ks = null;
++    try {
++      ks = KeyStore.getInstance(type);
++      ks.load(new FileInputStream(fileName), password);
++    } catch (Exception e) {
++      System.out.println(&quot;getKeyStore() Failed: &quot;+e);
++      ks = null;
++    }
++    return ks;
++  }
++
++}
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000747.html">[izpack-changes] r2001 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000749.html">[izpack-changes] r2003 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#748">[ date ]</a>
+              <a href="thread.html#748">[ thread ]</a>
+              <a href="subject.html#748">[ subject ]</a>
+              <a href="author.html#748">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

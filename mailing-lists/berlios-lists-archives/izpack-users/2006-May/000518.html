@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Language dependant file installation?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Language%20dependant%20file%20installation%3F&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000517.html">
+   <LINK REL="Next"  HREF="000519.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Language dependant file installation?</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Language%20dependant%20file%20installation%3F&In-Reply-To="
+       TITLE="[izpack-users] Language dependant file installation?">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue May  9 16:10:27 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000517.html">[izpack-users] Language dependant file installation?
+</A></li>
+        <LI>Next message: <A HREF="000519.html">[izpack-users] Pack File Size
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#518">[ date ]</a>
+              <a href="thread.html#518">[ thread ]</a>
+              <a href="subject.html#518">[ subject ]</a>
+              <a href="author.html#518">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Christophe,
+to implement this feature is not so easy, I think.
+if you wont, you can use the 'Additionals'.
+I have implemented them original for file and dir rights I set
+in my custom actions. But it is designed to use it also for
+other things.
+
+If we declare it &quot;hard&quot; for the pack contents, we have not only to
+edit PackFile, else CompilerConfig, the Unpacker, the dtd, the docu 
+and may be other places have to be addapted. That's the problem...
+If you use 'Additionals', you need a Compiler Listener which 
+implements reviseAdditionalDataMap to shift the data from the
+xml file into the PackFile object.
+An InstallerListner which implements afterFile can then do something,
+may remove the just installed file. With this mimik you cannot 
+prevent the file to be installed by the unpacker. I do not know
+whether you can really delete the file at this point. It seems so,
+that some VMs (e.g. 1.5.0 on Linux) do not every time close an
+OutputStream just during close method; may be you cannot remove an
+open file (I have problems at that point to perform a chmod).
+
+You see, it is not the easiest &quot;thing&quot; to support locale dependant
+installation.
+We install a language files and select them at runtime. 
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Christophe 
+</I>&gt;<i>ROCHEFOLLE
+</I>&gt;<i>Sent: Tuesday, May 09, 2006 2:28 PM
+</I>&gt;<i>To: '<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>'
+</I>&gt;<i>Subject: RE : [izpack-users] Language dependant file installation?
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hello,
+</I>&gt;<i>
+</I>&gt;<i>I have quite the same question but didn't find any answer.
+</I>&gt;<i>Does someone have the issue ? If change need to be made, I 
+</I>&gt;<i>think it's on
+</I>&gt;<i>PackFile to add this feature, or can we use the 'Additionals' 
+</I>&gt;<i>information ?
+</I>&gt;<i>
+</I>&gt;<i>Thanks in advance,
+</I>&gt;<i>Kriss
+</I>&gt;<i>
+</I>&gt;<i>-----Message d'origine-----
+</I>&gt;<i>De&#160;: Dominik S. Herwald [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">lists at dsh-elektronik.de</A>] 
+</I>&gt;<i>Envoy&#233;&#160;: jeudi 13 avril 2006 17:14
+</I>&gt;<i>&#192;&#160;: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;<i>Objet&#160;: [izpack-users] Language dependant file installation?
+</I>&gt;<i>
+</I>&gt;<i>Hello!
+</I>&gt;<i>
+</I>&gt;<i>I need to create a Multi-Language installer - so far I have no 
+</I>&gt;<i>problems 
+</I>&gt;<i>with
+</I>&gt;<i>IzPack - great piece of Software!
+</I>&gt;<i>
+</I>&gt;<i>There is only one thing that I miss:
+</I>&gt;<i>An argument for a &lt;file&gt; element in the packs section of the 
+</I>&gt;<i>install.xml 
+</I>&gt;<i>file,
+</I>&gt;<i>where I can specify the iso3 language code this file belongs to.
+</I>&gt;<i>This file should only be installed if the user has chosen this 
+</I>&gt;<i>language!
+</I>&gt;<i>
+</I>&gt;<i>This could look like this:
+</I>&gt;<i>&lt;file src=&quot;aDocFileInEnglish.pdf&quot; targetdir=&quot;$INSTALL_PATH&quot;  
+</I>&gt;<i>lang=&quot;eng&quot;/&gt;
+</I>&gt;<i>&lt;file src=&quot;aDocFileInFrench.pdf&quot; targetdir=&quot;$INSTALL_PATH&quot;  
+</I>&gt;<i>lang=&quot;fra&quot;/&gt;
+</I>&gt;<i>&lt;file src=&quot;aDocFileInGerman.pdf&quot; targetdir=&quot;$INSTALL_PATH&quot;  
+</I>&gt;<i>lang=&quot;deu&quot;/&gt;
+</I>&gt;<i>... and so on.
+</I>&gt;<i>
+</I>&gt;<i>(e.g. lang=&quot;eng&quot; should have a similar behaiviour as the &quot;os&quot; argument 
+</I>&gt;<i>that only
+</I>&gt;<i>installs a file if the user OS matches the &quot;os&quot; value,  you 
+</I>&gt;<i>know - e.g. 
+</I>&gt;<i>os=&quot;unix&quot; )
+</I>&gt;<i>
+</I>&gt;<i>The reason for this is that I have some files (documentation, a config 
+</I>&gt;<i>file that
+</I>&gt;<i>sets application language, ...) that are available in several 
+</I>&gt;<i>languages 
+</I>&gt;<i>and I want
+</I>&gt;<i>ONLY those files in the language the user has selected to be 
+</I>&gt;<i>copied to the
+</I>&gt;<i>install directory...
+</I>&gt;<i>
+</I>&gt;<i>I could add this feature myself - but I have no time to look 
+</I>&gt;<i>through the
+</I>&gt;<i>several thousand lines of code of IzPack first to see WHERE to add
+</I>&gt;<i>such a modification ... so can anybody tell me if this is possible in 
+</I>&gt;<i>any way
+</I>&gt;<i>and where I could change the IzPack sources to achieve this?
+</I>&gt;<i>
+</I>&gt;<i>(not _what_ to change excactly - I need just a basic idea of 
+</I>&gt;<i>where I could
+</I>&gt;<i>add an additional argument to the &lt;file&gt; element and how to achieve the
+</I>&gt;<i>correct behaiviour of this ... )
+</I>&gt;<i>
+</I>&gt;<i>Or is this possible with IzPack already? How?
+</I>&gt;<i>
+</I>&gt;<i>Thanks,
+</I>&gt;<i>Dominik
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000517.html">[izpack-users] Language dependant file installation?
+</A></li>
+	<LI>Next message: <A HREF="000519.html">[izpack-users] Pack File Size
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#518">[ date ]</a>
+              <a href="thread.html#518">[ thread ]</a>
+              <a href="subject.html#518">[ subject ]</a>
+              <a href="author.html#518">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

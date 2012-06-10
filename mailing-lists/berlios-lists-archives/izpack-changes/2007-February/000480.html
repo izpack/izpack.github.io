@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1734 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1734%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000479.html">
+   <LINK REL="Next"  HREF="000481.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1734 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1734%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1734 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Fri Feb 16 09:41:50 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000479.html">[izpack-changes] r1733 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000481.html">[izpack-changes] r1735 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/io
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#480">[ date ]</a>
+              <a href="thread.html#480">[ thread ]</a>
+              <a href="subject.html#480">[ subject ]</a>
+              <a href="author.html#480">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-02-16 09:41:43 +0100 (Fri, 16 Feb 2007)
+New Revision: 1734
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/RegularExpressionValidator.java
+Log:
+Fixed validation of regular expressions. Removed apache regex
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-02-16 08:39:11 UTC (rev 1733)
++++ izpack-src/trunk/Versions.txt	2007-02-16 08:41:43 UTC (rev 1734)
+@@ -4,6 +4,7 @@
+ - Added ignore as possible value for failure argument in executables (Dennis Reil)
+ - Added Conditional expressions (Dennis Reil)
+ - Fixed selection of default language in LanguageSelectionDialog (Dennis Reil)
++- Fixed RegularExpressionValidator (Dennis Reil)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/RegularExpressionValidator.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/RegularExpressionValidator.java	2007-02-16 08:39:11 UTC (rev 1733)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/RegularExpressionValidator.java	2007-02-16 08:41:43 UTC (rev 1734)
+@@ -20,9 +20,8 @@
+ package com.izforge.izpack.util;
+ 
+ import java.util.Map;
++import java.util.regex.Pattern;
+ 
+-import org.apache.regexp.RE;
+-
+ import com.izforge.izpack.panels.ProcessingClient;
+ import com.izforge.izpack.panels.RuleInputField;
+ import com.izforge.izpack.panels.Validator;
+@@ -59,8 +58,8 @@
+             patternString = STR_PATTERN_DEFAULT;
+         }
+ 
+-        RE pattern = new RE(patternString);
+-        return pattern.match(((RuleInputField) client).getText());
++        Pattern pattern = Pattern.compile(patternString);
++        return pattern.matcher(((RuleInputField) client).getText()).matches();
+     }
+ 
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000479.html">[izpack-changes] r1733 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000481.html">[izpack-changes] r1735 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/io
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#480">[ date ]</a>
+              <a href="thread.html#480">[ thread ]</a>
+              <a href="subject.html#480">[ subject ]</a>
+              <a href="author.html#480">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

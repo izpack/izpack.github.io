@@ -1,0 +1,1178 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1568 - in	izpack-src/trunk/src/lib/com/izforge/izpack/util/os: . unix
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1568%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util/os%3A%20.%20unix&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000312.html">
+   <LINK REL="Next"  HREF="000314.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1568 - in	izpack-src/trunk/src/lib/com/izforge/izpack/util/os: . unix</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1568%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util/os%3A%20.%20unix&In-Reply-To="
+       TITLE="[izpack-changes] r1568 - in	izpack-src/trunk/src/lib/com/izforge/izpack/util/os: . unix">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:33:16 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000312.html">[izpack-changes] r1567 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+</A></li>
+        <LI>Next message: <A HREF="000314.html">[izpack-changes] r1569 -	izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#313">[ date ]</a>
+              <a href="thread.html#313">[ thread ]</a>
+              <a href="subject.html#313">[ subject ]</a>
+              <a href="author.html#313">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:33:14 +0200 (Wed, 06 Sep 2006)
+New Revision: 1568
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/ShellScript.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixConstants.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixUser.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixUsers.java
+Log:
+
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/ShellScript.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/ShellScript.java	2006-09-06 20:31:00 UTC (rev 1567)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/ShellScript.java	2006-09-06 20:33:14 UTC (rev 1568)
+@@ -0,0 +1,279 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2006 Marc Eppelmann
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ *
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.util.os.unix;
++
++import com.izforge.izpack.util.FileExecutor;
++
++import java.io.BufferedWriter;
++import java.io.File;
++import java.io.FileWriter;
++import java.io.IOException;
++
++import java.util.Date;
++
++/**
++ * A Generator, Wrapper and Executor for Unix ShellScripts
++ * 
++ * @author marc.eppelmann&amp;#064;reddot.de
++ */
++public class ShellScript
++{
++
++    // ~ Static fields/initializers *********************************************************
++    /** Author = &quot;marc.eppelmann_at_gmx.de&quot; */
++    private final static String Author = &quot;Author: marc.eppelmann_at_gmx.de&quot;;
++
++    /** Generator = &quot;Generator: &quot; + ShellScript.class.getName() */
++    private final static String Generator = &quot;Generator: &quot; + ShellScript.class.getName();
++
++    /** internal SourceCode Management ( currently 'svn') ID :: 'SCM_ID = &quot;$Id$&quot;' */
++    private final static String SCM_ID = &quot;$Id$&quot;;
++
++    /** internal Revision = &quot;$Revision$&quot; */
++    private final static String Revision = &quot;$Revision$&quot;;
++
++    /** internal comment prefix; makes a line as comment:-) :: 'CommentPre = &quot;# &quot;' */
++    private final static String CommentPre = &quot;# &quot;;
++
++    /** H = CommentPre */
++    private final static String H = CommentPre;
++
++    /** the linefeed: lf = &quot;\n&quot; */
++    private final static String lf = &quot;\n&quot;;
++
++    /** lh = lf + H = &quot;\n#&quot; */
++    private final static String lh = lf + H;
++
++    /** the explanation header for thia genreated script */
++    private final static String explanation = lh + &quot;This is an automatically generated Script.&quot;
++            + lh + &quot;Usually this can be removed if the Generator &quot; + lh
++            + &quot;was unable to remove the script after execution.&quot; + lf;
++
++    /** &quot;Generated at: &quot; + new Date().toString() */
++    private static String currentDateMsg = &quot;Generated at: &quot; + new Date().toString();
++
++    /** the header of the shellscript */
++    private final static String header = lf + explanation + lf + H + Generator + lf + H + SCM_ID
++            + lf + H + Author + lf + H + Revision + lf + H + currentDateMsg + lf + lf;
++
++
++    // ~ Instance fields ********************************************************************
++    /** Internal ContentBuffer of this ShellScript */
++    private StringBuffer content = new StringBuffer();
++
++    /** internal field: where to write via write( itsLocation ) this shellscript. */
++    private String itsLocation;
++
++    // ~ Constructors ***********************************************************************
++    /**
++     * Creates and initializes the ShellScript for running on the given shell.
++     * 
++     * @param aShell &quot;sh&quot;, &quot;bash&quot;, &quot;ksh&quot;, &quot;csh&quot; and so an...
++     */
++    public ShellScript(String aShell)
++    {
++        content.append(&quot;#!/usr/bin/env &quot; + aShell);
++        content.append(header);
++    }
++
++    /**
++     * Creates and initializes the ShellScript for running on the bourne shell: &quot;sh&quot;.
++     */
++    public ShellScript()
++    {
++        this(&quot;sh&quot;);
++    }
++
++    // ~ Methods ****************************************************************************
++    /**
++     * Appends an Object or String to this ShellScript.
++     * 
++     * @param anObject the Object to append
++     */
++    public void append(Object anObject)
++    {
++        content.append(anObject);
++    }
++
++    /**
++     * Appends an Object or String to this ShellScript with unix linefeed (&quot;\n&quot;).
++     * 
++     * @param anObject the Object to append
++     */
++    public void appendln(Object anObject)
++    {
++        append(anObject + lf);
++    }
++
++    /**
++     * write this to the given Destination FileName
++     * 
++     * @param aDestination a destination filename
++     */
++    public void write(String aDestination)
++    {
++        itsLocation = aDestination;
++
++        try
++        {
++            BufferedWriter writer = new BufferedWriter(new FileWriter(aDestination));
++            writer.write(content.toString());
++            writer.write(lh + aDestination + lf);
++            writer.flush();
++            writer.close();
++        }
++        catch (IOException e)
++        {
++            e.printStackTrace();
++        }
++    }
++
++    /**
++     * Executes thsi ShellScript with the given Params.&lt;br&gt;
++     * NOTE: the params cannot be contain whitespaces.&lt;br&gt;
++     * This (su -c &amp;lt;br&amp;gt;&quot;cp from to&quot;&amp;lt;/br&amp;gt;) would not work:&lt;br&gt;
++     * because the underlaying java.runtime.exec(&quot;command&quot;) does not handle balanced or unbalanced
++     * (&quot;) correctly.&lt;br&gt;
++     * else just whitespace separate tokens.&lt;br&gt;
++     * This means for the sample. runtime.exec() would ever execute such as: su &quot;-c&quot; &quot;\&quot;cp&quot;
++     * &quot;fromFile&quot; &quot;toFile\&quot;&quot;&lt;br&gt;
++     * But this his hidden in Sun's native code ;-(&lt;br&gt;
++     * This was the reason to write thsi class to have a Workaround :-)
++     * 
++     * @param itsParams
++     * 
++     * @return the output from stdout of the execution.
++     */
++    public String exec(String itsParams)
++    {
++        FileExecutor.getExecOutput(new String[] { UnixHelper.getCustomCommand(&quot;chmod&quot;), &quot;+x&quot;,
++                itsLocation});
++
++        if (itsParams != null)
++        {
++            return FileExecutor.getExecOutput(new String[] { itsLocation, itsParams});
++        }
++        else
++        {
++            return FileExecutor.getExecOutput(new String[] { itsLocation});
++        }
++    }
++
++    /**
++     * Execute this ShellScript.
++     * 
++     * @return the output from stdout of the execution.
++     */
++    public String exec()
++    {
++        return exec(null);
++    }
++
++    /**
++     * Execs ths given lines in the creted shell stored on location.
++     * 
++     * @param aShell A Shell which will be eexecute the script.
++     * @param lines The content of the script.
++     * @param aLocation The location where to store.
++     * @param itsParams Th eoptional params of the script.
++     * 
++     * @return the exec result
++     */
++    public static String execute(String aShell, StringBuffer lines, String aLocation,
++            String itsParams)
++    {
++        ShellScript s = new ShellScript((aShell == null) ? &quot;sh&quot; : aShell);
++        s.append(lines);
++        s.write(aLocation);
++
++        return (itsParams == null) ? s.exec() : s.exec(itsParams);
++    }
++
++    /**
++     * Executes ths given lines in the created default shell (sh) stored on location.
++     * 
++     * @param lines the lines of the script to exec.s
++     * @param aLocation where to store
++     * 
++     * @return the stdout of the script.
++     */
++    public static String execute(StringBuffer lines, String aLocation)
++    {
++        return ShellScript.execute(null, lines, aLocation, null);
++    }
++
++    /**
++     * Executes and removes the script.&lt;br&gt;
++     * The Lines be also written in python or perl,&lt;br&gt;
++     * In this case, the Shell must be python or perl or so.
++     * 
++     * @param aShell The Shell which should exec the script. Can be also be python or perl, if the
++     * shellcontent is given in this language.
++     * @param lines of the script.
++     * @param aLocation where to store.
++     * @param itsParams which should be pass to the script.
++     * 
++     * @return the stdout.
++     */
++    public static String execAndDelete(String aShell, StringBuffer lines, String aLocation,
++            String itsParams)
++    {
++        String result = execute(aShell, lines, aLocation, itsParams);
++        File location = new File(aLocation);
++
++        try
++        {
++            location.delete();
++        }
++        catch (Exception e)
++        {
++            location.deleteOnExit();
++        }
++
++        return result;
++    }
++
++    /**
++     * Executes and removes the script.
++     * 
++     * @param lines of the script.
++     * @param aLocation where to store.
++     * 
++     * @return the sdtout.
++     */
++    public static String execAndDelete(StringBuffer lines, String aLocation)
++    {
++        return execAndDelete(null, lines, aLocation, null);
++    }
++
++    /**
++     * Test Main Method Run test with: java -cp .jar com.izforge.izpack.util.os.unix.ShellScript
++     * 
++     * @param args Arguments from Commandline
++     */
++    public static void main(String[] args)
++    {
++        /*
++         * ShellScript s = new ShellScript( ); s.append( &quot;ls $HOME&quot; ); s.write( System.getProperty(
++         * &quot;user.home&quot;, &quot;.&quot; ) + File.separator + &quot;test.sh&quot; );
++         */
++        System.out.println(ShellScript.execute(new StringBuffer(&quot;ls $HOME&quot;), System.getProperty(
++                &quot;user.home&quot;, &quot;.&quot;)
++                + File.separator + Long.toString(System.currentTimeMillis()) + &quot;test.sh&quot;));
++    }
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixConstants.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixConstants.java	2006-09-06 20:31:00 UTC (rev 1567)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixConstants.java	2006-09-06 20:33:14 UTC (rev 1568)
+@@ -0,0 +1,34 @@
++/**
++ * 
++ */
++package com.izforge.izpack.util.os.unix;
++
++
++/**
++ * @author marc.eppelmann
++ *
++ */
++public class UnixConstants
++{
++    /** etcPasswd = &quot;/etc/passwd&quot; */
++    public static String etcPasswd = &quot;/etc/passwd&quot;;
++    
++    
++    /**
++     * 
++     */
++    public UnixConstants()
++    {
++        // TODO Auto-generated constructor stub
++    }
++
++    /**
++     * @param args
++     */
++    public static void main(String[] args)
++    {
++        // TODO Auto-generated method stub
++
++    }
++
++}
+
+Copied: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixHelper.java (from rev 1554, izpack-src/trunk/src/lib/com/izforge/izpack/util/UnixHelper.java)
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/UnixHelper.java	2006-08-27 18:38:25 UTC (rev 1554)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixHelper.java	2006-09-06 20:33:14 UTC (rev 1568)
+@@ -0,0 +1,271 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2006 Marc Eppelmann
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ *
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.util.os.unix;
++
++import com.izforge.izpack.util.FileExecutor;
++
++import java.io.BufferedReader;
++import java.io.BufferedWriter;
++import java.io.File;
++import java.io.FileReader;
++import java.io.FileWriter;
++import java.io.StringReader;
++
++import java.util.ArrayList;
++
++/**
++ * Helper Methods for unix-systems and derived.
++ * 
++ * @author marc.eppelmann&amp;#064;reddot.de
++ * @version $Revision$
++ */
++public class UnixHelper
++{
++
++    // ~ Static fields/initializers *********************************************************
++
++    /** whichCommand = &quot;/usr/bin/which&quot; or so */
++    public static String whichCommand = FileExecutor.getExecOutput(
++            new String[] { &quot;/usr/bin/env&quot;, &quot;which&quot;, &quot;which&quot;}, false).trim();
++
++    public final static String VERSION = &quot;$Revision$&quot;;
++
++    // ~ Methods ****************************************************************************
++
++    /**
++     * get the lines from /etc/passwd as Array
++     * 
++     * @return the /etc/passwd as String ArrayList
++     */
++    public static ArrayList getEtcPasswdArray()
++    {
++        ArrayList result = new ArrayList();
++
++        String line = &quot;&quot;;
++        BufferedReader reader = null;
++
++        try
++        {
++            reader = new BufferedReader(new FileReader(UnixConstants.etcPasswd));
++
++            while ((line = reader.readLine()) != null)
++            {
++                result.add(line);
++            }
++        }
++        catch (Exception e)
++        {
++            // ignore - there are maybe no users
++        }
++
++        return result;
++    }
++
++    /**
++     * get the lines from /etc/passwd as Array
++     * 
++     * @return the /etc/passwd as String ArrayList
++     */
++    public static ArrayList getYpPasswdArray()
++    {
++        ArrayList result = new ArrayList();
++
++        String line = &quot;&quot;;
++        BufferedReader reader = null;
++
++        try
++        {
++            reader = new BufferedReader(new StringReader(FileExecutor.getExecOutput(new String[] {
++                    getYpCatCommand(), &quot;passwd&quot;})));
++
++            while ((line = reader.readLine()) != null)
++            {
++                result.add(line);
++            }
++        }
++        catch (Exception e)
++        {
++            // ignore - there are maybe no users
++        }
++
++        return result;
++    }
++
++    /**
++     * Test if KDE is installed. This is done by $&gt;/usr/bin/env konqueror --version This assumes
++     * that the konqueror as a main-app of kde is already installed. If this returns with 0 konqeror
++     * and resp. kde means to be installed,
++     * 
++     * @return true if kde is installed otherwise false.
++     */
++    public static boolean kdeIsInstalled()
++    {
++        FileExecutor fe = new FileExecutor();
++
++        String[] execOut = new String[2];
++
++        int execResult = fe.executeCommand(
++                new String[] { &quot;/usr/bin/env&quot;, &quot;konqueror&quot;, &quot;--version&quot;}, execOut);
++
++        return execResult == 0;
++    }
++
++    /**
++     * Gets the absolute Pathe to the cp (Copy) Command. This is necessary, because the command is
++     * located at /bin on linux but in /usr/bin on Sun Solaris.
++     * 
++     * @return /bin/cp on linux /usr/bin/cp on solaris
++     */
++    public static String getWhichCommand()
++    {
++        return whichCommand;
++    }
++
++    /**
++     * Gets the absolute Pathe to the cp (Copy) Command. This is necessary, because the command is
++     * located at /bin on linux but in /usr/bin on Sun Solaris.
++     * 
++     * @return /bin/cp on linux /usr/bin/cp on solaris
++     */
++    public static String getCpCommand()
++    {
++        return FileExecutor.getExecOutput(new String[] { getWhichCommand(), &quot;cp&quot;}).trim();
++    }
++
++    /**
++     * Gets the absolute Pathe to the su (SuperUser) Command. This is necessary, because the command
++     * is located at /bin on linux but in /usr/bin on Sun Solaris.
++     * 
++     * @return /bin/su on linux /usr/bin/su on solaris
++     */
++    public static String getSuCommand()
++    {
++        return FileExecutor.getExecOutput(new String[] { getWhichCommand(), &quot;su&quot;}).trim();
++    }
++
++    /**
++     * Gets the absolute Pathe to the rm (Remove) Command. This is necessary, because the command is
++     * located at /bin on linux but in /usr/bin on Sun Solaris.
++     * 
++     * @return /bin/rm on linux /usr/bin/rm on solaris
++     */
++    public static String getRmCommand()
++    {
++        return FileExecutor.getExecOutput(new String[] { whichCommand, &quot;rm&quot;}).trim();
++    }
++
++    /**
++     * Gets the absolute Pathe to the ypcat (YellowPage/NIS Cat) Command. This is necessary, because
++     * the command is located at /bin on linux but in /usr/bin on Sun Solaris.
++     * 
++     * @return /bin/ypcat on linux /usr/bin/ypcat on solaris
++     */
++    public static String getYpCatCommand()
++    {
++        return FileExecutor.getExecOutput(new String[] { whichCommand, &quot;ypcat&quot;}).trim();
++    }
++
++    /**
++     * Gets the absolute Pathe to the ypcat (YellowPage/NIS Cat) Command. This is necessary, because
++     * the command is located at /bin on linux but in /usr/bin on Sun Solaris.
++     * 
++     * @param aCommand a Custom Command
++     * 
++     * @return /bin/ypcat on linux /usr/bin/ypcat on solaris
++     */
++    public static String getCustomCommand(String aCommand)
++    {
++        return FileExecutor.getExecOutput(new String[] { whichCommand, aCommand}).trim();
++    }
++
++    /**
++     * Standalone Test Main Method call with : &amp;gt; java -cp
++     * ../bin/panels/UserInputPanel.jar:../_dist/IzPack-install-3.9.0-preview1.jar
++     * com.izforge.izpack.util.os.unix.UnixHelper
++     * 
++     * @param args commandline args
++     */
++    public static void main(String[] args)
++    {
++        System.out.println(&quot;Hallo from &quot; + UnixHelper.class.getName() + VERSION);
++
++        // System.out.println( StringTool.stringArrayListToString(UnixUsers.getUsersAsArrayList())
++        // );
++
++        //System.out.println(&quot;Kde is&quot; + (kdeIsInstalled() ? &quot; &quot; : &quot; not &quot;) + &quot;installed&quot;);
++
++        System.out.println(&quot;WhichCommand: '&quot; + getWhichCommand() + &quot;'&quot;);
++        System.out.println(&quot;SuCommand: &quot; + getSuCommand());
++        System.out.println(&quot;RmCommand: &quot; + getRmCommand());
++        System.out.println(&quot;CopyCommand: &quot; + getCpCommand());
++        System.out.println(&quot;YpCommand: &quot; + getYpCatCommand());
++
++        System.out.println(&quot;CustomCommand: &quot; + getCustomCommand(&quot;cat&quot;));
++
++        File tempFile = null;
++
++        try
++        {
++            tempFile = File.createTempFile(UnixHelper.class.getName(), Long.toString(System
++                    .currentTimeMillis())
++                    + &quot;.tmp&quot;);
++        }
++        catch (Exception e)
++        {
++            e.printStackTrace();
++        }
++
++        System.out.println(&quot;Tempfile: &quot; + tempFile.toString());
++
++        // This does not work :-(
++        /*
++         * FileExecutor.getExecOutput(new String[] { getCustomCommand(&quot;echo&quot;), &quot;Hallo&quot;, &quot;&gt;&quot;,
++         * tempFile.toString()});
++         */
++
++        // so try:
++        try
++        {
++            BufferedWriter w = new BufferedWriter(  new FileWriter(tempFile) );
++            w.write(&quot;Hallo&quot;);
++            w.flush();
++            w.close();
++            if( tempFile.exists() )
++              System.out.println(&quot;Wrote: &quot; + tempFile + &quot;&gt;&gt;Hallo&quot;);
++            else
++                System.out.println(&quot;Could not Wrote: &quot; + tempFile + &quot;Hallo&quot;);
++        }
++        catch (Exception e)
++        {
++            e.printStackTrace();
++        }
++        // tempFile
++
++        String destfilename = &quot;/home/marc.eppelmann&quot; + File.separator + &quot;Desktop&quot; ;
++
++        System.out.println(&quot;Copy: &quot; + tempFile.toString() + &quot; to &quot; + destfilename);
++
++        String result = FileExecutor.getExecOutput(new String[] { getSuCommand(), &quot;marc.eppelmann&quot;, &quot;-c&quot;,
++                &quot;\&quot;&quot; + getCpCommand() + &quot; &quot; + tempFile.toString() + &quot; &quot; + destfilename + &quot;\&quot;&quot;});
++        
++        System.out.println(&quot;Wrote: &quot; + tempFile.toString() + &quot; to &quot; + destfilename + &quot; &gt; &quot; + result);
++
++        // getYpPasswdArray();
++        // System.out.println(&quot;/bin/bash&quot;.endsWith(&quot;sh&quot;));
++    }
++}
+
+
+Property changes on: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixHelper.java
+___________________________________________________________________
+Name: svn:keywords
+   + Author Date Id Revision
+Name: svn:eol-style
+   + native
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixUser.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixUser.java	2006-09-06 20:31:00 UTC (rev 1567)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixUser.java	2006-09-06 20:33:14 UTC (rev 1568)
+@@ -0,0 +1,229 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2006 Marc Eppelmann
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.izforge.izpack.util.os.unix;
++
++import java.util.StringTokenizer;
++
++
++/**
++ * This represents a Unix User. If initialized via fromEtcPasswdLine(),  the users
++ * Name, home, uid, gid, and shell can be asked.
++ *
++ * @author marc.eppelmann&amp;#064;reddot.de
++ */
++public class UnixUser
++{
++  //~ Instance fields ********************************************************************
++
++  /** internal itsName  */
++  private String itsName;
++
++  /** internal itsPasswdDigest */
++  private String itsPasswdDigest;
++
++  /** internal itsId */
++  private String itsId;
++
++  /** internal itsGid */
++  private String itsGid;
++
++  /** internal itsDescription */
++  private String itsDescription;
++
++  /** internal itsHome */
++  private String itsHome;
++
++  /** internal itsShell */
++  private String itsShell;
++
++  //~ Methods ****************************************************************************
++
++  /** 
++   * Gets the Users Login Name
++   *
++   * @return the users login Name
++   */
++  public String getName(  )
++  {
++    return itsName;
++  }
++
++  /** 
++   * Gets the users passwd Digest or X if hidden in /etc/shadow
++   *
++   * @return the passwdDigest or x
++   */
++  public String getPasswdDigest(  )
++  {
++    return itsPasswdDigest;
++  }
++
++  /** 
++   * Gets the Users UID
++   *
++   * @return The Uid
++   */
++  public String getId(  )
++  {
++    return itsId;
++  }
++
++  /** 
++   * Gtes the Users Group ID
++   *
++   * @return the gid
++   */
++  public String getGid(  )
++  {
++    return itsGid;
++  }
++
++  /** 
++   * Gets the Description aka Full Name
++   *
++   * @return the users descriptio or full name
++   */
++  public String getDescription(  )
++  {
++    return itsDescription;
++  }
++
++  /** 
++   * Gets the Users Home Directory 
++   *
++   * @return the users home dir
++   */
++  public String getHome(  )
++  {
++    return itsHome;
++  }
++
++  /** 
++   * Gets the users default Login-Shell
++   *
++   * @return The login shell or /bin/false for system users
++   */
++  public String getShell(  )
++  {
++    return itsShell;
++  }
++
++  /** 
++   * Parses a Line from /etc/passwd and stores each :token: in their field of the user. 
++   * Sample Line from /etc/passwd &quot;eppelmann.local:x:900:100:Marc Eppelmann:/mnt/local/home/eppelmann.local:/bin/bash&quot;
++   * @param anEtcPasswdLine A Passwd Line of the User.
++   *
++   * @return The filled User
++   */
++  public UnixUser fromEtcPasswdLine( String anEtcPasswdLine )
++  {
++    if( anEtcPasswdLine == null )
++    {
++      return null;
++    }
++
++    StringTokenizer usersToken = new StringTokenizer( anEtcPasswdLine, &quot;:&quot; );
++
++    UnixUser        u          = new UnixUser(  );
++
++    if( usersToken.hasMoreTokens(  ) )
++    {
++      u.itsName = usersToken.nextToken(  );
++    }
++
++    if( usersToken.hasMoreTokens(  ) )
++    {
++      u.itsPasswdDigest = usersToken.nextToken(  );
++    }
++
++    if( usersToken.hasMoreTokens(  ) )
++    {
++      u.itsId = usersToken.nextToken(  );
++    }
++
++    if( usersToken.hasMoreTokens(  ) )
++    {
++      u.itsGid = usersToken.nextToken(  );
++    }
++
++    if( usersToken.hasMoreTokens(  ) )
++    {
++      u.itsDescription = usersToken.nextToken(  );
++    }
++
++    if( usersToken.hasMoreTokens(  ) )
++    {
++      u.itsHome = usersToken.nextToken(  );
++    }
++
++    if( usersToken.hasMoreTokens(  ) )
++    {
++      u.itsShell = usersToken.nextToken(  );
++    }
++
++    return u;
++  }
++
++  /** 
++   * Dumps the USer fields
++   *
++   * @return The User representation as String
++   */
++  public String toString(  )
++  {
++    StringBuffer result = new StringBuffer(  );
++
++    result.append( &quot;User: &quot; );
++    result.append( itsName );
++
++    result.append( &quot; X: &quot; );
++    result.append( itsPasswdDigest );
++
++    result.append( &quot; Id: &quot; );
++    result.append( itsId );
++
++    result.append( &quot; Gid: &quot; );
++    result.append( itsGid );
++
++    result.append( &quot; Desc.: &quot; );
++    result.append( itsDescription );
++
++    result.append( &quot; Home: &quot; );
++    result.append( itsHome );
++
++    result.append( &quot; Shell: &quot; );
++    result.append( itsShell );
++
++    return result.toString(  );
++  }
++
++  /** 
++   * Static Test Main
++   *
++   * @param args
++   */
++  public static void main( String[] args )
++  {
++    System.out.println( new UnixUser(  ).fromEtcPasswdLine( &quot;&quot; ) );
++    System.out.println( new UnixUser(  ).fromEtcPasswdLine( &quot;eppelmann.local:x:500:100:Marc L Eppelmann:/mnt/local/home/eppelmann.local:/bin/bash&quot; ) );
++  }
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixUsers.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixUsers.java	2006-09-06 20:31:00 UTC (rev 1567)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/unix/UnixUsers.java	2006-09-06 20:33:14 UTC (rev 1568)
+@@ -0,0 +1,258 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2006 Marc Eppelmann&amp;#064;reddot.de
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.util.os.unix;
++
++import com.izforge.izpack.util.StringTool;
++
++import java.io.File;
++
++import java.util.ArrayList;
++
++/**
++ * Unix Users Collection Class and related static Helper Methods
++ * 
++ * @author marc.eppelmann&amp;#064;reddot.de
++ */
++public class UnixUsers extends ArrayList
++{
++
++    // ~ Static fields/initializers *********************************************************
++    
++    /** serialVersionUID = -4804842346742194981L; */
++    private static final long serialVersionUID = -4804842346742194981L;
++
++    // ~ Constructors ***********************************************************************
++    
++    /**
++     * Creates a new UnixUsers object.
++     */
++    public UnixUsers()
++    {
++        fromUsersArrayList(getEtcPasswdUsersAsArrayList());
++        fromUsersArrayList(getYpPasswdUsersAsArrayList());
++    }
++
++    // ~ Methods ****************************************************************************
++    /**
++     * Gets all known users with valid shells
++     * 
++     * @return an UnixUsers arraylist of these users
++     */
++    public ArrayList getUsersWithValidShells()
++    {
++        ArrayList result = new ArrayList();
++
++        for (int idx = 0; idx &lt; size(); idx++)
++        {
++            UnixUser user = (UnixUser) get(idx);
++
++            if ((user.getShell() != null) &amp;&amp; user.getShell().trim().endsWith(&quot;sh&quot;))
++            {
++                result.add(user);
++            }
++        }
++
++        return result;
++    }
++
++    /**
++     * Gets all known users with valid shells and really existing (not dummy) Homefolders.
++     * 
++     * @return an UnixUsers Arraylist of these users
++     */
++    public ArrayList getUsersWithValidShellsAndExistingHomes()
++    {
++        ArrayList result = new ArrayList();
++
++        ArrayList usersWithValidShells = getUsersWithValidShells();
++
++        for (int idx = 0; idx &lt; usersWithValidShells.size(); idx++)
++        {
++            UnixUser user = (UnixUser) usersWithValidShells.get(idx);
++
++            if ((user.getHome() != null) &amp;&amp; new File(user.getHome().trim()).exists())
++            {
++                result.add(user);
++            }
++        }
++
++        return result;
++    }
++
++    /**
++     * Gets all known users with valid shells and really existing (not dummy) Home And!
++     * freedesktop.org/RFC-based &quot;Desktop&quot; folders.
++     * 
++     * @return an UnixUsers Arraylist of these users
++     */
++    public ArrayList _getUsersWithValidShellsExistingHomesAndDesktops()
++    {
++        ArrayList result = new ArrayList();
++
++        ArrayList usersWithValidShellsAndExistingHomes = getUsersWithValidShellsAndExistingHomes();
++
++        for (int idx = 0; idx &lt; usersWithValidShellsAndExistingHomes.size(); idx++)
++        {
++            UnixUser user = (UnixUser) usersWithValidShellsAndExistingHomes.get(idx);
++
++            if ((user.getHome() != null)
++                    &amp;&amp; new File(user.getHome().trim() + File.separator + &quot;Desktop&quot;).exists())
++            {
++                result.add(user);
++            }
++        }
++
++        return result;
++    }
++
++    /**
++     * An StringArray of the existing Desktop folders of all valid users.
++     * 
++     * @return the Stringlist of ValidUsersDesktopFolders
++     */
++    public ArrayList getValidUsersDesktopFolders()
++    {
++        ArrayList result = new ArrayList();
++
++        ArrayList validUserDesktops = getUsersWithValidShellsExistingHomesAndDesktops();
++
++        for (int idx = 0; idx &lt; validUserDesktops.size(); idx++)
++        {
++            UnixUser user = (UnixUser) validUserDesktops.get(idx);
++            new File(user.getHome().trim() + File.separator + &quot;Desktop&quot;);
++
++            if (user.getHome() != null)
++            {
++                File DesktopFolder = new File(user.getHome().trim() + File.separator + &quot;Desktop&quot;);
++
++                if (DesktopFolder.exists() &amp;&amp; DesktopFolder.isDirectory())
++                {
++                    result.add(DesktopFolder.toString());
++                }
++            }
++        }
++
++        return result;
++    }
++
++    /**
++     * Gets all known users with valid shells and really existing (not dummy) Home And!
++     * freedesktop.org/RFC-based &quot;Desktop&quot; folders.
++     * 
++     * @return an UnixUsers Arraylist of these users
++     */
++    public static ArrayList getUsersWithValidShellsExistingHomesAndDesktops()
++    {
++        UnixUsers users = new UnixUsers();
++
++        return users._getUsersWithValidShellsExistingHomesAndDesktops();
++    }
++
++    /**
++     * Builds the internal Array from the given UsersArrayList
++     * 
++     * @param anUsersArrayList an Users ArrayList reded from /etc/passwd
++     */
++    private void fromUsersArrayList(ArrayList anUsersArrayList)
++    {
++        for (int idx = 0; idx &lt; anUsersArrayList.size(); idx++)
++        {
++            add(new UnixUser().fromEtcPasswdLine((String) anUsersArrayList.get(idx)));
++        }
++    }
++
++    /**
++     * Gets all Users from /etc/passwd as StringList
++     * 
++     * @return the UserNames extracted from the getEtcPasswdArray()
++     */
++    public static ArrayList getEtcPasswdUsersAsArrayList()
++    {
++        ArrayList result = new ArrayList();
++        ArrayList etcPasswdArray = UnixHelper.getEtcPasswdArray();
++
++        for (int idx = 0; idx &lt; etcPasswdArray.size(); idx++)
++        {
++            String line = (String) etcPasswdArray.get(idx);
++            result.add(line);
++        }
++
++        return result;
++    }
++
++    /**
++     * Gets all Users from /etc/passwd as StringList
++     * 
++     * @return the UserNames extracted from the getEtcPasswdArray()
++     */
++    public static ArrayList getYpPasswdUsersAsArrayList()
++    {
++        return UnixHelper.getYpPasswdArray();
++    }
++
++    /**
++     * Returns all Users as ColonSeparated String
++     * 
++     * @return &quot;asterisk:at:avahi:beagleindex:bin:daemon:dhcpd:ftp:games:gdm:haldaemon:icecream:irc:ldap:lp:mail:mailman:man:....&quot;
++     */
++    public static String getUsersColonString()
++    {
++        ArrayList usersArrayList = getEtcPasswdUsersAsArrayList();
++
++        String retValue = &quot;&quot;;
++
++        for (int user = 0; user &lt; usersArrayList.size(); user++)
++        {
++            String userline = (String) usersArrayList.get(user);
++            retValue += (userline.substring(0, userline.indexOf(&quot;:&quot;)) + &quot;:&quot;);
++        }
++
++        if (retValue.endsWith(&quot;:&quot;))
++        {
++            retValue = retValue.substring(0, retValue.length() - 1);
++        }
++
++        return retValue;
++    }
++
++    /**
++     * Test main Method
++     * 
++     * @param args from Commandline
++     */
++    public static void main(String[] args)
++    {
++        System.out.println(&quot;UnixUsers:&quot;);
++
++        UnixUsers users = new UnixUsers();
++
++        // users.fromUsersArrayList();
++        for (int idx = 0; idx &lt; users.size(); idx++)
++        {
++            System.out.println(((UnixUser) users.get(idx)).getName());
++        }
++
++        System.out.println(StringTool
++                .stringArrayListToString(getUsersWithValidShellsExistingHomesAndDesktops()));
++
++        // getUsersWithValidShellsAndExistingHomes();
++    }
++}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000312.html">[izpack-changes] r1567 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+</A></li>
+	<LI>Next message: <A HREF="000314.html">[izpack-changes] r1569 -	izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#313">[ date ]</a>
+              <a href="thread.html#313">[ thread ]</a>
+              <a href="subject.html#313">[ subject ]</a>
+              <a href="author.html#313">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

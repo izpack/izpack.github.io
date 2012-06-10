@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] fix&amp;patch: Shortcuts in Linux
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20fix%26patch%3A%20Shortcuts%20in%20Linux&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000815.html">
+   <LINK REL="Next"  HREF="000817.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] fix&amp;patch: Shortcuts in Linux</H1>
+    <B>Vladimir Ralev</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20fix%26patch%3A%20Shortcuts%20in%20Linux&In-Reply-To="
+       TITLE="[izpack-devel] fix&amp;patch: Shortcuts in Linux">vralev at redhat.com
+       </A><BR>
+    <I>Mon Jan 29 09:58:55 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000815.html">[izpack-devel] Regarding Izpack-Querry on &quot;shortcutpanel&quot;
+</A></li>
+        <LI>Next message: <A HREF="000817.html">[izpack-devel] fix: Packs Panel automation generates wrong XML if multiple InstallGroups are present
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#816">[ date ]</a>
+              <a href="thread.html#816">[ thread ]</a>
+              <a href="subject.html#816">[ subject ]</a>
+              <a href="author.html#816">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I am not sure if you have checked the compatibility of the ShortcutPanel 
+with Linux distros recently. The current implementation works only in 
+KDE (I have tested several distros).
+There is a new menu standard called XDG, unified for both Gnome and KDE 
+and some other environments, which is a better solution and works on all 
+new Gnomes (after 2.10) and KDE (not sure what's the first supported 
+version). Also note that most major Linux distros use Gnome by default 
+(i.e. the current implementation is useless)
+
+The XDG standard is quite different from the previous and the code needs 
+a complete rewrite in the future. For now I have implemented a limited 
+XDG-support solution around the existing code while keeping the old 
+functionality (support for older KDEs). I decided to make the 
+implementation more windows-like instead of category-based (although 
+categories are still supported I recommend setting the category 
+attribute to &quot;&quot;, because the shortcuts may get duplicated). This 
+implementation creates a new submenu in the main gnome/kde menu and 
+places the shortcuts inside. You can see a few screenshots here:
+<A HREF="http://jira.jboss.com/jira/browse/JBINSTALL-207">http://jira.jboss.com/jira/browse/JBINSTALL-207</A>
+
+You decide if this should be included in 3.10 or left for a future 
+release, but have in mind that the current version is worse.
+
+
+
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: fixUnixShortcuts-XDGMenuSupport.patch
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070129/6cd9ccd6/attachment.ksh">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070129/6cd9ccd6/attachment.ksh</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000815.html">[izpack-devel] Regarding Izpack-Querry on &quot;shortcutpanel&quot;
+</A></li>
+	<LI>Next message: <A HREF="000817.html">[izpack-devel] fix: Packs Panel automation generates wrong XML if multiple InstallGroups are present
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#816">[ date ]</a>
+              <a href="thread.html#816">[ thread ]</a>
+              <a href="subject.html#816">[ subject ]</a>
+              <a href="author.html#816">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

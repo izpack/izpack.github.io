@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Losing backslash in INSTALL_PATH variable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Losing%20backslash%20in%20INSTALL_PATH%20variable&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000186.html">
+   <LINK REL="Next"  HREF="000188.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Losing backslash in INSTALL_PATH variable</H1>
+    <B>Atta Rehman</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Losing%20backslash%20in%20INSTALL_PATH%20variable&In-Reply-To="
+       TITLE="[izpack-users] Losing backslash in INSTALL_PATH variable">arehman at bond.co.uk
+       </A><BR>
+    <I>Thu Feb  9 17:37:35 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000186.html">[izpack-users] getFreeSpace() on HPUX and Article in JavaMagazin
+</A></li>
+        <LI>Next message: <A HREF="000188.html">[izpack-users] Losing backslash in INSTALL_PATH variable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi
+ 
+We are having some problems with the built-in $INSTALL_PATH variable
+when used in our applications .properties files.  For example our IzPack
+installer prompts user to chose the install folder which then gets used
+in our applications .properties files as follows.
+ 
+DB.SCRIPT.FILE.PATH=$INSTALL_PATH\\Scripts\\mssql_db_tables.sql
+ 
+Parsing done by IzPack is OK and we end up with the following (installer
+run on windows choosing C:\OurApp as install folder):
+ 
+DB.SCRIPT.FILE.PATH=C:\OurApp\\Scripts\\mssql_db_tables.sql   &lt;= NOTE
+just one \ after the C:
+ 
+The problem arises when the following code is run to read in the path
+set by the DB.SCRIPT.FILE.PATH property.
+ 
+private void createDBTables()
+   {
+      try
+      {
+        ResourceBundle  rb = getBundle();
+        String fileName = rb.getString(&quot;DB.SCRIPT.FILE.PATH&quot;);
+ 
+We end up with the following in the 'fileName'
+ 
+'C:OurApp\\Scripts\\mssql_db_tables.sql'   &lt;= NOTE missing \ after the
+C:
+ 
+I know it is because the backslash is used for the escape sequence in
+Java and hence the only backslash in our $INSTALL_PATH getting removed
+which is causing problems.
+ 
+I'm new to IzPack and to Java so any help with the above would be much
+appreciated.
+ 
+Regards,
+Atta
+
+This message, together with any attachments, is
+confidential and is intended only for the use of
+the addressee(s) and may contain information
+which is covered by legal, professional or other
+privilege. If you are not the intended recipient
+please destroy this E-mail and inform us.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060209/5b5d560f/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060209/5b5d560f/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000186.html">[izpack-users] getFreeSpace() on HPUX and Article in JavaMagazin
+</A></li>
+	<LI>Next message: <A HREF="000188.html">[izpack-users] Losing backslash in INSTALL_PATH variable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> AW: [izpack-users] AW: Process user input
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=AW%3A%20%5Bizpack-users%5D%20AW%3A%20Process%20user%20input&In-Reply-To=002101c643c3%24be730310%246402a8c0%40sleipnir2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000348.html">
+   <LINK REL="Next"  HREF="000350.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>AW: [izpack-users] AW: Process user input</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=AW%3A%20%5Bizpack-users%5D%20AW%3A%20Process%20user%20input&In-Reply-To=002101c643c3%24be730310%246402a8c0%40sleipnir2"
+       TITLE="AW: [izpack-users] AW: Process user input">bartzkau at gmx.net
+       </A><BR>
+    <I>Fri Mar 10 09:21:00 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000348.html">AW: [izpack-users] AW: Process user input
+</A></li>
+        <LI>Next message: <A HREF="000350.html">AW: [izpack-users] license
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#349">[ date ]</a>
+              <a href="thread.html#349">[ thread ]</a>
+              <a href="subject.html#349">[ subject ]</a>
+              <a href="author.html#349">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>The data container which will be present during the hole
+installation is an object of the class InstallData. There is
+only one object of it. The non-GUI-base-class is AutomatedInstallData.
+In a panel which will be derived from IzPanel you can access
+via the class member idata.
+In a custom action derived from SimpleInstallerListener there is
+the getter getInstalldata().
+To store informations from one panel to an other (or to a custom
+action) it is common to store this information as property, means:
+
+String value = &quot;das was ich mir merken will&quot;;
+idata.setVariable(&quot;myIdentifier&quot;, value);
+
+example: JDKPathPanel.java line 102.
+
+To access in a panel:
+
+String myValue = idata.getVariable(&quot;myIdentifier&quot;);
+
+example: JDKPathPanel.java line 118.
+
+To access in a custom action:
+
+String myValue = getInstalldata().getVariable(&quot;myIdentifier&quot;);
+
+example: RegistryInstallerListener.java line 138 (little bit complex)
+
+In custom actions there is often an access to all variables:
+
+Properties vars = getInstalldata().getVariables();
+
+You can use SummaryLoggerInstallerListener.afterPacks as an
+example for getVariables and other things from InstallData.
+
+Do not try to access the panel objects directly. It will be possible
+with some hacks, but you will catch more problems you would have.
+This is the common way not only in IzPack. MSI has a &quot;near by mimik&quot;.
+
+Hope it helps
+
+Klaus
+
+Am 09.03.2006, 22:52 Uhr, schrieb Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">klaus at vommond.de</A>&gt;:
+
+&gt;<i> I need a custom panel and the data of these panel must be available in a
+</I>&gt;<i> custom action. I need some username, password etc. to connect to an
+</I>&gt;<i> database.
+</I>&gt;<i>
+</I>&gt;<i> Thx,
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i> -----Urspr&#252;ngliche Nachricht-----
+</I>&gt;<i> Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>  
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>] Im
+</I>&gt;<i> Auftrag von Klaus Bartz
+</I>&gt;<i> Gesendet: Donnerstag, 9. M&#228;rz 2006 18:06
+</I>&gt;<i> An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;<i> Betreff: Re: [izpack-users] AW: Process user input
+</I>&gt;<i>
+</I>&gt;<i> Hi Klaus,
+</I>&gt;<i> I do not really understand what you mean.
+</I>&gt;<i> Are you speaking of a custom panel or a custom action?
+</I>&gt;<i> What user input and what you would process?
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i> Am 09.03.2006, 17:40 Uhr, schrieb Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">klaus at vommond.de</A>&gt;:
+</I>&gt;<i>
+</I>&gt;&gt;<i> How do I process the user input. I need to know the input in my own
+</I>&gt;&gt;<i> action,
+</I>&gt;&gt;<i> after the last pack is zipped out. Unfortunately this chapter is missing
+</I>&gt;&gt;<i> in
+</I>&gt;&gt;<i> the documentation.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Thx,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________ izpack-users mailing  
+</I>&gt;&gt;<i> list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> __________ NOD32 1.1422 (20060301) Information __________
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Diese E-Mail wurde vom NOD32 Antivirus System gepr&#252;ft
+</I>&gt;&gt;<i> <A HREF="http://www.nod32.com">http://www.nod32.com</A>
+</I>&gt;&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+
+-- 
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000348.html">AW: [izpack-users] AW: Process user input
+</A></li>
+	<LI>Next message: <A HREF="000350.html">AW: [izpack-users] license
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#349">[ date ]</a>
+              <a href="thread.html#349">[ thread ]</a>
+              <a href="subject.html#349">[ subject ]</a>
+              <a href="author.html#349">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Fix properly position components while switching between packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Fix%20properly%20position%20components%20while%20switching%0A%20between%20packs&In-Reply-To=C2CDEFBECFC9A14892BCCFB4C95F48680890C462%40EX-201.mail.navisite.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001067.html">
+   <LINK REL="Next"  HREF="001079.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Fix properly position components while switching between packs</H1>
+    <B>David.Guan</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Fix%20properly%20position%20components%20while%20switching%0A%20between%20packs&In-Reply-To=C2CDEFBECFC9A14892BCCFB4C95F48680890C462%40EX-201.mail.navisite.com"
+       TITLE="[izpack-devel] Fix properly position components while switching between packs">soft.guan at yahoo.com.cn
+       </A><BR>
+    <I>Sat May  5 05:51:31 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001067.html">[izpack-devel] yet another patch - user panel layout when switching packs
+</A></li>
+        <LI>Next message: <A HREF="001079.html">[izpack-devel] Fix properly position components while switching	between packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1068">[ date ]</a>
+              <a href="thread.html#1068">[ thread ]</a>
+              <a href="subject.html#1068">[ subject ]</a>
+              <a href="author.html#1068">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+In fact, This problem still exists in Izpack3.10.1. 
+It has not been solved correctly.
+Does anyone has some idea? 
+Thanks.
+
+
+Amit Bhayani wrote:
+&gt;<i> 
+</I>&gt;<i> Hello Friends,
+</I>&gt;<i> 
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i> I am using Installer for our specific requirement and came across a bug
+</I>&gt;<i> where if User changes the Packs selected, component layout gets ugly. I
+</I>&gt;<i> have seen other users too facing this problem.
+</I>&gt;<i> 
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i> To fix this I have made changes in removeLayoutComponent(Component) of
+</I>&gt;<i> TwoColumnLayout Class. I am attaching the patch ( PFA patch1.txt ) for
+</I>&gt;<i> the changes made. I have quickly coded a small application making use of
+</I>&gt;<i> TwoColumnLayout. PFA TwoColumnLayoutTest.java. This is just for testing
+</I>&gt;<i> and by no means a quality code.
+</I>&gt;<i> 
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i> Please let me know what you think about the changes.
+</I>&gt;<i> 
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i> Thanks and Regards,
+</I>&gt;<i> 
+</I>&gt;<i> Amit.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Index:
+</I>&gt;<i> C:/IzPack/IzPack3-head/src/lib/com/izforge/izpack/gui/TwoColumnLayout.java
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> ---
+</I>&gt;<i> C:/IzPack/IzPack3-head/src/lib/com/izforge/izpack/gui/TwoColumnLayout.java
+</I>&gt;<i> (revision 1508)
+</I>&gt;<i> +++
+</I>&gt;<i> C:/IzPack/IzPack3-head/src/lib/com/izforge/izpack/gui/TwoColumnLayout.java
+</I>&gt;<i> (working copy)
+</I>&gt;<i> @@ -875,12 +875,48 @@
+</I>&gt;<i>      }
+</I>&gt;<i>  
+</I>&gt;<i>      /**
+</I>&gt;<i> -     * This functionality is not supported
+</I>&gt;<i> +     * This functionality removes the TwoColumnConstraints from Vectors
+</I>&gt;<i> +     * so that alignment of components on UserInputPanel doesn't get
+</I>&gt;<i> +     * dirty
+</I>&gt;<i>       * 
+</I>&gt;<i>       * @param comp the component to be removed
+</I>&gt;<i>       */
+</I>&gt;<i>      public void removeLayoutComponent(Component comp)
+</I>&gt;<i>      {
+</I>&gt;<i> +        Vector left = components[LEFT];
+</I>&gt;<i> +        Vector right = components[RIGHT];
+</I>&gt;<i> +        boolean removedLeft = false;
+</I>&gt;<i> +        boolean removedRight = false;
+</I>&gt;<i> +        
+</I>&gt;<i> +        for(int i=0;i&lt;left.size();i++){
+</I>&gt;<i> +            TwoColumnConstraints constraints =
+</I>&gt;<i> (TwoColumnConstraints)left.get(i);
+</I>&gt;<i> +            if(constraints == null){
+</I>&gt;<i> +                continue;
+</I>&gt;<i> +            }            
+</I>&gt;<i> +            Component ctemp = constraints.component;
+</I>&gt;<i> +            if(ctemp!=null &amp;&amp; ctemp.equals(comp)){
+</I>&gt;<i> +                removedLeft = left.remove(constraints);
+</I>&gt;<i> +                if(constraints.position == TwoColumnConstraints.BOTH ||
+</I>&gt;<i> constraints.position == TwoColumnConstraints.WESTONLY){ 
+</I>&gt;<i> +                    right.remove(i);
+</I>&gt;<i> +                }
+</I>&gt;<i> +                break;                
+</I>&gt;<i> +            }            
+</I>&gt;<i> +        }
+</I>&gt;<i> +        
+</I>&gt;<i> +        for(int j=0;j&lt;right.size();j++){
+</I>&gt;<i> +            TwoColumnConstraints constraints =
+</I>&gt;<i> (TwoColumnConstraints)right.get(j);
+</I>&gt;<i> +            if(constraints == null){
+</I>&gt;<i> +                continue;
+</I>&gt;<i> +            }
+</I>&gt;<i> +            Component ctemp = constraints.component;
+</I>&gt;<i> +            if(ctemp!=null &amp;&amp; ctemp.equals(comp)){
+</I>&gt;<i> +                removedRight = right.remove(constraints);
+</I>&gt;<i> +                if(constraints.position == TwoColumnConstraints.BOTH ||
+</I>&gt;<i> constraints.position == TwoColumnConstraints.EASTONLY){ 
+</I>&gt;<i> +                    left.remove(j);
+</I>&gt;<i> +                }                
+</I>&gt;<i> +                break;                
+</I>&gt;<i> +            }            
+</I>&gt;<i> +        }               
+</I>&gt;<i>      }
+</I>&gt;<i>  
+</I>&gt;<i>      /**
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://bat.berlios.de/mailman/listinfo/izpack-devel">http://bat.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+-- 
+View this message in context: <A HREF="http://www.nabble.com/Fix-properly-position-components-while-switching-between-packs-tf2011062.html#a10333407">http://www.nabble.com/Fix-properly-position-components-while-switching-between-packs-tf2011062.html#a10333407</A>
+Sent from the izpack devel mailing list archive at Nabble.com.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001067.html">[izpack-devel] yet another patch - user panel layout when switching packs
+</A></li>
+	<LI>Next message: <A HREF="001079.html">[izpack-devel] Fix properly position components while switching	between packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1068">[ date ]</a>
+              <a href="thread.html#1068">[ thread ]</a>
+              <a href="subject.html#1068">[ subject ]</a>
+              <a href="author.html#1068">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,237 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] ClassCastException with custom listeners
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20ClassCastException%20with%20custom%20listeners&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC3C%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001508.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] ClassCastException with custom listeners</H1>
+    <B>Steve Dodge</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20ClassCastException%20with%20custom%20listeners&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC3C%40coi11.coi.com"
+       TITLE="[izpack-users] ClassCastException with custom listeners">steve at robododge.com
+       </A><BR>
+    <I>Sat Jun  2 00:38:09 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001508.html">[izpack-users] Detecting an upgrade
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1507">[ date ]</a>
+              <a href="thread.html#1507">[ thread ]</a>
+              <a href="subject.html#1507">[ subject ]</a>
+              <a href="author.html#1507">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello Klaus,
+
+Your response has been very helpful.  I my environment, I have IzPack  
+compilation integrated with Maven.  This configuration forces me to  
+use the standalone compiler.    I was able to overcome the  
+ClassCastExeption by creating VelocityInstallerListerner.jar and  
+VelocityCompilerListener.jar and adding them to the standalone- 
+compiler.jar in /bin/customActions/
+
+There is one interesting thing I noticed during compilation now.  I  
+see a message stating that the VelocityInstallerListener.jar is being  
+added.  But I don't see a similar message for the compilerListener.   
+I'm assuming this is because the IzPack compiler just uses the  
+compilerListner during compile time and its done, no need to add  
+it.   Taking that  observation one step further, it becomes apparent  
+that using the &quot;jar&quot; attribute on the listener configuration doesn't  
+distinguish between Compiler vs. Installer listeners, thus it adds  
+both to the collection of installer listeners, resulting in a  
+ClassCast later on.  It would be much better if the functionality  
+worked properly when using the &quot;jar&quot; attribute.  This is better  
+because modifying the contents of the standalone-compiler.jar is not  
+a portable approach.
+
+Thanks for your help,
+Steve
+
+
+
+
+On May 24, 2007, at 3:28 AM, Bartz, Klaus wrote:
+
+&gt;<i> Hi Steve,
+</I>&gt;<i> the simplest way to create custom actions is to add your listener
+</I>&gt;<i> to the ant script of IzPack (%IZ_HOME%\src\build.xml).
+</I>&gt;<i> See target build.listeners.
+</I>&gt;<i>
+</I>&gt;<i> There is a name convention for listener. Rename your listener to
+</I>&gt;<i> CompileListener -&gt; VelocityCompilerListener
+</I>&gt;<i> VelocityListener -&gt; VelocityInstallerListener
+</I>&gt;<i> and may be the VelocityUninstallerListener
+</I>&gt;<i>
+</I>&gt;<i> The CompilerListener should only exist at compile time, not at
+</I>&gt;<i> install time. In the moment I do not know why it is active in your
+</I>&gt;<i> installation.
+</I>&gt;<i> Passive is clear because you add the classes to your install.jar (see
+</I>&gt;<i> below).
+</I>&gt;<i> CompilerListener.class is contained in the standalone compiler.
+</I>&gt;<i>
+</I>&gt;<i> Do not add panel or custom action jars with &lt;jar&gt; in install.xml, else
+</I>&gt;<i> put the jar files into the standalone compiler, or into the IzPack
+</I>&gt;<i> installation
+</I>&gt;<i> if you use the &quot;normal&quot; compiler. Both in the sub dir bin 
+</I>&gt;<i> \customActions
+</I>&gt;<i> (bin\panels for panels). If you use the &lt;jar&gt; element, you put the
+</I>&gt;<i> contents of
+</I>&gt;<i> the jar into the install.jar, not the jar file self into the compiler
+</I>&gt;<i> (where
+</I>&gt;<i> a compiler listener have to be).
+</I>&gt;<i> May be it works also with the attribute &quot;jar&quot; of element &quot;listener&quot;. I
+</I>&gt;<i> never
+</I>&gt;<i> used it because I never need it.
+</I>&gt;<i>
+</I>&gt;<i> Try the packaging (&quot;compile&quot;) with the &quot;normal&quot; compiler.
+</I>&gt;<i>
+</I>&gt;<i> If you use build.xml, ervery listener will be packed in a jar file.
+</I>&gt;<i> Be aware that you have to declare all needed classes in the ant call;
+</I>&gt;<i> may be see the tag
+</I>&gt;<i> &lt;build-installer-listener name=&quot;RegistryInstallerListener&quot;&gt;
+</I>&gt;<i>
+</I>&gt;<i> Do not add so much jars into your install.xml. I think you need
+</I>&gt;<i> &lt;jar src=&quot;lib/ant-1.6.5.jar&quot;/&gt;
+</I>&gt;<i> &lt;jar src=&quot;lib/ant-launcher-1.6.5.jar&quot;/&gt;
+</I>&gt;<i> &lt;jar src=&quot;lib/velocity-1.5.jar&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i> and not more.
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of
+</I>&gt;&gt;<i> Steve Dodge
+</I>&gt;&gt;<i> Sent: Thursday, May 24, 2007 4:41 AM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: Re: [izpack-users] ClassCastException with custom listeners
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Hello,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I'm thinking that my explanation is too complicated.  Let me
+</I>&gt;&gt;<i> simplify.  I've created a compiler listener and installer listener.
+</I>&gt;&gt;<i> I've added those to my install.xml.  Since I'm using the standalone-
+</I>&gt;&gt;<i> compiler, I set  the &quot;jar&quot; attribute.  The compiler listener runs as
+</I>&gt;&gt;<i> expected, but when the installer is running, it gets a
+</I>&gt;&gt;<i> ClassCastException because my compiler listener is
+</I>&gt;&gt;<i> incorrectly placed
+</I>&gt;&gt;<i> in the collection of InstallerListener objects.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Thanks,
+</I>&gt;&gt;<i> Steve
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> On May 21, 2007, at 10:40 AM, Steve Dodge wrote:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> I've built a compile listener and an installer listener.  Using
+</I>&gt;&gt;&gt;<i> IzPack 3.10.1.   The compile listener added a filename to the of a
+</I>&gt;&gt;&gt;<i> Velocity template to the additionalData map.  The Installer
+</I>&gt;&gt;<i> listener
+</I>&gt;&gt;&gt;<i> checks during afterFile() if the name of the file matches a
+</I>&gt;&gt;<i> Velocity
+</I>&gt;&gt;&gt;<i> template, and applies the template if so.  I am also using the
+</I>&gt;&gt;&gt;<i> standalone-compiler.jar. My install.xml has the following.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>    &lt;listeners&gt;
+</I>&gt;&gt;&gt;<i>     &lt;listener
+</I>&gt;&gt;&gt;<i>        compiler=&quot;nm.trw.utils.listener.CompileListener&quot;
+</I>&gt;&gt;&gt;<i>        installer=&quot;nm.trw.utils.listener.VelocityListener&quot;
+</I>&gt;&gt;&gt;<i>        jar=&quot;lib/tekPackListeners.jar&quot;
+</I>&gt;&gt;&gt;<i>        /&gt;
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>     &lt;listener installer=&quot;AntActionInstallerListener&quot;
+</I>&gt;&gt;&gt;<i>                uninstaller=&quot;AntActionUninstallerListener&quot;/&gt;
+</I>&gt;&gt;&gt;<i>     &lt;/listeners&gt;
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Using debug output, I verify the compile listener is being called
+</I>&gt;&gt;&gt;<i> correctly during compile time as it searches for &lt;addititionalData&gt;
+</I>&gt;&gt;&gt;<i> tags within the &lt;fileset&gt; and parses the data correctly. During
+</I>&gt;&gt;&gt;<i> install, when the install panel is showing the progress
+</I>&gt;&gt;<i> bar, I get the
+</I>&gt;&gt;&gt;<i> following exception:
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> java.lang.ClassCastException: nm.trw.utils.listener.CompileListener
+</I>&gt;&gt;&gt;<i>          at com.izforge.izpack.installer.Unpacker.getCustomActions
+</I>&gt;&gt;&gt;<i> (Unpacker.java:1139)
+</I>&gt;&gt;&gt;<i>          at com.izforge.izpack.installer.Unpacker.run(Unpacker.java:
+</I>&gt;&gt;&gt;<i> 295)
+</I>&gt;&gt;&gt;<i>          at java.lang.Thread.run(Thread.java:613)
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Looking at the code for Unpacker, it seems the CompileListener was
+</I>&gt;&gt;&gt;<i> improperly placed in the collection of InstallerListeners, thus
+</I>&gt;&gt;&gt;<i> ClassCastException.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Here are the &lt;jars&gt; that I had to add to make it work.
+</I>&gt;&gt;&gt;<i> &lt;jar src=&quot;lib/tekPackListeners.jar&quot;/&gt;
+</I>&gt;&gt;&gt;<i> &lt;jar src=&quot;lib/izevent-3.10.1.jar&quot;/&gt;
+</I>&gt;&gt;&gt;<i> &lt;jar src=&quot;lib/compiler-3.10.1.jar&quot;/&gt;&lt;!-- this one has to be here,
+</I>&gt;&gt;&gt;<i> izevent isn't enough,  otherwise ClassNotFoundException for
+</I>&gt;&gt;&gt;<i> CompilerListener interface &lt;jar src=&quot;lib/ant-1.6.5.jar&quot;/&gt;
+</I>&gt;&gt;&gt;<i> &lt;jar src=&quot;lib/ant-launcher-1.6.5.jar&quot;/&gt;
+</I>&gt;&gt;&gt;<i> &lt;jar src=&quot;lib/velocity-1.5.jar&quot;/&gt;
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> I think I'm missing something in the installation here.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Thanks,
+</I>&gt;&gt;&gt;<i> Steve
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Am I missing something in the setup here?  I cannot figure out how
+</I>&gt;&gt;&gt;<i> CompileListener makes it way into the
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001508.html">[izpack-users] Detecting an upgrade
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1507">[ date ]</a>
+              <a href="thread.html#1507">[ thread ]</a>
+              <a href="subject.html#1507">[ subject ]</a>
+              <a href="author.html#1507">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

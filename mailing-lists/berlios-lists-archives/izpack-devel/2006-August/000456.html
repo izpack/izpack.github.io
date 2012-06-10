@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Discussion about logging continued
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Discussion%20about%20logging%20continued&In-Reply-To=HPEKIFMJKCAJHFKEPLIHKEACCMAA.elmar%40grom.net">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000455.html">
+   <LINK REL="Next"  HREF="000457.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Discussion about logging continued</H1>
+    <B>Marc Eppelmann</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Discussion%20about%20logging%20continued&In-Reply-To=HPEKIFMJKCAJHFKEPLIHKEACCMAA.elmar%40grom.net"
+       TITLE="[izpack-devel] Discussion about logging continued">marc.eppelmann at gmx.de
+       </A><BR>
+    <I>Mon Aug 28 20:52:54 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000455.html">[izpack-devel] Starting a discussion about logging
+</A></li>
+        <LI>Next message: <A HREF="000457.html">[izpack-devel] Starting a discussion about logging
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#456">[ date ]</a>
+              <a href="thread.html#456">[ thread ]</a>
+              <a href="subject.html#456">[ subject ]</a>
+              <a href="author.html#456">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Ok, let me resume:
+
+At first: There are too different conceivabilities about to write our own or 
+which logging framework should be used.
+So it must be userdefined configurable. Any ideas?
+
+The Second: The reason to embedd logging is simple. The IzPack Install User 
+wants to see what has been done by the Installer. And if there is an 
+unexpected error or a strange behavior he/she can look in the logfile and 
+should find the reason and maybe the solution. i.e. Wrong or too old JVM. Or 
+to less diskspace during installation - if there is another diskspace-eating 
+process running on the same machine and so on...
+
+To be more precise. 
+I have implemented an island solution for our IzPack-Branch with Log4J which 
+is embedded in our IzPack-Setup, which logs the performed steps. Here is a 
+extract: A sample shows more than lengthy explanations...
+
+==============
+2006-08-23 22:35:02,078 INFO  [main] installer.info        - load installation 
+data
+2006-08-23 22:35:02,546 INFO  [main] installer.info        - set default 
+installation path
+2006-08-23 22:35:02,546 INFO  [main] installer.info        - default: 'C:
+\Program Files\FIT\WCM'
+2006-08-23 22:35:02,546 INFO  [main] installer.info        - verbose:false
+2006-08-23 22:35:02,546 INFO  [main] installer.info        - debug:false
+2006-08-23 22:35:02,546 INFO  [main] installer.info        - Used Environment:
+{ minjava=1.4.2, SERVER_HOST=vmmepw2k3eeng, XInfo.AppendPackNames=yes, 
+TOMCAT_HOME=tomcat, SetupUserName=Administrator, 
+SelectFolderPanel.skipPack=Tomcat, FILE_SEPARATOR=\,  currentyear=2006, 
+appbuild=3.1.0.3, SetupOsArch=x86, TargetPanel.skipPack=Tomcat, debug=false, 
+LD_LIBRARY_PATH=C:\Program Files (x86)\Java\j2re1.4.2_12\bin;.;C:
+\WINDOWS\system32;C:\WINDOWS;%SystemRoot%\system32;
+, appversion=3.1,... }
+2006-08-23 22:35:02,546 INFO  [main] installer.info        - done( load 
+installation data )
+2006-08-23 22:35:02,562 INFO  [main] installer.info        - Sets up the GUI 
+L&amp;F
+2006-08-23 22:35:03,062 INFO  [main] installer.info        - done( Sets up the 
+GUI L&amp;F )
+&lt;snip/&gt;
+2006-08-23 22:35:14,156 INFO  [main] installer.info        - done( 
+InstallerFrame.Builds the GUI )
+2006-08-23 22:35:14,156 INFO  [main] installer.info        - 
+InstallerFrame.show the frame
+2006-08-23 22:35:14,250 INFO  [main] installer.info        - done( 
+InstallerFrame.show the frame )
+2006-08-23 22:35:14,250 INFO  [main] installer.info        - done( launch the 
+installer GUI)
+&lt;snip/&gt;
+2006-08-23 22:39:01,093 INFO  [IzPack - Unpacker thread] 
+installer.info        - unpack Pack No: 1 (Tomcat)
+2006-08-23 22:39:01,203 INFO  [IzPack - Unpacker thread] 
+installer.info        - wrote 11558 Bytes of File: C:\Program Files 
+(x86)\FIT\WCM\tomcat\LICENSE
+2006-08-23 22:39:01,203 INFO  [IzPack - Unpacker thread] 
+installer.info        - wrote 516 Bytes of File: C:\Program Files 
+(x86)\FIT\WCM\tomcat\NOTICE
+&lt;Snip.many.packs.and.files.../&gt;
+2006-08-23 23:22:11,875 INFO  [AWT-EventQueue-0] installer.info        - 
+InstallerFrame.exit(0): successfully installed
+==================
+
+Any Comments ?
+
+Cheers
+Marc
+
+Am Montag, 28. August 2006 18:17 schrieb Elmar Grom:
+&gt;<i> Hi folks,
+</I>&gt;<i>
+</I>&gt;<i> generally it is not a bad idea to use 3rd party libraries, particularly if
+</I>&gt;<i> the issue to be solved would require a large amount of work. However, in my
+</I>&gt;<i> experience one should exercises some caution and aim to strike a balance.
+</I>&gt;<i> If there are too many dependencies on other libraries, that can become a
+</I>&gt;<i> problem in itself.
+</I>&gt;<i>
+</I>&gt;<i> I am not quite sure what we want to log, but I cannot imagine that a
+</I>&gt;<i> logging facility is a big project. At least not if it doesn't have to be
+</I>&gt;<i> general purpose. Not seeing the big gain, my vote goes toward implementing
+</I>&gt;<i> our own solution.
+</I>&gt;<i>
+</I>&gt;<i> 	Elmar
+</I>&lt;snip/&gt;
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000455.html">[izpack-devel] Starting a discussion about logging
+</A></li>
+	<LI>Next message: <A HREF="000457.html">[izpack-devel] Starting a discussion about logging
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#456">[ date ]</a>
+              <a href="thread.html#456">[ thread ]</a>
+              <a href="subject.html#456">[ subject ]</a>
+              <a href="author.html#456">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

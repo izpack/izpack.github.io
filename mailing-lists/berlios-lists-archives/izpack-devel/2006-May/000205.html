@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Shortcut Panel Crashes on Windows 2000
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Shortcut%20Panel%20Crashes%20on%20Windows%202000&In-Reply-To=200605301239.09262.hal%40thresholddigital.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000204.html">
+   <LINK REL="Next"  HREF="000206.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Shortcut Panel Crashes on Windows 2000</H1>
+    <B>Elmar Grom</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Shortcut%20Panel%20Crashes%20on%20Windows%202000&In-Reply-To=200605301239.09262.hal%40thresholddigital.com"
+       TITLE="[izpack-devel] Shortcut Panel Crashes on Windows 2000">elmar at grom.net
+       </A><BR>
+    <I>Tue May 30 21:10:10 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000204.html">[izpack-devel] Shortcut Panel Crashes on Windows 2000
+</A></li>
+        <LI>Next message: <A HREF="000206.html">[izpack-devel] Shortcut Panel Crashes on Windows 2000
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#205">[ date ]</a>
+              <a href="thread.html#205">[ thread ]</a>
+              <a href="subject.html#205">[ subject ]</a>
+              <a href="author.html#205">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Hal,
+
+I never heard of such behavior. There is also nothing in the code that could
+cause the OS to reboot. In theory it should not be possible to cause this
+from within a Java application and the native code uses regular OS calls, no
+trickery or smoke and mirrors. So that makes the entire situation really
+strange.
+
+Just to explore the situation a bit more, could you try to insert another
+panel after the shortcut panel and see what happens?
+
+	Elmar
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>]On Behalf Of Hal Vaughan
+Sent: Tuesday, May 30, 2006 9:39 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: [izpack-devel] Shortcut Panel Crashes on Windows 2000
+
+
+I wanted to bring this up here before I submitted it as a bug, since I
+have no debugging info (it just crashes!).  I've included my
+shortcutSpec.xml at the bottom of this e-mail, in case there's
+something I missed that could create a problem.
+
+I'm using a shortcut panel as the last functional step in installing my
+program.  It works fine on Windows XP, but whenever I get the
+ShortcutPanel on Windows 2000, when I click &quot;Next&quot;, instead of getting
+shortcuts, my computer reboots.  As you can imagine, this means I can
+either not support Windows 2000 or come up with really crazy work
+around.
+
+Has anyone else seen this behavior?
+
+I've got working directories set, but the shortcuts are to .vbs files
+that don't really need environment variables.  They figure out where
+they are and then run .bat files in the same directory with a few
+arguments the .vbs scripts figure out on their own.  I'm not using
+special icons (just the standard .vbs icon) either.
+
+Any ideas on this would be helpful.  I think it's likely a bug of some
+kind, but I'm once again working on very little sleep for a number of
+days, so I could be missing the extremely obvious.
+
+Thanks!
+
+Hal
+----------------------------shortcutSpec.xml--------------------------------
+-----
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+&lt;shortcuts&gt;
+	&lt;skipIfNotSupported/&gt;
+	&lt;programGroup defaultName=&quot;threshNet Agent&quot; location=&quot;startMenu&quot;/&gt;
+	&lt;shortcut
+				name=&quot;threshNet Control Panel&quot;
+				target=&quot;$INSTALL_PATH\TNetControlPanel.vbs&quot;
+				commandLine=&quot;&quot;
+				workingDirectory=&quot;$INSTALL_PATH\&quot;
+				description=&quot;Runs the threshNet Control Panel&quot;
+				initialState=&quot;noShow&quot;
+				programGroup=&quot;yes&quot;
+				desktop=&quot;yes&quot;
+				applications=&quot;no&quot;
+				startMenu=&quot;no&quot;
+				startup=&quot;no&quot;&gt;
+		&lt;createForPack name=&quot;threshNetAgent&quot;/&gt;
+	&lt;/shortcut&gt;
+
+	&lt;shortcut
+				name=&quot;threshNet Test&quot;
+				target=&quot;$INSTALL_PATH\TNetTest.vbs&quot;
+				commandLine=&quot;&quot;
+				workingDirectory=&quot;$INSTALL_PATH\&quot;
+				description=&quot;Runs tests to verify threshNet Agent functions&quot;
+				initialState=&quot;noShow&quot;
+				programGroup=&quot;yes&quot;
+				desktop=&quot;no&quot;
+				applications=&quot;no&quot;
+				startMenu=&quot;no&quot;
+				startup=&quot;no&quot;&gt;
+		&lt;createForPack name=&quot;threshNetAgent&quot;/&gt;
+	&lt;/shortcut&gt;
+&lt;/shortcuts&gt;
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000204.html">[izpack-devel] Shortcut Panel Crashes on Windows 2000
+</A></li>
+	<LI>Next message: <A HREF="000206.html">[izpack-devel] Shortcut Panel Crashes on Windows 2000
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#205">[ date ]</a>
+              <a href="thread.html#205">[ thread ]</a>
+              <a href="subject.html#205">[ subject ]</a>
+              <a href="author.html#205">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

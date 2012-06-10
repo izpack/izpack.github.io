@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Variables defined in UserInputPanel vs silent mode
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Variables%20defined%20in%20UserInputPanel%20vs%20silent%0A%20mode&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C8991030A8A31%40svrexol1.ol.reddot.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001423.html">
+   <LINK REL="Next"  HREF="001435.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Variables defined in UserInputPanel vs silent mode</H1>
+    <B>Piotr Skowronek</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Variables%20defined%20in%20UserInputPanel%20vs%20silent%0A%20mode&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C8991030A8A31%40svrexol1.ol.reddot.de"
+       TITLE="[izpack-devel] Variables defined in UserInputPanel vs silent mode">piotr at skowro.net
+       </A><BR>
+    <I>Fri Jan 18 12:30:37 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001423.html">[izpack-devel] Variables defined in UserInputPanel vs silent	mode
+</A></li>
+        <LI>Next message: <A HREF="001435.html">[izpack-devel] TreePacksPanel - documentation update
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1425">[ date ]</a>
+              <a href="thread.html#1425">[ thread ]</a>
+              <a href="subject.html#1425">[ subject ]</a>
+              <a href="author.html#1425">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Dennis,
+
+Thanks for the hint how to debug variables and conditions this way!
+It is much better than using DataCheckPanel!
+
+But, I've checked the state of conditions, and it looks like they work
+properly. When the first condition is met, the second one seems to
+destroy the variable. I'm not sure what is going on there, I haven't
+debut it, yet (i have no time in the moment).
+
+Let me tell you what I have done. I have conditions defined in seperate
+file, where i have:
+&lt;condition&gt;
+	&lt;condition type=&quot;packselection&quot; id=&quot;isXpack&quot;&gt;
+		&lt;packid&gt;X&lt;/packid&gt;
+	&lt;/condition&gt;
+&lt;/condition&gt;
+
+and install.xml has:
+
+&lt;dynamicvariables&gt;
+	&lt;variable name=&quot;test&quot; value=&quot;test1&quot; condition=&quot;isXpack&quot;/&gt;
+	&lt;variable name=&quot;test&quot; value=&quot;test2&quot; condition=&quot;!isXpack&quot;/&gt;
+&lt;/dynamicvariables&gt;
+
+And, if X pack is selected for the installation, then _no_ test variable
+appears at all. But, when X pack is deselected, then test variable
+is set and contains test2. So it appears, that when the next condition
+is not met, the variable is killed...
+
+Thanks in advance
+Piotr Skowronek
+
+
+Dennis Reil pisze:
+&gt;<i> Hmm, if mycondition1 is true, app-version should have a value of 1.4.
+</I>&gt;<i> 
+</I>&gt;<i> Look at <A HREF="http://blog.reil-online.de/2007/12/how-to-debug-variables-and-conditions.html">http://blog.reil-online.de/2007/12/how-to-debug-variables-and-conditions.html</A> on how to debug condition and variable changes.
+</I>&gt;<i> 
+</I>&gt;<i> Regards,
+</I>&gt;<i>    Dennis
+</I>&gt;<i> 
+</I>&gt;<i> -----Urspr&#252;ngliche Nachricht-----
+</I>&gt;<i> Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] Im Auftrag von Piotr Skowronek
+</I>&gt;<i> Gesendet: Freitag, 18. Januar 2008 10:09
+</I>&gt;<i> An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Betreff: Re: [izpack-devel] Variables defined in UserInputPanel vs silent mode
+</I>&gt;<i> 
+</I>&gt;<i> Dennis Reil pisze:
+</I>&gt;&gt;<i> Hi,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> The dynamic variables should be used as replacement for variables only defined in UserInputPanel as they are more general and with variables in UserInputPanel you could have problems if changing the panel order in the future.
+</I>&gt;<i> 
+</I>&gt;<i> Hi Dennis,
+</I>&gt;<i> 
+</I>&gt;<i> I was trying to use dynamic variables, but had problems with using 
+</I>&gt;<i> Conditions with them. The example in docs looks like:
+</I>&gt;<i> &lt;dynamicvariables&gt;
+</I>&gt;<i>        &lt;variable name=&quot;app-version&quot; value=&quot;1.4&quot; condition=&quot;mycondition1&quot;
+</I>&gt;<i>        &lt;variable name=&quot;app-version&quot; value=&quot;1.4b&quot; 
+</I>&gt;<i> condition=&quot;!mycondition1&quot; /&gt;
+</I>&gt;<i>        &lt;variable name=&quot;released-on&quot; value=&quot;08/03/2002&quot; /&gt;
+</I>&gt;<i> &lt;/dynamicvariables&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> But, it seems that app-version variable is destroyed when
+</I>&gt;<i> mycondition1 is true. It looks like, that second condition removes
+</I>&gt;<i> previous declaration of app-version. Did you experience such problem?
+</I>&gt;<i> 
+</I>&gt;<i> Regards
+</I>&gt;<i> Piotr Skowronek
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+</PRE>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001423.html">[izpack-devel] Variables defined in UserInputPanel vs silent	mode
+</A></li>
+	<LI>Next message: <A HREF="001435.html">[izpack-devel] TreePacksPanel - documentation update
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1425">[ date ]</a>
+              <a href="thread.html#1425">[ thread ]</a>
+              <a href="subject.html#1425">[ subject ]</a>
+              <a href="author.html#1425">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

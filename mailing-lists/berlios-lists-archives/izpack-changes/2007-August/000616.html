@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1870 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/old-doc/XHTML
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1870%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels%20src/old-doc/XHTML&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000615.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1870 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/old-doc/XHTML</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1870%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels%20src/old-doc/XHTML&In-Reply-To="
+       TITLE="[izpack-changes] r1870 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/old-doc/XHTML">noreply at berlios.de
+       </A><BR>
+    <I>Fri Aug 24 21:09:32 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000615.html">[izpack-changes] r1869 - in izpack-src/trunk: .	bin/langpacks/installer
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#616">[ date ]</a>
+              <a href="thread.html#616">[ thread ]</a>
+              <a href="subject.html#616">[ subject ]</a>
+              <a href="author.html#616">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-08-24 21:09:25 +0200 (Fri, 24 Aug 2007)
+New Revision: 1870
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+   izpack-src/trunk/src/old-doc/XHTML/node4.html
+Log:
+InstallGroupPanel: sortable InstallGroups (Markus Schlegel via Julien Ponge)
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-08-24 19:04:43 UTC (rev 1869)
++++ izpack-src/trunk/Versions.txt	2007-08-24 19:09:25 UTC (rev 1870)
+@@ -31,6 +31,7 @@
+ - File / fileset Os constraints: addition of a JRE version test (e.g., &lt;os jre=&quot;1.5&quot; /&gt;)
+   (Gilles Wiart via Julien Ponge)
+ - Hungarian langpack update (Kerekes Balazs via Julien Ponge)
++- InstallGroupPanel: sortable InstallGroups (Markus Schlegel via Julien Ponge)
+ 
+   &gt; 3.10.3 (build xxxx.xx.xx)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	2007-08-24 19:04:43 UTC (rev 1869)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationGroupPanel.java	2007-08-24 19:09:25 UTC (rev 1870)
+@@ -361,7 +361,8 @@
+                 if (data == null)
+                 {
+                     String description = getGroupDescription(group);
+-                    data = new GroupData(group, description);
++                    String sortKey = getGroupSortKey(group);
++                    data = new GroupData(group, description, sortKey);
+                     installGroups.put(group, data);
+                 }
+             }
+@@ -434,7 +435,32 @@
+ 
+         return description;
+     }
++    
++    /**
++     * Look for a key = InstallationGroupPanel.sortKey.[group] entry:
++     * by using idata.getVariable(key)
++     * if this variable is not defined, defaults to group
++     * @param group - the installation group name
++     * @return the group sortkey
++     */
++    protected String getGroupSortKey(String group)
++    {
++        String key = &quot;InstallationGroupPanel.sortKey.&quot; + group;
++        String sortKey = idata.getVariable(key);
++        if (sortKey == null)
++            sortKey = group;
++        try
++        {
++            sortKey = URLDecoder.decode(sortKey, &quot;UTF-8&quot;);
++        }
++        catch (UnsupportedEncodingException e)
++        {
++            emitWarning(&quot;Failed to convert sortKey&quot;, e.getMessage());
++        }
+ 
++        return sortKey;
++    }
++
+     protected TableModel getModel(HashMap groupData)
+     {
+         String c1 = parent.langpack.getString(&quot;InstallationGroupPanel.colNameSelected&quot;);
+@@ -460,12 +486,12 @@
+                GroupData g1 = (GroupData) o1;
+                GroupData g2 = (GroupData) o2;
+ 
+-               if (g1.name == null || g2.name==null)
++               if (g1.sortKey == null || g2.sortKey==null)
+                {
+                    return 0;
+                }
+ 
+-               return g1.name.compareTo(g2.name);
++               return g1.sortKey.compareTo(g2.sortKey);
+            }
+         });
+ 
+@@ -521,13 +547,15 @@
+ 
+         String name;
+         String description;
++        String sortKey;
+         long size;
+         HashSet packNames = new HashSet();
+ 
+-        GroupData(String name, String description)
++        GroupData(String name, String description, String sortKey)
+         {
+             this.name = name;
+             this.description = description;
++            this.sortKey = sortKey;
+         }
+ 
+         String getSizeString()
+@@ -557,6 +585,8 @@
+             tmp.append(name);
+             tmp.append(&quot;){description=&quot;);
+             tmp.append(description);
++            tmp.append(&quot;, sortKey=&quot;);
++            tmp.append(sortKey);
+             tmp.append(&quot;, size=&quot;);
+             tmp.append(size);
+             tmp.append(&quot;, sizeString=&quot;);
+
+Modified: izpack-src/trunk/src/old-doc/XHTML/node4.html
+===================================================================
+--- izpack-src/trunk/src/old-doc/XHTML/node4.html	2007-08-24 19:04:43 UTC (rev 1869)
++++ izpack-src/trunk/src/old-doc/XHTML/node4.html	2007-08-24 19:09:25 UTC (rev 1870)
+@@ -1384,10 +1384,22 @@
+     &lt;/pre&gt;
+ 
+     In above example when InstallationGroupPanel is displayed, it contains three radios named Group1, Group2 and Group3.
+-    Depending on what user selects respective Packs will be displayed in PacksPanel. InstallationGroupPanel will look
+-    for description corresponding to key InstallationGroupPanel.description.Group1,
+-    InstallationGroupPanel.description.Group2 etc in installation langpacks and displays this description for each of
+-    the Group_i.
++    Depending on what user selects, the respective Packs will be displayed in PacksPanel. InstallationGroupPanel will look
++    for a description corresponding to the key &quot;InstallationGroupPanel.description.Group1&quot;,
++    &quot;InstallationGroupPanel.description.Group2&quot; etc in installation langpacks and variables and displays this description for each of
++    the Group_i.&lt;/p&gt;
++	&lt;p&gt;You may also define a sortKey in the variables section of the installer.xml to define an alternative sorting. The default sorting is based on the Group Name.
++	&lt;br&gt;Here is an example for alternative sorting of groups:
++	&lt;pre&gt;
++    (...)
++    &amp;lt;variables&amp;gt;
++       (...)
++        &amp;lt;variable name=&amp;quot;InstallationGroupPanel.sortKey.Group2&amp;quot; value=&amp;quot;A&amp;quot;/&amp;gt;
++        &amp;lt;variable name=&amp;quot;InstallationGroupPanel.sortKey.Group1&amp;quot; value=&amp;quot;B&amp;quot;/&amp;gt;
++        &amp;lt;variable name=&amp;quot;InstallationGroupPanel.sortKey.Group3&amp;quot; value=&amp;quot;C&amp;quot;/&amp;gt;
++    &amp;lt;/variables&amp;gt;
++    (...)
++	&lt;/pre&gt;
+ 
+ &lt;/p&gt;
+ 
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000615.html">[izpack-changes] r1869 - in izpack-src/trunk: .	bin/langpacks/installer
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#616">[ date ]</a>
+              <a href="thread.html#616">[ thread ]</a>
+              <a href="subject.html#616">[ subject ]</a>
+              <a href="author.html#616">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

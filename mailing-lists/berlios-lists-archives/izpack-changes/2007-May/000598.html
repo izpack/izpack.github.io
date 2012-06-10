@@ -1,0 +1,509 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1852 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1852%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20panels%20util/os&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000597.html">
+   <LINK REL="Next"  HREF="000599.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1852 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1852%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20panels%20util/os&In-Reply-To="
+       TITLE="[izpack-changes] r1852 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os">noreply at berlios.de
+       </A><BR>
+    <I>Tue May 29 22:34:04 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000597.html">[izpack-changes] r1851 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000599.html">[izpack-changes] r1853 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#598">[ date ]</a>
+              <a href="thread.html#598">[ thread ]</a>
+              <a href="subject.html#598">[ subject ]</a>
+              <a href="author.html#598">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-05-29 22:33:54 +0200 (Tue, 29 May 2007)
+New Revision: 1852
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+Log:
+Unix shortcut fixes
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-05-29 20:32:50 UTC (rev 1851)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-05-29 20:33:54 UTC (rev 1852)
+@@ -478,7 +478,7 @@
+         // ----------------------------------------------------
+         if (eventSource.equals(currentUser))
+         {
+-            groupList.setListData(shortcut.getProgramGroups(Shortcut.CURRENT_USER));
++            if(groupList != null) groupList.setListData(shortcut.getProgramGroups(Shortcut.CURRENT_USER));
+             programGroup.setText(suggestedProgramGroup);
+             shortcut.setUserType(itsUserType = Shortcut.CURRENT_USER);
+ 
+@@ -492,7 +492,7 @@
+         // ----------------------------------------------------
+         else if (eventSource.equals(allUsers))
+         {
+-            groupList.setListData(shortcut.getProgramGroups(Shortcut.ALL_USERS));
++            if(groupList != null) groupList.setListData(shortcut.getProgramGroups(Shortcut.ALL_USERS));
+             programGroup.setText(suggestedProgramGroup);
+             shortcut.setUserType(itsUserType = Shortcut.ALL_USERS);
+ 
+@@ -658,7 +658,7 @@
+                 {
+                     itsUserType = Shortcut.CURRENT_USER;
+                 }                
+-
++                
+                 buildUI(getProgramsFolder(isRootUser ? Shortcut.ALL_USERS : Shortcut.CURRENT_USER));
+ 
+                 // addSelectionList();
+@@ -1122,7 +1122,7 @@
+       addToUninstaller();
+     }
+     
+-    private String createGnomeMenu(Vector shortcuts, String menuName)
++    private String createXDGMenu(ArrayList shortcuts, String menuName)
+     {
+        String menuConfigText = &quot;&lt;Menu&gt;\n&quot; +
+             &quot;&lt;Name&gt;Applications&lt;/Name&gt;\n&quot; +
+@@ -1130,18 +1130,52 @@
+             &quot;&lt;Name&gt;&quot; + menuName + &quot;&lt;/Name&gt;\n&quot; +
+             &quot;&lt;Include&gt;\n&quot;;
+        
+-       ShortcutData data;
+-
+        for (int i = 0; i &lt; shortcuts.size(); i++)
+        {
+-           data = (ShortcutData) shortcuts.elementAt(i);
+-           menuConfigText += &quot;&lt;Filename&gt;&quot; + data.name + &quot;.desktop&lt;/Filename&gt;\n&quot;;
++           String shortcutFile = (String) shortcuts.get(i);
++           menuConfigText += &quot;&lt;Filename&gt;&quot; + shortcutFile + &quot;&lt;/Filename&gt;\n&quot;;
+        }
+        menuConfigText += &quot;&lt;/Include&gt;\n&lt;/Menu&gt;\n&lt;/Menu&gt;&quot;;
+        return menuConfigText;
+            
+     }
+     
++    private void writeXDGMenuFile(ArrayList desktopFileNames, String groupName)
++    {
++       if(OsVersion.IS_UNIX)
++       {
++          String menuFile = createXDGMenu(desktopFileNames, groupName);
++          String menuFolder;
++          if(itsUserType == Shortcut.ALL_USERS)
++          {
++             menuFolder = &quot;/etc/xdg/menus/applications-merged/&quot;;              
++          }
++          else
++          {
++             menuFolder = System.getProperty(&quot;user.home&quot;) + File.separator
++                  + &quot;.config/menus/applications-merged/&quot;;
++          }
++          File menuConfigFolder = new File(menuFolder);
++          String menuFilePath = menuFolder + groupName + &quot;.menu&quot;;
++          menuConfigFolder.mkdirs();
++          FileWriter menuFileWriter;
++          boolean failed = false;
++          try{
++             
++             menuFileWriter = new FileWriter(menuFilePath);
++             menuFileWriter.write(menuFile);
++             menuFileWriter.close();
++          }
++          catch(Exception ignore)
++          {
++             failed = true;
++             Debug.log(&quot;Failed to create menu for gnome.&quot;);
++          }
++          if(!failed) UninstallData.getInstance().addFile(menuFilePath);
++
++       }       
++    }
++    
+     /*--------------------------------------------------------------------------*/
+ 
+     /**
+@@ -1158,31 +1192,7 @@
+         //fix: don't influence other shortcuts when altering group name...
+         String gn = groupName;
+         
+-        if(OsVersion.IS_UNIX)
+-        {
+-           String menuFile = createGnomeMenu(shortcuts, groupName);
+-
+-           String menuFolder = System.getProperty(&quot;user.home&quot;) + File.separator
+-              + &quot;.config/menus/applications-merged/&quot;;
+-           File menuConfigFolder = new File(menuFolder);
+-           String menuFilePath = menuFolder + groupName + &quot;.menu&quot;;
+-           menuConfigFolder.mkdirs();
+-           FileWriter menuFileWriter;
+-           boolean failed = false;
+-           try{
+-              
+-              menuFileWriter = new FileWriter(menuFilePath);
+-              menuFileWriter.write(menuFile);
+-              menuFileWriter.close();
+-           }
+-           catch(Exception ignore)
+-           {
+-              failed = true;
+-              Debug.log(&quot;Failed to create menu for gnome.&quot;);
+-           }
+-           if(!failed) UninstallData.getInstance().addFile(menuFilePath);
+-
+-        }
++        ArrayList startMenuShortcuts = new ArrayList();
+         for (int i = 0; i &lt; shortcuts.size(); i++)
+         {
+             data = (ShortcutData) shortcuts.elementAt(i);
+@@ -1236,9 +1246,20 @@
+                             || ((data.type == Shortcut.DESKTOP) &amp;&amp; allowDesktopShortcut
+                                     .isSelected()))
+                     {
++
+                         // save the shortcut
+                         shortcut.save();
+-
++                        
++                        if(data.type == Shortcut.APPLICATIONS || data.addToGroup == true)
++                        {
++                           if(shortcut instanceof com.izforge.izpack.util.os.Unix_Shortcut)
++                           {
++                              com.izforge.izpack.util.os.Unix_Shortcut unixcut =
++                                 (com.izforge.izpack.util.os.Unix_Shortcut) shortcut;
++                              Object f = unixcut.getWrittenFileName();
++                              if(f != null) startMenuShortcuts.add(f);
++                           }
++                        }
+                         // add the file and directory name to the file list
+                         String fileName = shortcut.getFileName();
+                         files.add(0, fileName);
+@@ -1282,7 +1303,7 @@
+                 continue;
+             }
+         }
+-        
++        if(OsVersion.IS_UNIX) writeXDGMenuFile(startMenuShortcuts, groupName);
+         shortcut.execPostAction();
+ 
+         try
+@@ -1456,17 +1477,32 @@
+ 
+         listLabel = LabelFactory.create(parent.langpack.getString(&quot;ShortcutPanel.regular.list&quot;),
+                 JLabel.LEADING);
++        if(OsVersion.IS_WINDOWS)
++        {
++           constraints.gridx = col;
++           constraints.gridy = line + 3;
+ 
+-        constraints.gridx = col;
+-        constraints.gridy = line + 3;
+-        constraints.gridwidth = 1;
+-        constraints.gridheight = 1;
++           constraints.gridwidth = 1;
++           constraints.gridheight = 1;
+ 
+-        constraints.insets = new Insets(10, 10, 0, 0);
++           constraints.insets = new Insets(10, 10, 0, 0);
+ 
+-        constraints.fill = GridBagConstraints.HORIZONTAL;
+-        constraints.anchor = GridBagConstraints.NORTHWEST;
++           constraints.fill = GridBagConstraints.HORIZONTAL;
++           constraints.anchor = GridBagConstraints.NORTHWEST;
++        }
++        else
++        {
++           constraints.gridx = col;
++           constraints.gridy = line + 4;
+ 
++           constraints.gridwidth = 1;
++           constraints.gridheight = 1;
++
++           constraints.insets = new Insets(10, 10, 0, 0);
++
++           constraints.fill = GridBagConstraints.HORIZONTAL;
++           constraints.anchor = GridBagConstraints.SOUTHWEST;
++        }
+         layout.addLayoutComponent(listLabel, constraints);
+         add(listLabel);
+ 
+@@ -1480,7 +1516,7 @@
+ 
+         // Quickfix prevent NullPointer on non default compliant Linux - KDEs
+         // i.e Mandrake 2005 LE stores from now also in &quot;applnk&quot; instead in prior &quot;applnk-mdk&quot;:
+-        if (entries != null)
++        if (entries != null &amp;&amp; !OsVersion.IS_UNIX)
+         {
+             for (int idx = 0; idx &lt; entries.length; idx++)
+             {
+@@ -1490,14 +1526,16 @@
+                 }
+             }
+         }
+-
+-        if (groupList == null)
++        if(OsVersion.IS_WINDOWS)
+         {
+-            groupList = new JList();
+-        }
++           if (groupList == null)
++           {
++              groupList = new JList();
++           }
+ 
+-        groupList = addList(dirEntries, ListSelectionModel.SINGLE_SELECTION, groupList, col,
++           groupList = addList(dirEntries, ListSelectionModel.SINGLE_SELECTION, groupList, col,
+                 line + 4, 1, 1, GridBagConstraints.BOTH);
++        }
+ 
+         // ----------------------------------------------------
+         // radio buttons to select current user or all users.
+@@ -1525,12 +1563,23 @@
+             TitledBorder border = new TitledBorder(new EmptyBorder(2, 2, 2, 2), parent.langpack
+                     .getString(&quot;ShortcutPanel.regular.userIntro&quot;));
+             usersPanel.setBorder(border);
++            if(OsVersion.IS_WINDOWS)
++            {
++               constraints.gridx = col + 1;
++               constraints.gridy = line + 4;
++               constraints.gridwidth = 1;
++               constraints.gridheight = 1;
++            }
++            else
++            {
++               constraints.insets = new Insets(10, 10, 20, 0);
++               constraints.gridx = col;
++               constraints.gridy = line + 4;
++               constraints.gridwidth = 2;
++               constraints.gridheight = 1;
++               constraints.anchor = constraints.EAST;
++            }
+ 
+-            constraints.gridx = col + 1;
+-            constraints.gridy = line + 4;
+-            constraints.gridwidth = 1;
+-            constraints.gridheight = 1;
+-
+             // constraints.weighty = 1.0;
+             // constraints.weightx = 1.0;
+             constraints.fill = GridBagConstraints.HORIZONTAL;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2007-05-29 20:32:50 UTC (rev 1851)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2007-05-29 20:33:54 UTC (rev 1852)
+@@ -1,7 +1,7 @@
+ /*
+  * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
+  *
+- * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+  *
+  * Copyright 2003 Marc Eppelmann
+@@ -320,27 +320,26 @@
+     }
+ 
+     /**
+-     * Gets the kde/share/applink - Folder for the given user and for the currently known and
+-     * supported distribution.
++     * Gets the XDG path to place the menu shortcuts
+      * 
+      * @param userType to get for.
+      * 
+-     * @return the users or the systems kde share/applink(-redhat/-mdk)
++     * @return handle to the directory
+      */
+     private File getKdeShareApplnkFolder(int userType)
+     {
+-       /*
+-        //newer XDG system
+-        File xdgPath = new File(&quot;usr&quot; + File.separator + &quot;share&quot; + File.separator
+-               + &quot;applications&quot;);
+-        if(xdgPath.exists()) return xdgPath;*/
+-       
+-        File kdeBase = getKdeBase(userType);
+ 
+-        File result = new File(kdeBase + File.separator + &quot;share&quot; + File.separator
+-                + getKdeApplinkFolderName());
++        if(userType == Shortcut.ALL_USERS)
++        {
++           return new File(File.separator + &quot;usr&quot; + File.separator + &quot;share&quot; + File.separator
++                 + &quot;applications&quot;);
++        }
++        else
++        {
++           return new File(System.getProperty(&quot;user.home&quot;) + File.separator + &quot;.local&quot;
++                 + File.separator + &quot;share&quot; + File.separator + &quot;applications&quot;);
++        }
+ 
+-        return result;
+     }
+ 
+     /**
+@@ -435,15 +434,13 @@
+         // Create The Desktop Shortcuts
+         if (&quot;&quot;.equals(this.itsGroupName) &amp;&amp; (this.getLinkType() == Shortcut.DESKTOP))
+         {
+-            //System.out.println(&quot;this.itsGroupName: &quot;+this.itsGroupName);
+-            //System.out.println(&quot;this.getLinkType(): &quot;+this.getLinkType());
+-            target = myHome + FS + &quot;Desktop&quot; + FS + this.itsName
+-                    + DESKTOP_EXT;
++
+             this.itsFileName = target;
+ 
+             // write my own ShortCut
+-            File writtenDesktopFile = writeShortCut(target, shortCutDef);
+-
++            File writtenDesktopFile = writeSafeShortcut(myHome + FS + &quot;Desktop&quot; + FS, this.itsName, shortCutDef);
++            uninstaller.addFile(writtenDesktopFile.toString());
++            
+             // If I'm root and this Desktop.ShortCut should be for all other users
+             if (rootUser4All &amp;&amp; create4All)
+             {
+@@ -568,7 +565,7 @@
+                     + DESKTOP_EXT;
+                this.itsFileName = target;
+                File kdemenufile = writeShortCut(target, shortCutDef);
+-          
++
+                uninstaller.addFile(kdemenufile.toString());
+             }
+             
+@@ -591,12 +588,11 @@
+                                 + cnc.getMessage() + &quot; )&quot;);
+                     }
+ 
+-                    // write *.desktop.file into /usr/share/applications
++                    // write *.desktop
+ 
+-                    String commonTarget = &quot;/usr/share/applications/&quot; + this.itsName + DESKTOP_EXT;
+                     this.itsFileName = target;
+-                    File writtenFile = writeShortCut(commonTarget, shortCutDef);
+-
++                    File writtenFile = writeSafeShortcut(&quot;/usr/share/applications/&quot;, this.itsName, shortCutDef);
++                    setWrittenFileName(writtenFile.getName());
+                     uninstaller.addFile(writtenFile.toString());
+ 
+                 }
+@@ -637,12 +633,11 @@
+                            + cnc.getMessage() + &quot; )&quot;);
+                }
+ 
+-               // write *.desktop.file into ~/share/applications
++               // write *.desktop in the local folder
+ 
+-               String commonTarget = localApps + this.itsName + DESKTOP_EXT;
+                this.itsFileName = target;
+-               File writtenFile = writeShortCut(commonTarget, shortCutDef);
+-
++               File writtenFile = writeSafeShortcut(localApps, this.itsName, shortCutDef);
++               setWrittenFileName(writtenFile.getName());
+                uninstaller.addFile(writtenFile.toString());
+             }
+ 
+@@ -711,6 +706,66 @@
+         writer.close();
+     }
+ 
++    private String writtenFileName;
++    
++    public String getWrittenFileName()
++    {
++       return writtenFileName;
++    }
++    
++    protected void setWrittenFileName(String s)
++    {
++       writtenFileName = s;
++    }
++    
++    private File writeSafeShortcut(String targetPath, String shortcutName, String shortcutDef)
++    {
++        if( !(targetPath.endsWith(&quot;/&quot;) || targetPath.endsWith(&quot;\\&quot;)) )
++        {
++            targetPath += File.separatorChar;
++        }
++        
++        File shortcutFile;
++        
++        do
++        {
++           shortcutFile = new File(targetPath + shortcutName + &quot;-&quot; + System.currentTimeMillis() + DESKTOP_EXT);
++        }
++        while (shortcutFile.exists());
++
++
++        FileWriter fileWriter = null;
++
++        try
++        {
++            fileWriter = new FileWriter(shortcutFile);
++        }
++        catch (IOException e1)
++        {
++            System.out.println(e1.getMessage());
++        }
++
++        try
++        {
++            fileWriter.write(shortcutDef);
++        }
++        catch (IOException e)
++        {
++            e.printStackTrace();
++        }
++
++        try
++        {
++            fileWriter.close();
++        }
++        catch (IOException e2)
++        {
++            e2.printStackTrace();
++        }
++        return shortcutFile;        
++        
++    }
++    
+     /**
+      * Writes the given Shortcutdefinition to the given Target. Returns the written File.
+      * 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000597.html">[izpack-changes] r1851 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000599.html">[izpack-changes] r1853 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#598">[ date ]</a>
+              <a href="thread.html#598">[ thread ]</a>
+              <a href="subject.html#598">[ subject ]</a>
+              <a href="author.html#598">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

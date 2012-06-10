@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] problem creating shortcuts
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20problem%20creating%20shortcuts&In-Reply-To=026201c6b7bf%24101d9ad0%240c01a8c0%40OKTA">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000745.html">
+   <LINK REL="Next"  HREF="000747.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] problem creating shortcuts</H1>
+    <B>mika</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20problem%20creating%20shortcuts&In-Reply-To=026201c6b7bf%24101d9ad0%240c01a8c0%40OKTA"
+       TITLE="[izpack-users] problem creating shortcuts">mika.works at gentlemansclub.de
+       </A><BR>
+    <I>Fri Aug  4 14:14:39 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000745.html">[izpack-users] problem creating shortcuts
+</A></li>
+        <LI>Next message: <A HREF="000747.html">[izpack-users] problem creating shortcuts
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#746">[ date ]</a>
+              <a href="thread.html#746">[ thread ]</a>
+              <a href="subject.html#746">[ subject ]</a>
+              <a href="author.html#746">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+install.xml:
+&lt;installation version=&quot;1.0&quot;&gt;
+  &lt;info&gt;
+    &lt;appname&gt;Check for VirusUpdate&lt;/appname&gt;
+    &lt;appversion&gt;0.9 beta&lt;/appversion&gt;
+    &lt;authors&gt;
+      &lt;author name=&quot;Maik Schlotter&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Maik.Schlotter at gmx.net</A>&quot; /&gt;
+    &lt;/authors&gt;
+  &lt;/info&gt;
+
+  &lt;guiprefs resizable=&quot;no&quot; width=&quot;800&quot; height=&quot;600&quot; /&gt;
+
+  &lt;locale&gt;
+    &lt;langpack iso3=&quot;deu&quot; /&gt;
+    &lt;langpack iso3=&quot;por&quot; /&gt;
+  &lt;/locale&gt;
+
+  &lt;resources&gt;
+    &lt;res src=&quot;c:\programme\izpack\mysample\shortcut_specification.xml&quot; id=&quot;shortcutSpec.xml&quot; /&gt;
+  &lt;/resources&gt;
+
+  &lt;panels&gt;
+    &lt;panel classname=&quot;HelloPanel&quot; /&gt;
+    &lt;panel classname=&quot;TargetPanel&quot; /&gt;
+    &lt;panel classname=&quot;PacksPanel&quot; /&gt;
+    &lt;panel classname=&quot;InstallPanel&quot; /&gt;
+    &lt;panel classname=&quot;ShortcutPanel&quot; /&gt;
+    &lt;panel classname=&quot;FinishPanel&quot; /&gt;
+  &lt;/panels&gt;
+
+  &lt;packs&gt;
+    &lt;pack name=&quot;classes&quot; required=&quot;yes&quot;&gt;
+      &lt;description&gt;Die Klassen&lt;/description&gt;
+      &lt;file src=&quot;class&quot; targetdir=&quot;$INSTALL_PATH&quot; /&gt;
+    &lt;/pack&gt;
+    &lt;pack name=&quot;executable&quot; required=&quot;yes&quot; os=&quot;windows&quot;&gt;
+      &lt;description&gt;Die Windows Startdatei&lt;/description&gt;
+      &lt;file src=&quot;win&quot; targetdir=&quot;$INSTALL_PATH&quot; /&gt;
+    &lt;/pack&gt;
+    &lt;pack name=&quot;documentation and licence&quot; required=&quot;no&quot; preselected=&quot;no&quot;&gt;
+      &lt;description&gt;Die Dokumentation und Lizensbestimmungen&lt;/description&gt;
+    &lt;/pack&gt;
+    &lt;pack name=&quot;    documentation&quot; required=&quot;no&quot;&gt;
+      &lt;description&gt;Die Dokumentation&lt;/description&gt;
+      &lt;depends packname=&quot;documentation and licence&quot; /&gt;
+      &lt;file src=&quot;txts\doc\documentation.txt&quot; targetdir=&quot;$INSTALL_PATH\documentation&quot; /&gt;
+    &lt;/pack&gt;
+    &lt;pack name=&quot;    licence&quot; required=&quot;no&quot;&gt;
+      &lt;description&gt;Die Lizensbestimmungen&lt;/description&gt;
+      &lt;depends packname=&quot;documentation and licence&quot; /&gt;
+      &lt;file src=&quot;txts\licence\licence.txt&quot; targetdir=&quot;$INSTALL_PATH\licence&quot; /&gt;
+    &lt;/pack&gt;
+  &lt;/packs&gt;
+  &lt;native type=&quot;izpack&quot; name=&quot;native\ShellLink.dll&quot; /&gt;
+&lt;/installation&gt;
+
+shortcutSpec.xml:
+&lt;shortcuts&gt;
+  &lt;skipIfNotSupported /&gt;
+  &lt;programGroup defaultName=&quot;MyApp\CheckVirusUpdate&quot;
+                location=&quot;startMenu&quot; /&gt;
+  &lt;shortcut name=&quot;Involve Checking&quot;
+		target=&quot;$INSTALL_PATH\win\CheckVirusUpdate.bat&quot;
+		description=&quot;This involves Checking wheather there are new updates&quot;
+		initialState=&quot;noShow&quot;
+		startMenu=&quot;yes&quot;&gt;
+    &lt;createForPack name=&quot;executable&quot; /&gt;
+  &lt;/shortcut&gt;
+&lt;/shortcuts&gt;
+
+BTW, I placed the shortcutSpec.xml in the same directory like the install.xml.
+
+Thanks,
+mika
+-- 
+
+
+Echte DSL-Flatrate dauerhaft f&#252;r 0,- Euro*. Nur noch kurze Zeit!
+&quot;Feel free&quot; mit GMX DSL: <A HREF="http://www.gmx.net/de/go/dsl">http://www.gmx.net/de/go/dsl</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000745.html">[izpack-users] problem creating shortcuts
+</A></li>
+	<LI>Next message: <A HREF="000747.html">[izpack-users] problem creating shortcuts
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#746">[ date ]</a>
+              <a href="thread.html#746">[ thread ]</a>
+              <a href="subject.html#746">[ subject ]</a>
+              <a href="author.html#746">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

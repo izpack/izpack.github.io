@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How does variable substitution work?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20does%20variable%20substitution%20work%3F&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC4A%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001536.html">
+   <LINK REL="Next"  HREF="001535.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How does variable substitution work?</H1>
+    <B>Gernot Stenz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20does%20variable%20substitution%20work%3F&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC4A%40coi11.coi.com"
+       TITLE="[izpack-users] How does variable substitution work?">stenzg at in.tum.de
+       </A><BR>
+    <I>Thu Jun 14 10:44:51 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001536.html">[izpack-users] How does variable substitution work?
+</A></li>
+        <LI>Next message: <A HREF="001535.html">[izpack-users] IzPack on Vista reports wrong free disk space
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1537">[ date ]</a>
+              <a href="thread.html#1537">[ thread ]</a>
+              <a href="subject.html#1537">[ subject ]</a>
+              <a href="author.html#1537">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; writes:
+
+&gt;<i> Hi Gernot,
+</I>
+Good morning!
+
+&gt;<i> variables will be not substituted by the contents of variables.
+</I>&gt;<i> I see to ways to solve your problem.
+</I>&gt;<i> 
+</I>&gt;<i> 1: write a custom action which does the substitution.
+</I>&gt;<i> 
+</I>&gt;<i> 2: use
+</I>&gt;<i> in install.xml
+</I>&gt;<i> ...
+</I>&gt;<i> &lt;variable name=&quot;APPLICATIONS_SUB_PATH&quot; 
+</I>&gt;<i>     value=&quot;/OpenOffice/orgPortable/App/openoffice/program/soffice.exe&quot;/&gt;
+</I>&gt;<i> in your parsable file
+</I>&gt;<i> &lt;value&gt;${APPLICATIONS_DEFAULT_ROOT}${APPLICATIONS_SUB_PATH}&lt;/value&gt;
+</I>
+Thank you! I hadn't thought of that! BTW, why the braces here? Are they necessary?
+
+Also, on my way to the office this morning I thought of something different
+that turned out to be working:
+
+I simply doubled the line containing the &lt;parsable&gt; tag. My installer xml now
+looks like this:
+...
+&lt;parsable type=&quot;xml&quot; targetfile=&quot;$INSTALL_PATH/Projektassistent-1.2.4rc3/res/vmodellexport.xml&quot;/&gt;
+&lt;parsable type=&quot;xml&quot; targetfile=&quot;$INSTALL_PATH/Projektassistent-1.2.4rc3/res/vmodellexport.xml&quot;/&gt;
+...
+
+And this procuded the desired result. Obviously the &lt;parsable&gt; tag does not
+only mark a file as parsable, every tag seems to initiate a parsing run, and
+for a two level variable substitution problem, two tags apparently do the
+trick.
+
+But now that I have more than one solution for the problem, I ask myself:
+Which is the canonical one more in line iwth IzPack's future development?
+
+Ciao, Gernot
+
+-- 
+    __o  Gernot Stenz  e-mail:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">stenzg at informatik.tu-muenchen.de</A>        /\
+   -\&lt;,          WWW:  <A HREF="http://www4.in.tum.de/~stenzg">http://www4.in.tum.de/~stenzg</A>               /\/--\
+_(_)/(_)_London - Paris: 3547 km__________________________________/      \
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001536.html">[izpack-users] How does variable substitution work?
+</A></li>
+	<LI>Next message: <A HREF="001535.html">[izpack-users] IzPack on Vista reports wrong free disk space
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1537">[ date ]</a>
+              <a href="thread.html#1537">[ thread ]</a>
+              <a href="subject.html#1537">[ subject ]</a>
+              <a href="author.html#1537">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Problems with search field in UserInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problems%20with%20search%20field%20in%20UserInputPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000971.html">
+   <LINK REL="Next"  HREF="000941.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Problems with search field in UserInputPanel</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problems%20with%20search%20field%20in%20UserInputPanel&In-Reply-To="
+       TITLE="[izpack-users] Problems with search field in UserInputPanel">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue Oct 10 14:27:56 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000971.html">[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark breaks	IzPackoperation
+</A></li>
+        <LI>Next message: <A HREF="000941.html">[izpack-users] Problems with search field in UserInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#940">[ date ]</a>
+              <a href="thread.html#940">[ thread ]</a>
+              <a href="subject.html#940">[ subject ]</a>
+              <a href="author.html#940">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Philip,
+for the UserInputPanel I can say nothing.
+For things you need I use the PathInputPanel (or an
+derived class of it). Some times ago I have written
+a panel to select a JRE. See above.
+
+You can set a version range in the install.xml using
+the IzPack variables &quot;JREPathPanel.minVersion&quot; and
+&quot;JREPathPanel.maxVersion&quot;. If the VM which is used by the
+installation has a version in the range, it will be the default.
+The question is,where should the VM be? On my box the 1.3 is on
+c:\jdk1.3, the 1.4 is on f:\j2sdk1.4.2_06, the 1.5 is on
+F:\Programme\Java\jdk1.5.0_06 and so on. Not so easy to create
+a search rule.
+You can add to scan the registry on windows. but this need extended
+knowledge of java and IzPack.
+If a wrong version will be selected, a warning will be placed.
+If no VM will be selected, an error will be placed.
+I think that is what you need.
+Only that this need to handle creation of custom panels can be
+a barricade.
+
+Cheers
+
+Klaus
+
+----------------------------------------------------------------------------------------
+package com.izforge.izpack.panels;
+
+import java.io.File;
+
+import com.izforge.izpack.installer.InstallData;
+import com.izforge.izpack.installer.InstallerFrame;
+import com.izforge.izpack.panels.JDKPathPanel;
+import com.izforge.izpack.util.OsVersion;
+
+/**
+ * Panel which asks for the JRE path.
+ * 
+ */
+public class JREPathPanel extends JDKPathPanel
+{
+
+    private static final String[] testFiles2 = new String[] { &quot;bin&quot; + File.separator + &quot;java&quot;};
+
+    private static final String[] testFiles2W = new String[] { &quot;bin&quot; + File.separator + &quot;java.exe&quot;};
+
+    /**
+     * The constructor.
+     * 
+     * @param parent The parent window.
+     * @param idata The installation data.
+     */
+    public JREPathPanel(InstallerFrame parent, InstallData idata)
+    {
+        super(parent, idata);
+        if (OsVersion.IS_WINDOWS)
+            setExistFiles(JREPathPanel.testFiles2W);
+        else
+            setExistFiles(JREPathPanel.testFiles2);
+        setMinVersion(idata.getVariable(&quot;JREPathPanel.minVersion&quot;));
+        setMaxVersion(idata.getVariable(&quot;JREPathPanel.maxVersion&quot;));
+        setVariableName(&quot;JREPath&quot;);
+    }
+}
+
+--------------------------------------------------------------------------------------------
+
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of 
+</I>&gt;<i>Philip Reimer
+</I>&gt;<i>Sent: Tuesday, October 10, 2006 1:08 PM
+</I>&gt;<i>To: IzPack users
+</I>&gt;<i>Subject: [izpack-users] Problems with search field in UserInputPanel
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hello.
+</I>&gt;<i>
+</I>&gt;<i>I'm having difficulties with the Search Field in UserInputPanel. I'd
+</I>&gt;<i>like to let the user specify the directory of a JRE in the 
+</I>&gt;<i>UserInputPanel.
+</I>&gt;<i>
+</I>&gt;<i>My first question is: how do I get automatic detection working under
+</I>&gt;<i>Windows XP? As far as I understood, the &lt;choice value&gt;s specify where
+</I>&gt;<i>the installer should have a look for the desired directory? 
+</I>&gt;<i>But although
+</I>&gt;<i>I have a JRE installed under &quot;C:\Programme\Java&quot; the installer cannot
+</I>&gt;<i>find it.
+</I>&gt;<i>
+</I>&gt;<i>My second question would be: how do I prevent the user from clicking
+</I>&gt;<i>&quot;next&quot; without having specified a JRE directory. As for now, 
+</I>&gt;<i>if the user
+</I>&gt;<i>leaves the search field empty he can click &quot;next&quot; without any problems.
+</I>&gt;<i>Is there some kind of validation mechanism available? Can I somehow
+</I>&gt;<i>specifiy the search field as mandatory?
+</I>&gt;<i>
+</I>&gt;<i>Thanks in advance.
+</I>&gt;<i>Philip
+</I>&gt;<i>
+</I>&gt;<i>PS: Below is my code from userInputSpec.xml:
+</I>&gt;<i>
+</I>&gt;<i>&lt;field type=&quot;search&quot; variable=&quot;JAVAHOME&quot;&gt;
+</I>&gt;<i>			&lt;spec 	id=&quot;javahome.input&quot;
+</I>&gt;<i>					checkfilename=&quot;lib/rt.jar&quot;
+</I>&gt;<i>					type=&quot;directory&quot; 
+</I>&gt;<i>result=&quot;directory&quot;&gt;
+</I>&gt;<i>				&lt;choice value=&quot;/usr/lib/java/&quot; 
+</I>&gt;<i>os=&quot;unix&quot; /&gt;
+</I>&gt;<i>				&lt;choice value=&quot;/opt/java&quot; os=&quot;unix&quot; /&gt;
+</I>&gt;<i>				&lt;choice 
+</I>&gt;<i>value=&quot;C:\Programme\Java&quot; os=&quot;windows&quot; /&gt;
+</I>&gt;<i>				&lt;choice value=&quot;C:\Program 
+</I>&gt;<i>Files\Java&quot; os=&quot;windows&quot; /&gt;
+</I>&gt;<i>				&lt;choice value=&quot;C:\Java&quot; os=&quot;windows&quot; /&gt;
+</I>&gt;<i>			&lt;/spec&gt;
+</I>&gt;<i>		&lt;/field&gt;
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000971.html">[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark breaks	IzPackoperation
+</A></li>
+	<LI>Next message: <A HREF="000941.html">[izpack-users] Problems with search field in UserInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#940">[ date ]</a>
+              <a href="thread.html#940">[ thread ]</a>
+              <a href="subject.html#940">[ subject ]</a>
+              <a href="author.html#940">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

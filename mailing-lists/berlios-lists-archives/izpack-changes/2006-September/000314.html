@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1569 -	izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1569%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000313.html">
+   <LINK REL="Next"  HREF="000315.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1569 -	izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1569%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller&In-Reply-To="
+       TITLE="[izpack-changes] r1569 -	izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:33:48 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000313.html">[izpack-changes] r1568 - in	izpack-src/trunk/src/lib/com/izforge/izpack/util/os: . unix
+</A></li>
+        <LI>Next message: <A HREF="000315.html">[izpack-changes] r1570 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#314">[ date ]</a>
+              <a href="thread.html#314">[ thread ]</a>
+              <a href="subject.html#314">[ subject ]</a>
+              <a href="author.html#314">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:33:47 +0200 (Wed, 06 Sep 2006)
+New Revision: 1569
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Destroyer.java
+Log:
+-implemented  the X-KDE subsitute user - shortcut attribute (see Unix_shortcutSpec.xml).
+-write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+-write common shortcuts  to the new freedesktop.org common &quot;/usr/share/applications&quot; 
+and &quot;/usr/share/pixmaps&quot; folders to display these in the commons [start].menu
+Here: updated the uninstaller
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Destroyer.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Destroyer.java	2006-09-06 20:33:14 UTC (rev 1568)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Destroyer.java	2006-09-06 20:33:47 UTC (rev 1569)
+@@ -26,14 +26,21 @@
+ import java.io.ObjectInputStream;
+ import java.util.ArrayList;
+ import java.util.Collections;
++import java.util.Enumeration;
++import java.util.Hashtable;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.TreeSet;
+ 
+ import com.izforge.izpack.ExecutableFile;
+ import com.izforge.izpack.event.UninstallerListener;
++import com.izforge.izpack.installer.UninstallData;
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
++import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.FileExecutor;
++import com.izforge.izpack.util.os.unix.ShellScript;
++import com.izforge.izpack.util.os.unix.UnixHelper;
++import com.izforge.izpack.util.os.unix.UnixUser;
+ 
+ /**
+  * The files destroyer class.
+@@ -107,6 +114,8 @@
+             // Custem action listener stuff --- afterDeletion ----
+             informListeners(listeners[0], UninstallerListener.AFTER_DELETION, files, handler);
+ 
++            removeRootFiles(getRootFiles());
++
+             // We make a complementary cleanup
+             handler.progress(size, &quot;[ cleanups ]&quot;);
+             cleanup(new File(installPath));
+@@ -126,22 +135,21 @@
+      * 
+      * @exception Exception Description of the Exception
+      */
+-//    private void askUninstallerRemoval() throws Exception
+-//    {
+-//        // Initialisations
+-//        InputStream in = Destroyer.class.getResourceAsStream(&quot;/jarlocation.log&quot;);
+-//        InputStreamReader inReader = new InputStreamReader(in);
+-//        BufferedReader reader = new BufferedReader(inReader);
+-//
+-//        // We delete
+-//        File jar = new File(reader.readLine());
+-//        File path = new File(reader.readLine());
+-//        File inst = new File(installPath);
+-//        jar.deleteOnExit();
+-//        path.deleteOnExit();
+-//        inst.deleteOnExit();
+-//    }
+-
++    // private void askUninstallerRemoval() throws Exception
++    // {
++    // // Initialisations
++    // InputStream in = Destroyer.class.getResourceAsStream(&quot;/jarlocation.log&quot;);
++    // InputStreamReader inReader = new InputStreamReader(in);
++    // BufferedReader reader = new BufferedReader(inReader);
++    //
++    // // We delete
++    // File jar = new File(reader.readLine());
++    // File path = new File(reader.readLine());
++    // File inst = new File(installPath);
++    // jar.deleteOnExit();
++    // path.deleteOnExit();
++    // inst.deleteOnExit();
++    // }
+     /**
+      * Returns an ArrayList of the files to delete.
+      * 
+@@ -186,6 +194,77 @@
+     }
+ 
+     /**
++     * Gets the root files.
++     * 
++     * @return The files which should remove by root for another user
++     * @throws Exception
++     */
++    private Hashtable getRootFiles() throws Exception
++    {
++        Hashtable result = new Hashtable();
++        ObjectInputStream in = new ObjectInputStream(Destroyer.class.getResourceAsStream(&quot;/&quot;
++                + UninstallData.RootFiles));
++        int num = in.readInt();
++        for (int i = 0; i &lt; num; i++)
++        {
++            String file = (String) in.readObject();
++
++            UnixUser user = (UnixUser) in.readObject();
++            result.put(file, user);
++        }
++        return result;
++    }
++
++    /**
++     * Removes the given files as root for the given Users
++     * 
++     * @param entries The files to reomove for the users
++     */
++    private void removeRootFiles(Hashtable entries)
++    {
++        Enumeration e = entries.keys();
++
++        String su = UnixHelper.getSuCommand();
++        String rm = UnixHelper.getCustomCommand(&quot;rm&quot;);
++        String S = &quot; &quot;;
++
++        while (e.hasMoreElements())
++        {
++            String filename = (String) e.nextElement();
++            UnixUser user = (UnixUser) entries.get(filename);
++
++            StringBuffer script = new StringBuffer();
++
++            script.append(su);
++            script.append(S);
++            script.append(user.getName());
++            script.append(S);
++            script.append(&quot;-c&quot;);
++            script.append(S);
++            script.append('&quot;');
++            script.append(rm);
++            script.append(S);
++            script.append(filename);
++            script.append('&quot;');
++
++            Debug.log(&quot;Executes: &quot; + script.toString());
++
++            try
++            {
++                String result = ShellScript.execAndDelete(script, File.createTempFile(
++                        this.getClass().getName(),
++                        Long.toString(System.currentTimeMillis()) + &quot;.sh&quot;).toString());
++                Debug.log(&quot;Result: &quot; + result);
++            }
++            catch (Exception ex)
++            {
++                Debug.log(&quot;Exeption during su remove: &quot; + ex.getMessage());
++            }
++
++        }
++    }
++
++    /**
+      * Makes some reccursive cleanups.
+      * 
+      * @param file The file to wipe.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000313.html">[izpack-changes] r1568 - in	izpack-src/trunk/src/lib/com/izforge/izpack/util/os: . unix
+</A></li>
+	<LI>Next message: <A HREF="000315.html">[izpack-changes] r1570 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#314">[ date ]</a>
+              <a href="thread.html#314">[ thread ]</a>
+              <a href="subject.html#314">[ subject ]</a>
+              <a href="author.html#314">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

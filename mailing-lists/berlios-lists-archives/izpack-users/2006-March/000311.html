@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> Antwort: [izpack-users] Disable/Enable or Select/Deselect packs based on a variable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=Antwort%3A%20%5Bizpack-users%5D%20Disable/Enable%20or%20Select/Deselect%20packs%20based%20on%20a%0A%20variable&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000321.html">
+   <LINK REL="Next"  HREF="000312.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>Antwort: [izpack-users] Disable/Enable or Select/Deselect packs based on a variable</H1>
+    <B>Martina.Albrecht at curiavant.de</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=Antwort%3A%20%5Bizpack-users%5D%20Disable/Enable%20or%20Select/Deselect%20packs%20based%20on%20a%0A%20variable&In-Reply-To="
+       TITLE="Antwort: [izpack-users] Disable/Enable or Select/Deselect packs based on a variable">Martina.Albrecht at curiavant.de
+       </A><BR>
+    <I>Tue Mar  7 10:26:42 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000321.html">[izpack-users] Is the Berlios server not working?
+</A></li>
+        <LI>Next message: <A HREF="000312.html">[izpack-users] Disable/Enable or Select/Deselect packs based on 	pack selection
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>To enable/disable packs, I used the installGroups attribute in the packs
+configuration and added the following lines at the beginning of method
+panelActivate() for my PacksPanel:
+
+        List suitablePacks = new ArrayList();
+            HashSet installGroups = new HashSet();
+            installGroups = null;
+            String installtype = idata.getVariable(&quot;installtype&quot;);
+            Iterator packs = (idata.availablePacks).iterator();
+            while (packs.hasNext()) {
+                  Pack pack = (Pack) packs.next();
+                  installGroups = (HashSet) pack.installGroups;
+                  if (installGroups.isEmpty() ||
+installGroups.contains(installtype))
+                        suitablePacks.add(pack);
+                  installGroups = null;
+            }
+
+            packsTable.setModel(new PacksModel(suitablePacks,
+idata.selectedPacks, this));
+
+It's similar to what Hal already suggested, but you shouldn't alter iData
+directly - this was my first solution and it turned out to be a problem
+when pressing the back button :).
+
+Martina
+
+
+
+|<i>---------+-----------------------------&gt;
+</I>|<i>         |           &quot;Rich Stephens&quot;   |
+</I>|<i>         |           &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">rstephens at pathfir</A>|
+</I>|<i>         |           e.com&gt;            |
+</I>|<i>         |           Gesendet von:     |
+</I>|<i>         |           izpack-users-admin|
+</I>|<i>         |           @berlios.de       |
+</I>|<i>         |                             |
+</I>|<i>         |                             |
+</I>|<i>         |           06.03.2006 23:21  |
+</I>|<i>         |           Bitte antworten an|
+</I>|<i>         |           izpack-users      |
+</I>|<i>         |                             |
+</I>|<i>---------+-----------------------------&gt;
+</I>  &gt;-------------------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                               |
+  |       An:       &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;                                                                               |
+  |       Kopie:                                                                                                                  |
+  |       Thema:    [izpack-users] Disable/Enable or Select/Deselect packs based on a variable                                    |
+  &gt;-------------------------------------------------------------------------------------------------------------------------------|
+
+
+
+
+I have a need to set whether a pack is available to be installed based
+on a variable set at install time.
+
+I have a hidden custom panel that does some system checks and determines
+things about the current installation and sets a variable, let's call it
+&quot;install_type&quot;.  In this case, I would like certain packs to be
+preselected (and others to be completely disabled) if &quot;install_type&quot; is
+set to &quot;server&quot;, and a different set of panels to be preselected (and
+again, others disabled) if &quot;install_type&quot; is set to &quot;client&quot;.
+
+I see and understand packs dependencies where one pack depends upon the
+selection of another, but there doesn't appear to be a way to set a pack
+to be dependent upon the value of a variable.
+
+If that feature doesn't exist (and it appears that it doesn't) could
+someone point me to the best place in the code to check for and
+disable/enable and/or select/deselect a panel based on a variable value?
+I know how to check a variable's value, but I'm unsure of the best place
+in the code to go about trying disable/enable/select/deselect a panel on
+the fly based on a variable.
+
+Any suggestions would be greatly appreciated.
+
+Thanks,
+Rich Stephens
+Pathfire, Inc.
+
+_______________________________________________
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+<A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+
+
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000321.html">[izpack-users] Is the Berlios server not working?
+</A></li>
+	<LI>Next message: <A HREF="000312.html">[izpack-users] Disable/Enable or Select/Deselect packs based on 	pack selection
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

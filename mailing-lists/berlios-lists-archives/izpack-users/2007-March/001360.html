@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] UninstallerListener and variables
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20UninstallerListener%20and%20variables&In-Reply-To=op.toxsum0bnznptk%40hase2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001358.html">
+   <LINK REL="Next"  HREF="001355.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] UninstallerListener and variables</H1>
+    <B>Tim &amp; Victoria O'Malley</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20UninstallerListener%20and%20variables&In-Reply-To=op.toxsum0bnznptk%40hase2"
+       TITLE="[izpack-users] UninstallerListener and variables">tvomalley at gmail.com
+       </A><BR>
+    <I>Fri Mar  9 21:27:59 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001358.html">[izpack-users] UninstallerListener and variables
+</A></li>
+        <LI>Next message: <A HREF="001355.html">[izpack-users] install pack based on complex conditions (repost)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1360">[ date ]</a>
+              <a href="thread.html#1360">[ thread ]</a>
+              <a href="subject.html#1360">[ subject ]</a>
+              <a href="author.html#1360">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Klaus,
+  I see it in the uninstaller.jar. Thank you very much for the help.
+~Tim O
+
+
+On 3/9/07, Klaus Bartz &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">bartzkau at gmx.net</A>&gt; wrote:
+&gt;<i>
+</I>&gt;<i> Hi Tim and Victoria,
+</I>&gt;<i> no, unfortunately you can do it not because there is no
+</I>&gt;<i> UninstallData class in the uninstaller, else this class exist only in
+</I>&gt;<i> the installer :~|
+</I>&gt;<i> If you use
+</I>&gt;<i>
+</I>&gt;<i> String st = &quot;this is my test string&quot;;
+</I>&gt;<i> UninstallData.getInstance().addAdditionalData(&quot;myVar&quot;, st);
+</I>&gt;<i>
+</I>&gt;<i> in the installer, uninstaller.jar contains the &quot;file&quot; myVar which contains
+</I>&gt;<i> an serialized String object with the value &quot;this is my test string&quot;. You
+</I>&gt;<i> can
+</I>&gt;<i> look into a jar file with an zip program like WinZip.
+</I>&gt;<i> To get the String you have to read the &quot;file&quot; with an object stream
+</I>&gt;<i>
+</I>&gt;<i>     InputStream in = getClass().getResourceAsStream(&quot;/myVar&quot;);
+</I>&gt;<i>           // Do not forget the slash ----------------^
+</I>&gt;<i>     if( in == null )
+</I>&gt;<i>     { // No actions, nothing todo.
+</I>&gt;<i>       return;
+</I>&gt;<i>     }
+</I>&gt;<i>     ObjectInputStream objIn = new ObjectInputStream(in);
+</I>&gt;<i>     String stInUninstaller = (String)objIn.readObject();
+</I>&gt;<i>
+</I>&gt;<i> That's it. If you use a more complex self declared container class which
+</I>&gt;<i> is
+</I>&gt;<i> not declared in the Java Virtual Machine do
+</I>&gt;<i> not forget to include the class file into the uninstaller (pack it into
+</I>&gt;<i> the
+</I>&gt;<i> MyUninstallerListener.jar).
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Am 09.03.2007, 19:49 Uhr, schrieb Tim &amp; Victoria O'Malley
+</I>&gt;<i> &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">tvomalley at gmail.com</A>&gt;:
+</I>&gt;<i>
+</I>&gt;<i> &gt; So in my UninstallListener can I do the following:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Map additionalData = UninstallData.*getInstance*().getAdditionalData();
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; String myVar= (String)additionalData.get(&quot;myVar&quot;);
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; or do I need to write a handler?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Thanks
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; On 3/9/07, Bartz, Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; wrote:
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Hi tvomalley (??),
+</I>&gt;<i> &gt;&gt; in the IzPack uninstaller there are no IzPack variables from
+</I>&gt;<i> install.xml
+</I>&gt;<i> &gt;&gt; or
+</I>&gt;<i> &gt;&gt; from installation process. But you can put what you wont into the
+</I>&gt;<i> &gt;&gt; uninstaller
+</I>&gt;<i> &gt;&gt; via
+</I>&gt;<i> &gt;&gt; UninstallData.getInstance().addAdditionalData(&quot;&lt;Name of the data&quot;,
+</I>&gt;<i> &gt;&gt; &lt;DataObject&gt;);
+</I>&gt;<i> &gt;&gt; You can use RegistryInstallerListener line 146ff (writes log of
+</I>&gt;<i> registry
+</I>&gt;<i> &gt;&gt; data
+</I>&gt;<i> &gt;&gt; into uninstaller.jar) and RegistryUninstallerListener line 62ff
+</I>&gt;<i> &gt;&gt; (reads log of registry data and rewinds the made keys and values) as
+</I>&gt;<i> &gt;&gt; example.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Cheers
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Klaus
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; &gt; -----Original Message-----
+</I>&gt;<i> &gt;&gt; &gt; From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt; &gt; [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of tvomalley
+</I>&gt;<i> &gt;&gt; &gt; Sent: Thursday, March 08, 2007 4:18 PM
+</I>&gt;<i> &gt;&gt; &gt; To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt; &gt; Subject: [izpack-users] UninstallerListener and variables
+</I>&gt;<i> &gt;&gt; &gt;
+</I>&gt;<i> &gt;&gt; &gt;
+</I>&gt;<i> &gt;&gt; &gt;
+</I>&gt;<i> &gt;&gt; &gt; If I create a custom UninstallerListener can I get a varaible
+</I>&gt;<i> &gt;&gt; &gt; that is set in my install.xml? Is there a way to pass and
+</I>&gt;<i> &gt;&gt; &gt; argument to the custom UninstallerListener? Thanks
+</I>&gt;<i> &gt;&gt; &gt; --
+</I>&gt;<i> &gt;&gt; &gt; View this message in context:
+</I>&gt;<i> &gt;&gt; &gt; <A HREF="http://www.nabble.com/UninstallerListener-and-variables-tf3369">http://www.nabble.com/UninstallerListener-and-variables-tf3369</A>
+</I>&gt;<i> &gt;&gt; 129.html#a9374199
+</I>&gt;<i> &gt;&gt; Sent from the izpack users mailing list archive at Nabble.com.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; _______________________________________________
+</I>&gt;<i> &gt;&gt; izpack-users mailing list
+</I>&gt;<i> &gt;&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> &gt;&gt; _______________________________________________
+</I>&gt;<i> &gt;&gt; izpack-users mailing list
+</I>&gt;<i> &gt;&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; __________ NOD32 1.1392 (20060202) Information __________
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Diese E-Mail wurde vom NOD32 Antivirus System gepr&#252;ft
+</I>&gt;<i> &gt; <A HREF="http://www.nod32.com">http://www.nod32.com</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i> Erstellt mit Operas revolution&#228;rem E-Mail-Modul:
+</I>&gt;<i> <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070309/06e05b99/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070309/06e05b99/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001358.html">[izpack-users] UninstallerListener and variables
+</A></li>
+	<LI>Next message: <A HREF="001355.html">[izpack-users] install pack based on complex conditions (repost)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1360">[ date ]</a>
+              <a href="thread.html#1360">[ thread ]</a>
+              <a href="subject.html#1360">[ subject ]</a>
+              <a href="author.html#1360">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

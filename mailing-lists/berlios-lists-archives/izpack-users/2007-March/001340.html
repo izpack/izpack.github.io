@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Unable to get value of Environment Variable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Unable%20to%20get%20value%20of%20Environment%20Variable&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001339.html">
+   <LINK REL="Next"  HREF="001341.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Unable to get value of Environment Variable</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Unable%20to%20get%20value%20of%20Environment%20Variable&In-Reply-To="
+       TITLE="[izpack-users] Unable to get value of Environment Variable">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Fri Mar  2 17:41:34 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001339.html">[izpack-users] Unable to get value of Environment Variable
+</A></li>
+        <LI>Next message: <A HREF="001341.html">[izpack-users] automated installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1340">[ date ]</a>
+              <a href="thread.html#1340">[ thread ]</a>
+              <a href="subject.html#1340">[ subject ]</a>
+              <a href="author.html#1340">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi John,
+remember that srcdir and targetdir will be resolved from different
+programs at different times.
+The compiler resolves srcdir with the ant directory scanner (which
+supports nice things as
+&lt;fileset&gt;), but not the targetdir. Only the informations will be packed
+into the pack with the variable,
+not a resolved path (who should it be done on the build machine??). The
+variable substitution
+makes the installer at an other time on an other box.
+The only problem I see is, that all sources have to have one root. I
+have more than one project with
+more than one roots. Therefore I have ant scripts where the different
+roots are set.
+ 
+Cheers
+ 
+Klaus
+
+	-----Original Message-----
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of John
+Lussmyer
+	Sent: Friday, March 02, 2007 5:27 PM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+	Subject: Re: [izpack-users] Unable to get value of Environment
+Variable
+	
+	
+
+	Thanks.  It surprised me that variables aren't handled in all
+parameters.
+
+	I was able to re-arrange things to work.
+
+	(It sure would be nice to have another build-in variable.  The
+location of the install.xml file being processed.)
+
+	 
+
+	
+  _____  
+
+
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Bartz, Klaus
+	Sent: Friday, March 02, 2007 1:04 AM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+	Subject: Re: [izpack-users] Unable to get value of Environment
+Variable
+
+	 
+
+	Hi John,
+
+	you can use IzPack variables as targetdir or in a panel or
+custom action, but not
+
+	as sourcedir. Use only one root and set the root in the
+IzPack-compiler call. Or
+
+	create an ant script which revises your install.xml first and
+call then the
+
+	IzPack-compiler. 
+
+	Additional there are &lt;properties&gt; declared in the dtd. But I do
+not know how 
+
+	to use it.
+
+	 
+
+	Cheers
+
+	 
+
+	Klaus
+
+		-----Original Message-----
+		From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of John
+Lussmyer
+		Sent: Friday, March 02, 2007 12:49 AM
+		To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+		Subject: [izpack-users] Unable to get value of
+Environment Variable
+
+		I've been trying to use an environment variable in my
+install.xml as follows:
+
+		 
+
+		     &lt;fileset dir=&quot;${ENV[MDSROOT]}&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+
+		 
+
+		When I compile the install.xml, I get the following
+error:
+
+		 
+
+		-&gt; Fatal error :
+
+		   install.xml:40: Invalid directory 'dir':
+${ENV[MDSROOT]}
+
+		com.izforge.izpack.compiler.CompilerException:
+install.xml:40: Invalid directory 'dir': ${ENV[MDSROOT]}
+
+		        at
+com.izforge.izpack.compiler.CompilerConfig.parseError(CompilerConfig.jav
+a:1619)
+
+		 
+
+		The value IS set in the environment, as shown by a &quot;set&quot;
+command:
+
+		 
+
+		MDSROOT=C:\Dev\Install\Hes2.3Poc
+
+		 
+
+		If I put the absolute path directly in the &quot;dir&quot; entry,
+it works just fine.
+
+		 
+
+		So, any suggestions on what I'm doing wrong?
+
+		 
+
+
+
+	_________________________________________________ 
+	Scanned on 02 Mar 2007 09:13:51
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070302/fff2cde2/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070302/fff2cde2/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001339.html">[izpack-users] Unable to get value of Environment Variable
+</A></li>
+	<LI>Next message: <A HREF="001341.html">[izpack-users] automated installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1340">[ date ]</a>
+              <a href="thread.html#1340">[ thread ]</a>
+              <a href="subject.html#1340">[ subject ]</a>
+              <a href="author.html#1340">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

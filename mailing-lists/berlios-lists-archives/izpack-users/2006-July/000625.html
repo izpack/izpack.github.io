@@ -1,0 +1,675 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Linux Uninstaller
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Linux%20Uninstaller&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000624.html">
+   <LINK REL="Next"  HREF="000627.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Linux Uninstaller</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Linux%20Uninstaller&In-Reply-To="
+       TITLE="[izpack-users] Linux Uninstaller">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Jul  6 09:38:21 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000624.html">[izpack-users] Hi!
+</A></li>
+        <LI>Next message: <A HREF="000627.html">[izpack-users] Automated installation with custom panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#625">[ date ]</a>
+              <a href="thread.html#625">[ thread ]</a>
+              <a href="subject.html#625">[ subject ]</a>
+              <a href="author.html#625">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Steve,
+seems so that your ConsoleUninstallerListener.jar does not contain used
+classes and interfaces. The interface UninstallerListener will be not packed all times
+into the uninstaller.jar else only if it is in one UninstallerListener.jar. On Windows
+this will be done with RegistryUninstallerListener.jar, but for Unix this UninstallerListener
+will be not used (&lt;os family=&quot;windows&quot;/&gt;).
+See the build rules for RegistryUninstallerListener.jar in $IZPACK_HOME/src/build.xml.
+There is a separated macro for uninstaller (line 743ff):
+    &lt;macrodef name=&quot;build-uninstaller-listener&quot;&gt;
+If you are creating your uninstaller jar file not with ant and build.xml you need in the jar file:
+ 
+UninstallerListener.class
+ 
+Most additional 
+SimpleUninstallerListener.class
+ 
+May be
+ActionBase.class
+IoHelper.class
+ 
+Cheers
+ 
+Klaus
+ 
+ 
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Bir, Steve
+Sent: Wednesday, July 05, 2006 10:21 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+Subject: RE: [izpack-users] Linux Uninstaller
+
+
+
+I am still having trouble. I see now that part of what confused me is that the uninstall is spawning the gui in a separate process.   This appears to prevent my debug statements from displaying to stdout. Unfortunately, System.out.println debug statements don't seem to be getting redirected to the log file, so tracing the program flow is more difficult.  One thing that might help is a suggestion on how to add debugging information so that it is logged correctly.
+
+ 
+
+Below is a trace I am getting from the uninstall code. This works perfectly on windows, but seems to fail on Linux.  Also, the uninstall listener appears to run correctly when re-installing over an existing installation on a Linux system but not when the uninstall GUI is used. For example, the install log shows that code being executed. However, when the uninstaller GUI is launched, the uninstall button just seems dead like it is not processing the button pressed event.  Any insight that you can provide is greatly appreciated.
+
+ 
+
+Thank you for responding,
+
+Steve
+
+ 
+
+Uninstall log:
+
+ 
+
+2006-07-05T15:09:09.976 Phase 1: JarFile: /export/local/NetSight/Uninstaller/uninstaller.jar
+
+2006-07-05T15:09:10.041 Phase 1: Extracted 75 files into /tmp/izpack57889.d
+
+2006-07-05T15:09:10.044 Phase 1: Spawning phase 2: 
+
+            /usr/java/jdk1.5.0_04/jre/bin/java
+
+            -classpath
+
+            /tmp/izpack57889.d
+
+            -Dself.mod.base=/tmp/izpack57889
+
+            -Dself.mod.jar=/export/local/NetSight/Uninstaller/uninstaller.jar
+
+            -Dself.mod.class=com.izforge.izpack.uninstaller.Uninstaller
+
+            -Dself.mod.method=uninstall
+
+            -Dself.mod.phase=2
+
+            com.izforge.izpack.uninstaller.SelfModifier
+
+2006-07-05T15:09:10.074 Phase 1: Exit
+
+2006-07-05T15:09:11.324 Phase 2: Spawning phase 3: 
+
+            /usr/java/jdk1.5.0_04/jre/bin/java
+
+            -classpath
+
+            /tmp/izpack57889.d
+
+            -Dself.mod.base=/tmp/izpack57889
+
+            -Dself.mod.jar=/export/local/NetSight/Uninstaller/uninstaller.jar
+
+            -Dself.mod.class=com.izforge.izpack.uninstaller.Uninstaller
+
+            -Dself.mod.method=uninstall
+
+            -Dself.mod.phase=3
+
+            com.izforge.izpack.uninstaller.SelfModifier
+
+2006-07-05T15:46:47.108 Phase 2: deleteing sandbox
+
+2006-07-05T15:46:47.117 Phase 2: Phase 3 return value = 0
+
+2006-07-05T15:09:11.475 Phase 3: Invoking method: com.izforge.izpack.uninstaller.Uninstaller.uninstall(String[] args)
+
+2006-07-05T15:09:13.458 Phase 3: Method returned, waiting for other threads
+
+Exception in thread &quot;IzPack - Destroyer&quot; java.lang.NoClassDefFoundError: com/izforge/izpack/event/UninstallerListener
+
+            at java.lang.ClassLoader.defineClass1(Native Method)
+
+            at java.lang.ClassLoader.defineClass(ClassLoader.java:620)
+
+            at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:124)
+
+            at java.net.URLClassLoader.defineClass(URLClassLoader.java:260)
+
+            at java.net.URLClassLoader.access$100(URLClassLoader.java:56)
+
+            at java.net.URLClassLoader$1.run(URLClassLoader.java:195)
+
+            at java.security.AccessController.doPrivileged(Native Method)
+
+            at java.net.URLClassLoader.findClass(URLClassLoader.java:188)
+
+            at java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+
+            at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:268)
+
+            at java.lang.ClassLoader.loadClass(ClassLoader.java:251)
+
+            at java.lang.ClassLoader.loadClassInternal(ClassLoader.java:319)
+
+            at java.lang.Class.forName0(Native Method)
+
+            at java.lang.Class.forName(Class.java:164)
+
+            at com.izforge.izpack.uninstaller.Destroyer.getListenerLists(Destroyer.java:231)
+
+            at com.izforge.izpack.uninstaller.Destroyer.run(Destroyer.java:77)
+
+ 
+
+ 
+
+ 
+
+Install.xml below:
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+
+
+
+&lt;!-- 
+
+    Nextgen server install test
+
+
+
+    To compile it :
+
+    - go in the bin directory where you installed IzPack
+
+    - call &quot;compile ../sample/install.xml -b ../sample&quot;
+
+
+
+--&gt;
+
+
+
+&lt;installation version=&quot;1.0&quot;&gt;
+
+    &lt;!-- 
+
+        The info section.
+
+        The meaning of the tags should be natural ...
+
+    --&gt;
+
+ 
+
+    &lt;info&gt;
+
+        &lt;appname&gt;NetSight&lt;/appname&gt;
+
+        &lt;appversion&gt;3.0 beta 1&lt;/appversion&gt;
+
+        &lt;authors&gt;
+
+            &lt;author name=&quot;Enterasys Networks&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">support at enterasys.com</A>&quot;/&gt;
+
+        &lt;/authors&gt;
+
+        &lt;url&gt;<A HREF="http://www.enterasys.com&lt;/url">http://www.enterasys.com&lt;/url</A>&gt;
+
+    &lt;/info&gt;
+
+
+
+     &lt;guiprefs width=&quot;616&quot; height=&quot;434&quot; resizable=&quot;yes&quot;/&gt;
+
+
+
+    &lt;!-- 
+
+        The locale section.
+
+       Removed as we don't have different versions for different languages
+
+    --&gt;
+
+    &lt;locale&gt;
+
+        &lt;langpack iso3=&quot;eng&quot;/&gt;
+
+    &lt;/locale&gt;
+
+    
+
+    &lt;!-- 
+
+        The resources section.
+
+        The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.
+
+    --&gt;
+
+
+
+    &lt;resources&gt;
+
+        &lt;res id=&quot;Installer.image&quot; src=&quot;./Console/console2.0.jpg&quot; /&gt;
+
+        &lt;res id=&quot;LicencePanel.licence&quot; src=&quot;./Console/client/license.txt&quot;/&gt;
+
+        &lt;res id=&quot;InfoPanel.info&quot; src=&quot;./Console/client/version.txt&quot;/&gt;
+
+        &lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;./Console/ProcessPanel.Spec.xml&quot;/&gt;
+
+        &lt;res id=&quot;shortcutSpec.xml&quot; src=&quot;./Console/shortcutSpec.xml&quot;/&gt;
+
+      &lt;!--  &lt;res id=&quot;RegistrySpec.xml&quot; src=&quot;./Console/RegistrySpec.xml&quot;/&gt;--&gt;
+
+    &lt;/resources&gt;
+
+    
+
+    &lt;!-- The listeners section for CustomActions --&gt;
+
+    &lt;listeners&gt;
+
+        &lt;listener installer=&quot;SummaryLoggerInstallerListener&quot;/&gt;
+
+        &lt;listener installer=&quot;ConsoleInstallListener&quot; uninstaller=&quot;ConsoleUninstallerListener&quot;/&gt;
+
+        &lt;listener installer=&quot;RegistryInstallerListener&quot; uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
+
+            &lt;os family=&quot;windows&quot;/&gt;
+
+        &lt;/listener&gt;
+
+    &lt;/listeners&gt;
+
+    
+
+    &lt;!-- 
+
+        The panels section.
+
+        We indicate here which panels we want to use. The order will be respected.
+
+    --&gt;
+
+
+
+    &lt;panels&gt;
+
+        &lt;panel classname=&quot;ConsoleHelloPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+
+        &lt;panel classname=&quot;LicenseCheckPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;TargetPanel&quot;/&gt; 
+
+        &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;ServicesPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;ConsoleProcessPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;ShortcutPanel&quot;/&gt;
+
+        &lt;panel classname=&quot;SimpleFinishPanel&quot;/&gt;
+
+    &lt;/panels&gt;
+
+
+
+    &lt;!-- Variables that can be used by the installer. --&gt;
+
+                &lt;variables&gt;
+
+                     &lt;variable name=&quot;DATE_BASED_VERSION&quot; value=&quot;2006.0307&quot; /&gt;
+
+                     &lt;variable name=&quot;LICENSE_PRODUCT_NAME&quot; value=&quot;Console&quot; /&gt;
+
+                     &lt;variable name=&quot;PREVIOUS_INSTALL_DIR&quot; value=&quot;NONE&quot; /&gt;
+
+                     &lt;variable name=&quot;COMMON_DIR&quot; value=&quot;$USER_HOME&quot; /&gt;
+
+                     &lt;variable name=&quot;MACROVISION_LICENSE_KEY&quot; value=&quot;NONE&quot; /&gt;
+
+                     &lt;variable name=&quot;LICENSE_TYPE&quot; value=&quot;Server&quot; /&gt;
+
+                     &lt;variable name=&quot;TFTPD&quot; value=&quot;ENABLED&quot; /&gt;
+
+                     &lt;variable name=&quot;BOOTP&quot; value=&quot;ENABLED&quot; /&gt;
+
+                     &lt;variable name=&quot;SNMPTRAP&quot; value=&quot;ENABLED&quot; /&gt;
+
+                     &lt;variable name=&quot;SYSLOG&quot; value=&quot;ENABLED&quot; /&gt;
+
+                &lt;/variables&gt;
+
+    
+
+    &lt;!-- 
+
+        The packs section.
+
+        We specify here our packs.
+
+    --&gt;
+
+
+
+    &lt;packs&gt;
+
+        &lt;pack name=&quot;Client&quot; required=&quot;yes&quot;&gt;
+
+            &lt;description&gt;The base files for the NetSight Client&lt;/description&gt;
+
+            &lt;!--&lt;file src=&quot;Console/client&quot; targetdir=&quot;$INSTALL_PATH/clients/Console/&quot;/&gt; --&gt;
+
+            &lt;fileset dir=&quot;Console/client&quot; targetdir=&quot;$INSTALL_PATH/clients/Console&quot;&gt;
+
+            &lt;include name=&quot;**/*&quot;/&gt;
+
+            &lt;/fileset&gt;
+
+            
+
+            &lt;file src=&quot;services&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt; 
+
+            
+
+            &lt;file src=&quot;Console/client/Third_party_licenses/&quot; targetdir=&quot;$INSTALL_PATH/license&quot;/&gt;
+
+            &lt;file src=&quot;Console/client/license.txt&quot; targetdir=&quot;$INSTALL_PATH/license&quot;/&gt;
+
+            &lt;file src=&quot;Console/client/eval_license.txt&quot; targetdir=&quot;$INSTALL_PATH/license&quot;/&gt;
+
+            &lt;file src=&quot;Console/client/license.pdf&quot; targetdir=&quot;$INSTALL_PATH/license&quot;/&gt;
+
+            &lt;file src=&quot;Console/client/eval_license.pdf&quot; targetdir=&quot;$INSTALL_PATH/license&quot;/&gt;
+
+            &lt;!-- this needs to be made os targeted --&gt;
+
+            &lt;file src=&quot;../.netsight&quot; targetdir=&quot;${ENV[ALLUSERSPROFILE]}/Application Data/Enterasys Networks&quot;&gt;
+
+                &lt;os family=&quot;windows&quot; /&gt;
+
+            &lt;/file&gt;
+
+            
+
+            &lt;file src=&quot;../.netsight&quot; targetdir=&quot;/var/Enterasys_Networks&quot;&gt;
+
+                &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/file&gt;
+
+            
+
+            &lt;parsable targetfile=&quot;${ENV[ALLUSERSPROFILE]}/Application Data/Enterasys Networks/.netsight&quot;&gt; 
+
+                    &lt;os family=&quot;windows&quot; /&gt;
+
+            &lt;/parsable&gt;
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/install/nsm.cmd&quot;&gt;
+
+                    &lt;os family=&quot;windows&quot; /&gt;
+
+            &lt;/parsable&gt;
+
+ 
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/install/DbService.cmd&quot;&gt;
+
+                    &lt;os family=&quot;windows&quot; /&gt;
+
+            &lt;/parsable&gt;
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/.desktray&quot;&gt;
+
+                    &lt;os family=&quot;windows&quot; /&gt;
+
+            &lt;/parsable&gt;
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/clients/Console/.console&quot;&gt;
+
+                    &lt;os family=&quot;windows&quot; /&gt;
+
+            &lt;/parsable&gt;            
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/snmptrapd.properties&quot; type=&quot;shell&quot;/&gt;
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/tftpd.properties&quot; type=&quot;shell&quot;/&gt;
+
+ 
+
+            &lt;parsable targetfile=&quot;/var/Enterasys_Networks/.netsight&quot;&gt; 
+
+                    &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/parsable&gt;
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/install/CfgServices.sh&quot; type=&quot;shell&quot;&gt;
+
+                    &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/parsable&gt;
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/install/rmConsole.sh&quot; type=&quot;shell&quot;&gt;
+
+                    &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/parsable&gt;            
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/install/databaseConfig.sh&quot;&gt;
+
+                    &lt;os family=&quot;unix&quot; /&gt;       
+
+            &lt;/parsable&gt; 
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/install/databaseConfig.sh&quot; type=&quot;shell&quot;&gt;
+
+                    &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/parsable&gt;
+
+ 
+
+            &lt;executable targetfile=&quot;$INSTALL_PATH/services/install/rmConsole.sh&quot; stage=&quot;never&quot;&gt;
+
+                    &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/executable&gt;
+
+ 
+
+            &lt;executable targetfile=&quot;$INSTALL_PATH/services/install/CfgServices.sh&quot; stage=&quot;never&quot;&gt;
+
+                    &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/executable&gt;
+
+            
+
+            &lt;executable targetfile=&quot;$INSTALL_PATH/services/install/databaseConfig.sh&quot; stage=&quot;never&quot;&gt;
+
+                    &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/executable&gt;                  
+
+            
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/services/install/run_conf.txt&quot; type=&quot;shell&quot;&gt;
+
+                    &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/parsable&gt;
+
+        &lt;/pack&gt;
+
+ 
+
+        &lt;pack name=&quot;Server&quot; required=&quot;no&quot;&gt;
+
+            &lt;description&gt;The base files for the NetSight Server&lt;/description&gt;           
+
+            &lt;file src=&quot;Console/server/jboss&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt; 
+
+            &lt;file src=&quot;Console/server/scripts&quot; targetdir=&quot;$INSTALL_PATH/appdata/console&quot;/&gt; 
+
+            &lt;file src=&quot;Console/server/syslogs&quot; targetdir=&quot;$INSTALL_PATH/appdata/logs&quot;/&gt; 
+
+            &lt;file src=&quot;Console/server/traps&quot; targetdir=&quot;$INSTALL_PATH/appdata/logs&quot;/&gt; 
+
+            &lt;file src=&quot;Console/client/webupdate&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt; 
+
+            &lt;file src=&quot;Console/server/mysql&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt; 
+
+            &lt;parsable targetfile=&quot;$INSTALL_PATH/mysql/my.ini&quot;/&gt; 
+
+        &lt;/pack&gt;
+
+    &lt;/packs&gt;
+
+    
+
+    &lt;!-- The native libraries to add --&gt;
+
+    &lt;native type=&quot;izpack&quot; name=&quot;ShellLink.dll&quot;/&gt;
+
+    &lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+
+        &lt;os family=&quot;windows&quot;/&gt;
+
+    &lt;/native&gt;
+
+ 
+
+&lt;/installation&gt;
+
+ 
+
+ 
+
+
+  _____  
+
+
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>] On Behalf Of Bartz, Klaus
+Sent: Wednesday, July 05, 2006 9:29 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+Subject: RE: [izpack-users] Linux Uninstaller
+
+ 
+
+Hi Steve,
+
+on my box it works.
+
+Often wrong symbols are used for OS specification on Linux.pwd
+
+ 
+
+If problems persist, please send your installation description file (often install.xml):
+
+ 
+
+Cheers
+
+ 
+
+Klaus
+
+ 
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Bir, Steve
+Sent: Wednesday, July 05, 2006 2:25 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+Subject: RE: [izpack-users] Linux Uninstaller
+
+Has anyone used the custom uninstall action on Linux? It seems like the addition of this is what's causing it to fail silently?
+
+ 
+
+Thank you,
+
+Steve
+
+ 
+
+
+  _____  
+
+
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>] On Behalf Of Bir, Steve
+Sent: Friday, June 30, 2006 2:52 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+Subject: [izpack-users] Linux Uninstaller
+
+ 
+
+Hello, I am having trouble getting the Linux uninstaller to do anything when I push the uninstall button. Windows works fine but I get no error or feedback. I was wondering if this was a known problem or if I am just making a newbie mistake. I do have a custom action included that works well on windows but as far as I can tell that isn't coming into play at all for Linux.
+
+ 
+
+Thank you,
+
+Steve Bir
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060706/ce743fc7/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060706/ce743fc7/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000624.html">[izpack-users] Hi!
+</A></li>
+	<LI>Next message: <A HREF="000627.html">[izpack-users] Automated installation with custom panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#625">[ date ]</a>
+              <a href="thread.html#625">[ thread ]</a>
+              <a href="subject.html#625">[ subject ]</a>
+              <a href="author.html#625">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

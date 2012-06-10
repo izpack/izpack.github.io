@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1486 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1486%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000229.html">
+   <LINK REL="Next"  HREF="000231.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1486 - izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1486%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1486 - izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Tue Jul 11 15:12:48 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000229.html">[izpack-changes] r1485 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000231.html">[izpack-changes] r1487 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#230">[ date ]</a>
+              <a href="thread.html#230">[ thread ]</a>
+              <a href="subject.html#230">[ subject ]</a>
+              <a href="author.html#230">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-07-11 15:12:47 +0200 (Tue, 11 Jul 2006)
+New Revision: 1486
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+Alternative frame and quit dialog title and quit dialog message.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2006-07-11 13:11:18 UTC (rev 1485)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2006-07-11 13:12:47 UTC (rev 1486)
+@@ -1,4 +1,5 @@
+ /*
++ * $Id:$
+  * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+@@ -68,6 +69,7 @@
+ import com.izforge.izpack.gui.LabelFactory;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.OsVersion;
++import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ /**
+  * The IzPack graphical installer class.
+@@ -408,9 +410,20 @@
+         UIManager.put(&quot;OptionPane.noButtonText&quot;, installdata.langpack.getString(&quot;installer.no&quot;));
+         UIManager.put(&quot;OptionPane.cancelButtonText&quot;, installdata.langpack
+                 .getString(&quot;installer.cancel&quot;));
+-
+-        String title = installdata.langpack.getString(&quot;installer.title&quot;)
+-                + this.installdata.info.getAppName();
++        String title;
++        // Use a alternate message if defined.
++        final String key = &quot;installer.reversetitle&quot;;
++        String message = installdata.langpack.getString(key);
++        // message equal to key -&gt; no message defined.
++        if (message.indexOf(key) &gt; -1)
++            title = installdata.langpack.getString(&quot;installer.title&quot;)
++                    + installdata.info.getAppName();
++        else
++        {   // Attention! The alternate message has to contain the hole message including
++            // $APP_NAME and may be $APP_VER.
++            VariableSubstitutor vs = new VariableSubstitutor(installdata.getVariables());
++            title = vs.substitute(message, null);
++        }
+         new InstallerFrame(title, this.installdata);
+     }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-07-11 13:11:18 UTC (rev 1485)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-07-11 13:12:47 UTC (rev 1486)
+@@ -96,6 +96,7 @@
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.Housekeeper;
+ import com.izforge.izpack.util.OsConstraint;
++import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ /**
+  * The IzPack installer frame.
+@@ -819,9 +820,21 @@
+                 interruptCount++;
+                 return;
+             }
+-            int res = JOptionPane.showConfirmDialog(this, langpack
+-                    .getString(&quot;installer.quit.message&quot;), langpack
+-                    .getString(&quot;installer.quit.title&quot;), JOptionPane.YES_NO_OPTION);
++            // Use a alternate message and title if defined.
++            final String mkey = &quot;installer.quit.reversemessage&quot;;
++            final String tkey = &quot;installer.quit.reversetitle&quot;;
++            String message = langpack.getString(mkey);
++            String title = langpack.getString(tkey);
++            // message equal to key -&gt; no alternate message defined.
++            if (message.indexOf(mkey) &gt; -1) message = langpack.getString(&quot;installer.quit.message&quot;);
++            // title equal to key -&gt; no alternate title defined.
++            if (title.indexOf(tkey) &gt; -1) title = langpack.getString(&quot;installer.quit.title&quot;);
++            // Now replace variables in message or title.
++            VariableSubstitutor vs = new VariableSubstitutor(installdata.getVariables());
++            message = vs.substitute(message, null);
++            title = vs.substitute(title, null);
++            int res = JOptionPane
++                    .showConfirmDialog(this, message, title, JOptionPane.YES_NO_OPTION);
+             if (res == JOptionPane.YES_OPTION)
+             {
+                 wipeAborted();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000229.html">[izpack-changes] r1485 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000231.html">[izpack-changes] r1487 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#230">[ date ]</a>
+              <a href="thread.html#230">[ thread ]</a>
+              <a href="subject.html#230">[ subject ]</a>
+              <a href="author.html#230">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

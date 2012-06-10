@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] path issues in TargetPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20path%20issues%20in%20TargetPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000479.html">
+   <LINK REL="Next"  HREF="000481.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] path issues in TargetPanel</H1>
+    <B>Eric Rose</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20path%20issues%20in%20TargetPanel&In-Reply-To="
+       TITLE="[izpack-users] path issues in TargetPanel">eric at forge.com.au
+       </A><BR>
+    <I>Thu Apr 27 08:57:05 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000479.html">[izpack-users] Shortcut Panel on Windows
+</A></li>
+        <LI>Next message: <A HREF="000481.html">[izpack-users] Possible Bug (Installation Panel)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#480">[ date ]</a>
+              <a href="thread.html#480">[ thread ]</a>
+              <a href="subject.html#480">[ subject ]</a>
+              <a href="author.html#480">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+One of the users of my installer ended up with  pathname that included a 
+trailing space, when installing on Windows. The directory Windows created was 
+spaceless, while the installer ended up with a variable that included the 
+space in the pathname. When subsequently installing the contents of packs, 
+all sorts of errors occurred indicating that the specified directory didn't 
+exist.
+
+My thought is that the best place to fix this is to trim the chosen path in 
+actionPerformed() in PathSelectionPanel.
+
+ie.
+
+diff -r1.5 PathSelectionPanel.java
+155c155
+&lt;                 String path = fc.getSelectedFile().getAbsolutePath();
+---
+&gt;<i>                 String path = fc.getSelectedFile().getAbsolutePath().trim();
+</I>
+While this means that people who want to use target paths with trailing spaces 
+in non-windows environments may be inconvenienced, I think that the impact 
+will be small.
+
+Comments?
+
+Eric
+
+-- 
+Eric Rose              | &quot;Sed quis custodiet ipsos custodes?&quot;
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">eric at integeo.com</A>  |         Juvenal (Satires, VI.347-8)
+
+***********************************************************************
+This message contains privileged and confidential information intended
+only for the use of the addressee named above.  If you are not the
+intended recipient of this message you must not disseminate, copy or
+take any action in reliance on it.  If you have received this message
+in error please notify the sender immediately.  Any views expressed in
+this message are those of the individual sender, except where the
+sender specifically states them to be the views of another (including
+a Body Corporate).
+
+If you wish to opt out from future messages, send an email to
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">unsubscribe at integeo.com</A> with the subject UNSUBSCRIBE
+************************************************************************
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060427/b94acb39/attachment.pgp">https://lists.berlios.de/pipermail/izpack-users/attachments/20060427/b94acb39/attachment.pgp</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000479.html">[izpack-users] Shortcut Panel on Windows
+</A></li>
+	<LI>Next message: <A HREF="000481.html">[izpack-users] Possible Bug (Installation Panel)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#480">[ date ]</a>
+              <a href="thread.html#480">[ thread ]</a>
+              <a href="subject.html#480">[ subject ]</a>
+              <a href="author.html#480">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

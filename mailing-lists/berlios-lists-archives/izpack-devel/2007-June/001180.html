@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Native Libraries for Win 64-bit ?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Native%20Libraries%20for%20Win%2064-bit%20%3F&In-Reply-To=467E5861.9000000%40redhat.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001179.html">
+   <LINK REL="Next"  HREF="001181.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Native Libraries for Win 64-bit ?</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Native%20Libraries%20for%20Win%2064-bit%20%3F&In-Reply-To=467E5861.9000000%40redhat.com"
+       TITLE="[izpack-devel] Native Libraries for Win 64-bit ?">schlm3 at gmail.com
+       </A><BR>
+    <I>Mon Jun 25 09:29:27 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001179.html">[izpack-devel] Native Libraries for Win 64-bit ?
+</A></li>
+        <LI>Next message: <A HREF="001181.html">[izpack-devel] Tr :  Re :  Localizing InstallationGroupPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1180">[ date ]</a>
+              <a href="thread.html#1180">[ thread ]</a>
+              <a href="subject.html#1180">[ subject ]</a>
+              <a href="author.html#1180">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>That sounds ok for me.
+About Architecture detection: The Architecture returned by the VM's system
+properties is always the architecture of the VM, not the architecture of the
+processor. If you  run a 32-Bit VM on a em64 Windows, windows  emulates a
+32-bit environment (like it did for 16-bit programs on 32-bit windows).  The
+VM has no chance to detect if this Hardware would support 64-bit.
+Apart from that, the architecture returned IS exactly what you need, because
+if you run in a 32-bit emulation you have to load the 32-bit dll's. On the
+other hand, if you run in 64-bit mode, you have to load the 64-bit dll's.
+
+If you don't deliver your installer with your own vm, you can not say in
+advance with which VM your installer runs, since this depends on the setting
+on the target machine. You may have both versions of the VM installed on the
+target...
+
+Markus
+
+2007/6/24, Vladimir Ralev &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">vralev at redhat.com</A>&gt;:
+&gt;<i>
+</I>&gt;<i> BTW, I just managed to port ShellLink to run in 64 bit JVM. One
+</I>&gt;<i> potential problem is that it's only compatible with amd64 and em64, but
+</I>&gt;<i> not itanium. In order to make the solution more generic I modified the
+</I>&gt;<i> Librarian class:
+</I>&gt;<i>
+</I>&gt;<i> 1. The Librarian attempts to load libname.dll
+</I>&gt;<i> 2. If the fails it tries libname_x64.dll
+</I>&gt;<i>
+</I>&gt;<i> So for every 32 bit dll you can have a 64 bit version. Of course an
+</I>&gt;<i> alternative would be to use os.arch suffix, but it's harder to test it
+</I>&gt;<i> reliably. OK with everyone?
+</I>&gt;<i>
+</I>&gt;<i> Vladimir Ralev &#1085;&#1072;&#1087;&#1080;&#1089;&#1072;:
+</I>&gt;<i> &gt; I wonder if we can get around this by using some command line utility to
+</I>&gt;<i> &gt; create shortcuts and execute it in it's own process. In this case the
+</I>&gt;<i> &gt; WOW should pick it up correctly as a 32bit app. I found a few CLI apps
+</I>&gt;<i> &gt; that could do the job, but they are closed source and might have
+</I>&gt;<i> &gt; licensing issues:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; <A HREF="http://www.nirsoft.net/utils/nircmd.html">http://www.nirsoft.net/utils/nircmd.html</A>
+</I>&gt;<i> &gt; <A HREF="http://www.ss64.com/nt/shortcut.html">http://www.ss64.com/nt/shortcut.html</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Of course we can port the existing code as a CLI app to work around it.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Markus Schlegel &#1085;&#1072;&#1087;&#1080;&#1089;&#1072;:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&gt; HI Klaus, thanks for you reply.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; When I tried to compile JDIC for 64-bit, I realized 5 minutes ago,
+</I>&gt;<i> &gt;&gt; that the compiler may be the source of the problem.
+</I>&gt;<i> &gt;&gt; So I don't have too look for the reason any longer, thanks.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; So it seems, that I have no chance to compile it myself, because I
+</I>&gt;<i> &gt;&gt; don't know MS-VC++ enough.
+</I>&gt;<i> &gt;&gt; What should be done?
+</I>&gt;<i> &gt;&gt; 1. Make the native parts of IzPack compilable with VC++2005 (32-bit)
+</I>&gt;<i> &gt;&gt; 2. Compile for 64bit
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Until then, we will ship with the Win32-JRE on all windows and then
+</I>&gt;<i> &gt;&gt; copy a win64-VM into the installation, overwrite the win32 files.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Markus
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; 2007/4/20, Bartz, Klaus &lt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>
+</I>&gt;<i> &gt;&gt; &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>&gt;&gt;:
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;     Hi Markus,
+</I>&gt;<i> &gt;&gt;     the problem is not a different platform SDK else the compiler self.
+</I>&gt;<i> &gt;&gt;     Both dlls are made with MS Visual C++ 6.0 Enterprise Edition
+</I>&gt;<i> &gt;&gt;     without a platform SDK., but including
+</I>&gt;<i> &gt;&gt;     the header files from a JDK; at buildtime from 1.4.2_6, but
+</I>&gt;<i> &gt;&gt;     1.5.0_11 should also work.
+</I>&gt;<i> &gt;&gt;     In the moment it compiles and links without any error or warning
+</I>&gt;<i> &gt;&gt;     for all four configurations.
+</I>&gt;<i> &gt;&gt;     The version of the used MS Visual Studio you can see in the
+</I>&gt;<i> &gt;&gt;     configuration file COIOSHelper.dsw
+</I>&gt;<i> &gt;&gt;     The first line is
+</I>&gt;<i> &gt;&gt;     Microsoft Developer Studio Workspace File, Format Version 6.00
+</I>&gt;<i> &gt;&gt;     If you have used it with Version 8 (or 2005, as you like) VS has
+</I>&gt;<i> &gt;&gt;     called for converting it.
+</I>&gt;<i> &gt;&gt;     I assume, that it is not possible to create the 64 bit dll with VS
+</I>&gt;<i> &gt;&gt;     6.0.
+</I>&gt;<i> &gt;&gt;     The problem with the new one is, that MS makes a macroitis and has
+</I>&gt;<i> &gt;&gt;     changed something deep in the
+</I>&gt;<i> &gt;&gt;     header chain. Some days ago I have seen the same error messages.
+</I>&gt;<i> &gt;&gt;     It will be not enough to insert
+</I>&gt;<i> &gt;&gt;     casts because the have differ between unicode and non-unicode. I
+</I>&gt;<i> &gt;&gt;     have not tested to create 64 bit
+</I>&gt;<i> &gt;&gt;     dlls. I assume there will be more problems. The project file do
+</I>&gt;<i> &gt;&gt;     not contain explicit sections for 64 bit.
+</I>&gt;<i> &gt;&gt;     If I can, I will spend some time for this point, if not some one
+</I>&gt;<i> &gt;&gt;     else has done it. But in the moment
+</I>&gt;<i> &gt;&gt;     there are other things on the top of my stack.
+</I>&gt;<i> &gt;&gt;     Cheers
+</I>&gt;<i> &gt;&gt;     Klaus
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         -----Original Message-----
+</I>&gt;<i> &gt;&gt;         *From:* <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt;         &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>&gt;
+</I>&gt;<i> &gt;&gt;         [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt;         &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>&gt;] *On Behalf Of
+</I>&gt;<i> &gt;&gt;         *Markus Schlegel
+</I>&gt;<i> &gt;&gt;         *Sent:* Friday, April 20, 2007 2:31 PM
+</I>&gt;<i> &gt;&gt;         *To:* izpack-devel
+</I>&gt;<i> &gt;&gt;         *Subject:* Re: [izpack-devel] Native Libraries for Win 64-bit ?
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         I have now installed &quot;MSVisualC++ 2005&quot; and the &quot;Windows(r)
+</I>&gt;<i> &gt;&gt;         Server 2003 R2 Platform SDK&quot;.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         I can open the projects for the native libraries, but compile
+</I>&gt;<i> &gt;&gt;         fails.
+</I>&gt;<i> &gt;&gt;         When I try to compile (Win 32) ShellLink.dll and
+</I>&gt;<i> &gt;&gt;         COIOSHeper.dll, errors of the following kind are generated:
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> c:\deron\3rdparty\izpack_3.10\src\native\shelllink\shelllink.cpp(409)
+</I>&gt;<i> &gt;&gt;         : error C2440: 'Initialisierung': 'const jchar *' kann nicht
+</I>&gt;<i> &gt;&gt;         in 'const TCHAR *' konvertiert werden
+</I>&gt;<i> &gt;&gt;         Die Typen, auf die verwiesen wird, sind nicht verkn&#252;pft; die
+</I>&gt;<i> &gt;&gt;         Konvertierung erfordert einen reinterpret_cast-Operator oder
+</I>&gt;<i> &gt;&gt;         eine Typumwandlung im C- oder Funktionsformat.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         It seems so, that the Platform SDK I use is not compatible
+</I>&gt;<i> &gt;&gt;         with the one the original developer has used. But I can't find
+</I>&gt;<i> &gt;&gt;         any documentation on which SDK to use.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         When I try to compile COIOSHelper.dll, many other errors will
+</I>&gt;<i> &gt;&gt;         also be generated.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         Anyone with exerience in compiling the native parts?
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         Thanks for any hint
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         Markus
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;         2007/4/18, Markus Schlegel &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">schlm3 at gmail.com</A>
+</I>&gt;<i> &gt;&gt;         &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">schlm3 at gmail.com</A>&gt;&gt;:
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;             Hi Julien, Klaus, Developers
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;             Rigth now, I am working on the 64-bit release of our Java
+</I>&gt;<i> &gt;&gt;             Application.
+</I>&gt;<i> &gt;&gt;             Most of the things are working well, except all dll's that
+</I>&gt;<i> &gt;&gt;             are used must be compiled for 64-bit windows.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;             Since IzPack (and my installer) uses COIOShelper.dll and
+</I>&gt;<i> &gt;&gt;             ShellLink.dll, I have to provide a 64-bit compilation of
+</I>&gt;<i> &gt;&gt;             those two dll's for my 64-bit installer.
+</I>&gt;<i> &gt;&gt;             Could you please give me advice on what tools I have to
+</I>&gt;<i> &gt;&gt;             install in order that I could compile the libraries for
+</I>&gt;<i> &gt;&gt;             64-bit OS?
+</I>&gt;<i> &gt;&gt;             Or is it even possible, that you can compile it for 64-bit
+</I>&gt;<i> &gt;&gt;             too (I do not know if this is possible from a 32-bit
+</I>&gt;<i> windows)?
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;             Notice, that I don't have much experiance in compiling
+</I>&gt;<i> &gt;&gt;             native applications on the commandline and I don't have
+</I>&gt;<i> &gt;&gt;             and MS Visual Studio installed....
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;             Thanks for your help
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;             Markus
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;     _______________________________________________
+</I>&gt;<i> &gt;&gt;     izpack-devel mailing list
+</I>&gt;<i> &gt;&gt;     <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A> &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&gt;     <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt;&gt;     &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; _______________________________________________
+</I>&gt;<i> &gt;&gt; izpack-devel mailing list
+</I>&gt;<i> &gt;&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-devel mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070625/54a878e0/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070625/54a878e0/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001179.html">[izpack-devel] Native Libraries for Win 64-bit ?
+</A></li>
+	<LI>Next message: <A HREF="001181.html">[izpack-devel] Tr :  Re :  Localizing InstallationGroupPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1180">[ date ]</a>
+              <a href="thread.html#1180">[ thread ]</a>
+              <a href="subject.html#1180">[ subject ]</a>
+              <a href="author.html#1180">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Dynamic%20controls%26validation%20in%20UserInputPanel&In-Reply-To=9291ebe10703131031j21078310vb40face0d3a9f687%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000943.html">
+   <LINK REL="Next"  HREF="000950.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Dynamic controls&amp;validation in UserInputPanel</H1>
+    <B>Vladimir Ralev</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Dynamic%20controls%26validation%20in%20UserInputPanel&In-Reply-To=9291ebe10703131031j21078310vb40face0d3a9f687%40mail.gmail.com"
+       TITLE="[izpack-devel] Dynamic controls&amp;validation in UserInputPanel">vralev at redhat.com
+       </A><BR>
+    <I>Wed Mar 14 11:38:18 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000943.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+        <LI>Next message: <A HREF="000950.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#946">[ date ]</a>
+              <a href="thread.html#946">[ thread ]</a>
+              <a href="subject.html#946">[ subject ]</a>
+              <a href="author.html#946">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I will need some help with the docs. Which files should I update and 
+should I use a special editor?
+In the mean time here is it in plain text. There is an important note at 
+the end, you may want to highlight it, it's a limitation I realized 
+today, I'll see if it can be fixed without sacrificing something:
+
+Dynamic validation of controls
+
+You can add revalidate=&quot;yes&quot; attribute to checkbox and radio controls in 
+the UserInputPanel specification to force a redraw of all fields in the 
+current panel, including controls associated with a condiotionid. This 
+is useful if you need to show or hide particular set of controls 
+depending on the current state of other controls on the panel.
+
+Sample checkbox declaration:
+      &lt;field type=&quot;check&quot; variable=&quot;var&quot;&gt;
+         &lt;spec txt=&quot;Some text&quot; revalidate=&quot;yes&quot; id=&quot;text&quot; set=&quot;true&quot; 
+size=&quot;32&quot; true=&quot;true&quot; false=&quot;false&quot;/&gt;
+      &lt;/field&gt;
+
+Sample radio declaration:
+      &lt;field type=&quot;radio&quot; variable=&quot;installConfig&quot;&gt;
+         &lt;description align=&quot;left&quot; txt=&quot;Select Standard installation or 
+select Advanced to make changes&quot;
+            id=&quot;installConfig.text&quot;/&gt;
+         &lt;spec&gt;
+           &lt;choice txt=&quot;Standard&quot; revalidate=&quot;yes&quot; 
+id=&quot;installConfig.radio.standard&quot; value=&quot;standard&quot;  set=&quot;true&quot;/&gt;        
+           &lt;choice txt=&quot;Advance&quot; revalidate=&quot;yes&quot; 
+id=&quot;installConfig.radio.advanced&quot; value=&quot;advanced&quot; /&gt;          
+         &lt;/spec&gt;
+      &lt;/field&gt;
+
+By default the panels are placed on the vertical center of the available 
+space. With dynamic showing/hiding of fields this causes your panel to 
+move up and down depending on it's height. To avoid this behavior, 
+declare your panel with attribute topBuffer=&quot;0&quot;. See the following example:
+   &lt;panel order=&quot;0&quot; topBuffer=&quot;0&quot;&gt;
+      &lt;field type=&quot;radio&quot; variable=&quot;installConfig&quot;&gt;
+         &lt;description align=&quot;left&quot; txt=&quot;Select Standard installation or 
+select Advanced to make changes&quot;
+            id=&quot;installConfig.text&quot;/&gt;
+         &lt;spec&gt;
+           &lt;choice txt=&quot;Standard&quot; revalidate=&quot;yes&quot; 
+id=&quot;installConfig.radio.standard&quot; value=&quot;standard&quot;  set=&quot;true&quot;/&gt;        
+           &lt;choice txt=&quot;Advance&quot; revalidate=&quot;yes&quot; 
+id=&quot;installConfig.radio.advanced&quot; value=&quot;advanced&quot; /&gt;          
+         &lt;/spec&gt;
+      &lt;/field&gt;     
+      &lt;field type=&quot;divider&quot; align=&quot;center&quot;/&gt;
+      &lt;field type=&quot;combo&quot; conditionid=&quot;advanced&quot; variable=&quot;database&quot;&gt;
+         &lt;description align=&quot;left&quot; txt=&quot;Select Database&quot; 
+id=&quot;database.text&quot;/&gt;
+         &lt;spec&gt;
+           &lt;choice txt=&quot;DB2-400&quot; id=&quot;combo.db2-400&quot; value=&quot;db2-400&quot;/&gt;
+           &lt;choice txt=&quot;DB2&quot; id=&quot;combo.db2-ds&quot; value=&quot;db2&quot;/&gt;
+         &lt;/spec&gt;
+      &lt;/field&gt;
+   &lt;/panel&gt;
+
+There are two radio buttons that cause revalidation 
+(installConfig.radio.standard and installConfig.radio.advanced) and one 
+combo box which is only displayed when the condition called &quot;advanced&quot; 
+is satisfied. The condition &quot;advanced&quot; depends on the variable 
+&quot;installConfig&quot;:
+        &lt;condition type=&quot;variable&quot; id=&quot;advanced&quot;&gt;
+                &lt;name&gt;installConfig&lt;/name&gt;
+                &lt;value&gt;advanced&lt;/value&gt;
+        &lt;/condition&gt;
+
+Each time the user clicks on one of the radio buttons the variable 
+&quot;installConfig&quot; changes, and with it the condition &quot;advanced&quot; is either 
+satisfied or not. Since the combo is revalidated with each click 
+(together with all other components) it's being hidden or shown based on 
+the condition.
+
+IMPORTANT NOTE: All controls that cause revalidation must be declared 
+before any conditionaly displayed controls. This is because the order of 
+evaluation of the variables follows the order of declaration. If you 
+declare your conditionaly displayed control before a control associated 
+with a variable it depends on, the conditionaly displayed controls will 
+not be able to see the updated variable and will use the previous value 
+(before the revalidation).
+
+Julien Ponge wrote:
+&gt;<i> Hi Vladimir,
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> If you approve this feature I will commit it to the trunk or the 3.10.1
+</I>&gt;&gt;<i> branch (it's just 20 lines of code)?
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> * +1, that would be great.
+</I>&gt;<i> * This would go to the trunk.
+</I>&gt;<i> * Do not forget to update the documentation else it won't be useful ;-)
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>   
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000943.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+	<LI>Next message: <A HREF="000950.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#946">[ date ]</a>
+              <a href="thread.html#946">[ thread ]</a>
+              <a href="subject.html#946">[ subject ]</a>
+              <a href="author.html#946">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

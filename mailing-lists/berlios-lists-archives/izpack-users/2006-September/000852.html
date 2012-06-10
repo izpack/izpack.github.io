@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Minor nits and suggestions
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Minor%20nits%20and%20suggestions&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000851.html">
+   <LINK REL="Next"  HREF="000853.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Minor nits and suggestions</H1>
+    <B>Christopher Brooks</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Minor%20nits%20and%20suggestions&In-Reply-To="
+       TITLE="[izpack-users] Minor nits and suggestions">cxh at eecs.berkeley.edu
+       </A><BR>
+    <I>Sat Sep  9 21:26:48 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000851.html">[izpack-users] Multi language License and Info
+</A></li>
+        <LI>Next message: <A HREF="000853.html">[izpack-users] Minor nits and suggestions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#852">[ date ]</a>
+              <a href="thread.html#852">[ thread ]</a>
+              <a href="subject.html#852">[ subject ]</a>
+              <a href="author.html#852">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>IzPack seems very slick.  I'm glad to have found it.
+
+Several years ago I used the multiplatform version of InstallShield,
+which I found to be lacking, see my notes at
+(<A HREF="http://ptolemy.eecs.berkeley.edu/ptolemyII/ptII1.0/installshield.htm#bugs">http://ptolemy.eecs.berkeley.edu/ptolemyII/ptII1.0/installshield.htm#bugs</A>)
+
+I then switched to ZeroG's InstallAnywhere, which seemed
+ok, but was fairly expensive.  When Macrovision bought
+ZeroG, I decided to switch.  I felt that the open source
+project I work on (Ptolemy II, <A HREF="http://ptolemy.eecs.berkeley.edu/ptolemyII">http://ptolemy.eecs.berkeley.edu/ptolemyII</A>)
+did not need to be supporting a very closed source company
+like Macrovision.
+
+Anyway, I'm part way through setting up an installer,
+below are some very minor comments about IzPack.  All
+and all, I'm very happy with IzPack.  It certainly took
+less work to set up than either multiplatform
+InstallShield or InstallAnywhere.  In both cases I
+had to contact support and find out about bug
+workarounds and poorly document features.
+
+
+These notes are for IzPack 3.9.0-M1, from September 9, 2006.
+
+     * IzPack should be easier to use with a custom JRE. The IzPack
+       native launcher will allow me to invoke the JRE installer, but
+       I want to use a JRE that is in the current directory. The
+       IzPack wiki
+       (<A HREF="http://www.izforge.com/izpack/wiki/native_launcher_and_alternatives">http://www.izforge.com/izpack/wiki/native_launcher_and_alternatives</A>)
+       (see also Notes about IzPack Launcher and possible
+       alternatives(<A HREF="http://openfacts.berlios.de/index-en.phtml?title=IzPack/Launcher">http://openfacts.berlios.de/index-en.phtml?title=IzPack/Launcher</A>))
+       describe using Launch4j.  I ended up using Launch4j to create a
+       .exe that invokes the jar file created by IzPack. I also used
+       Launch4j to create my .exe files that are added to the Start
+       menu.
+
+     * There should be an easy way to ask the user if they want to
+       invoke a binary after the installation is complete.
+
+     * I'd like to add a message to the TargetPanel that describes why
+       the default location in C:/Program Files won't work.
+
+     * In HTMLInfoPanel, the packing seems to change depending on my
+       html file. Sometimes the pane that displays the HTML does not
+       fill the width of the screen. It seem like using style sheets
+       causes problems here.
+
+     * I'd like there to be a JREPathPanel that is like the
+       JDKPathPanel.  In one of the installers, I provide a custom JRE
+       that includes JAI, Java 3D, Joystick JMF, JavaComm, and
+       X10. I'd like to give the user the opportunity to use the
+       custom JRE, or to choose their own JRE or JDK.
+
+     * It would be nice if there was a way for the installer to unjar
+       files on command. I provide source in a jar file, if the user
+       chooses to install the sources, then that file should be
+       uninstalled. The reason I use a jar file is because it makes it
+       easier (faster) to build installers - my sources are a few
+       thousand files, it is faster to copy one file around at
+       installer build time than it is to copy lots of files.
+
+     * The IzPack Developer's page
+       (<A HREF="http://www.izforge.com/izpack/developers">http://www.izforge.com/izpack/developers</A>) should state clearly how to build.
+       Yah, I know, if you don't know svn, you probably can't devel, but
+       I find quick instructions useful. The instructions should point to
+       an online copy of the most recent Eclipse instructions. I found
+       the TeX docs, but is there an online version of the manual?
+       There should also be a link to How to build the native
+       launcher (<A HREF="http://www.izforge.com/izpack/wiki/building_native_launcher_">http://www.izforge.com/izpack/wiki/building_native_launcher_</A>
+
+Below are my partial notes about building sources
+
+Building IzPack 
+         1. Download from the trunk
+svn co <A HREF="http://svn.berlios.de/svnroot/repos/izpack/izpack-src/trunk">http://svn.berlios.de/svnroot/repos/izpack/izpack-src/trunk</A>
+
+         2. I followed the Eclipse instructions from the IzPack 3.9.0-M1
+            release. One change was that when setting up the debug, I used
+
+            c:\cxh\ptII\adm\gen-6.0\ptII6_0-devel_setup.xml \
+            -b c:\cxh\ptII\adm\gen-6.0 \
+            -h c:\cxh\src\izpack\trunk
+
+            Where
+
+              c:\cxh\ptII\adm\gen-6.0\ptII6_0-devel_setup.xml
+                      My IzPack configuration file, usually called
+                      install.xml
+
+              -b c:\cxh\ptII\adm\gen-6.0
+                      The base for my build
+
+              -h c:\cxh\src\izpack\trunk
+                      The IzPack source directory.
+
+         3. Problems while building:
+
+              No valid IzPack home directory found
+                      Building in Eclipse fails with:
+
+-&gt; Fatal error :
+   No valid IzPack home directory found
+java.lang.IllegalArgumentException: No valid IzPack home directory found
+        at com.izforge.izpack.compiler.CompilerConfig.resolveIzPackHome(Compile
+rConfig.java:1908)
+        at com.izforge.izpack.compiler.CompilerConfig.main(CompilerConfig.java:
+1835)
+        at com.izforge.izpack.compiler.Compiler.main(Compiler.java:622)
+
+                      The solution is to copy ShellLink.dll
+
+cp c:/Pro*/izpack/bin/native/izpack/ShellLink.dll izpack
+
+              Uninstaller not found:
+                      c:\cxh\src\izpack\trunk\lib\uninstaller.jar
+                      Building in Eclipse fails with:
+
+-&gt; Fatal error :
+   c:\cxh\ptII\adm\gen-6.0\ptII6_0_devel_setup.xml:18: Uninstaller not found: c
+:<i>\cxh\src\izpack\trunk\lib\uninstaller.jar
+</I>com.izforge.izpack.compiler.CompilerException: c:\cxh\ptII\adm\gen-6.0\ptII6_0_
+devel_setup.xml:18: Uninstaller not found: c:\cxh\src\izpack\trunk\lib\uninstal
+ler.jar
+        at com.izforge.izpack.compiler.CompilerConfig.parseError(CompilerConfig
+.java:1523)
+        at com.izforge.izpack.compiler.CompilerConfig.findIzPackResource(Compil
+erConfig.java:1488)
+        at com.izforge.izpack.compiler.CompilerConfig.addInfo(CompilerConfig.ja
+va:1199)
+        at com.izforge.izpack.compiler.CompilerConfig.executeCompiler(CompilerC
+onfig.java:316)
+        at com.izforge.izpack.compiler.CompilerConfig.main(CompilerConfig.java:
+1854)
+        at com.izforge.izpack.compiler.Compiler.main(Compiler.java:622)
+
+
+            Solution, use ant:
+
+		      cd trunk/src
+		      ant dist
+
+            I'm not sure how to do this from Eclipse. Eclipse can run ant
+            but the setup instructions have us include files from
+            src/lib, not src.
+
+
+_Christopher
+
+Christopher Brooks (cxh at eecs berkeley edu) University of California
+Programmer/Analyst Chess/Ptolemy/Trust        US Mail: 558 Cory Hall #1774
+ph: 510.643.9841 fax:510.642.2718	      Berkeley, CA 94720-1774
+home: (F-Tu) 707.665.0131 (W-F) 510.655.5480  (office: 400A Cory)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000851.html">[izpack-users] Multi language License and Info
+</A></li>
+	<LI>Next message: <A HREF="000853.html">[izpack-users] Minor nits and suggestions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#852">[ date ]</a>
+              <a href="thread.html#852">[ thread ]</a>
+              <a href="subject.html#852">[ subject ]</a>
+              <a href="author.html#852">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

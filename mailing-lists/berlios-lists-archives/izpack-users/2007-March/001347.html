@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Custom Actions, NPE when running installer,	ca.listenerName == null
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Custom%20Actions%2C%20NPE%20when%20running%20installer%2C%0A%09ca.listenerName%20%3D%3D%20null&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001346.html">
+   <LINK REL="Next"  HREF="001351.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Custom Actions, NPE when running installer,	ca.listenerName == null</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Custom%20Actions%2C%20NPE%20when%20running%20installer%2C%0A%09ca.listenerName%20%3D%3D%20null&In-Reply-To="
+       TITLE="[izpack-users] Custom Actions, NPE when running installer,	ca.listenerName == null">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Mar  7 18:24:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001346.html">[izpack-users] Custom Actions, NPE when running installer, ca.listenerName == null
+</A></li>
+        <LI>Next message: <A HREF="001351.html">[izpack-users] UninstallerListener and variables
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1347">[ date ]</a>
+              <a href="thread.html#1347">[ thread ]</a>
+              <a href="subject.html#1347">[ subject ]</a>
+              <a href="author.html#1347">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Scott,
+sorry, the docu is at some points really out of date.
+I do not know why the described problem should be manner.
+I have many custom actions. I have made on the fly a dummy
+and it works also. Never see CustomData := null. Can only
+be if something will be wrong at compile time. Jarfile 
+without same named class?
+Look again into build.xml. May be copy the entry for
+SummaryLoggerInstallerListener and addapt it to your listener.
+Try first with one in com.izforge.izpack.event. Later you
+can move other where. Do not forget to include all used classes
+(except which are in izevent.jar).
+For implementing custom actions it will be a good idea to 
+take it in a eclipse or idea project.
+
+hope it helps a little bit
+
+Cheers
+
+Klaus
+
+&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of 
+</I>&gt;<i> Scott Plante
+</I>&gt;<i> Sent: Wednesday, March 07, 2007 4:26 PM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-users] Custom Actions, NPE when running 
+</I>&gt;<i> installer,ca.listenerName == null
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Hi,
+</I>&gt;<i>   I tried to create my first custom action. I think I followed the 
+</I>&gt;<i> instructions in the build: 
+</I>&gt;<i> <A HREF="file://$IZPACK_HOME/doc/izpack/xhtml/node9.html#SECTION0093100">file://$IZPACK_HOME/doc/izpack/xhtml/node9.html#SECTION0093100</A>
+</I>&gt;<i> 0000000000000
+</I>&gt;<i> although I wasn't clear about the instruction to create an antcall 
+</I>&gt;<i> target=&quot;compile.listener.simple&quot; since there is no such target in the 
+</I>&gt;<i> build.xml file. Also, it's not clear where in the build.xml 
+</I>&gt;<i> to add said 
+</I>&gt;<i> antcall. I figured this might be outdated doc, since below in the 
+</I>&gt;<i> example, it shows to change the lines around the &quot;CUSTOM ACTION test 
+</I>&gt;<i> START&quot; comment, which I did.
+</I>&gt;<i> 
+</I>&gt;<i>   I'm successfully creating my bin/customAction/ZyInstallListener.jar 
+</I>&gt;<i> file and the installer gets created without any obvious 
+</I>&gt;<i> errors, however 
+</I>&gt;<i> when I run the installer I get an immediate stack trace.
+</I>&gt;<i> 
+</I>&gt;<i> java.lang.NullPointerException
+</I>&gt;<i>         at java.lang.Class.forName0(Native Method)
+</I>&gt;<i>         at java.lang.Class.forName(Class.java:164)
+</I>&gt;<i>         at 
+</I>&gt;<i> com.izforge.izpack.installer.InstallerBase.loadCustomData(Inst
+</I>&gt;<i> allerBase.java:356)
+</I>&gt;<i>         at 
+</I>&gt;<i> com.izforge.izpack.installer.InstallerBase.loadInstallData(Ins
+</I>&gt;<i> tallerBase.java:218)
+</I>&gt;<i>         at 
+</I>&gt;<i> com.izforge.izpack.installer.GUIInstaller.&lt;init&gt;(GUIInstaller.
+</I>&gt;<i> java:110)
+</I>&gt;<i>         at 
+</I>&gt;<i> sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native 
+</I>&gt;<i> Method)
+</I>&gt;<i>         at 
+</I>&gt;<i> sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeCo
+</I>&gt;<i> nstructorAccessorImpl.java:39)
+</I>&gt;<i>         at 
+</I>&gt;<i> sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Dele
+</I>gatingConstructorAccessorImpl.java:27)
+&gt;<i>         at 
+</I>&gt;<i> java.lang.reflect.Constructor.newInstance(Constructor.java:494)
+</I>&gt;<i>         at java.lang.Class.newInstance0(Class.java:350)
+</I>&gt;<i>         at java.lang.Class.newInstance(Class.java:303)
+</I>&gt;<i>         at 
+</I>&gt;<i> com.izforge.izpack.installer.Installer.main(Installer.java:62)
+</I>&gt;<i> 
+</I>&gt;<i>   I've traced this problem down to this code in 
+</I>&gt;<i> src/lib/com/izforge/izpack/installer/InstallerBase.java:
+</I>&gt;<i>                 case CustomData.INSTALLER_LISTENER:
+</I>&gt;<i>                    Class clazz = Class.forName(ca.listenerName);
+</I>&gt;<i>                     if (clazz == null)
+</I>&gt;<i>                         throw new InstallerException(&quot;Custom action &quot;
+</I>&gt;<i>                             + ca.listenerName + &quot; not bound!&quot;);
+</I>&gt;<i>                     out[ca.type].add(clazz.newInstance());
+</I>&gt;<i>                     break;
+</I>&gt;<i>  
+</I>&gt;<i> The 'ca' comes out the &quot;/customData&quot; serialized object. I 
+</I>&gt;<i> added a debug 
+</I>&gt;<i> line and ca.listenerName is null.
+</I>&gt;<i> 
+</I>&gt;<i> Does anyone have any advice?
+</I>&gt;<i> 
+</I>&gt;<i> Thanks,
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i> Scott Plante, CTO
+</I>&gt;<i> Insight Systems, Inc.
+</I>&gt;<i> (+1) 404 873 0058 x104
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">splante at insightsys.com</A>
+</I>&gt;<i> <A HREF="http://zyross.com">http://zyross.com</A>
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A> 
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001346.html">[izpack-users] Custom Actions, NPE when running installer, ca.listenerName == null
+</A></li>
+	<LI>Next message: <A HREF="001351.html">[izpack-users] UninstallerListener and variables
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1347">[ date ]</a>
+              <a href="thread.html#1347">[ thread ]</a>
+              <a href="subject.html#1347">[ subject ]</a>
+              <a href="author.html#1347">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

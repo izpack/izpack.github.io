@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Linux platform installation problem
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Linux%20platform%20installation%20problem&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001671.html">
+   <LINK REL="Next"  HREF="001673.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Linux platform installation problem</H1>
+    <B>Joseph.Fiedler at l-3com.com</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Linux%20platform%20installation%20problem&In-Reply-To="
+       TITLE="[izpack-users] Linux platform installation problem">Joseph.Fiedler at l-3com.com
+       </A><BR>
+    <I>Wed Sep 19 00:14:47 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001671.html">[izpack-users] skipping panels in conditions
+</A></li>
+        <LI>Next message: <A HREF="001673.html">[izpack-users] restricting packs to os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1670">[ date ]</a>
+              <a href="thread.html#1670">[ thread ]</a>
+              <a href="subject.html#1670">[ subject ]</a>
+              <a href="author.html#1670">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I have encountered a problem when using izpack for multiplatform
+installations.  My installation file contains 5 packs; 3 of the 5 packs
+are platform independent.  However, the first 2 packs are nearly
+identical; they differ due to small support scripts for windows and
+linux installations.  On windows platforms the installation performs as
+expected and consistently takes 3-5 minutes; on Linux platforms the
+installation takes 90 - 120 minutes.  I've isolated the problem to the 2
+'similar' packs; if I remove the windows pack and run the installer on
+linux (RedHat Enterprise Server 4.0) it will run the expected 3-5
+minutes.
+
+ 
+
+I've attached the 'bare' bones for the packs in question.  
+
+ 
+
+install.xml
+
+============
+
+   &lt;!-- Component packs - defines user selectable installation
+components --&gt;
+
+   &lt;packs&gt;
+
+        &lt;!-- Windows Installation only --&gt;
+
+        &lt;pack name=&quot;Core Components&quot; required=&quot;no&quot; preselected=&quot;no&quot;&gt;
+
+            &lt;description&gt;The Core Components&lt;/description&gt;
+
+            &lt;os family=&quot;windows&quot;/&gt;
+
+            
+
+            &lt;fileset dir=&quot;C:\src&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+
+              &lt;!-- Apache ANT components --&gt;
+
+              &lt;include name=&quot;ant/**&quot;/&gt;
+
+              
+
+              &lt;!-- Java JDK components --&gt;
+
+              &lt;include name=&quot;jdk/**&quot;/&gt;
+
+              
+
+              &lt;!-- Windows components --&gt;
+
+              &lt;include name=&quot;*.bat&quot;/&gt;
+
+              &lt;include name=&quot;runtime/**&quot;/&gt;
+
+                           
+
+              &lt;!-- Exclusion list --&gt;
+
+              &lt;exclude name=&quot;ant/doc/**&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/**/*.sh&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/**/*.so&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/cfg/**&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/doc/**&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/javadoc/**&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/jardoc/**&quot;/&gt;
+
+            &lt;/fileset&gt;
+
+        &lt;/pack&gt;
+
+        
+
+        &lt;!-- Linux Installation only --&gt;
+
+        &lt;pack name=&quot;Core Components&quot; required=&quot;no&quot; preselected=&quot;no&quot;&gt;
+
+            &lt;description&gt;Core Software Components&lt;/description&gt;
+
+            &lt;os family=&quot;unix&quot; name=&quot;Linux&quot;/&gt;
+
+                        
+
+            &lt;fileset dir=&quot;C:\src&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+
+              &lt;!-- Apache ANT components --&gt;
+
+              &lt;include name=&quot;ant/**&quot;/&gt;
+
+              
+
+              &lt;!-- Java JDK components --&gt;
+
+              &lt;include name=&quot;jdk-linux/**&quot;/&gt;
+
+              
+
+              &lt;!-- Linux components --&gt;
+
+              &lt;include name=&quot;*.sh&quot;/&gt;
+
+              &lt;include name=&quot;runtime/**&quot;/&gt;
+
+              &lt;include name=&quot;runtime/**/wrapper&quot;/&gt;
+
+              
+
+              &lt;!-- Exclusion list --&gt;
+
+              &lt;exclude name=&quot;ant/doc/**&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/**/*.bat&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/**/*.dll&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/**/*.exe&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/cfg/**&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/doc/**&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/javadoc/**&quot;/&gt;
+
+              &lt;exclude name=&quot;runtime/jardoc/**&quot;/&gt;
+
+        &lt;/pack&gt;
+
+============
+
+ 
+
+Any assistance or guidance is appreciated.
+
+ 
+
+- Joseph Fiedler
+
+ 
+
+
+
+--------------------------------------------------------------------
+This message and any attachments are solely for the use of the individual or entity to which it is addressed and may contain information that is privileged or confidential. If you are not the intended recipient, any disclosure, use or distribution of the information contained herein is prohibited. If you have received this communication in error, please notify the sender by reply e-mail and immediately delete this message and any attachments.
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070918/dc644c4d/attachment-0001.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070918/dc644c4d/attachment-0001.html</A> 
+</PRE>
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001671.html">[izpack-users] skipping panels in conditions
+</A></li>
+	<LI>Next message: <A HREF="001673.html">[izpack-users] restricting packs to os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1670">[ date ]</a>
+              <a href="thread.html#1670">[ thread ]</a>
+              <a href="subject.html#1670">[ subject ]</a>
+              <a href="author.html#1670">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

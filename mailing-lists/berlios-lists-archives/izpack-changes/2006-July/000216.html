@@ -1,0 +1,272 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1470 - izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1470%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000215.html">
+   <LINK REL="Next"  HREF="000217.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1470 - izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1470%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1470 - izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Mon Jul  3 11:30:42 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000215.html">[izpack-changes] r1469 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000217.html">[izpack-changes] r1471 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-07-03 11:30:41 +0200 (Mon, 03 Jul 2006)
+New Revision: 1470
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+Log:
+Layout handling changed to support different.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java	2006-07-03 07:55:46 UTC (rev 1469)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java	2006-07-03 09:30:41 UTC (rev 1470)
+@@ -20,7 +20,6 @@
+ package com.izforge.izpack.panels;
+ 
+ import java.awt.GridBagConstraints;
+-import java.awt.GridBagLayout;
+ import java.awt.Insets;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+@@ -74,20 +73,27 @@
+ 
+         vs = new VariableSubstitutor(idata.getVariables());
+ 
+-        // The 'super' layout
+-        GridBagLayout superLayout = new GridBagLayout();
+-        setLayout(superLayout);
+-        GridBagConstraints gbConstraints = new GridBagConstraints();
++        // Changed to layout handling of IzPanel to support different anchors.
++        // (Klaus Bartz, 2006.06.30)
++        GridBagConstraints gbConstraints = getNextYGridBagConstraints();
++
+         gbConstraints.insets = new Insets(0, 0, 0, 0);
+         gbConstraints.fill = GridBagConstraints.NONE;
+-        gbConstraints.anchor = GridBagConstraints.CENTER;
++        if (getAnchor() == GridBagConstraints.NONE || getAnchor() == GridBagConstraints.CENTER)
++            gbConstraints.anchor = GridBagConstraints.CENTER;
++        else
++        {
++            gbConstraints.weightx = 1.0;
++            gbConstraints.anchor = getAnchor();
++        }
++        
+ 
+         // We initialize our 'real' layout
+         centerPanel = new JPanel();
+         BoxLayout layout = new BoxLayout(centerPanel, BoxLayout.Y_AXIS);
+         centerPanel.setLayout(layout);
+-        superLayout.addLayoutComponent(centerPanel, gbConstraints);
+-        add(centerPanel);
++        add(centerPanel, gbConstraints);
++        completeGridBagLayout();
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java	2006-07-03 07:55:46 UTC (rev 1469)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanel.java	2006-07-03 09:30:41 UTC (rev 1470)
+@@ -21,7 +21,6 @@
+ 
+ import java.awt.Dimension;
+ import java.awt.GridBagConstraints;
+-import java.awt.GridBagLayout;
+ 
+ import javax.swing.JLabel;
+ import javax.swing.JOptionPane;
+@@ -75,37 +74,37 @@
+     public InstallPanel(InstallerFrame parent, InstallData idata)
+     {
+         super(parent, idata);
++        // Changed to layout handling of IzPanel to support different anchors.
++        // (Klaus Bartz, 2006.06.30)
++        GridBagConstraints gbConstraints = getDefaultGridBagConstraints();
++        gbConstraints.gridx = 0;
++        gbConstraints.gridy = 0;
++        gbConstraints.gridwidth = 2;
++        gbConstraints.gridheight = 1;
++        gbConstraints.weightx = 1.0;
++        gbConstraints.weighty = 0.0;
++        setDefaultGridBagConstraints(gbConstraints);
+ 
+-        // We initialize our layout
+-        GridBagLayout layout = new GridBagLayout();
+-        GridBagConstraints gbConstraints = new GridBagConstraints();
+-        setLayout(layout);
+-
+-        int row = 1;
+-
+         this.tipLabel = LabelFactory.create(parent.langpack.getString(&quot;InstallPanel.tip&quot;),
+-                parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING);
+-        parent.buildConstraints(gbConstraints, 0, row++, 2, 1, 1.0, 0.0);
++        parent.icons.getImageIcon(&quot;information&quot;), JLabel.TRAILING);
++        gbConstraints = getNextYGridBagConstraints();
+         gbConstraints.fill = GridBagConstraints.NONE;
+         gbConstraints.anchor = GridBagConstraints.NORTHWEST;
+-        layout.addLayoutComponent(this.tipLabel, gbConstraints);
+-        add(this.tipLabel);
++        add(this.tipLabel, gbConstraints);
+ 
+         this.packOpLabel = LabelFactory.create(&quot; &quot;, JLabel.TRAILING);
+-        parent.buildConstraints(gbConstraints, 0, row++, 2, 1, 1.0, 0.0);
++        gbConstraints = getNextYGridBagConstraints();
+         gbConstraints.anchor = GridBagConstraints.SOUTHWEST;
+-        layout.addLayoutComponent(this.packOpLabel, gbConstraints);
+-        add(this.packOpLabel);
++        add(this.packOpLabel, gbConstraints);
+ 
+         this.packProgressBar = new JProgressBar();
+         this.packProgressBar.setStringPainted(true);
+         this.packProgressBar.setString(parent.langpack.getString(&quot;InstallPanel.begin&quot;));
+         this.packProgressBar.setValue(0);
+-        parent.buildConstraints(gbConstraints, 0, row++, 2, 1, 1.0, 0.0);
++        gbConstraints = getNextYGridBagConstraints();
+         gbConstraints.anchor = GridBagConstraints.NORTH;
+         gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+-        layout.addLayoutComponent(this.packProgressBar, gbConstraints);
+-        add(this.packProgressBar);
++        add(this.packProgressBar, gbConstraints);
+ 
+         // make sure there is some space between the progress bars
+         JSeparator sep = new JSeparator();
+@@ -113,28 +112,26 @@
+         sep.setPreferredSize(dim);
+         sep.setMinimumSize(dim);
+         sep.setMaximumSize(dim);
+-        parent.buildConstraints(gbConstraints, 0, row++, 2, 1, 1.0, 0.0);
+-        layout.addLayoutComponent(sep, gbConstraints);
+-        add(sep);
++        gbConstraints = getNextYGridBagConstraints();
++        add(sep, gbConstraints);
+ 
+         this.overallOpLabel = LabelFactory.create(parent.langpack
+                 .getString(&quot;InstallPanel.progress&quot;), parent.icons.getImageIcon(&quot;information&quot;),
+                 JLabel.TRAILING);
+-        parent.buildConstraints(gbConstraints, 0, row++, 2, 1, 1.0, 0.0);
++        gbConstraints = getNextYGridBagConstraints();
+         gbConstraints.anchor = GridBagConstraints.NORTHWEST;
+         gbConstraints.fill = GridBagConstraints.NONE;
+-        layout.addLayoutComponent(this.overallOpLabel, gbConstraints);
+-        add(this.overallOpLabel);
++        add(this.overallOpLabel, gbConstraints);
+ 
+         this.overallProgressBar = new JProgressBar();
+         this.overallProgressBar.setStringPainted(true);
+         this.overallProgressBar.setString(&quot;&quot;);
+         this.overallProgressBar.setValue(0);
+-        parent.buildConstraints(gbConstraints, 0, row++, 2, 1, 1.0, 0.0);
++        gbConstraints = getNextYGridBagConstraints();
+         gbConstraints.anchor = GridBagConstraints.NORTH;
+         gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+-        layout.addLayoutComponent(this.overallProgressBar, gbConstraints);
+-        add(this.overallProgressBar);
++        add(this.overallProgressBar, gbConstraints);
++        completeGridBagLayout();
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java	2006-07-03 07:55:46 UTC (rev 1469)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java	2006-07-03 09:30:41 UTC (rev 1470)
+@@ -19,11 +19,13 @@
+ 
+ package com.izforge.izpack.panels;
+ 
++import java.awt.BorderLayout;
+ import java.awt.GridBagConstraints;
+ import java.awt.GridBagLayout;
+ import java.awt.Insets;
+ import java.io.File;
+ 
++import javax.swing.BorderFactory;
+ import javax.swing.Box;
+ import javax.swing.BoxLayout;
+ import javax.swing.JLabel;
+@@ -66,20 +68,25 @@
+ 
+         vs = new VariableSubstitutor(idata.getVariables());
+ 
+-        // The 'super' layout
+-        GridBagLayout superLayout = new GridBagLayout();
+-        setLayout(superLayout);
+-        GridBagConstraints gbConstraints = new GridBagConstraints();
++        // Changed to layout handling of IzPanel to support different anchors.
++        // (Klaus Bartz, 2006.06.30)
++        GridBagConstraints gbConstraints = getNextYGridBagConstraints();
++
+         gbConstraints.insets = new Insets(0, 0, 0, 0);
+         gbConstraints.fill = GridBagConstraints.NONE;
+-        gbConstraints.anchor = GridBagConstraints.CENTER;
+-
++        if (getAnchor() == GridBagConstraints.NONE || getAnchor() == GridBagConstraints.CENTER)
++            gbConstraints.anchor = GridBagConstraints.CENTER;
++        else
++        {
++            gbConstraints.weightx = 1.0;
++            gbConstraints.anchor = getAnchor();
++        }
+         // We initialize our 'real' layout
+         centerPanel = new JPanel();
+         BoxLayout layout = new BoxLayout(centerPanel, BoxLayout.Y_AXIS);
+         centerPanel.setLayout(layout);
+-        superLayout.addLayoutComponent(centerPanel, gbConstraints);
+-        add(centerPanel);
++        add(centerPanel, gbConstraints);
++        completeGridBagLayout();
+     }
+ 
+     /**
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000215.html">[izpack-changes] r1469 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000217.html">[izpack-changes] r1471 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

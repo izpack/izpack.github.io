@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] patch: use intance number to customize strings
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20patch%3A%20use%20intance%20number%20to%20customize%20strings&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000596.html">
+   <LINK REL="Next"  HREF="000588.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] patch: use intance number to customize strings</H1>
+    <B>Stefan Wachter</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20patch%3A%20use%20intance%20number%20to%20customize%20strings&In-Reply-To="
+       TITLE="[izpack-devel] patch: use intance number to customize strings">stefan.wachter at gmx.de
+       </A><BR>
+    <I>Thu Nov 16 14:52:40 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000596.html">[izpack-devel] patch for accessing packs in the setup directory in case of a web installer
+</A></li>
+        <LI>Next message: <A HREF="000588.html">[izpack-devel] window title stripped after first character under	Windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#587">[ date ]</a>
+              <a href="thread.html#587">[ thread ]</a>
+              <a href="subject.html#587">[ subject ]</a>
+              <a href="author.html#587">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+
+I have several UserInputPanels that should have different headlines. I looked into the code and 
+recognized that only a single headline can be configured that is used for all UserInputPanels. 
+Therefore I patched the getI18nStringForClass(String subkey) method in the IzPanel class to consider 
+instance numbers and added the method getInstanceNumber() with a default implementation that returns -1:
+
+// start code
+
+public String getI18nStringForClass(String subkey)
+{
+     String retval = null;
+     Class clazz = this.getClass();
+     while (retval == null &amp;&amp; !clazz.getName().endsWith(&quot;.IzPanel&quot;))
+     {
+         int instanceNumber = getInstanceNumber();
+         if (instanceNumber != -1) {
+             retval = getI18nStringForClass(clazz.getName(), subkey + &quot;.&quot; + instanceNumber, null);
+             if (retval != null) return retval;
+         }
+         retval = getI18nStringForClass(clazz.getName(), subkey, null);
+         clazz = clazz.getSuperclass();
+     }
+     return (retval);
+}
+
+protected int getInstanceNumber() { return -1; }
+
+// end code
+
+In order to make use of this new flexibility, I overloaded the getInstanceNumber() method in the 
+UserInputPanel class returning the instance number of the UserInputPanel:
+
+// start code
+
+protected int getInstanceNumber() { return instanceNumber; }
+
+// end code
+
+Now different headlines can be configured for the various UserInputPanels. For example:
+
+&lt;langpack&gt;
+   &lt;str id=&quot;UserInputPanel.headline.0&quot; txt=&quot;Rechnername und Port&quot;/&gt;
+   &lt;str id=&quot;UserInputPanel.headline.1&quot; txt=&quot;Shortcuts&quot;/&gt;
+   &lt;str id=&quot;UserInputPanel.headline.2&quot; txt=&quot;PolFHa-Server starten&quot;/&gt;
+&lt;/langpack&gt;
+
+Is this code of public interest? Will someone integrate it into IzPack?
+
+Cheers,
+--Stefan
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000596.html">[izpack-devel] patch for accessing packs in the setup directory in case of a web installer
+</A></li>
+	<LI>Next message: <A HREF="000588.html">[izpack-devel] window title stripped after first character under	Windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#587">[ date ]</a>
+              <a href="thread.html#587">[ thread ]</a>
+              <a href="subject.html#587">[ subject ]</a>
+              <a href="author.html#587">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

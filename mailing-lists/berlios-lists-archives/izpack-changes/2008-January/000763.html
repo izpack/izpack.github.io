@@ -1,0 +1,418 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2017 - izpack-src/trunk/src/doc-reST
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2017%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000762.html">
+   <LINK REL="Next"  HREF="000764.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2017 - izpack-src/trunk/src/doc-reST</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2017%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To="
+       TITLE="[izpack-changes] r2017 - izpack-src/trunk/src/doc-reST">noreply at berlios.de
+       </A><BR>
+    <I>Fri Jan 25 23:14:26 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000762.html">[izpack-changes] r2016 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000764.html">[izpack-changes] r2018 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#763">[ date ]</a>
+              <a href="thread.html#763">[ thread ]</a>
+              <a href="subject.html#763">[ subject ]</a>
+              <a href="author.html#763">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-25 23:14:22 +0100 (Fri, 25 Jan 2008)
+New Revision: 2017
+
+Added:
+   izpack-src/trunk/src/doc-reST/sample-install-definition.txt
+   izpack-src/trunk/src/doc-reST/sample-userInputSpec.txt
+Log:
+New files
+
+Added: izpack-src/trunk/src/doc-reST/sample-install-definition.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/sample-install-definition.txt	2008-01-25 22:12:59 UTC (rev 2016)
++++ izpack-src/trunk/src/doc-reST/sample-install-definition.txt	2008-01-25 22:14:22 UTC (rev 2017)
+@@ -0,0 +1,162 @@
++Sample Install Definition
++================================
++
++.. include:: include-top.inc
++
++This shows an example of how to use many of the features and advanced features 
++discussed in many of the other sections of this documentation.  Look in the 
++sample directory for a more basic example and all the necessary files and 
++instructions to build your first IzPack installer.
++
++Normally, a build process will call IzPack from Ant using something like the following:
++
++::
++
++	  &lt;!-- Allows us to use the IzPack Ant task, standalone-compiler.jar added to Ant lib --&gt;
++	  &lt;taskdef name=&quot;izpack&quot; classpath=&quot;${install.lib}/standalone-compiler.jar&quot; 
++	      classname=&quot;com.izforge.izpack.ant.IzPackTask&quot;/&gt;
++
++::
++
++    &lt;!-- Run installer build --&gt;
++    &lt;echo message=&quot;Running IzPack to build the installer...&quot;/&gt;  
++    &lt;izpack input=&quot;install-definition.xml&quot;
++            output=&quot;${output.dir}/${product.short.name}-${product.version}-install.jar&quot;
++            installerType=&quot;standard&quot;
++            inheritAll=&quot;true&quot;
++            basedir=&quot;${temp.dir}&quot;
++            compression=&quot;deflate&quot;
++            compressionlevel=&quot;9&quot;/&gt;
++    &lt;!-- Clean working directory --&gt;
++    &lt;echo message=&quot;Cleaning up working directory...&quot;/&gt;  
++    &lt;delete dir=&quot;${temp.dir}&quot; quiet=&quot;true&quot; includeemptydirs=&quot;true&quot;/&gt;
++    &lt;echo message=&quot;Done.&quot;/&gt;  
++
++
++**install-definition.xml**
++
++::
++
++		&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
++		
++		&lt;installation version=&quot;1.0&quot;&gt;
++		  &lt;!-- Ant properties in this file can be referenced with @{}, 
++		       otherwise use variables below in installer files with ${} --&gt;
++		  &lt;info&gt;
++		    &lt;appname&gt;@{product.name}&lt;/appname&gt;
++		    &lt;appversion&gt;@{product.version}&lt;/appversion&gt;
++		    &lt;uninstaller name=&quot;remove.task&quot; write=&quot;yes&quot;/&gt;
++		  &lt;/info&gt;
++		  
++		  &lt;guiprefs width=&quot;600&quot; height=&quot;480&quot; resizable=&quot;no&quot;&gt;
++		    &lt;laf name=&quot;kunststoff&quot;&gt;
++		      &lt;os family=&quot;unix&quot; /&gt;
++		    &lt;/laf&gt;
++		    &lt;modifier key=&quot;useHeadingPanel&quot; value=&quot;yes&quot;/&gt;
++		    &lt;modifier key=&quot;useHeadingForSummary&quot; value=&quot;yes&quot;/&gt;
++		    &lt;modifier key=&quot;headingLineCount&quot; value=&quot;2&quot;/&gt;
++		    &lt;modifier key=&quot;headingFontSize&quot; value=&quot;1.5&quot;/&gt;
++		    &lt;modifier key=&quot;headingBackgroundColor&quot; value=&quot;0x00ffffff&quot;/&gt;
++		    &lt;modifier key=&quot;headingPanelCounter&quot; value=&quot;text&quot;/&gt;
++		    &lt;modifier key=&quot;headingPanelCounterPos&quot; value=&quot;inHeading&quot;/&gt;
++		  &lt;/guiprefs&gt;
++		  
++		  &lt;locale&gt;
++		    &lt;langpack iso3=&quot;eng&quot;/&gt;
++		  &lt;/locale&gt;
++		  
++		  &lt;!-- Need to define ant properties we want to use during install as variables --&gt;
++		  &lt;variables&gt;
++		    &lt;variable name=&quot;app.name&quot; value=&quot;@{app.name}&quot;/&gt;
++		    &lt;variable name=&quot;UserPathPanelVariable&quot; value=&quot;@{default.dest.dir.sql}&quot;/&gt;
++		    &lt;variable name=&quot;UserPathPanelDependsName&quot; value=&quot;Install Database Server&quot;/&gt;
++		    &lt;variable name=&quot;jboss.version&quot; value=&quot;@{jboss.version}&quot;/&gt;
++		    &lt;variable name=&quot;install.jboss.service&quot; value=&quot;true&quot;/&gt;
++		  &lt;/variables&gt;
++		  
++		  &lt;resources&gt;
++		    &lt;res id=&quot;box-out-32.png&quot; src=&quot;@{install.res}/box-out-32.png&quot;/&gt;
++		    &lt;res id=&quot;customicons.xml&quot; src=&quot;@{install.res}/custom.icons.xml&quot;/&gt;
++		    &lt;res id=&quot;CustomLangpack.xml_eng&quot; src=&quot;@{install.res}/custom.eng.xml&quot;/&gt;
++		    &lt;res id=&quot;HTMLInfoPanel.info&quot; src=&quot;@{install.res}/license-notice.html&quot;/&gt;
++		    &lt;res id=&quot;Heading.image&quot; src=&quot;@{install.res}/heading-image.png&quot;/&gt;
++		    &lt;res id=&quot;Installer.image&quot; src=&quot;@{install.res}/side-image.png&quot; /&gt;
++		    &lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;@{build.dir}/processing-tasks.xml&quot;/&gt;
++		    &lt;res id=&quot;userInputSpec.xml&quot; src=&quot;@{build.dir}/userInputSpec.xml&quot; /&gt;
++		    &lt;res id=&quot;uninstaller.warning&quot; src=&quot;@{install.res}/uninstall-warn.txt&quot;/&gt;
++		    &lt;!-- default-dir.txt is written by the calling build.xml --&gt;
++		    &lt;res id=&quot;TargetPanel.dir&quot; src=&quot;@{install.res}/default-dir.txt&quot;/&gt;
++		  &lt;/resources&gt;
++		  
++		  &lt;panels&gt;
++		    &lt;panel classname=&quot;HelloPanel&quot;/&gt;
++		    &lt;panel classname=&quot;HTMLInfoPanel&quot;/&gt;
++		    &lt;panel classname=&quot;TargetPanel&quot;/&gt; 
++		    &lt;panel classname=&quot;InstallationGroupPanel&quot;/&gt;
++		    &lt;panel classname=&quot;PacksPanel&quot;/&gt;
++		    &lt;panel classname=&quot;UserInputPanel&quot; id=&quot;UserInputPanel.0&quot;/&gt;
++		    &lt;panel classname=&quot;UserInputPanel&quot; id=&quot;UserInputPanel.1&quot;/&gt;
++		    &lt;panel classname=&quot;UserInputPanel&quot; id=&quot;UserInputPanel.2&quot;/&gt;
++		    &lt;panel classname=&quot;UserPathPanel&quot;/&gt;
++		    &lt;panel classname=&quot;SummaryPanel&quot;/&gt;
++		    &lt;panel classname=&quot;InstallPanel&quot;/&gt;
++		    &lt;panel classname=&quot;ProcessPanel&quot;/&gt;
++		    &lt;panel classname=&quot;SimpleFinishPanel&quot;/&gt;
++		  &lt;/panels&gt;
++		  
++		  &lt;listeners&gt;
++		      &lt;listener installer=&quot;SummaryLoggerInstallerListener&quot;&gt;
++		          &lt;os family=&quot;windows&quot;/&gt;
++		      &lt;/listener&gt;
++		  &lt;/listeners&gt;  
++		  
++		  &lt;packs&gt;
++		    &lt;pack name=&quot;Main Application&quot; required=&quot;yes&quot; installGroups=&quot;New Application&quot; &gt;
++		      &lt;description&gt;The first application deployed in a new JBoss application server.&lt;/description&gt;
++		      &lt;file src=&quot;@{jboss.version}&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		    &lt;/pack&gt;
++		    &lt;pack name=&quot;Install Database Server&quot; required=&quot;no&quot; preselected=&quot;yes&quot; os=&quot;windows&quot; installGroups=&quot;New Application&quot;&gt;
++		      &lt;description&gt;New server installation of the selected database as required by the application.&lt;/description&gt;
++		      &lt;file src=&quot;postgresql&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		      &lt;file src=&quot;sql&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		      &lt;executable
++		        targetfile=&quot;$INSTALL_PATH/postgresql/postgres_install_windows.bat&quot;
++		        stage=&quot;postinstall&quot;
++		        keep=&quot;true&quot;
++		      &gt;
++		        &lt;args&gt;
++		          &lt;arg value=&quot;${UserPathPanelVariable}&quot;/&gt;
++		          &lt;arg value=&quot;$HOST_NAME&quot;/&gt;
++		          &lt;arg value=&quot;${db.service.name}&quot;/&gt;
++		          &lt;arg value=&quot;${db.service.password}&quot;/&gt;
++		          &lt;arg value=&quot;${db.su.password}&quot;/&gt;
++		        &lt;/args&gt;  
++		      &lt;/executable&gt;
++		    &lt;/pack&gt;
++		    &lt;pack name=&quot;JBoss Source Code&quot; required=&quot;no&quot; preselected=&quot;no&quot; installGroups=&quot;New Application&quot;&gt;
++		      &lt;description&gt;The JBoss application server source is available as required by the LGPL.&lt;/description&gt;
++		      &lt;file src=&quot;src&quot; targetdir=&quot;$INSTALL_PATH/@{jboss.version}&quot; /&gt;
++		    &lt;/pack&gt;
++		    &lt;pack name=&quot;Update Application&quot; required=&quot;yes&quot; installGroups=&quot;Update Existing Application&quot;&gt;
++		      &lt;description&gt;The required application files to update an existing installation.&lt;/description&gt;
++		      &lt;file src=&quot;update&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		    &lt;/pack&gt;
++		    &lt;pack name=&quot;Post-Install Tasks&quot; required=&quot;yes&quot;&gt;
++		      &lt;description&gt;Configuration and cleanup required for the installation.&lt;/description&gt;
++		      &lt;file src=&quot;ant&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		      &lt;file src=&quot;post-install-tasks.bat&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		      &lt;file src=&quot;build.xml&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		      &lt;file src=&quot;Uninstall_PostgreSQL_and_Application.bat&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		      &lt;file src=&quot;Uninstall_Application_Only.bat&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
++		      &lt;parsable targetfile=&quot;$INSTALL_PATH/post-install-tasks.bat&quot;/&gt;
++		      &lt;parsable targetfile=&quot;$INSTALL_PATH/build.xml&quot;/&gt;
++		      &lt;parsable targetfile=&quot;$INSTALL_PATH/@{jboss.version}/bin/system.properties&quot;/&gt;
++		      &lt;parsable targetfile=&quot;$INSTALL_PATH/Uninstall_PostgreSQL_and_Application.bat&quot;/&gt;
++		      &lt;parsable targetfile=&quot;$INSTALL_PATH/Uninstall_Application_Only.bat&quot;/&gt;
++		    &lt;/pack&gt;
++		  &lt;/packs&gt;
++		  
++		  &lt;!-- The native libraries to add. This is required for creating shortcuts on Windows --&gt;
++		  &lt;native type=&quot;izpack&quot; name=&quot;ShellLink.dll&quot;/&gt;
++		  
++		&lt;/installation&gt;
+
+Added: izpack-src/trunk/src/doc-reST/sample-userInputSpec.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/sample-userInputSpec.txt	2008-01-25 22:12:59 UTC (rev 2016)
++++ izpack-src/trunk/src/doc-reST/sample-userInputSpec.txt	2008-01-25 22:14:22 UTC (rev 2017)
+@@ -0,0 +1,178 @@
++Sample userInputSpec.xml
++=============================
++
++.. include:: include-top.inc
++
++Here's an example 3 panel userInputSpec.xml file. You specify the use of this XML document inside your install definition in the resource section like this (assuming your ant build.xml uses a property called build.dir):
++
++::
++
++	&lt;resources&gt;
++	  &lt;res id=&quot;userInputSpec.xml&quot; src=&quot;@{build.dir}/userInputSpec.xml&quot; /&gt;
++	&lt;/resources&gt;
++
++
++**userInputSpec.xml**
++
++::
++		
++		&lt;userInput&gt;
++		  &lt;!-- Install --&gt;
++		    &lt;panel order=&quot;0&quot;&gt;
++		        &lt;createForPack name=&quot;Main Application&quot; /&gt;
++		        &lt;field type=&quot;title&quot; txt=&quot;Import Keystores&quot; bold=&quot;true&quot; size=&quot;1&quot; /&gt;
++		        &lt;field type=&quot;divider&quot; align=&quot;top&quot;/&gt;
++		        &lt;!-- Keystore --&gt;
++		        &lt;field type=&quot;staticText&quot; align=&quot;left&quot; txt=&quot;Existing SSL keystore to import:&quot;/&gt;
++		        &lt;field type=&quot;file&quot; align=&quot;left&quot; variable=&quot;existing.ssl.keystore&quot;&gt;
++		          &lt;spec txt=&quot;&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;!-- Truststore --&gt;
++		        &lt;field type=&quot;staticText&quot; align=&quot;left&quot; txt=&quot;Existing SSL truststore to import:&quot;/&gt;
++		        &lt;field type=&quot;file&quot; align=&quot;left&quot; variable=&quot;existing.ssl.truststore&quot;&gt;
++		          &lt;spec txt=&quot;&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;!-- Signing Keystore --&gt;
++		        &lt;field type=&quot;staticText&quot; align=&quot;left&quot; txt=&quot;Existing signing keystore to import:&quot;/&gt;
++		        &lt;field type=&quot;file&quot; align=&quot;left&quot; variable=&quot;existing.signing.keystore&quot;&gt;
++		          &lt;spec txt=&quot;&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;field type=&quot;divider&quot; align=&quot;bottom&quot;/&gt;
++		    &lt;/panel&gt; 
++		    &lt;panel order=&quot;1&quot;&gt;
++		      &lt;!-- Validate access to keystores with information from last panel --&gt;
++		        &lt;createForPack name=&quot;Main Application&quot; /&gt;
++		        &lt;field type=&quot;title&quot; txt=&quot;SSL Keystore Settings&quot; bold=&quot;true&quot; size=&quot;1&quot; /&gt;
++		        &lt;field type=&quot;divider&quot; align=&quot;bottom&quot;/&gt;
++		        &lt;!-- Skip validation in case customer has something wrong they want to fix later --&gt;
++		        &lt;field type=&quot;check&quot; align=&quot;left&quot; variable=&quot;skip.keystore.validation&quot;&gt;
++		          &lt;spec txt=&quot; Skip keystore password validation (not recommended)&quot; size=&quot;25&quot; true=&quot;true&quot; false=&quot;false&quot; set=&quot;false&quot;/&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;divider&quot; align=&quot;top&quot;/&gt;
++		        &lt;!-- Keystore --&gt;
++		        &lt;field type=&quot;combo&quot; variable=&quot;existing.ssl.keystore.type&quot;&gt;
++		          &lt;spec txt=&quot;Keystore type:&quot; id=&quot;existing.ssl.keystore.type&quot;&gt;
++		            &lt;choice txt=&quot;JKS&quot; value=&quot;JKS&quot; set=&quot;true&quot;/&gt;
++		            &lt;!--
++		            &lt;choice txt=&quot;PKCS12&quot; value=&quot;PKCS12&quot;/&gt;
++		            --&gt;
++		          &lt;/spec&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;field type=&quot;text&quot; align=&quot;left&quot; variable=&quot;keystore.key.alias&quot;&gt;
++		            &lt;spec txt=&quot;Keystore Key Alias:&quot; size=&quot;25&quot; set=&quot;alias-1&quot;/&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;keystore.password&quot;&gt;
++		          &lt;spec&gt;
++		            &lt;pwd txt=&quot;Keystore Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		          &lt;/spec&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordEqualityValidator&quot; txt=&quot;Both keystore passwords must match.&quot; id=&quot;key for the error text&quot;/&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordKeystoreValidator&quot; txt=&quot;Could not validate keystore with password and alias provided.&quot; id=&quot;key for the error text&quot;&gt;
++		            &lt;param name=&quot;keystoreFile&quot; value=&quot;${existing.ssl.keystore}&quot;/&gt;
++		            &lt;param name=&quot;keystoreType&quot; value=&quot;${existing.ssl.keystore.type}&quot;/&gt;
++		            &lt;param name=&quot;keystoreAlias&quot; value=&quot;${keystore.key.alias}&quot;/&gt;
++		            &lt;param name=&quot;skipValidation&quot; value=&quot;${skip.keystore.validation}&quot;/&gt;
++		          &lt;/validator&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;!-- Truststore --&gt;
++		        &lt;field type=&quot;combo&quot; variable=&quot;existing.ssl.truststore.type&quot;&gt;
++		          &lt;spec txt=&quot;Truststore type:&quot; id=&quot;existing.ssl.truststore.type&quot;&gt;
++		            &lt;choice txt=&quot;JKS&quot; value=&quot;JKS&quot; set=&quot;true&quot;/&gt;
++		            &lt;!--
++		            &lt;choice txt=&quot;PKCS12&quot; value=&quot;PKCS12&quot;/&gt;
++		            --&gt;
++		          &lt;/spec&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;truststore.password&quot;&gt;
++		          &lt;spec&gt;
++		            &lt;pwd txt=&quot;Truststore Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;25&quot; set=&quot;&quot;/&gt;
++		          &lt;/spec&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordEqualityValidator&quot; txt=&quot;Both truststore passwords must match.&quot; id=&quot;key for the error text&quot;/&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordKeystoreValidator&quot; txt=&quot;Could not validate keystore with password and alias provided.&quot; id=&quot;key for the error text&quot;&gt;
++		            &lt;param name=&quot;keystoreFile&quot; value=&quot;${existing.ssl.truststore}&quot;/&gt;
++		            &lt;param name=&quot;keystoreType&quot; value=&quot;${existing.ssl.truststore.type}&quot;/&gt;
++		            &lt;param name=&quot;skipValidation&quot; value=&quot;${skip.keystore.validation}&quot;/&gt;
++		          &lt;/validator&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;divider&quot; align=&quot;bottom&quot;/&gt;
++		    &lt;/panel&gt; 
++		    &lt;panel order=&quot;2&quot;&gt;
++		      &lt;!-- Validate access to signing keystore with information from last panel --&gt;
++		        &lt;createForPack name=&quot;Main Application&quot; /&gt;
++		        &lt;field type=&quot;title&quot; txt=&quot;Signing Keystore Settings&quot; bold=&quot;true&quot; size=&quot;1&quot; /&gt;
++		        &lt;field type=&quot;divider&quot; align=&quot;bottom&quot;/&gt;
++		        &lt;!-- Skip validation in case customer has something wrong they want to fix later --&gt;
++		        &lt;field type=&quot;check&quot; align=&quot;left&quot; variable=&quot;skip.keystore.validation&quot;&gt;
++		          &lt;spec txt=&quot; Skip keystore password validation (not recommended)&quot; size=&quot;20&quot; true=&quot;true&quot; false=&quot;false&quot; set=&quot;false&quot;/&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;divider&quot; align=&quot;top&quot;/&gt;
++		        &lt;!-- Keystore --&gt;
++		        &lt;field type=&quot;combo&quot; variable=&quot;existing.signing.keystore.type&quot;&gt;
++		          &lt;spec txt=&quot;Keystore type:&quot; id=&quot;existing.signing.keystore.type&quot;&gt;
++		            &lt;choice txt=&quot;JKS&quot; value=&quot;JKS&quot; set=&quot;true&quot;/&gt;
++		            &lt;!--
++		            &lt;choice txt=&quot;PKCS12&quot; value=&quot;PKCS12&quot;/&gt;
++		            --&gt;
++		          &lt;/spec&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;signing.keystore.password&quot;&gt;
++		          &lt;spec&gt;
++		            &lt;pwd txt=&quot;Keystore Password:&quot; size=&quot;20&quot; set=&quot;&quot;/&gt;
++		            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;20&quot; set=&quot;&quot;/&gt;
++		          &lt;/spec&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordEqualityValidator&quot; txt=&quot;Both signing keystore passwords must match.&quot; id=&quot;key for the error text&quot;/&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordKeystoreValidator&quot; txt=&quot;Could not access keystore with password provided.&quot; id=&quot;key for the error text&quot;&gt;
++		            &lt;param name=&quot;keystoreFile&quot; value=&quot;${existing.signing.keystore}&quot;/&gt;
++		            &lt;param name=&quot;keystoreType&quot; value=&quot;${existing.signing.keystore.type}&quot;/&gt;
++		            &lt;param name=&quot;skipValidation&quot; value=&quot;${skip.keystore.validation}&quot;/&gt;
++		          &lt;/validator&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;!-- Signing Key 1 --&gt;
++		        &lt;field type=&quot;text&quot; align=&quot;left&quot; variable=&quot;first.signing.keystore.key.alias&quot;&gt;
++		            &lt;spec txt=&quot;First Signing Alias:&quot; size=&quot;20&quot; set=&quot;alias-1&quot;/&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;first.signing.password&quot;&gt;
++		          &lt;spec&gt;
++		            &lt;pwd txt=&quot;First Signing Password:&quot; size=&quot;20&quot; set=&quot;&quot;/&gt;
++		            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;20&quot; set=&quot;&quot;/&gt;
++		          &lt;/spec&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordEqualityValidator&quot; txt=&quot;Both first signing key passwords must match.&quot; id=&quot;key for the error text&quot;/&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordKeystoreValidator&quot; txt=&quot;Could not validate keystore with password and first signing alias provided.&quot; id=&quot;key for the error text&quot;&gt;
++		            &lt;param name=&quot;keystoreFile&quot; value=&quot;${existing.signing.keystore}&quot;/&gt;
++		            &lt;param name=&quot;keystoreType&quot; value=&quot;${existing.signing.keystore.type}&quot;/&gt;
++		            &lt;param name=&quot;keystorePassword&quot; value=&quot;${signing.keystore.password}&quot;/&gt;
++		            &lt;param name=&quot;keystoreAlias&quot; value=&quot;${first.signing.keystore.key.alias}&quot;/&gt;
++		            &lt;param name=&quot;skipValidation&quot; value=&quot;${skip.keystore.validation}&quot;/&gt;
++		          &lt;/validator&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;space&quot;/&gt;
++		        &lt;!-- Signing Key 2 --&gt;
++		        &lt;field type=&quot;text&quot; align=&quot;left&quot; variable=&quot;second.signing.keystore.key.alias&quot;&gt;
++		            &lt;spec txt=&quot;Second Signing Alias:&quot; size=&quot;20&quot; set=&quot;crate-cmd-alias&quot;/&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;password&quot; align=&quot;left&quot; variable=&quot;second.signing.password&quot;&gt;
++		          &lt;spec&gt;
++		            &lt;pwd txt=&quot;Second Signing Password:&quot; size=&quot;20&quot; set=&quot;&quot;/&gt;
++		            &lt;pwd txt=&quot;Retype Password:&quot; size=&quot;20&quot; set=&quot;&quot;/&gt;
++		          &lt;/spec&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordEqualityValidator&quot; txt=&quot;Both second signing key passwords must match.&quot; id=&quot;key for the error text&quot;/&gt;
++		          &lt;validator class=&quot;com.izforge.izpack.util.PasswordKeystoreValidator&quot; txt=&quot;Could not validate keystore with password and second signing alias provided.&quot; id=&quot;key for the error text&quot;&gt;
++		            &lt;param name=&quot;keystoreFile&quot; value=&quot;${existing.signing.keystore}&quot;/&gt;
++		            &lt;param name=&quot;keystoreType&quot; value=&quot;${existing.signing.keystore.type}&quot;/&gt;
++		            &lt;param name=&quot;keystorePassword&quot; value=&quot;${signing.keystore.password}&quot;/&gt;
++		            &lt;param name=&quot;keystoreAlias&quot; value=&quot;${second.signing.keystore.key.alias}&quot;/&gt;
++		            &lt;param name=&quot;skipValidation&quot; value=&quot;${skip.keystore.validation}&quot;/&gt;
++		          &lt;/validator&gt;
++		        &lt;/field&gt;
++		        &lt;field type=&quot;divider&quot; align=&quot;bottom&quot;/&gt;
++		    &lt;/panel&gt; 
++		&lt;/userInput&gt;
+\ No newline at end of file
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000762.html">[izpack-changes] r2016 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000764.html">[izpack-changes] r2018 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#763">[ date ]</a>
+              <a href="thread.html#763">[ thread ]</a>
+              <a href="subject.html#763">[ subject ]</a>
+              <a href="author.html#763">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

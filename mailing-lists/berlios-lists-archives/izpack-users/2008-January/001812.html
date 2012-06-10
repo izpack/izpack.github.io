@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Feature Request - Scripting Languages for custom	actions
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Feature%20Request%20-%20Scripting%20Languages%20for%20custom%0A%09actions&In-Reply-To=bf0ac9ac0801041229h2dbe24fci59cc98eabfc4b75c%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001807.html">
+   <LINK REL="Next"  HREF="001814.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Feature Request - Scripting Languages for custom	actions</H1>
+    <B>Matthew Inger</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Feature%20Request%20-%20Scripting%20Languages%20for%20custom%0A%09actions&In-Reply-To=bf0ac9ac0801041229h2dbe24fci59cc98eabfc4b75c%40mail.gmail.com"
+       TITLE="[izpack-users] Feature Request - Scripting Languages for custom	actions">mattinger at gmail.com
+       </A><BR>
+    <I>Mon Jan  7 21:25:47 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001807.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+        <LI>Next message: <A HREF="001814.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1812">[ date ]</a>
+              <a href="thread.html#1812">[ thread ]</a>
+              <a href="subject.html#1812">[ subject ]</a>
+              <a href="author.html#1812">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I do actually have a version, where I can define all of the installer
+listener methods in a groovy script
+(i've tested it when it's embedded in the BSFActionsSpec.xml file, but
+haven't tested it yet externally).
+It requires changes to the build file, and inclusion of the BSF,
+commons-logging (required by bsf), and
+groovy-all jar files.
+
+The changes to the build file are not limited strictly to just adding the
+macro calls to build the installer and
+uninstaller listener jars.  The uninstaller listener macro needs to have the
+ability to have the classpath given to it
+as well (which only the installer listener macro has right now).
+
+I've create a .tar.gz file which has the appropriate jar files, new
+build.xml and source files.  This can be
+extracted into the root of the IzPack source tree, and then you can build as
+normal.
+
+I did not include the groovy-all.jar file, as it's not necessary for compile
+and packaging.  It's only a runtime
+requirement if you want to use groovy as your scripting language.
+
+Please let me know what you think.
+
+installer.xml snippet:
+----------------------------------
+&lt;jar src=&quot;bsf.jar&quot; /&gt;
+&lt;jar src=&quot;commons-logging-1.1.jar&quot; /&gt;
+&lt;jar src=&quot;groovy-all.jar&quot; /&gt;
+
+&lt;listener installer=&quot;BSFInstallerListener&quot;
+uninstaller=&quot;BSFUninstallerListener&quot; /&gt;
+
+&lt;resources&gt;
+   &lt;res id=&quot;BSFActionsSpec.xml&quot; src=&quot;BSFActionsSpec.xml&quot; /&gt;
+&lt;/resources&gt;
+
+BSFActionsSpec.xml
+------------------------------------
+&lt;bsfactions&gt;
+  &lt;pack name=&quot;pack1&quot;&gt;
+    &lt;script language=&quot;groovy&quot;&gt;&lt;![CDATA[
+      beforePacks = {
+        print &quot;beforePacks(&quot; + idata + &quot;,&quot; + npacks + &quot;,&quot; + handler + &quot;)&quot;;
+        print &quot;\n&quot;;
+      }
+      afterPacks = {
+        print &quot;afterPacks(&quot; + idata + &quot;,&quot; + handler + &quot;)&quot;;
+        print &quot;\n&quot;;
+      }
+      beforePack = {
+        print &quot;beforePack(&quot; + pack + &quot;,&quot; + i + &quot;,&quot; + handler + &quot;)&quot;;
+        print &quot;\n&quot;;
+      }
+      afterPack = {
+        print &quot;afterPack(&quot; + pack + &quot;,&quot; + i + &quot;,&quot; + handler + &quot;)&quot;;
+        print &quot;\n&quot;;
+      }
+      beforeDir = {
+        print &quot;beforeDir(&quot; + file + &quot;,&quot; + pack + &quot;)&quot;;
+        print &quot;\n&quot;;
+      }
+      afterDir = {
+        print &quot;afterDir(&quot; + file + &quot;,&quot; + pack + &quot;)&quot;;
+        print &quot;\n&quot;;
+      }
+      beforeFile = {
+        print &quot;beforeFile(&quot; + file + &quot;,&quot; + pack + &quot;)&quot;;
+        print &quot;\n&quot;;
+      }
+      afterFile = {
+        print &quot;afterFile(&quot; + file + &quot;,&quot; + pack + &quot;)&quot;;
+        print &quot;\n&quot;;
+      }
+    ]]&gt;&lt;/script&gt;
+  &lt;/pack&gt;
+&lt;/bsfactions&gt;
+
+
+On Jan 4, 2008 3:29 PM, Matthew Inger &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">mattinger at gmail.com</A>&gt; wrote:
+
+&gt;<i> I don't really need &quot;tight&quot; integration.  I just need to declare anonymous
+</I>&gt;<i> functions and assign them
+</I>&gt;<i> to variable references.  There will be no function parameters per-se.
+</I>&gt;<i> Rather, there will be well defined
+</I>&gt;<i> variable names which will contain the parameters.
+</I>&gt;<i>
+</I>&gt;<i> For instance, for the &quot;beforeFile&quot; and &quot;afterFile&quot; methods, the variables
+</I>&gt;<i> &quot;file&quot; and &quot;pack&quot; would be defined,
+</I>&gt;<i> and the function would refer to those variables (as opposed to the java
+</I>&gt;<i> approach of passing them as function
+</I>&gt;<i> parameters).
+</I>&gt;<i>
+</I>&gt;<i> The groovy specific implementation I had been working on actually passed
+</I>&gt;<i> things as parameters.  But this was
+</I>&gt;<i> possible because I could compile the script to a java class, instantiate
+</I>&gt;<i> it, and invoke methods on it.  BSF does not
+</I>&gt;<i> have that capability (as the groovy api, or the jsr 223 interfaces do)
+</I>&gt;<i> that I can tell.
+</I>&gt;<i>
+</I>&gt;<i> Does anyone see any downside to doing it with anonymous functions as I
+</I>&gt;<i> have suggested above?
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> On Jan 4, 2008 2:51 PM, Julien Ponge &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">julien.ponge at gmail.com</A>&gt; wrote:
+</I>&gt;<i>
+</I>&gt;<i> &gt; I've played with BSF before and that's a good bet if you want to plug
+</I>&gt;<i> &gt; any scripting language. The downside is that sometimes you'd better
+</I>&gt;<i> &gt; turn to the API of your scripting language if you need tighter
+</I>&gt;<i> &gt; integration with it.
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-users mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20080107/2900a723/attachment-0001.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20080107/2900a723/attachment-0001.html</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: bsf-integration.tar.gz
+Type: application/x-gzip
+Size: 165667 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20080107/2900a723/attachment-0001.gz">https://lists.berlios.de/pipermail/izpack-users/attachments/20080107/2900a723/attachment-0001.gz</A> 
+</PRE>
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001807.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+	<LI>Next message: <A HREF="001814.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1812">[ date ]</a>
+              <a href="thread.html#1812">[ thread ]</a>
+              <a href="subject.html#1812">[ subject ]</a>
+              <a href="author.html#1812">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

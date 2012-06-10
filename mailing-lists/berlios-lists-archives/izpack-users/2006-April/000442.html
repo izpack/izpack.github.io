@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] A small contribution
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20A%20small%20contribution&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000441.html">
+   <LINK REL="Next"  HREF="000445.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] A small contribution</H1>
+    <B>Rich Stephens</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20A%20small%20contribution&In-Reply-To="
+       TITLE="[izpack-users] A small contribution">rstephens at pathfire.com
+       </A><BR>
+    <I>Thu Apr  6 17:18:33 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000441.html">[izpack-users] test
+</A></li>
+        <LI>Next message: <A HREF="000445.html">[izpack-users] How to or where to set JAVA_HOME on Windows so that JDKPathpanel is skipped?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#442">[ date ]</a>
+              <a href="thread.html#442">[ thread ]</a>
+              <a href="subject.html#442">[ subject ]</a>
+              <a href="author.html#442">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I have a small contribution I would like to make to the izPack project.
+I have never contributed to an open-source project before, so I'm not
+exactly sure how to go about it.  I have added copyDir functions to the
+IoHelper class that will copy an entire directory structure from one
+directory to another, using the current CopyFile function, with the same
+function signature(s).  That is to say, all the features of the CopyFile
+function are available when copying directories (permissions, variable
+substitution, etc).  The source directory named will be copied along
+with all of its contents to the target directory.  The target directory
+will be created if it does not exist.
+
+Thanks,
+Rich Stephens
+Pathfire, Inc.
+<A HREF="http://www.pathfire.com">http://www.pathfire.com</A>
+
+The source for this feature should be added to IoHelper.java, and is
+pasted below:
+
+/**
+     * Copies the contents of inDir into outDir.
+     * 
+     * @param inFile path of directory which should be copied
+     * @param outFile path of directory to create and copy indir and its
+contents into
+     */
+    public static void copyDir(String inDir, String outDir) throws
+IOException
+    {
+        copyDir(new File(inDir), new File(outDir));
+    }
+
+    /**
+     * Creates an in- and output stream for the given File objects (that
+represent directories)
+     * and copies the directory and all its files from the specified
+input to the specified output.
+     * 
+     * @param inDir File object for input
+     * @param outDir File object for output
+     * @exception IOException if an I/O error occurs
+     */
+    public static void copyDir(File inDir, File outDir) throws
+IOException
+    {
+        copyDir(inDir, outDir, null, null);
+    }
+
+    /**
+     * Creates an in- and output stream for the given File objects (that
+represent directories)
+     * and copies the directory and all its files from the specified
+input to the specified output.
+     * If permissions is not null, a chmod will be done on the output
+directory.
+     * 
+     * @param inDir File object for input
+     * @param outDir File object for output
+     * @param permissions permissions for the output file(s) &amp;
+directories.
+     * @exception IOException if an I/O error occurs
+     */
+    public static void copyDir(File inDir, File outDir, String
+permissions) throws IOException
+    {
+        copyDir(inDir, outDir, permissions, null);
+    }
+
+    /**
+     * Recursively a directory and its contents of a directory from the
+specified input
+     * to the specified output. If the VariableSubstitutor is not null,
+a substition will
+     * be done during copy.
+     * 
+     * @param inDir File object for input
+     * @param outDir File object for output
+     * @param vss substitutor which is used during copying
+     * @exception IOException if an I/O error occurs
+     */
+    public static void copyDir(File inDir, File outDir,
+VariableSubstitutor vss)
+            throws IOException
+    {
+        copyDir(inDir, outDir, null, vss);
+    }
+
+    /**
+     * Recursively copy a directory and its contents from the specified
+input to the
+     * specified output. If the VariableSubstitutor is not null, a
+substition
+     * will be done during copy. If permissions is not null, a chmod
+will be done on
+     * the output directory.
+     * 
+     * @param inDir File object for input
+     * @param outDir File object for output
+     * @param permissions permissions for the output file(s) &amp;
+directories.
+     * @param vs substitutor which is used during copying
+     * @exception IOException if an I/O error occurs
+     */
+    public static void copyDir(File inDir, File outDir, String
+permissions,
+            VariableSubstitutor vs) throws IOException
+    {
+        copyDir(inDir, outDir, permissions, vs, null);
+    }
+    
+    /**
+     * Recursively copy contents of a directory using copyFile:
+     * 
+     * @param inDir
+     * @param outDir
+     * @param permissions permissions for the output file
+     * @param vs substitutor which is used during copying
+     * @param type file type for the substitutor
+     */
+    public static void copyDir(File inDir, File outDir, String
+permissions,
+    	VariableSubstitutor vs, String type) throws IOException
+    {
+    	// Make the output directory
+    	outDir.mkdirs();
+    	if (permissions != null &amp;&amp; IoHelper.supported(&quot;chmod&quot;))
+        {
+            chmod(outDir.getAbsolutePath(), permissions);
+        }
+    	
+    	File [] inlist = inDir.listFiles();
+    	for (int i = 0; i &lt; inlist.length; i++)
+    	{
+    		String inPath = inDir.getCanonicalPath();
+    		String filePath = inlist[i].getCanonicalPath();
+    		String relativePath =
+filePath.substring(inPath.length());
+    		File newOutPath = new File(outDir, relativePath);
+	
+    		if (inlist[i].equals(outDir))
+    			continue;
+    		if (inlist[i].isFile())
+    			copyFile(inlist[i], newOutPath, permissions, vs,
+type);
+    		else
+    			copyDir(inlist[i], newOutPath, permissions, vs,
+type);
+    	}
+    }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000441.html">[izpack-users] test
+</A></li>
+	<LI>Next message: <A HREF="000445.html">[izpack-users] How to or where to set JAVA_HOME on Windows so that JDKPathpanel is skipped?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#442">[ date ]</a>
+              <a href="thread.html#442">[ thread ]</a>
+              <a href="subject.html#442">[ subject ]</a>
+              <a href="author.html#442">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

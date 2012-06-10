@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1876 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1876%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000621.html">
+   <LINK REL="Next"  HREF="000623.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1876 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1876%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1876 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Mon Oct  8 00:10:59 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000621.html">[izpack-changes] r1875 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os
+</A></li>
+        <LI>Next message: <A HREF="000623.html">[izpack-changes] r1877 -	izpack-src/trunk/src/lib/com/izforge/izpack/event
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#622">[ date ]</a>
+              <a href="thread.html#622">[ thread ]</a>
+              <a href="subject.html#622">[ subject ]</a>
+              <a href="author.html#622">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-10-08 00:10:56 +0200 (Mon, 08 Oct 2007)
+New Revision: 1876
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java
+Log:
+Update click logic - now selecting a node triggers selection of all dependent nodes and deselection triggers deselection of all depending nodes, so the user doesn't have to track everything.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanelAutomationHelper.java	2007-10-07 22:09:32 UTC (rev 1875)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanelAutomationHelper.java	2007-10-07 22:10:56 UTC (rev 1876)
+@@ -25,6 +25,7 @@
+ 
+ import com.izforge.izpack.installer.AutomatedInstallData;
+ import com.izforge.izpack.installer.PanelAutomation;
++import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ /**
+  * Functions to support automated usage of the TargetPanel
+@@ -68,7 +69,13 @@
+     {
+         // We set the installation path
+         XMLElement ipath = panelRoot.getFirstChildNamed(&quot;installpath&quot;);
+-        idata.setInstallPath(ipath.getContent());
++        
++        // Allow for variable substitution of the installpath value
++        VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
++        String path = ipath.getContent();
++        path = vs.substitute(path, null);
++        
++        idata.setInstallPath(path);
+         return true;
+     }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java	2007-10-07 22:09:32 UTC (rev 1875)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java	2007-10-07 22:10:56 UTC (rev 1876)
+@@ -58,6 +58,7 @@
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
+ import com.izforge.izpack.installer.ResourceManager;
++import com.izforge.izpack.installer.WebAccessor;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.IoHelper;
+ import com.izforge.izpack.util.VariableSubstitutor;
+@@ -133,6 +134,7 @@
+ 
+    private HashMap idToPack;
+    private HashMap treeData;
++   private HashMap packToRowNumber;
+    
+    private HashMap idToCheckBoxNode = new HashMap();
+    private boolean created = false;
+@@ -152,8 +154,25 @@
+       try
+       {
+          this.langpack = parent.langpack;
+-         InputStream inputStream = ResourceManager.getInstance().getInputStream(LANG_FILE_NAME);
+-         this.langpack.add(inputStream);
++         InputStream langPackStream;
++         String webdir = idata.info.getWebDirURL();
++         if(webdir != null)
++         {
++            try
++            {
++               java.net.URL url = new java.net.URL(webdir + &quot;/langpacks/&quot; + LANG_FILE_NAME + idata.localeISO3);
++               langPackStream = new WebAccessor(null).openInputStream(url);
++            }
++            catch(Exception e)
++            {
++               langPackStream = ResourceManager.getInstance().getInputStream(LANG_FILE_NAME);
++            }
++         }
++         else
++            langPackStream = ResourceManager.getInstance().getInputStream(LANG_FILE_NAME);
++         
++         this.langpack.add(langPackStream);
++         langPackStream.close();
+       }
+       catch (Throwable exception)
+       {
+@@ -496,6 +515,14 @@
+       CheckBoxNode root = (CheckBoxNode)model.getRoot();
+       updateModel(root);
+    }
++
++   private int getRowIndex(Pack pack)
++   {
++      Object o = packToRowNumber.get(pack);
++      if(o == null) return -1;
++      Integer ret = (Integer) o;
++      return ret.intValue();
++   }
+    
+    /**
+     * Helper function for fromModel() - runs the recursion
+@@ -504,7 +531,7 @@
+     */
+    private void updateModel(CheckBoxNode rnode)
+    {
+-      int rowIndex = idata.availablePacks.indexOf(rnode.getPack());
++      int rowIndex = getRowIndex(rnode.getPack());
+       if(rowIndex &gt; 0)
+       {
+          Integer state = (Integer) packsModel.getValueAt(rowIndex, 0);
+@@ -539,7 +566,7 @@
+          Object nodePack = idToPack.get(nodeText);
+          if(!cbnode.isPartial())
+          {
+-            int childRowIndex = idata.availablePacks.indexOf(nodePack);
++            int childRowIndex = getRowIndex((Pack)nodePack);
+             if(childRowIndex &gt; 0)
+             {
+                Integer state = (Integer) packsModel.getValueAt(childRowIndex, 0);
+@@ -565,7 +592,7 @@
+       if(cbnode.isEnabled() &amp;&amp; cbnode.isSelected()) value = 1;
+       if(!cbnode.isEnabled() &amp;&amp; cbnode.isSelected()) value = -1;
+       if(!cbnode.isEnabled() &amp;&amp; !cbnode.isSelected()) value = -2;
+-      int rowIndex = idata.availablePacks.indexOf(nodePack);
++      int rowIndex = getRowIndex((Pack)nodePack);
+       if(rowIndex &gt; 0)
+       {
+          Integer newValue = new Integer(value);
+@@ -658,7 +685,7 @@
+          String excludeslist = (langpack == null) ? &quot;Excludes: &quot; : langpack
+                .getString(&quot;PacksPanel.excludes&quot;);
+          int numexcludes = 0;
+-         int i = idata.availablePacks.indexOf(pack);
++         int i = getRowIndex(pack);
+          if (pack.excludeGroup != null)
+          {
+             for (int q = 0; q &lt; idata.availablePacks.size(); q++)
+@@ -770,6 +797,15 @@
+             public boolean isCellEditable(int rowIndex, int columnIndex) { return false; }
+          };
+          
++         //initialize helper map to increa performance
++         packToRowNumber = new HashMap();
++         java.util.Iterator rowpack = idata.availablePacks.iterator();
++         while (rowpack.hasNext())
++         {
++            Pack p = (Pack) rowpack.next();
++            packToRowNumber.put(p, new Integer(idata.availablePacks.indexOf(p)));
++         }
++         
+          // Init tree structures
+          createTreeData();
+          
+@@ -1174,6 +1210,33 @@
+       this.treePacksPanel = p;
+    } 
+ 
++   private void selectNode(CheckBoxNode current)
++   {
++      current.setPartial(false);
++      treePacksPanel.setModelValue(current);
++      Enumeration e = current.depthFirstEnumeration();
++      while(e.hasMoreElements())
++      {
++         CheckBoxNode child = (CheckBoxNode) e.nextElement();
++         child.setSelected(current.isSelected() || child.getPack().required);
++         if(!child.isSelected()) child.setPartial(false);
++         treePacksPanel.setModelValue(child);
++      }
++      treePacksPanel.fromModel();
++   }
++   
++   private boolean hasExcludes(CheckBoxNode node)
++   {
++      Enumeration e = node.depthFirstEnumeration();
++      while(e.hasMoreElements())
++      {
++         CheckBoxNode cbn = (CheckBoxNode) e.nextElement();
++         if(cbn.getPack().excludeGroup != null)
++            return true;
++      }
++      return false;
++   }
++   
+    public void mouseReleased(MouseEvent me){ 
+       TreePath path = tree.getPathForLocation(me.getX(), me.getY()); 
+       if(path==null) 
+@@ -1184,33 +1247,27 @@
+       if(me.getX()&gt;tree.getPathBounds(path).x + checkWidth) 
+          return; 
+ 
+-      current.setSelected(!current.isSelected());
+-      current.setPartial(false);
+-      treePacksPanel.setModelValue(current);
+-      Enumeration e = current.depthFirstEnumeration();
+-      while(e.hasMoreElements())
+-      {
+-         CheckBoxNode child = (CheckBoxNode) e.nextElement();
+-         child.setSelected(current.isSelected());
+-         if(!current.isSelected()) child.setPartial(false);
+-         treePacksPanel.setModelValue(child);
+-      }
++      // If this pack is required, leave it alone
++      if(current.getPack().required) return;
++      
++      boolean currIsSelected = current.isSelected() &amp; !current.isPartial();
++      boolean currIsPartial = current.isPartial();
++      boolean currHasExcludes = hasExcludes(current);
+       CheckBoxNode root = (CheckBoxNode)current.getRoot();
+-      treePacksPanel.fromModel();
+       
+-      updateAllParents(root);
+-      
+-      /*
+-      updateParents(current);
+-      List deps = current.getPack().revDependencies;
+-      if(deps != null) for(int q=0; q&lt;deps.size(); q++)
++      if(currIsPartial &amp;&amp; currHasExcludes)
+       {
+-         String id = (String)deps.get(q);
+-         if (id == null) continue;
+-         CheckBoxNode cbn = (CheckBoxNode) treePacksPanel.getCbnById(id);
+-         updateParents(cbn);
++         current.setSelected(false);
++         selectNode(current); // deselect actually
++         updateAllParents(root);
+       }
+-      */
++      else
++      {
++         if(!currIsSelected) selectAllChildNodes(current);
++         current.setSelected(!currIsSelected);
++         selectNode(current);
++         updateAllParents(root);
++      }
+       
+       initTotalSize(root, true);
+       
+@@ -1219,6 +1276,49 @@
+       treePacksPanel.showSpaceRequired();
+       tree.treeDidChange();
+    } 
++   
++   public void selectAllChildNodes(CheckBoxNode cbn)
++   {
++      Enumeration e = cbn.children();
++      while(e.hasMoreElements())
++      {
++         CheckBoxNode subCbn = (CheckBoxNode)e.nextElement();
++         selectAllDependencies(subCbn);
++         if(subCbn.getChildCount()&gt;0)
++            selectAllChildNodes(subCbn);
++         
++         subCbn.setSelected(true);
++         // we need this, because the setModel ignored disabled values
++         subCbn.setEnabled(true);
++         treePacksPanel.setModelValue(subCbn);
++         subCbn.setEnabled(!subCbn.getPack().required);
++      }
++   }
++   
++   public void selectAllDependencies(CheckBoxNode cbn)
++   {
++      Pack pack = cbn.getPack();
++      List deps = pack.getDependencies();
++      if(deps == null) return;
++      Iterator e = deps.iterator();
++      while(e.hasNext())
++      {
++         String depId = (String)e.next();
++         CheckBoxNode depCbn = treePacksPanel.getCbnById(depId);
++         selectAllDependencies(depCbn);
++         if(depCbn.getChildCount()&gt;0)
++         {
++            if(!depCbn.isSelected() || depCbn.isPartial())
++               selectAllChildNodes(depCbn);
++         }
++         depCbn.setSelected(true);
++         // we need this, because the setModel ignored disabled values
++         depCbn.setEnabled(true);
++         treePacksPanel.setModelValue(depCbn);
++         depCbn.setEnabled(!depCbn.getPack().required);
++      }
++   }
++   
+    /**
+     * Updates partial/deselected/selected state of all parent nodes.
+     * This is needed and is a patch to allow unrelated nodes (in terms of the tree)
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000621.html">[izpack-changes] r1875 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os
+</A></li>
+	<LI>Next message: <A HREF="000623.html">[izpack-changes] r1877 -	izpack-src/trunk/src/lib/com/izforge/izpack/event
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#622">[ date ]</a>
+              <a href="thread.html#622">[ thread ]</a>
+              <a href="subject.html#622">[ subject ]</a>
+              <a href="author.html#622">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

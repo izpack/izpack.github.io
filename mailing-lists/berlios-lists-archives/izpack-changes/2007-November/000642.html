@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1896 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1896%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000641.html">
+   <LINK REL="Next"  HREF="000643.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1896 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1896%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1896 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon Nov 12 10:02:04 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000641.html">[izpack-changes] r1895 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000643.html">[izpack-changes] r1897 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#642">[ date ]</a>
+              <a href="thread.html#642">[ thread ]</a>
+              <a href="subject.html#642">[ subject ]</a>
+              <a href="author.html#642">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-12 10:02:00 +0100 (Mon, 12 Nov 2007)
+New Revision: 1896
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java
+Log:
+Added support for conditions in ProcessPanel 
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-11-09 14:33:50 UTC (rev 1895)
++++ izpack-src/trunk/Versions.txt	2007-11-12 09:02:00 UTC (rev 1896)
+@@ -53,6 +53,7 @@
+ - Tango icons (Julien Ponge)
+ - Refreshed installer border images (Julien Ponge)
+ - Fixed conditions in PacksPanel/PacksModel (Dennis Reil)
++- Added conditions for jobs in ProcessPanel (Dennis Reil) 
+   
+   &gt; 3.10.2 (build 2007.05.11)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java	2007-11-09 14:33:50 UTC (rev 1895)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java	2007-11-12 09:02:00 UTC (rev 1896)
+@@ -44,6 +44,8 @@
+ import net.n3.nanoxml.XMLElement;
+ 
+ import com.izforge.izpack.Pack;
++import com.izforge.izpack.rules.Condition;
++import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.AbstractUIHandler;
+ import com.izforge.izpack.util.AbstractUIProcessHandler;
+ import com.izforge.izpack.util.Debug;
+@@ -144,7 +146,17 @@
+         for (Iterator job_it = spec.getChildrenNamed(&quot;job&quot;).iterator(); job_it.hasNext();)
+         {
+             XMLElement job_el = (XMLElement) job_it.next();
+-
++            String conditionid = job_el.getAttribute(&quot;conditionid&quot;);
++            if (conditionid != null){
++              Debug.trace(&quot;Condition for job.&quot;);
++              Condition cond = RulesEngine.getCondition(conditionid);
++              if ((cond != null) &amp;&amp; !cond.isTrue()){
++                Debug.trace(&quot;condition is not fulfilled.&quot;);
++                // skip, if there is a condition and this condition isn't true
++                continue;
++              }
++            }
++            Debug.trace(&quot;Condition is fulfilled or not existent.&quot;);
+             // ExecuteForPack Patch
+             // Check if processing required for pack
+             Vector forPacks = job_el.getChildrenNamed(&quot;executeForPack&quot;);
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000641.html">[izpack-changes] r1895 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000643.html">[izpack-changes] r1897 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#642">[ date ]</a>
+              <a href="thread.html#642">[ thread ]</a>
+              <a href="subject.html#642">[ subject ]</a>
+              <a href="author.html#642">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

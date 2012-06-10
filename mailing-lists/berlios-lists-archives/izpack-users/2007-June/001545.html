@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Help text for the userInputPanel Fields
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Help%20text%20for%20the%20userInputPanel%20Fields&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001544.html">
+   <LINK REL="Next"  HREF="001550.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Help text for the userInputPanel Fields</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Help%20text%20for%20the%20userInputPanel%20Fields&In-Reply-To="
+       TITLE="[izpack-users] Help text for the userInputPanel Fields">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Fri Jun 15 09:13:28 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001544.html">[izpack-users] Help text for the userInputPanel Fields
+</A></li>
+        <LI>Next message: <A HREF="001550.html">[izpack-users] Help text for the userInputPanel Fields
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1545">[ date ]</a>
+              <a href="thread.html#1545">[ thread ]</a>
+              <a href="subject.html#1545">[ subject ]</a>
+              <a href="author.html#1545">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Mandeep,
+some installer tools (e.g. MSI) means that a separated help will
+be not state of the art...
+But you can add tool tips to your components (buttons etc.), 
+if you write custom panels. And you can also add your own button 
+into the navigation panel of IzPack.
+
+How to add a button into the navigation panel:
+you can implement a hidden IzPanel which implements the interface
+GUIListener and ActionListener. Place it at first panel. 
+Call parent.addGuiListener(this) in the constructor.
+Create the help button in guiActionPerformed if the flag is GUI_BUILDED.
+Add the button to the given navigation panel.
+Do not forget to add &quot;this&quot; as ActionListener of the help button.
+Do your help work in actionPerformed.
+
+Cheers 
+
+Klaus
+
+
+
+public class HelpFeaturePanel extends IzPanel implements GUIListener,
+ActionListener
+{
+    // Other class specific variables.
+    /** The help button. */
+    protected JButton helpButton;
+
+    /**
+     * The constructor.
+     * 
+     * @param parent The parent IzPack installer frame.
+     * @param idata The installer internal data.
+     */
+    public HelpFeaturePanel(InstallerFrame parent, InstallData idata)
+    {
+        super(parent, idata);
+        setHidden(true);
+        parent.addGuiListener(this);
+
+    }
+
+    /** Called when the panel becomes active. */
+    public void panelActivate()
+    {
+        parent.skipPanel();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+com.izforge.izpack.installer.GUIListener#guiActionPerformed(int,
+java.lang.Object)
+     */
+    public void guiActionPerformed(int what, Object param)
+    {
+        if (what == GUI_BUILDED)
+        {
+            JPanel navPanel = (JPanel) param;
+            helpButton =
+ButtonFactory.createButton(parent.langpack.getString(&quot;installer.help&quot;),
+                    parent.icons.getImageIcon(&quot;help&quot;),
+idata.buttonsHColor);
+            navPanel.add(helpButton, 0);
+            helpButton.addActionListener(this);
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent
+)
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        // Your help implementation.
+    }
+}
+
+&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of 
+</I>&gt;<i> Mandeep Saini
+</I>&gt;<i> Sent: Thursday, June 14, 2007 7:02 PM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-users] Help text for the userInputPanel Fields
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Hi all,
+</I>&gt;<i> 
+</I>&gt;<i> Is there any way to give help text for user Input Panel 
+</I>&gt;<i> fields, may be 
+</I>&gt;<i> by using a button or by tool tip on mouse over? Or I have to write my 
+</I>&gt;<i> own code to do this?
+</I>&gt;<i> 
+</I>&gt;<i> If right now this functionality is not available then are there any 
+</I>&gt;<i> plans for such feature in the future?
+</I>&gt;<i> 
+</I>&gt;<i> Regards
+</I>&gt;<i> Mandeep
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i> ______________________________________________________________________
+</I>&gt;<i> 
+</I>&gt;<i> Mandeep Saini	
+</I>&gt;<i> System Engineer
+</I>&gt;<i> 
+</I>&gt;<i> DANTE - www.dante.net
+</I>&gt;<i> 
+</I>&gt;<i> Tel: +44 (0) 1223 371 300 (Ext. 349)
+</I>&gt;<i> Fax: +44 (0) 1223 371 371
+</I>&gt;<i> 
+</I>&gt;<i> City House, 126-130 Hills Road
+</I>&gt;<i> Cambridge CB2 1PQ
+</I>&gt;<i> UK 
+</I>&gt;<i> _____________________________________________________________________
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A> 
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001544.html">[izpack-users] Help text for the userInputPanel Fields
+</A></li>
+	<LI>Next message: <A HREF="001550.html">[izpack-users] Help text for the userInputPanel Fields
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1545">[ date ]</a>
+              <a href="thread.html#1545">[ thread ]</a>
+              <a href="subject.html#1545">[ subject ]</a>
+              <a href="author.html#1545">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

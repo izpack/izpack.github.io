@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Bug in InstallerFrame.java, v3.9.0
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Bug%20in%20InstallerFrame.java%2C%20v3.9.0&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000559.html">
+   <LINK REL="Next"  HREF="000554.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Bug in InstallerFrame.java, v3.9.0</H1>
+    <B>Fran&#231;ois Guillet</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Bug%20in%20InstallerFrame.java%2C%20v3.9.0&In-Reply-To="
+       TITLE="[izpack-devel] Bug in InstallerFrame.java, v3.9.0">francois.guillet at wanadoo.fr
+       </A><BR>
+    <I>Mon Nov  6 07:30:28 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000559.html">[izpack-devel] overriding files
+</A></li>
+        <LI>Next message: <A HREF="000554.html">[izpack-devel] Bug in InstallerFrame.java, v3.9.0
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#553">[ date ]</a>
+              <a href="thread.html#553">[ thread ]</a>
+              <a href="subject.html#553">[ subject ]</a>
+              <a href="author.html#553">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+
+I was asked by Julien to report this bug to the izpack-devel mailing
+list.
+While making an installer for both Windows and Linux using IzPack, I had
+to resort to OS Specific panels. But having a windows only panel when
+installing under Linux raised an exception (and vice versa). The point
+is that OS dependant panels are incorrectly ignored in
+InstallerFrame.loadPanels(). The error is pretty easy to reproduce so I
+won't reprint the full error exception trace. I badly need those OS
+dependant panels (that's one of the major points of a cross-platform
+installer), so I made a quick fix in the source code. Here is the
+modified source code for InstallerFrame.loadPanels(). It's a
+straightforward quick hack which may be a bit crude, but it allows me to
+finish the installer for the Art of Illusion project
+(<A HREF="http://www.artofillusion.org">http://www.artofillusion.org</A>).
+
+The full InstallerFrame.java code is attached.
+
+Fran&#231;ois.
+
+
+    private void loadPanels() throws Exception
+    {
+        // Initialisation
+        java.util.List panelsOrder = installdata.panelsOrder;
+        int i;
+        int size = panelsOrder.size();
+        String className;
+        Class objectClass;
+        Constructor constructor;
+        Object object;
+        IzPanel panel;
+        Class[] paramsClasses = new Class[2];
+        paramsClasses[0] =
+Class.forName(&quot;com.izforge.izpack.installer.InstallerFrame&quot;);
+        paramsClasses[1] =
+Class.forName(&quot;com.izforge.izpack.installer.InstallData&quot;);
+        Object[] params = { this, installdata};
+
+        // We load each of them
+        int curVisPanelNumber = 0;
+        int lastVis = 0;
+        int count = 0;
+        for (i = 0; i &lt; size; i++)
+        {
+            // We add the panel
+            Panel p = (Panel) panelsOrder.get(i);
+            if (!OsConstraint.oneMatchesCurrentSystem(p.osConstraints))
+                    continue;
+            className = p.className;
+            String praefix = &quot;com.izforge.izpack.panels.&quot;;
+            if (className.indexOf('.') &gt; -1)
+            // Full qualified class name
+                praefix = &quot;&quot;;
+            objectClass = Class.forName(praefix + className);
+            constructor =
+objectClass.getDeclaredConstructor(paramsClasses);
+            object = constructor.newInstance(params);
+            panel = (IzPanel) object;
+            installdata.panels.add(panel);
+            if (panel.isHidden())
+                visiblePanelMapping.add(i, new Integer(-1));
+            else
+            {
+                visiblePanelMapping.add(count, new
+Integer(curVisPanelNumber));
+                curVisPanelNumber++;
+                lastVis = count;
+            }
+            count++;
+            // We add the XML data panel root
+            XMLElement panelRoot = new XMLElement(className);
+            installdata.xmlData.addChild(panelRoot);
+        }
+        visiblePanelMapping.add(count,new Integer(lastVis));
+    }
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: InstallerFrame.java
+Type: text/x-csrc
+Size: 53833 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061106/68782fdb/attachment.bin">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061106/68782fdb/attachment.bin</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000559.html">[izpack-devel] overriding files
+</A></li>
+	<LI>Next message: <A HREF="000554.html">[izpack-devel] Bug in InstallerFrame.java, v3.9.0
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#553">[ date ]</a>
+              <a href="thread.html#553">[ thread ]</a>
+              <a href="subject.html#553">[ subject ]</a>
+              <a href="author.html#553">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

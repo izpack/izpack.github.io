@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Distrubuted install.xml files ...
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Distrubuted%20install.xml%20files%20...&In-Reply-To=20070129103033.GA1466%40easy2.in-chemnitz.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000871.html">
+   <LINK REL="Next"  HREF="000877.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Distrubuted install.xml files ...</H1>
+    <B>Khadeer, Syed</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Distrubuted%20install.xml%20files%20...&In-Reply-To=20070129103033.GA1466%40easy2.in-chemnitz.de"
+       TITLE="[izpack-devel] Distrubuted install.xml files ...">Khadeer.Syed at siemens.com
+       </A><BR>
+    <I>Sat Feb 17 11:18:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000871.html">[izpack-devel] InstallationGroupPanel looses preselection
+</A></li>
+        <LI>Next message: <A HREF="000877.html">[izpack-devel] fix&amp;patch: Shortcuts in Linux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#875">[ date ]</a>
+              <a href="thread.html#875">[ thread ]</a>
+              <a href="subject.html#875">[ subject ]</a>
+              <a href="author.html#875">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+
+Please find below the documentation for the &quot;Distributed install.xml
+file&quot; feature.
+I have also attached the source patch for completeness.
+ &lt;&lt;diff-CompilerConfig.txt&gt;&gt; 
+Kindly let me know if you require any further details.
+
+&lt;refpack&gt; - adding externally defined &lt;pack&gt;
+The &lt;refpack&gt; tag allows a &lt;packs&gt; definition to be specified outside of
+install.xml in separate XML files and refer to such &lt;packs&gt; definitions
+in install.xml.
+It takes only one parameter:
+*	file : Location of the external XML file containing &lt;packs&gt;
+definition
+
+A &lt;packs&gt; tag can be defined with all its features in the external XML
+file.  Refer &quot;The Packs Element &lt;packs&gt;&quot; for more information on &lt;packs&gt;
+definition.
+The external XML file must contain the standard IzPack XML header
+followed by &lt;packs&gt; definition.
+Example external file with a &lt;packs&gt; definition is as shown below.
+
+	&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+	&lt;installation version=&quot;1.0&quot;&gt;
+	&lt;packs&gt;
+		&lt;pack name=&quot;myExternalPack1&quot; required=&quot;yes&quot;&gt;
+			&lt;description&gt;My first external
+pack&lt;/description&gt;
+			&lt;singlefile src=&quot;xxxxx&quot; targer=&quot;yyyyy&quot;
+override=&quot;yes&quot;/&gt;
+			....
+			....
+		&lt;/pack&gt;
+		...
+		...
+		...
+	&lt;/packs&gt;
+
+In your install.xml file you need to add the following line in one of
+your &lt;packs&gt; definition:
+	&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+	&lt;installation version=&quot;1.0&quot;&gt;
+	....
+	....
+	&lt;packs&gt;
+		&lt;pack name=&quot;myLocalPack1&quot; required=&quot;yes&quot;&gt;
+			&lt;description&gt;My local pack&lt;/description&gt;
+			&lt;singlefile src=&quot;xxxxx&quot; targer=&quot;yyyyy&quot;
+override=&quot;yes&quot;/&gt;
+			....
+			....
+		&lt;/pack&gt;
+		&lt;refpack file=&quot;PathToExternalPackXMLFile&quot; /&gt;
+		...
+		...
+		...
+	&lt;/packs&gt;
+
+This feature is very useful if you do not want to describe all your
+installation in one single install.xml file.
+If the project is huge and involves many developers, then it makes sense
+to distribute the responsibility of describing component's installation
+to the concerned developer.
+For example: 
+	In a project there are 10 components and 10 developers are
+working on them.
+	Instruct the component developers to describe installation of
+their component in its own external XML file.
+	Installation responsible can now write the central install.xml
+file, add 10 &lt;refpack&gt; tags (one per component) in the install.xml.
+
+
+Thank you.
+
+Best Regards,
+
+Syed Khadeer Ahmed
+_____________________________________________________________
+ 	
+SIEMENS		Siemens Public Communication Networks Ltd
+ 			Division: Siemens Communication Software
+ 			26-27, 10th Floor, Raheja Towers, MG Road,
+ 			Bangalore - 560 001. INDIA
+ 	
+ 			Phone:	+91 80 2559 4067 Extn: 2601
+ 			Fax: 	+91 80 2559 5538
+			Res:	+91 80 2363 8478
+Syed Khadeer Ahmed	&lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Khadeer.Syed at Siemens.com</A>&gt;
+_____________________________________________________________
+
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of Tino
+Schwarze
+Sent: Monday, January 29, 2007 4:01 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: Re: [izpack-devel] Distrubuted install.xml files ...
+
+Hi Syed,
+
+On Mon, Jan 29, 2007 at 03:50:29PM +0530, Khadeer, Syed wrote:
+
+&gt;<i> Please find attached a patch against version 3.10 to realize the 
+</I>&gt;<i> extension requested by me below.
+</I>
+Thank you for your patch. It looks good to me. If you also submit a
+patch for the documentation, I'll gladly apply both to the 3.10 branch.
+
+Best regards,
+
+Tino.
+
+--
+www.quantenfeuerwerk.de
+www.spiritualdesign-chemnitz.de
+www.lebensraum11.de
+
+Tino Schwarze * Wittenberger Str. 10 * 09126 Chemnitz
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+The new company Nokia Siemens Networks is expected to start operations in the first quarter of 2007, subject to customary regulatory approvals, the completion of standard closing conditions, and the agreement of a number of detailed implementation steps.
+
+Disclaimer:
+This e-mail may contain trade secrets or privileged, undisclosed or otherwise confidential information. If you have received this e-mail in error, you are hereby notified that any review, copying or distribution of it is strictly prohibited. Please inform us immediately and destroy the original transmittal. Thank you for your cooperation.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070217/217d31ec/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070217/217d31ec/attachment.html</A> 
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: diff-CompilerConfig.txt
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070217/217d31ec/attachment.txt">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070217/217d31ec/attachment.txt</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000871.html">[izpack-devel] InstallationGroupPanel looses preselection
+</A></li>
+	<LI>Next message: <A HREF="000877.html">[izpack-devel] fix&amp;patch: Shortcuts in Linux
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#875">[ date ]</a>
+              <a href="thread.html#875">[ thread ]</a>
+              <a href="subject.html#875">[ subject ]</a>
+              <a href="author.html#875">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

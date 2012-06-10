@@ -1,0 +1,672 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2039 - izpack-src/trunk/src/doc-reST
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2039%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000784.html">
+   <LINK REL="Next"  HREF="000786.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2039 - izpack-src/trunk/src/doc-reST</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2039%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To="
+       TITLE="[izpack-changes] r2039 - izpack-src/trunk/src/doc-reST">noreply at berlios.de
+       </A><BR>
+    <I>Sat Feb  9 19:00:17 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000784.html">[izpack-changes] r2038 - in izpack-src/trunk: . src src/dist-files
+</A></li>
+        <LI>Next message: <A HREF="000786.html">[izpack-changes] r2040 - izpack-src/trunk/src/dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#785">[ date ]</a>
+              <a href="thread.html#785">[ thread ]</a>
+              <a href="subject.html#785">[ subject ]</a>
+              <a href="author.html#785">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-02-09 19:00:15 +0100 (Sat, 09 Feb 2008)
+New Revision: 2039
+
+Added:
+   izpack-src/trunk/src/doc-reST/picins.sty
+Modified:
+   izpack-src/trunk/src/doc-reST/build.py
+Log:
+The PDF is now correctly built!
+
+Modified: izpack-src/trunk/src/doc-reST/build.py
+===================================================================
+--- izpack-src/trunk/src/doc-reST/build.py	2008-02-09 13:01:47 UTC (rev 2038)
++++ izpack-src/trunk/src/doc-reST/build.py	2008-02-09 18:00:15 UTC (rev 2039)
+@@ -56,6 +56,7 @@
+ 		print('    ' + pic)
+ 		shutil.copyfile(pic, 'html/' + pic)
+ 		shutil.copyfile(pic, 'pdf/' + pic)
++		shutil.copyfile('picins.sty', 'pdf/picins.sty')
+ 
+ def generate_html(rest_files):
+ 	print('Generating html...')
+@@ -84,7 +85,7 @@
+ 	for i in xrange(1,4):
+ 		print('    pdflatex pass #%i' % i)
+ 		os.system('pdflatex --interaction=batchmode manual.tex')
+-		os.chdir('..')
++	os.chdir('..')
+ 
+ if __name__ == '__main__':
+ 	parser = OptionParser()
+
+Added: izpack-src/trunk/src/doc-reST/picins.sty
+===================================================================
+--- izpack-src/trunk/src/doc-reST/picins.sty	2008-02-09 13:01:47 UTC (rev 2038)
++++ izpack-src/trunk/src/doc-reST/picins.sty	2008-02-09 18:00:15 UTC (rev 2039)
+@@ -0,0 +1,578 @@
++%       PICINS.STY --- Style File zum Einbinden von Bildern
++%       Autor:  J. Bleser, E. Lang
++%       Hochschulrechenzentrum
++%       Technische Hochschule Darmstadt
++%       !!!  Dieses Style-File ist urheberrechtlich geschuetzt  !!!
++%       !!!  Aenderungen nur mit Zustimmung der Autoren         !!!
++\message{Option `picins' Version 3.0  Sep. 1992, TH Darmstadt/HRZ}
++\newbox\@BILD%
++\newbox\@TEXT%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at xoff</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at yoff</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at dash</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at boxl</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at pichskip</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at bskip</A>
++\newdimen\hsiz@%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">p at getot</A>@l%
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at dash</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>%
++\newcount\@changemode%
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>%
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>%
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at picpos</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>%
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>%
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpc</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpd</A>
++\newskip\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at leftskip</A>
++\newif\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">if at list</A> \@listfalse%
++\newif\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">if at offset</A>%
++
++
++\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>=1%
++\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at picpos</A>=0
++\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>=4pt%
++\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at dash</A>=4pt%
++\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at boxl</A>=10pt%
++\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at pichskip</A>=1em%
++\@changemode=0%
++\def\@captype{figure}%
++\let\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">old at par</A>=\par%
++
++\def\pichskip#1{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at pichskip</A> #1\relax}
++
++
++\def\shadowthickness#1{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A> #1\relax}
++
++
++\def\dashlength#1{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at dash</A> #1\relax}
++
++
++\def\boxlength#1{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at boxl</A> #1\relax}
++
++
++\def\picchangemode{\@changemode=1}%
++\def\nopicchangemode{\@changemode=0}%
++
++
++\def\piccaptionoutside{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>=1}%
++\def\piccaptioninside{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>=2}%
++\def\piccaptionside{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>=3}%
++\def\piccaptiontopside{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>=4}%
++
++\def\piccaption{\@ifnextchar [{\@piccaption}{\@piccaption[]}}
++\def\@piccaption[#1]#2{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>=1\def\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">sh at rtf</A>@rm{#1}\def\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">capti at nt</A>@xt{#2}}
++\def\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">make at piccaption</A>{%
++ \hsiz@\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>=2%
++   \advance\hsiz@ -2\fboxsep%
++ \fi%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>&gt;2%
++   \hsiz@\hsize\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">hsiz at -</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">hsiz at -</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at pichskip</A>%
++ \fi%
++ \setbox\@TEXT=\vbox{\hsize\hsiz@\caption[\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">sh at rtf</A>@rm]{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">capti at nt</A>@xt}}%
++}
++
++
++
++\def\newcaption{\refstepcounter\@captype\@dblarg{\@newcaption\@captype}}
++\long\def\@newcaption#1[#2]#3{%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">old at par</A>%
++  \addcontentsline{\csname ext@#1\endcsname }{#1}%
++    {\protect\numberline{\csname the#1\endcsname}{\ignorespaces #2}}
++  \begingroup\@parboxrestore\normalsize%
++    \@newmakecaption{\csname fnum@#1\endcsname}{\ignorespaces #3}\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">old at par</A>%
++  \endgroup%
++}
++\long\def\@newmakecaption#1#2{%
++  \vskip 10pt%
++  \setbox\@tempboxa \hbox {#1: #2}%
++  \ifdim \wd\@tempboxa &gt;\hsize%
++    \setbox0=\hbox{#1: }\dimen0=\hsize\advance\dimen0 by-\wd0
++    \setbox1=\vtop{\hsize=\dimen0 #2}
++    \hbox{\box0 \box1}
++    \par
++  \else \hbox to\hsize {\hfil \box \@tempboxa \hfil}
++  \fi
++}
++
++
++
++
++
++\def\parpic{%
++  \@ifnextchar ({\iparpic}{\iparpic(0pt,0pt)}
++}
++\def\iparpic(#1,#2){%
++  \@ifnextchar ({\@offsettrue\iiparpic(#1,#2)}%
++                {\@offsetfalse\iiparpic(#1,#2)(0pt,0pt)}
++}
++\def\iiparpic(#1,#2)(#3,#4){%
++  \@ifnextchar [{\iiiparpic(#1,#2)(#3,#4)}{\iiiparpic(#1,#2)(#3,#4)[l]}
++}
++\def\iiiparpic(#1,#2)(#3,#4)[#5]{%
++  \@ifnextchar [{\ivparpic(#1,#2)(#3,#4)[#5]}{\ivparpic(#1,#2)(#3,#4)[#5][]}
++}
++\def\ivparpic(#1,#2)(#3,#4)[#5][#6]#7{%
++ \let\par=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">old at par</A>\par%
++ \hangindent0pt\hangafter1%
++ \setbox\@BILD=\hbox{#7}%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=#1\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=\the\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>%
++ \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=0pt\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=\wd\@BILD\fi%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A> by65536%
++ \multiply\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaptionpos</A>%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=#2\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=\the\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>%
++ \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=0pt\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=\ht\@BILD\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by\dp\@BILD\fi%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at xoff</A>=#3\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at xoff</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at yoff</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>%
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at yoff</A> by-#4\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at yoff</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=1\unitlength1pt%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">if at offset</A>%
++   \setbox\@BILD=\hbox{%
++     \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)%
++       \put(0,0){\makebox(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){}}%
++       \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A>){\box\@BILD}%
++     \end{picture}%
++   }%
++ \else%
++   \setbox\@BILD=\hbox{%
++     \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)%
++       \put(0,0){\makebox(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)[#6]{\box\@BILD}}%
++     \end{picture}%
++   }%
++ \fi%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>=2%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">make at piccaption</A>%
++   \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\ht\@TEXT\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\dp\@TEXT%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A> by65536%
++   \setbox\@BILD=\vbox{\box\@BILD\vspace{-5pt}%
++                       \hbox{\hspace{\fboxsep}\box\@TEXT}%
++                       \vspace{4pt}}%
++ \fi%
++ \@tfor\@tempa := #5\do{%
++   \if\@tempa f\setbox\@BILD=\hbox{\Rahmen(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++   \if\@tempa s\setbox\@BILD=\hbox{\Schatten(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++   \if\@tempa o\setbox\@BILD=\hbox{\Oval(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++   \if\@tempa d\setbox\@BILD=\hbox{\Strich(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++   \if\@tempa x\setbox\@BILD=\hbox{\Kasten(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++   \if\@tempa l\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=1\fi%
++   \if\@tempa r\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=2\fi%
++ }%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>=1%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">make at piccaption</A>%
++   \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\ht\@TEXT\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\dp\@TEXT%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A> by65536%
++   \setbox\@BILD=\vbox{\box\@BILD\vspace{-5pt}\hbox{\box\@TEXT}\vspace{4pt}}%
++ \fi%
++ \ifodd\count0\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at picpos</A>=0\else\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at picpos</A>=\@changemode\fi%
++ \pagetotal=\the\pagetotal%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>=\pagegoal\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A> by-\pagetotal\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A> by-\baselineskip%
++ \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>&gt;\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>%
++   \vskip 0pt plus\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\relax\pagebreak[3]\vskip 0pt plus-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\relax%
++   \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at picpos</A>=1\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at picpos</A>=0\else\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at picpos</A>=\@changemode\fi%
++ \fi%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at picpos</A>=1\ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=1\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=2\else\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=1\fi\fi%
++ \ifnum\@listdepth&gt;0
++   \@listtrue\parshape 0%
++   \advance\hsize -\rightmargin%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at leftskip</A> \leftskip%
++   \leftskip \@totalleftmargin%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">if at inlabel</A>\rule{\linewidth}{0pt}\vskip-\baselineskip\relax\fi%
++ \else\@listfalse\medskip%
++ \fi%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">if at list</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>=\linewidth\else\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>=\hsize\fi%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>=3%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">make at piccaption</A>%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\ht\@TEXT\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\dp\@TEXT%
++   \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>&gt;\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>%
++     \setbox\@TEXT=\vbox to\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>{\vfill\box\@TEXT\vspace{.2\baselineskip}\vfill}%
++   \else%
++     \setbox\@BILD=\vbox to\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>{\vfill\box\@BILD\vfill}%
++     \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>%
++   \fi%
++ \fi%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>=4%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">make at piccaption</A>%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\ht\@TEXT\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\dp\@TEXT%
++   \setbox\@TEXT=\vbox to\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>{\vspace{-10pt}\box\@TEXT\vfil}%
++   \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe-</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>%
++ \fi%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=1\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>=0pt%
++   \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>&gt;2%
++      \setbox\@BILD=\hbox{\box\@BILD\hspace{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at pichskip</A>}\hbox{\box\@TEXT}}%
++   \fi%
++ \else\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A> by-\wd\@BILD\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>%
++   \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>&gt;2%
++      \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>=0pt%
++      \setbox\@BILD=\hbox{\hbox{\box\@TEXT}\hspace{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at pichskip</A>}\box\@BILD}%
++   \fi%
++ \fi%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">p at getot</A>@l\the\pagetotal%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at bskip</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at bskip</A> by\parskip\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at bskip</A> by.3\baselineskip%
++ {\noindent\hspace*{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>}\relax%
++  \box\@BILD\nopagebreak\vskip-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at bskip</A>\relax\nopagebreak}%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>=-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A> by\baselineskip%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A> by-1%
++ \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>&lt;0pt\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A> by-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at pichskip</A>%
++ \else\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at pichskip</A>%
++ \fi%
++ \hangindent=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>%
++ \hangafter=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>%
++ \let\par=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">x at par</A>%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>=3%
++    \hangindent0pt\hangafter1\let\par=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">old at par</A>%
++    \vskip\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\vskip.2\baselineskip%
++ \fi%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at piccaption</A>=0%
++}
++
++
++
++
++\newdimen\ptoti
++\newdimen\ptotii
++\def\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">x at par</A>{%
++ \ptoti\pagetotal%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">old at par</A>%
++ \ptotii\pagetotal%
++ \ifdim\ptoti=\ptotii%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>%
++ \else%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\baselineskip%
++   \multiply\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A> by\prevgraf%
++   \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A> by\parskip%
++   \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>%
++ \fi%
++ \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>&gt;0pt%
++   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A> by\baselineskip\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>=-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A> by-1%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>=\the\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>%
++ \else\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>=0
++ \fi
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>&lt;0\hangafter=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at zeilen</A>\hangindent=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>%
++ \else\let\par=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">old at par</A>%
++   \hangindent 0pt%
++   \leftskip \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at leftskip</A>%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">if at list</A>\parshape \@ne \@totalleftmargin \linewidth%
++     \advance\hsize \rightmargin%
++   \fi%
++ \fi%
++}
++
++
++\def\picskip#1{%
++ \let\par=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">old at par</A>%
++ \par%
++ \pagetotal\the\pagetotal%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>=#1\relax%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>=0%
++   \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\baselineskip\multiply\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A> by\prevgraf\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\parskip%
++   \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">p at getot</A>@l&lt;\pagetotal
++     \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by1ex%
++     \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>&gt;0pt\vspace*{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>}\fi%
++   \fi%
++   \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">p at getot</A>@l=\pagetotal%
++     \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmp</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by1ex%
++     \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>&gt;0pt\vspace*{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>}\fi%
++   \fi%
++ \else\hangafter=-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>\hangindent=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>%
++ \fi%
++ \leftskip \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at leftskip</A>%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">if at list</A>\parshape \@ne \@totalleftmargin \linewidth%
++   \advance\hsize \rightmargin%
++ \fi%
++}
++
++
++
++
++
++
++\def\hpic{%
++  \@ifnextchar ({\ihpic}{\ihpic(0pt,0pt)}
++}
++\def\ihpic(#1,#2){%
++  \@ifnextchar ({\@offsettrue\iihpic(#1,#2)}%
++                {\@offsetfalse\iihpic(#1,#2)(0pt,0pt)}
++}
++\def\iihpic(#1,#2)(#3,#4){%
++  \@ifnextchar [{\iiihpic(#1,#2)(#3,#4)}{\iiihpic(#1,#2)(#3,#4)[l]}
++}
++\def\iiihpic(#1,#2)(#3,#4)[#5]{%
++  \@ifnextchar [{\ivhpic(#1,#2)(#3,#4)[#5]}{\ivhpic(#1,#2)(#3,#4)[#5][]}
++}
++\def\ivhpic(#1,#2)(#3,#4)[#5][#6]#7{%
++  \setbox\@BILD=\hbox{#7}%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=#1\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=\the\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>%
++  \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=0pt\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>=\wd\@BILD\fi%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=#2\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=\the\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>%
++  \ifdim\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=0pt\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=\ht\@BILD\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by\dp\@BILD\fi%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at xoff</A>=#3\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at xoff</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at yoff</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>%
++  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at yoff</A> by-#4\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at yoff</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=0\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>=\parindent\parindent=0pt\unitlength1pt%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">if at offset</A>
++    \setbox\@BILD=\hbox{%
++      \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)%
++        \put(0,0){\makebox(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){}}%
++        \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A>){\box\@BILD}%
++      \end{picture}%
++    }%
++  \else%
++    \setbox\@BILD=\hbox{%
++      \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)%
++        \put(0,0){\makebox(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)[#6]{\box\@BILD}}%
++      \end{picture}%
++    }%
++  \fi%
++  \@tfor\@tempa := #5\do{%
++    \if\@tempa f\setbox\@BILD=\hbox{\Rahmen(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++    \if\@tempa s\setbox\@BILD=\hbox{\Schatten(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++    \if\@tempa o\setbox\@BILD=\hbox{\Oval(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++    \if\@tempa d\setbox\@BILD=\hbox{\Strich(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++    \if\@tempa x\setbox\@BILD=\hbox{\Kasten(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>){\box\@BILD}}\fi%
++    \if\@tempa t\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=1\fi%
++    \if\@tempa b\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=2\fi%
++  }%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=0\parbox{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>}{\makebox[0cm]{}\\\box\@BILD\smallskip}\fi%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=1\parbox[t]{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>}{\makebox[0cm]{}\\\box\@BILD\smallskip}\fi%
++ \ifnum\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at pos</A>=2\parbox[b]{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A>}{\makebox[0cm]{}\\\box\@BILD\smallskip}\fi%
++ \parindent=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>%
++}
++
++
++
++
++
++
++\def\Rahmen(#1,#2)#3{%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>=\@wholewidth\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>=\@halfwidth\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>=#1\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>=#2\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>%
++  \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>)%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>){\framebox(#1,#2){#3}}%
++  \end{picture}%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A> by2\@wholewidth%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by2\@wholewidth%
++}
++
++
++\def\Schatten(#1,#2)#3{%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>=\@wholewidth\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>=\@halfwidth\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpd</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>%
++  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>%
++  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpd</A> by#1%
++  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>=#1\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>=#2\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>%
++  \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>)%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>){\framebox(#1,#2){#3}}%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>,0){\rule{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpd</A> pt}{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A> pt}}%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpd</A>,0){\rule{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A> pt}{#2 pt}}%
++  \end{picture}%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A> by2\@wholewidth\global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by2\@wholewidth\global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>%
++}
++
++
++\def\Oval(#1,#2)#3{%
++  \@wholewidth=0.4pt%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>=\the#1\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A> by2%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>=\the#2\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A> by2%
++  \begin{picture}(#1,#2)%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>){\oval(#1,#2)}%
++    \put(0.4,0.4){#3}%
++  \end{picture}%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A> by1pt\global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by1pt%
++}
++
++
++\def\Strich(#1,#2)#3{%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>=\@wholewidth\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>=\@halfwidth\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at dash</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at dash</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at dash</A> by65536%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>=#1\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>=#2\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpc</A>=#1\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpc</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpd</A>=#2\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpd</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>%
++  \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>)%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>){\dashbox{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at dash</A>}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpc</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpd</A>){#3}}%
++  \end{picture}%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A> by2\@wholewidth%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by2\@wholewidth%
++}
++
++
++\def\Kasten(#1,#2)#3{%
++  \@wholewidth=0.4pt%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at boxl</A>\divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A> by65536\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>=\the\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>=#1\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>=#2\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>%
++  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>=#2%
++  \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>)%
++    \put(0,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>){\framebox(#1,#2){#3}}%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>,0){\line(-1,1){\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>}}%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>,0){\line(1,0){#1}\line(-1,1){\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>}}%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>,0){\put(#1,0){\line(0,1){\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>}%
++         \put(0,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>){\line(-1,1){\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at boxl</A>}}}}%
++  \end{picture}%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at breite</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at boxl</A>%
++  \global\advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at boxl</A>%
++}
++
++
++
++
++
++\newbox\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>%
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>
++\newcount\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>
++\newdimen\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>
++
++\long\def\frameenv{\@ifnextchar [{\@frameenv}{\@frameenv[\textwidth]}}
++\long\def\@frameenv[#1]{%
++ \hsiz@=\textwidth  \textwidth=#1  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>=#1
++ \advance\textwidth by-2\@wholewidth
++ \advance\textwidth by-2\fboxsep
++ \hsize=\textwidth   \linewidth=\textwidth
++ \setbox\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>=\vbox\bgroup}%
++\def\endframeenv{%
++ \egroup%
++ \hsize=\hsiz@  \textwidth=\hsiz@  \linewidth=\hsiz@
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A> by65536
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A> by-2\@wholewidth
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>  \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>=\dp\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by\ht\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>%
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by2\fboxsep%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>   \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by2\@wholewidth
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A> by65536
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>=\@wholewidth \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A> by65536
++ \vskip\@wholewidth%
++ \unitlength 1pt\noindent%
++ \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)(0,0)
++   \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>){\framebox(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>){\box\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>}}
++ \end{picture}%
++}
++
++
++
++\long\def\shadowenv{\@ifnextchar [{\@shadowenv}{\@shadowenv[\textwidth]}}
++\long\def\@shadowenv[#1]{%
++ \hsiz@=\textwidth  \textwidth=#1  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>=#1
++ \advance\textwidth by-2\@wholewidth
++ \advance\textwidth by-2\fboxsep
++ \advance\textwidth by-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>%
++ \hsize=\textwidth   \linewidth=\textwidth
++ \setbox\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>=\vbox\bgroup}%
++\def\endshadowenv{%
++ \egroup
++ \hsize=\hsiz@  \textwidth=\hsiz@  \linewidth=\hsiz@
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A> by65536
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A> by-2\@wholewidth  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A> by-\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>  \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>=\dp\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by\ht\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>%
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by2\fboxsep%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by2\@wholewidth  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>    \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A> by65536
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A> =\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>     \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>  by65536
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>=\@wholewidth  \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A> by65536
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A> by-2\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A> =\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>     \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A> by65536
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A> by\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A> by-1
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by\@wholewidth
++ \vskip\@halfwidth
++ \unitlength 1pt\noindent%
++ \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)(0,0)
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmp</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>){\framebox(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>){\box\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>}}
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at shad</A>,0){\rule{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>}{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>}}%
++    \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>,0){\rule{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at shad</A>}{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>}}%
++ \end{picture}%
++ \vskip\@halfwidth
++}
++
++
++\long\def\dashenv{\@ifnextchar [{\@dashenv}{\@dashenv[\textwidth]}}
++\long\def\@dashenv[#1]{%
++ \hsiz@=\textwidth  \textwidth=#1  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>=#1
++ \advance\textwidth by-2\@wholewidth  \advance\textwidth by-2\fboxsep
++ \hsize=\textwidth   \linewidth=\textwidth
++ \setbox\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>=\vbox\bgroup}%
++\long\def\enddashenv{%
++ \egroup
++ \hsize=\hsiz@  \textwidth=\hsiz@  \linewidth=\hsiz@
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A> by65536
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A> by-\@wholewidth
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>  \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>=\dp\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by\ht\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>%
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by2\fboxsep%
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by\@wholewidth
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>   \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by2\@wholewidth
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A> by65536
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at dash</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at dash</A>     \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at dash</A>  by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>=\@wholewidth  \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A> by65536
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>=\@halfwidth  \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A> by 65536
++ \noindent\unitlength 1pt
++ \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)(0,0)
++   \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at half</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at whole</A>){\dashbox{\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at dash</A>}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>){\box\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>}}
++ \end{picture}%
++}
++
++
++\long\def\ovalenv{\@ifnextchar [{\@ovalenv}{\@ovalenv[\textwidth]}}%
++\long\def\@ovalenv[#1]{%
++ \hsiz@=\textwidth  \textwidth=#1  \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>=#1
++ \advance\textwidth by-4\fboxsep
++ \hsize=\textwidth   \linewidth=\textwidth
++ \setbox\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>=\vbox\bgroup}%
++\long\def\endovalenv{%
++ \egroup
++ \hsize=\hsiz@  \textwidth=\hsiz@  \linewidth=\hsiz@
++ \@wholewidth=0.4pt
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A> by65536
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A> by-2\@wholewidth
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envb</A>  \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>=\dp\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>  \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by\ht\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>%
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A> by4\fboxsep%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A> by65536%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at envdp</A>   \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A> by2\@wholewidth
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at hoehe</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A> by65536
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A> by2%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>   \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A> by2%
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>=2\fboxsep   \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A> by\@wholewidth
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>     \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>  by65536%
++ \advance\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A> by\dp\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>
++ \<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A>=\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">d at tmpa</A>     \divide\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A>  by65536%
++ \unitlength 1pt\noindent
++ \begin{picture}(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at breite</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hoehe</A>)(0,0)
++   \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpa</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at tmpb</A>){\oval(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at hsize</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at envdp</A>)}
++   \put(\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at xoff</A>,\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">c at yoff</A>){\box\<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">env at box</A>}%
++ \end{picture}%
++}
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000784.html">[izpack-changes] r2038 - in izpack-src/trunk: . src src/dist-files
+</A></li>
+	<LI>Next message: <A HREF="000786.html">[izpack-changes] r2040 - izpack-src/trunk/src/dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#785">[ date ]</a>
+              <a href="thread.html#785">[ thread ]</a>
+              <a href="subject.html#785">[ subject ]</a>
+              <a href="author.html#785">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

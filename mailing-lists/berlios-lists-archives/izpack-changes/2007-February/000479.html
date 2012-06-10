@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1733 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1733%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000478.html">
+   <LINK REL="Next"  HREF="000480.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1733 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1733%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1733 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Fri Feb 16 09:39:14 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000478.html">[izpack-changes] r1732 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000480.html">[izpack-changes] r1734 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#479">[ date ]</a>
+              <a href="thread.html#479">[ thread ]</a>
+              <a href="subject.html#479">[ subject ]</a>
+              <a href="author.html#479">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-02-16 09:39:11 +0100 (Fri, 16 Feb 2007)
+New Revision: 1733
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+Log:
+Fixed selection of default Language in LanguageDialog
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-02-16 08:35:12 UTC (rev 1732)
++++ izpack-src/trunk/Versions.txt	2007-02-16 08:39:11 UTC (rev 1733)
+@@ -3,6 +3,7 @@
+   &gt; Next release
+ - Added ignore as possible value for failure argument in executables (Dennis Reil)
+ - Added Conditional expressions (Dennis Reil)
++- Fixed selection of default language in LanguageSelectionDialog (Dennis Reil)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-02-16 08:35:12 UTC (rev 1732)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-02-16 08:39:11 UTC (rev 1733)
+@@ -120,6 +120,7 @@
+ 
+         // Loads the suitable langpack
+         SwingUtilities.invokeAndWait(new Runnable() {
++
+             public void run()
+             {
+                 try
+@@ -141,6 +142,7 @@
+ 
+         // We launch the installer GUI
+         SwingUtilities.invokeLater(new Runnable() {
++
+             public void run()
+             {
+                 try
+@@ -221,10 +223,10 @@
+         if (npacks != 1)
+         {
+             LanguageDialog picker = new LanguageDialog(frame, availableLangPacks.toArray());
+-            picker.setSelection(Locale.getDefault().getISO3Country().toLowerCase());
++            picker.setSelection(Locale.getDefault().getISO3Language().toLowerCase());
+             picker.setModal(true);
+             picker.toFront();
+-            //frame.setVisible(true);
++            // frame.setVisible(true);
+             frame.setVisible(false);
+             picker.setVisible(true);
+ 
+@@ -242,6 +244,7 @@
+         installdata.setVariable(ScriptParser.ISO3_LANG, installdata.localeISO3);
+         InputStream in = getClass().getResourceAsStream(&quot;/langpacks/&quot; + selectedPack + &quot;.xml&quot;);
+         this.installdata.langpack = new LocaleDatabase(in);
++
+     }
+ 
+     /**
+@@ -288,11 +291,13 @@
+         // Resolve whether button icons should be used or not.
+         boolean useButtonIcons = true;
+         if (installdata.guiPrefs.modifier.containsKey(&quot;useButtonIcons&quot;)
+-                &amp;&amp; &quot;no&quot;.equalsIgnoreCase((String) installdata.guiPrefs.modifier.get(&quot;useButtonIcons&quot;))) useButtonIcons = false;
++                &amp;&amp; &quot;no&quot;.equalsIgnoreCase((String) installdata.guiPrefs.modifier
++                        .get(&quot;useButtonIcons&quot;))) useButtonIcons = false;
+         ButtonFactory.useButtonIcons(useButtonIcons);
+         boolean useLabelIcons = true;
+         if (installdata.guiPrefs.modifier.containsKey(&quot;useLabelIcons&quot;)
+-                &amp;&amp; &quot;no&quot;.equalsIgnoreCase((String) installdata.guiPrefs.modifier.get(&quot;useLabelIcons&quot;))) useLabelIcons = false;
++                &amp;&amp; &quot;no&quot;.equalsIgnoreCase((String) installdata.guiPrefs.modifier
++                        .get(&quot;useLabelIcons&quot;))) useLabelIcons = false;
+         LabelFactory.setUseLabelIcons(useLabelIcons);
+         if (laf == null)
+         {
+@@ -419,7 +424,7 @@
+             title = installdata.langpack.getString(&quot;installer.title&quot;)
+                     + installdata.info.getAppName();
+         else
+-        {   // Attention! The alternate message has to contain the hole message including
++        { // Attention! The alternate message has to contain the hole message including
+             // $APP_NAME and may be $APP_VER.
+             VariableSubstitutor vs = new VariableSubstitutor(installdata.getVariables());
+             title = vs.substitute(message, null);
+@@ -565,8 +570,7 @@
+ 
+             Dimension frameSize = getSize();
+             Point center = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+-            setLocation(center.x - frameSize.width / 2,
+-                    center.y - frameSize.height / 2 - 10);
++            setLocation(center.x - frameSize.width / 2, center.y - frameSize.height / 2 - 10);
+             setResizable(true);
+         }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000478.html">[izpack-changes] r1732 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000480.html">[izpack-changes] r1734 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#479">[ date ]</a>
+              <a href="thread.html#479">[ thread ]</a>
+              <a href="subject.html#479">[ subject ]</a>
+              <a href="author.html#479">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

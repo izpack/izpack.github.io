@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1549 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1549%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000293.html">
+   <LINK REL="Next"  HREF="000295.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1549 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1549%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1549 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sun Aug 27 16:10:47 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000293.html">[izpack-changes] r1548 - izpack-src/trunk/src
+</A></li>
+        <LI>Next message: <A HREF="000295.html">[izpack-changes] r1550 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#294">[ date ]</a>
+              <a href="thread.html#294">[ thread ]</a>
+              <a href="subject.html#294">[ subject ]</a>
+              <a href="author.html#294">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-08-27 16:10:46 +0200 (Sun, 27 Aug 2006)
+New Revision: 1549
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java
+Log:
+Display uninstall information for automated installation on Console.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java	2006-08-27 13:47:06 UTC (rev 1548)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java	2006-08-27 14:10:46 UTC (rev 1549)
+@@ -181,7 +181,7 @@
+             shortcuts.add(data);
+         }
+ 
+-        System.out.print(&quot;[ creating shortcuts &quot;);
++        System.out.print(&quot;[ Creating shortcuts &quot;);
+ 
+         // ShortcutData data;
+ 
+@@ -223,55 +223,48 @@
+ 
+                 try
+                 {
+-                    // ----------------------------------------------
+-                    // save the shortcut only if it is either not on
+-                    // the desktop or if it is on the desktop and
+-                    // the user has signalled that it is ok to place
+-                    // shortcuts on the desktop.
+-                    // ----------------------------------------------
+-                    if ((data.type != Shortcut.DESKTOP) || ((data.type == Shortcut.DESKTOP)))
+-                    {
+-                        // save the shortcut
+ 
+-                        System.out.print(&quot;.&quot;);
+-                        System.out.flush();
++                    // save the shortcut
+ 
+-                        shortcut.save();
++                    System.out.print(&quot;.&quot;);
++                    System.out.flush();
+ 
+-                        // add the file and directory name to the file list
+-                        String fileName = shortcut.getFileName();
+-                        files.add(0, fileName);
++                    shortcut.save();
+ 
+-                        File file = new File(fileName);
+-                        File base = new File(shortcut.getBasePath());
+-                        Vector intermediates = new Vector();
++                    // add the file and directory name to the file list
++                    String fileName = shortcut.getFileName();
++                    files.add(0, fileName);
+ 
+-                        // String directoryName = shortcut.getDirectoryCreated ();
+-                        execFiles.add(new ExecutableFile(fileName, ExecutableFile.UNINSTALL,
+-                                ExecutableFile.IGNORE, new ArrayList(), false));
++                    File file = new File(fileName);
++                    File base = new File(shortcut.getBasePath());
++                    Vector intermediates = new Vector();
+ 
+-                        files.add(fileName);
++                    // String directoryName = shortcut.getDirectoryCreated ();
++                    execFiles.add(new ExecutableFile(fileName, ExecutableFile.UNINSTALL,
++                            ExecutableFile.IGNORE, new ArrayList(), false));
+ 
+-                        while ((file = file.getParentFile()) != null)
+-                        {
+-                            if (file.equals(base))
+-                            {
+-                                break;
+-                            }
++                    files.add(fileName);
+ 
+-                            intermediates.add(file);
++                    while ((file = file.getParentFile()) != null)
++                    {
++                        if (file.equals(base))
++                        {
++                            break;
+                         }
+ 
+-                        if (file != null)
+-                        {
+-                            Enumeration filesEnum = intermediates.elements();
++                        intermediates.add(file);
++                    }
+ 
+-                            while (filesEnum.hasMoreElements())
+-                            {
+-                                files.add(0, filesEnum.nextElement().toString());
+-                            }
++                    if (file != null)
++                    {
++                        Enumeration filesEnum = intermediates.elements();
++
++                        while (filesEnum.hasMoreElements())
++                        {
++                            files.add(0, filesEnum.nextElement().toString());
+                         }
+                     }
++
+                 }
+                 catch (Exception exception)
+                 {}
+@@ -308,15 +301,18 @@
+         {
+             cannot.printStackTrace();
+         }
++        System.out.println(&quot; done. ]&quot;);
++        System.out.print(&quot;[ Add shortcuts to uninstaller &quot;);
+ 
+         UninstallData uninstallData = UninstallData.getInstance();
+ 
+         for (int i = 0; i &lt; files.size(); i++)
+         {
+             uninstallData.addFile((String) files.elementAt(i));
++            System.out.print(&quot;.&quot;);
++            System.out.flush();
+         }
+ 
+-        // /////parent.unlockNextButton();
+         System.out.println(&quot; done. ]&quot;);
+ 
+         return true;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000293.html">[izpack-changes] r1548 - izpack-src/trunk/src
+</A></li>
+	<LI>Next message: <A HREF="000295.html">[izpack-changes] r1550 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#294">[ date ]</a>
+              <a href="thread.html#294">[ thread ]</a>
+              <a href="subject.html#294">[ subject ]</a>
+              <a href="author.html#294">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

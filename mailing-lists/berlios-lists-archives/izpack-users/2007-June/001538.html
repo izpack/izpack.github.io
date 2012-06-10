@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How does variable substitution work?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20does%20variable%20substitution%20work%3F&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001539.html">
+   <LINK REL="Next"  HREF="001540.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How does variable substitution work?</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20does%20variable%20substitution%20work%3F&In-Reply-To="
+       TITLE="[izpack-users] How does variable substitution work?">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Jun 14 11:03:47 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001539.html">[izpack-users] IzPack on Vista reports wrong free disk space
+</A></li>
+        <LI>Next message: <A HREF="001540.html">[izpack-users] How does variable substitution work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1538">[ date ]</a>
+              <a href="thread.html#1538">[ thread ]</a>
+              <a href="subject.html#1538">[ subject ]</a>
+              <a href="author.html#1538">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi lionel,
+variables are only used at installation time, not at packaging
+(&quot;compile&quot;). 
+&lt;pack&gt; and the targetdir of a &lt;file&gt; will be used at installation time,
+the source
+at packaging. The IzPack compiler uses the src path to catch the file
+and put it
+into the installation jar file. Therefore you cannot use an IzPack
+variable at that place.
+ 
+Ok, what todo? Use an ant build script where you can use ant replace or
+so before
+calling the IzPack ant task.
+Look into the build script of IzPack.
+%IZ_HOME%\src\build.xml
+ 
+Cheers
+ 
+Klaus
+ 
+
+	-----Original Message-----
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of RAMOS lionel
+	Sent: Thursday, June 14, 2007 10:37 AM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+	Subject: Re: [izpack-users] How does variable substitution work?
+	
+	
+	Hi guys,
+	 
+	I have moreover the same problem with the variable substitution
+but all in the install.xml
+	 
+	I declare a variable
+	&lt;variable name=&quot;TomcatVersion&quot; value=&quot;tomcat-5.5&quot;/&gt;
+	 
+	and in &lt;pack&gt; tag I want to use like this:
+	 
+	&lt;file targetdir=&quot;$INSTALL_PATH&quot;
+src=&quot;dnabi-install/${TomcatVersion}&quot;/&gt;
+	 
+	But he don't replace the variable...
+	Any tips? Because for me it's very usefull
+	 
+	Thanks in advance,
+	lionel
+	
+	 
+	On 6/14/07, Bartz, Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; wrote: 
+
+		Hi Gernot,
+		variables will be not substituted by the contents of
+variables.
+		I see to ways to solve your problem. 
+		
+		1: write a custom action which does the substitution.
+		
+		2: use
+		in install.xml
+		...
+		&lt;variable name=&quot;APPLICATIONS_SUB_PATH&quot;
+	
+value=&quot;/OpenOffice/orgPortable/App/openoffice/program/soffice.exe&quot;/&gt; 
+		...
+		
+		in your parsable file
+	
+&lt;value&gt;${APPLICATIONS_DEFAULT_ROOT}${APPLICATIONS_SUB_PATH}&lt;/value&gt;
+		
+		Cheers
+		
+		Klaus
+		
+		&gt; -----Original Message-----
+		&gt; From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+		&gt; [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On
+Behalf Of
+		&gt; Gernot Stenz
+		&gt; Sent: Wednesday, June 13, 2007 6:44 PM 
+		&gt; To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+		&gt; Subject: [izpack-users] How does variable substitution
+work?
+		&gt;
+		&gt;
+		&gt;
+		&gt; Hello,
+		&gt;
+		&gt; I have yet another problem with my IzPack ( 3.10.0)
+installer:
+		&gt;
+		&gt; I need to set the path for an executable file. I do
+this
+		&gt; using a variable and a &lt;parsable&gt;
+		&gt; tag:
+		&gt;
+		&gt; &lt;variable name=&quot;OOEXECUTABLE&quot;
+		&gt;
+value=&quot;$APPLICATIONS_DEFAULT_ROOT/OpenOfficeorgPortable/App/op 
+		&gt; enoffice/program/soffice.exe&quot;/&gt;
+		&gt;
+		&gt; &lt;parsable type=&quot;xml&quot;
+		&gt;
+targetfile=&quot;$INSTALL_PATH/Editor-3.3rc5/res/vmodellexport.xml&quot;/&gt;
+		&gt;
+		&gt; and in said file I have the following: 
+		&gt;
+		&gt; &lt;value&gt;$OOEXECUTABLE&lt;/value&gt;
+		&gt;
+		&gt; However, after installation, the respective line in
+the file
+		&gt; looks like this:
+		&gt;
+		&gt;
+&lt;value&gt;$APPLICATIONS_DEFAULT_ROOT/OpenOfficeorgPortable/App/op 
+		&gt; enoffice/program/soffice.exe&lt;/value&gt;
+		&gt;
+		&gt; Why doesn't $APPLICATIONS_DEFAULT_ROOT get
+substituted?
+		&gt;
+		&gt; Thanks in advance, Gernot
+		&gt;
+		&gt; --
+		&gt;     __o  Gernot Stenz
+		&gt; e-mail:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">stenzg at informatik.tu-muenchen.de</A>        /\
+		&gt;    -\&lt;,          WWW:  <A HREF="http://www4.in.tum.de/~stenzg">http://www4.in.tum.de/~stenzg</A> 
+		&gt;      /\/--\
+		&gt; _(_)/(_)_London - Paris: 3547
+		&gt; km__________________________________/      \
+		&gt;
+		&gt; _______________________________________________
+		&gt; izpack-users mailing list
+		&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+		&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+		&gt;
+		_______________________________________________ 
+		izpack-users mailing list
+		<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+		<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A> 
+		
+
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070614/2df91c5c/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070614/2df91c5c/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001539.html">[izpack-users] IzPack on Vista reports wrong free disk space
+</A></li>
+	<LI>Next message: <A HREF="001540.html">[izpack-users] How does variable substitution work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1538">[ date ]</a>
+              <a href="thread.html#1538">[ thread ]</a>
+              <a href="subject.html#1538">[ subject ]</a>
+              <a href="author.html#1538">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

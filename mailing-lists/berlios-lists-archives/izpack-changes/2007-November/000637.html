@@ -1,0 +1,361 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1891 - in izpack-src/trunk/src: . dist-files	doc-reST
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1891%20-%20in%20izpack-src/trunk/src%3A%20.%20dist-files%0A%09doc-reST&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000636.html">
+   <LINK REL="Next"  HREF="000638.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1891 - in izpack-src/trunk/src: . dist-files	doc-reST</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1891%20-%20in%20izpack-src/trunk/src%3A%20.%20dist-files%0A%09doc-reST&In-Reply-To="
+       TITLE="[izpack-changes] r1891 - in izpack-src/trunk/src: . dist-files	doc-reST">noreply at berlios.de
+       </A><BR>
+    <I>Thu Nov  8 04:42:31 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000636.html">[izpack-changes] r1890 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000638.html">[izpack-changes] r1892 - in izpack-src/trunk: . src/dist-files	src/img/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#637">[ date ]</a>
+              <a href="thread.html#637">[ thread ]</a>
+              <a href="subject.html#637">[ subject ]</a>
+              <a href="author.html#637">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-11-08 04:42:13 +0100 (Thu, 08 Nov 2007)
+New Revision: 1891
+
+Modified:
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/dist-files/IzPack-install.xml
+   izpack-src/trunk/src/doc-reST/build.py
+Log:
+* The documentation build script is now a full-fledge application
+* Ant calls this script properly
+* The PDF documentation pack is back in the IzPack installer
+
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2007-11-07 07:59:37 UTC (rev 1890)
++++ izpack-src/trunk/src/build.xml	2007-11-08 03:42:13 UTC (rev 1891)
+@@ -165,7 +165,10 @@
+      and time. This will effect in directory _dist. This won't effect to compiled files and
+      other files which are manipulated during the process.
+ 
++  08.11.2007: (Julien Ponge)
++     Call the new docutils-based documentation build system.
+ 
++
+   Mini-HowTo:
+ 
+   To compile and package the compiler.jar jar file, type:
+@@ -203,8 +206,8 @@
+     &lt;property name=&quot;cwd&quot; value=&quot;${basedir}&quot; /&gt;
+ 
+     &lt;property file=&quot;src/ant.properties&quot; /&gt;
+-    &lt;property name=&quot;ver&quot; value=&quot;3.10&quot; /&gt;
+-    &lt;property name=&quot;rel&quot; value=&quot;2&quot; /&gt;
++    &lt;property name=&quot;ver&quot; value=&quot;3.11&quot; /&gt;
++    &lt;property name=&quot;rel&quot; value=&quot;0-beta1&quot; /&gt;
+     &lt;property name=&quot;build.number&quot; value=&quot;${ver}.${rel}&quot; /&gt;
+ 
+     &lt;property name=&quot;src.dir&quot; value=&quot;${basedir}/src/lib&quot; /&gt;
+@@ -910,12 +913,21 @@
+     &lt;/target&gt;
+ 
+     &lt;target name=&quot;build.docu&quot; description=&quot;Builds the customer documentation&quot;&gt;
+-        &lt;mkdir dir=&quot;${doc.dir}/izpack/xhtml&quot; /&gt;
+-        &lt;copy todir=&quot;${doc.dir}/izpack/xhtml&quot; preservelastmodified=&quot;true&quot;&gt;
+-            &lt;fileset dir=&quot;${basedir}/src/doc-ng/XHTML&quot;&gt;
++        &lt;exec executable=&quot;python&quot; dir=&quot;${basedir}/src/doc-reST&quot;&gt;
++            &lt;arg value=&quot;build.py&quot;/&gt;
++        &lt;/exec&gt;
++        &lt;mkdir dir=&quot;${doc.dir}/izpack/html&quot; /&gt;
++        &lt;copy todir=&quot;${doc.dir}/izpack/html&quot; preservelastmodified=&quot;true&quot;&gt;
++            &lt;fileset dir=&quot;${basedir}/src/doc-reST/html&quot;&gt;
+                 &lt;include name=&quot;**/*&quot; /&gt;
+             &lt;/fileset&gt;
+         &lt;/copy&gt;
++        &lt;mkdir dir=&quot;${doc.dir}/izpack/pdf&quot; /&gt;
++        &lt;copy todir=&quot;${doc.dir}/izpack/pdf&quot; preservelastmodified=&quot;true&quot;&gt;
++            &lt;fileset dir=&quot;${basedir}/src/doc-reST/pdf&quot;&gt;
++                &lt;include name=&quot;manual.pdf&quot; /&gt;
++            &lt;/fileset&gt;
++        &lt;/copy&gt;
+     &lt;/target&gt;
+ 
+     &lt;target name=&quot;create.docu&quot;
+@@ -1091,6 +1103,12 @@
+     	  &lt;include name=&quot;**/*.sh&quot;/&gt;
+     	  &lt;include name=&quot;compile&quot;/&gt;
+     	&lt;/fixcrlf&gt;
++    	&lt;fixcrlf srcdir=&quot;${dist.dir}&quot; eol=&quot;dos&quot; eof=&quot;add&quot;&gt;
++            &lt;include name=&quot;**/*.bat&quot;/&gt;
++        &lt;/fixcrlf&gt;
++    	&lt;fixcrlf srcdir=&quot;${dist.bin.dir}&quot; eol=&quot;dos&quot; eof=&quot;add&quot;&gt;
++    	  &lt;include name=&quot;**/*.bat&quot;/&gt;
++    	&lt;/fixcrlf&gt;
+     &lt;/target&gt;
+ 
+     &lt;!-- Runs a testing installer. --&gt;
+
+Modified: izpack-src/trunk/src/dist-files/IzPack-install.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install.xml	2007-11-07 07:59:37 UTC (rev 1890)
++++ izpack-src/trunk/src/dist-files/IzPack-install.xml	2007-11-08 03:42:13 UTC (rev 1891)
+@@ -23,7 +23,7 @@
+     &lt;!-- The info section --&gt;
+     &lt;info&gt;
+         &lt;appname&gt;IzPack&lt;/appname&gt;
+-        &lt;appversion&gt;3.10.2&lt;/appversion&gt;
++        &lt;appversion&gt;3.11.0-beta1&lt;/appversion&gt;
+         &lt;authors&gt;
+             &lt;author email=&quot;&quot; name=&quot;Julien Ponge (maintainer and original developer)&quot;/&gt;
+ 
+@@ -113,13 +113,11 @@
+         &lt;res src=&quot;Unix_shortcutSpec.xml&quot; id=&quot;Unix_shortcutSpec.xml&quot;/&gt;
+         &lt;res src=&quot;core.png&quot; id=&quot;ImgPacksPanel.img.0&quot;/&gt;
+         &lt;res src=&quot;doc-html.png&quot; id=&quot;ImgPacksPanel.img.1&quot;/&gt;
+-        &lt;res src=&quot;javadocs.png&quot; id=&quot;ImgPacksPanel.img.2&quot;/&gt;
+-        &lt;res src=&quot;doc-nanoxml.png&quot; id=&quot;ImgPacksPanel.img.3&quot;/&gt;
+-        &lt;!--
+-            &lt;res src=&quot;doc-pdf.png&quot; id=&quot;ImgPacksPanel.img.2&quot; /&gt;
+-        --&gt;
+-        &lt;res src=&quot;sample.png&quot; id=&quot;ImgPacksPanel.img.4&quot;/&gt;
+-        &lt;res src=&quot;src.png&quot; id=&quot;ImgPacksPanel.img.5&quot;/&gt;
++        &lt;res src=&quot;doc-pdf.png&quot; id=&quot;ImgPacksPanel.img.2&quot;/&gt;
++        &lt;res src=&quot;javadocs.png&quot; id=&quot;ImgPacksPanel.img.3&quot;/&gt;
++        &lt;res src=&quot;doc-nanoxml.png&quot; id=&quot;ImgPacksPanel.img.4&quot;/&gt;
++        &lt;res src=&quot;sample.png&quot; id=&quot;ImgPacksPanel.img.5&quot;/&gt;
++        &lt;res src=&quot;src.png&quot; id=&quot;ImgPacksPanel.img.6&quot;/&gt;
+         &lt;res src=&quot;border1.png&quot; id=&quot;Installer.image.0&quot;/&gt;
+         &lt;res src=&quot;border2.png&quot; id=&quot;Installer.image.1&quot;/&gt;
+         &lt;res src=&quot;border3.png&quot; id=&quot;Installer.image.2&quot;/&gt;
+@@ -142,10 +140,6 @@
+         &lt;panel classname=&quot;SummaryPanel&quot; id=&quot;summarypanel&quot;/&gt;
+         &lt;panel classname=&quot;InstallPanel&quot; id=&quot;installpanel&quot;/&gt;
+         &lt;panel classname=&quot;ShortcutPanel&quot; id=&quot;shortcutpanel&quot;/&gt;
+-        &lt;!-- We use temporary the FinishPanel in the 3.9 Release
+-             to get Access to the [Generate an automatic installation script]-Button
+-             to get feedback so quick as possible from all of users,
+-             who wants to get back this feature ;-) --&gt;
+         &lt;panel classname=&quot;FinishPanel&quot; id=&quot;finishpanel&quot;/&gt;
+     &lt;/panels&gt;
+ 
+@@ -175,13 +169,19 @@
+         &lt;/pack&gt;
+ 
+         &lt;!-- The documentation --&gt;
+-        &lt;pack name=&quot;XHTML Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.1&quot;&gt;
+-            &lt;description&gt;The IzPack documentation (XHTML version).&lt;/description&gt;
++        &lt;pack name=&quot;HTML Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.1&quot;&gt;
++            &lt;description&gt;The IzPack documentation (HTML version).&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+-                &lt;include name=&quot;doc/izpack/xhtml/**/*&quot;/&gt;
++                &lt;include name=&quot;doc/izpack/html/**/*&quot;/&gt;
+             &lt;/fileset&gt;
+         &lt;/pack&gt;
+-        &lt;pack name=&quot;Java Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.2&quot;&gt;
++        &lt;pack name=&quot;PDF Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.2&quot;&gt;
++            &lt;description&gt;The IzPack documentation (PDF version).&lt;/description&gt;
++            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
++            &lt;include name=&quot;doc/izpack/pdf/**/*&quot; /&gt;
++            &lt;/fileset&gt;
++        &lt;/pack&gt;
++        &lt;pack name=&quot;Javadocs Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.3&quot;&gt;
+             &lt;description&gt;
+                 The IzPack Java documentation (Javadocs for IzPack developers).
+             &lt;/description&gt;
+@@ -189,17 +189,7 @@
+                 &lt;include name=&quot;doc/izpack/javadoc/**/*&quot;/&gt;
+             &lt;/fileset&gt;
+         &lt;/pack&gt;
+-        &lt;!--
+-            Disabled while doc-ng not provides a pdf ...
+-
+-            &lt;pack name=&quot;PDF Documentation&quot; required=&quot;no&quot;&gt;
+-            &lt;description&gt;The IzPack documentation (PDF version).&lt;/description&gt;
+-            &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+-            &lt;include name=&quot;doc/izpack/pdf/**/*&quot; /&gt;
+-            &lt;/fileset&gt;
+-            &lt;/pack&gt;
+-        --&gt;
+-        &lt;pack name=&quot;NanoXML Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.3&quot;&gt;
++        &lt;pack name=&quot;NanoXML Documentation&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.4&quot;&gt;
+             &lt;description&gt;NanoXML documentation (for IzPack developers).&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+                 &lt;include name=&quot;doc/nanoxml/**/*&quot;/&gt;
+@@ -208,7 +198,7 @@
+ 
+ 
+         &lt;!-- A trivial sample to get started --&gt;
+-        &lt;pack name=&quot;Sample&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.4&quot;&gt;
++        &lt;pack name=&quot;Sample&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.5&quot;&gt;
+             &lt;description&gt;A sample installation.&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+                 &lt;include name=&quot;sample/**/*&quot;/&gt;
+@@ -216,7 +206,7 @@
+         &lt;/pack&gt;
+ 
+         &lt;!-- The source code of this version --&gt;
+-        &lt;pack name=&quot;Sources&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.5&quot;&gt;
++        &lt;pack name=&quot;Sources&quot; required=&quot;no&quot; packImgId=&quot;ImgPacksPanel.img.6&quot;&gt;
+             &lt;description&gt;The full IzPack source code.&lt;/description&gt;
+             &lt;fileset dir=&quot;&quot; targetdir=&quot;$INSTALL_PATH&quot;&gt;
+                 &lt;include name=&quot;src/**/*&quot;/&gt;
+
+Modified: izpack-src/trunk/src/doc-reST/build.py
+===================================================================
+--- izpack-src/trunk/src/doc-reST/build.py	2007-11-07 07:59:37 UTC (rev 1890)
++++ izpack-src/trunk/src/doc-reST/build.py	2007-11-08 03:42:13 UTC (rev 1891)
+@@ -1,35 +1,90 @@
+ #!/usr/bin/env python
++# ........................................................................... #
++#
++# This script generates the documentation using Python docutils.
++#
++# It requires the following softwares to be installed and made available from
++# the invocation path context:
++#
++# 	- Python (of course!)
++# 	- the docutils module (see <A HREF="http://docutils.sourceforge.net/">http://docutils.sourceforge.net/</A>)
++#   - a LaTeX distribution to invoke 'pdflatex' (MikTeX, TeXLive, teTeX, ...)
++#
++# It should be noted that the pdflatex invocation can be skipped if necessary
++# by using a special command-line flag.
++#
++# ........................................................................... #
++#
++# IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++#  
++# <A HREF="http://izpack.org/">http://izpack.org/</A>
++# <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++# 
++# Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++# you may not use this file except in compliance with the License.
++# You may obtain a copy of the License at
++#     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++#      
++# Unless required by applicable law or agreed to in writing, software
++# distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# See the License for the specific language governing permissions and
++# limitations under the License.
++# ........................................................................... #
+ 
+ import os
+ import shutil
+ 
+-REST_FILES = [
+-	'index',
+-	'introduction',
+-	'getting-started',
+-	'installation-files',
+-	'advanced-features',
+-	'desktop-shortcuts',
+-	'creating-panels',
+-	'user-input',
+-	'custom-actions',
+-	'apache-license',
+-	'cc-license',
+-	'cookbooks'
+-]
++from optparse import OptionParser
++from docutils.core import publish_cmdline as publish
+ 
+-DIRS = ['html', 'pdf']
++def create_dirs():
++	print('Creating output directories...')
++	for d in ['html', 'pdf']:
++		if not os.path.exists(d):	os.makedirs(d)
+ 
+-for d in DIRS:
+-	if not os.path.exists(d):
+-		os.makedirs(d)
++def scan_files():
++	print('Scanning files...')
++	rest_files = [ f[0:(len(f) - 4)] for f in os.listdir('.') if f.endswith('.txt') and f != 'pdf-version.txt' ]
++	pictures   = [ f for f in os.listdir('.') if f.endswith('.png') or f.endswith('.jpg') ]
++	return rest_files, pictures
+ 
+-for rest_file in REST_FILES:
+-	os.system('rst2html.py %s.txt html/%s.html' % (rest_file, rest_file))
++def copy_files(pictures):
++	print('Copying pictures...')
++	for pic in pictures:
++		print('    ' + pic)
++		shutil.copyfile(pic, 'html/' + pic)
++		shutil.copyfile(pic, 'pdf/' + pic)
+ 
+-os.system('rst2newlatex.py pdf-version.txt pdf/manual.tex')
++def generate_html(rest_files):
++	print('Generating html...')
++	for rest_file in rest_files:
++		print('    ' + rest_file)
++		publish(writer_name='html', argv=['%s.txt' % rest_file, 'html/%s.html' % rest_file])
++ 
++def generate_latex():
++	print('Generating LaTeX for PDF output...')
++	publish(writer_name='newlatex2e', argv=['pdf-version.txt', 'pdf/manual.tex'])
+ 
+-for f in os.listdir('.'):
+-	if f.endswith('.png') or f.endswith('.jpg'):
+-		shutil.copyfile(f, 'html/' + f)
+-		shutil.copyfile(f, 'pdf/' + f)
+\ No newline at end of file
++def compile_latex():
++	print('Generating PDF from LaTeX...')
++	os.chdir('pdf')
++	for i in xrange(1,4):
++		print('    pdflatex pass #%i' % i)
++		os.system('pdflatex --interaction=batchmode manual.tex')
++		os.chdir('..')
++
++if __name__ == '__main__':
++	parser = OptionParser()
++	parser.add_option(&quot;-n&quot;, &quot;--no-pdflatex&quot;, dest=&quot;pdflatex&quot;, action=&quot;store_false&quot;,
++                  	default=True, help=&quot;don't call pdflatex&quot;)
++	options, args = parser.parse_args()
++
++	rest_files, pictures = scan_files()
++	create_dirs()
++	copy_files(pictures)
++	generate_html(rest_files)
++	generate_latex()
++	if options.pdflatex: compile_latex()
++	
++	print('Done')
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000636.html">[izpack-changes] r1890 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000638.html">[izpack-changes] r1892 - in izpack-src/trunk: . src/dist-files	src/img/src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#637">[ date ]</a>
+              <a href="thread.html#637">[ thread ]</a>
+              <a href="subject.html#637">[ subject ]</a>
+              <a href="author.html#637">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

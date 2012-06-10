@@ -1,0 +1,878 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1469 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1469%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000216.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1469 - izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1469%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1469 - izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon Jul  3 09:55:53 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000216.html">[izpack-changes] r1470 - izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#215">[ date ]</a>
+              <a href="thread.html#215">[ thread ]</a>
+              <a href="subject.html#215">[ subject ]</a>
+              <a href="author.html#215">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-07-03 09:55:46 +0200 (Mon, 03 Jul 2006)
+New Revision: 1469
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/IzPanel.java
+Log:
+First part of global heading; extended anchor handling
+of IzPanels; extensions of getI18nStringForClass.
+-- dIESe und die folgenden Zeilen werden ignoriert --
+
+M    installer/IzPanel.java
+M    installer/InstallerFrame.java
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-06-30 14:26:05 UTC (rev 1468)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-07-03 07:55:46 UTC (rev 1469)
+@@ -1,5 +1,5 @@
+ /*
+- * $Id:$
++ * $Id$
+  * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+@@ -23,6 +23,7 @@
+ package com.izforge.izpack.installer;
+ 
+ import java.awt.BorderLayout;
++import java.awt.Color;
+ import java.awt.Component;
+ import java.awt.Cursor;
+ import java.awt.Dimension;
+@@ -43,6 +44,7 @@
+ import java.io.BufferedWriter;
+ import java.io.ByteArrayOutputStream;
+ import java.io.File;
++import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.ObjectOutputStream;
+ import java.io.OutputStream;
+@@ -64,10 +66,13 @@
+ import javax.swing.BoxLayout;
+ import javax.swing.ImageIcon;
+ import javax.swing.JButton;
++import javax.swing.JComponent;
+ import javax.swing.JFrame;
+ import javax.swing.JLabel;
+ import javax.swing.JOptionPane;
+ import javax.swing.JPanel;
++import javax.swing.JProgressBar;
++import javax.swing.JSeparator;
+ import javax.swing.UIManager;
+ import javax.swing.WindowConstants;
+ import javax.swing.border.TitledBorder;
+@@ -107,6 +112,12 @@
+     private static final float JAVA_SPECIFICATION_VERSION = Float.parseFloat(System
+             .getProperty(&quot;java.specification.version&quot;));
+ 
++    private static final String ICON_RESOURCE = &quot;Installer.image&quot;;
++
++    private static final String HEADING_ICON_RESOURCE = &quot;Heading.image&quot;;
++
++//    private static final int HEADINGLINES = 1;
++
+     /** The language pack. */
+     public LocaleDatabase langpack;
+ 
+@@ -130,16 +141,29 @@
+ 
+     /** The quit button. */
+     protected JButton quitButton;
++
++    /** Mapping from &quot;raw&quot; panel number to visible panel number. */
++    protected ArrayList visiblePanelMapping;
+     
+-    /** Registered GUICreationListener. */
++   /** Registered GUICreationListener. */
+     protected ArrayList guiListener;
+ 
++    /** Heading major text. */
++    protected JLabel[] headingLabels;
++
++    /** Panel which contains the heading text and/or icon */
++    protected JPanel headingPanel;
++
++    /** The heading counter component. */
++    protected JComponent headingCounterComponent;
++    
+     /** Image */
+     private JLabel iconLabel;
+ 
+     /** Count for discarded interrupt trials. */
+     private int interruptCount = 1;
+-
++    
++ 
+     /** Maximum of discarded interrupt trials. */
+     private static final int MAX_INTERRUPT = 3;
+ 
+@@ -154,6 +178,7 @@
+     {
+         super(title);
+         guiListener = new ArrayList();
++        visiblePanelMapping = new ArrayList();
+         this.installdata = installdata;
+         this.langpack = installdata.langpack;
+ 
+@@ -192,6 +217,8 @@
+         Object[] params = { this, installdata};
+ 
+         // We load each of them
++        int curVisPanelNumber = 0;
++        int lastVis = 0;
+         for (i = 0; i &lt; size; i++)
+         {
+             // We add the panel
+@@ -208,11 +235,20 @@
+             object = constructor.newInstance(params);
+             panel = (IzPanel) object;
+             installdata.panels.add(panel);
++            if (panel.isHidden())
++                visiblePanelMapping.add(i, new Integer(-1));
++            else
++            {
++                visiblePanelMapping.add(i, new Integer(curVisPanelNumber));
++                curVisPanelNumber++;
++                lastVis = i;
++            }
+ 
+             // We add the XML data panel root
+             XMLElement panelRoot = new XMLElement(className);
+             installdata.xmlData.addChild(panelRoot);
+         }
++        visiblePanelMapping.add(i,new Integer(lastVis));
+     }
+ 
+     /**
+@@ -266,7 +302,7 @@
+     private void buildGUI()
+     {
+         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); //patch 06/07/2005, Fabrice Mirabile
+-	    // Sets the frame icon
++        // Sets the frame icon
+         setIconImage(icons.getImageIcon(&quot;JFrameIcon&quot;).getImage());
+ 
+         // Prepares the glass pane to block the gui interaction when needed
+@@ -326,16 +362,7 @@
+ 
+         try
+         {
+-            ResourceManager rm = ResourceManager.getInstance();
+-            ImageIcon icon;
+-            try
+-            {
+-                icon = rm.getImageIconResource(&quot;Installer.image&quot;);
+-            }
+-            catch (Exception e) // This is not that clean ...
+-            {
+-                icon = rm.getImageIconResource(&quot;Installer.image.0&quot;);
+-            }
++            ImageIcon icon = loadIcon(ICON_RESOURCE, 0, true);
+             if (icon != null)
+             {
+                 JPanel imgPanel = new JPanel();
+@@ -352,9 +379,10 @@
+             // ignore
+         }
+ 
+-        loadImage(0);
++        loadAndShowImage(0);
+         getRootPane().setDefaultButton(nextButton);
+         callGUIListener(GUIListener.GUI_BUILDED, navPanel);
++        createHeading(navPanel);
+     }
+ 
+     private void callGUIListener(int what)
+@@ -365,27 +393,59 @@
+     private void callGUIListener(int what, Object param)
+     {
+         Iterator iter = guiListener.iterator();
+-        while(iter.hasNext())
++        while (iter.hasNext())
+             ((GUIListener) iter.next()).guiActionPerformed(what, param);
+     }
+ 
+-    private void loadImage(int panelNo)
++    private ImageIcon loadIcon(String resPrefix, int PanelNo, boolean tryBaseIcon)
++            throws ResourceNotFoundException, IOException
+     {
+-        try
++        ResourceManager rm = ResourceManager.getInstance();
++        ImageIcon icon = null;
++        if (tryBaseIcon)
+         {
+-            ResourceManager rm = ResourceManager.getInstance();
+-            ImageIcon icon = rm.getImageIconResource(&quot;Installer.image.&quot; + panelNo);
+-            if (icon != null)
++            try
+             {
+-                iconLabel.setVisible(false);
+-                iconLabel.setIcon(icon);
+-                iconLabel.setVisible(true);
++                icon = rm.getImageIconResource(resPrefix);
+             }
++            catch (Exception e) // This is not that clean ...
++            {
++                icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + PanelNo);
++            }
+         }
++        else
++            icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + PanelNo);
++        return (icon);
++    }
++
++    private void loadAndShowImage(int panelNo)
++    {
++        loadAndShowImage(iconLabel, ICON_RESOURCE, panelNo);
++    }
++
++    private void loadAndShowImage(JLabel iLabel, String resPrefix, int panelNo)
++    {
++        ImageIcon icon = null;
++        try
++        {
++            icon = loadIcon(resPrefix, panelNo, false);
++        }
+         catch (Exception e)
+         {
++            try
++            {
++                icon = loadIcon(resPrefix, panelNo, true);
++            }
++            catch (Exception e1)
++            {}
+             // ignore
+         }
++        if (icon != null)
++        {
++            iLabel.setVisible(false);
++            iLabel.setIcon(icon);
++            iLabel.setVisible(true);
++        }
+     }
+ 
+     /** Shows the frame. */
+@@ -420,15 +480,17 @@
+             //auto-installation script (bug # 4551), let's make data only immediately before
+             //writing out that script.
+             //l_panel.makeXMLData(installdata.xmlData.getChildAtIndex(last));
+-
+-            if (installdata.curPanelNumber == 0)
++            
++            // No previos button in the first visible panel
++            if (((Integer) visiblePanelMapping.get(installdata.curPanelNumber)).intValue() == 0)
+             {
+                 prevButton.setVisible(false);
+                 lockPrevButton();
+                 unlockNextButton(); // if we push the button back at the license
+                 // panel
+             }
+-            else if (installdata.curPanelNumber == installdata.panels.size() - 1)
++            // Only the exit button in the last panel.
++            else if (((Integer) visiblePanelMapping.get(installdata.panels.size())).intValue() == installdata.curPanelNumber)
+             {
+                 prevButton.setVisible(false);
+                 nextButton.setVisible(false);
+@@ -478,9 +540,11 @@
+                     }
+                 }
+             }
++            performHeading(panel);
+             panel.panelActivate();
+             panelsContainer.setVisible(true);
+-            loadImage(installdata.curPanelNumber);
++            loadAndShowImage(((Integer) visiblePanelMapping.get(installdata.curPanelNumber))
++                    .intValue());
+             isBack = false;
+             callGUIListener(GUIListener.PANEL_SWITCHED);
+         }
+@@ -1061,4 +1125,235 @@
+     {
+         guiListener.add(listener);
+     }
++
++
++    private void createHeadingLabels(int headingLines, Color back)
++    {
++        // headingLabels are an array which contains the labels for header (0),
++        // description lines and the icon (last).
++        headingLabels = new JLabel[headingLines + 1];
++        headingLabels[0] = new JLabel(&quot;&quot;);
++        // First line ist the &quot;main heading&quot; which should be bold.
++        headingLabels[0].setFont(headingLabels[0].getFont().deriveFont(Font.BOLD));
++        if (installdata.guiPrefs.modifier.containsKey(&quot;headingFontSize&quot;))
++        {
++            float fontSize = Float.parseFloat((String) installdata.guiPrefs.modifier
++                    .get(&quot;headingFontSize&quot;));
++            if (fontSize &gt; 0.0 &amp;&amp; fontSize &lt;= 5.0)
++            {
++                float currentSize = headingLabels[0].getFont().getSize2D();
++                headingLabels[0].setFont(headingLabels[0].getFont().deriveFont(
++                        currentSize * fontSize));
++            }
++        }
++        for (int i = 1; i &lt; headingLines; ++i)
++        {
++            // Minor headings should be a little bit more to the right.
++            headingLabels[i].setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
++        }
++
++    }
++
++    private void createHeadingCounter(Color back, JPanel navPanel, JPanel leftHeadingPanel)
++    {
++        int i;
++        String counterPos = &quot;inHeading&quot;;
++        if (installdata.guiPrefs.modifier.containsKey(&quot;headingPanelCounterPos&quot;))
++            counterPos = (String) installdata.guiPrefs.modifier.get(&quot;headingPanelCounterPos&quot;);
++        if (installdata.guiPrefs.modifier.containsKey(&quot;headingPanelCounter&quot;))
++        {
++            headingCounterComponent = null;
++            if (&quot;progressbar&quot;.equalsIgnoreCase((String) installdata.guiPrefs.modifier
++                    .get(&quot;headingPanelCounter&quot;)))
++            {
++                JProgressBar headingProgressBar = new JProgressBar();
++                headingProgressBar.setStringPainted(true);
++                headingProgressBar.setString(&quot;&quot;);
++                headingProgressBar.setValue(0);
++                headingCounterComponent = headingProgressBar;
++            }
++            else if (&quot;text&quot;.equalsIgnoreCase((String) installdata.guiPrefs.modifier
++                    .get(&quot;headingPanelCounter&quot;)))
++            {
++                JLabel headingCountPanels = new JLabel(&quot; &quot;);
++                headingCounterComponent = headingCountPanels;
++                headingCounterComponent.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
++            }
++            if (&quot;inHeading&quot;.equals(counterPos))
++            {
++                leftHeadingPanel.add(headingCounterComponent);
++            }
++
++            else if (&quot;inNavigationPanel&quot;.equals(counterPos))
++            {
++                Component[] comps = navPanel.getComponents();
++                for (i = 0; i &lt; comps.length; ++i)
++                {
++                    if (comps[i].equals(prevButton)) break;
++                }
++                if (i &lt;= comps.length)
++                {
++                    navPanel.add(Box.createHorizontalGlue(), i);
++                    navPanel.add(headingCounterComponent, i);
++                }
++
++            }
++        }
++    }
++
++    private JPanel createHeadingIcon(Color back)
++    {
++        // the icon
++        ImageIcon icon = null;
++        try
++        {
++            icon = loadIcon(HEADING_ICON_RESOURCE, 0, true);
++        }
++        catch (Exception e)
++        {
++            // ignore
++        }
++        JPanel imgPanel = new JPanel();
++        imgPanel.setLayout(new BoxLayout(imgPanel, BoxLayout.Y_AXIS));
++        imgPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
++        if (back != null) imgPanel.setBackground(back);
++        JLabel iconLab = new JLabel(icon);
++        imgPanel.add(iconLab, BorderLayout.EAST);
++        headingLabels[headingLabels.length - 1] = iconLab;
++        return (imgPanel);
++
++    }
++
++    private void createHeading(JPanel navPanel)
++    {
++        headingPanel = null;
++        if (!isHeading(null)) return;
++        int headingLines = 1;
++        // The number of lines can be determined in the config xml file.
++        // The first is the header, additonals are descriptions for the header.
++        if (installdata.guiPrefs.modifier.containsKey(&quot;headingLineCount&quot;))
++            headingLines = Integer.parseInt((String) installdata.guiPrefs.modifier
++                    .get(&quot;headingLineCount&quot;));
++        Color back = null;
++        int i = 0;
++        // It is possible to determine the used background color of the heading panel.
++        if (installdata.guiPrefs.modifier.containsKey(&quot;headingBackgroundColor&quot;))
++            back = Color.decode((String) installdata.guiPrefs.modifier
++                    .get(&quot;headingBackgroundColor&quot;));
++
++        // We create the text labels and the needed panels. From inner to outer.
++        // Labels
++        createHeadingLabels(headingLines, back);
++        // Panel which contains the labels
++        JPanel leftHeadingPanel = new JPanel();
++        if (back != null) leftHeadingPanel.setBackground(back);
++        leftHeadingPanel.setLayout(new BoxLayout(leftHeadingPanel, BoxLayout.Y_AXIS));
++        for (i = 0; i &lt; headingLines; ++i)
++            leftHeadingPanel.add(headingLabels[i]);
++        // HeadingPanel counter: this is a label or a progress bar which can be placed
++        // in the leftHeadingPanel or in the navigation bar. It is facultative. If
++        // exist, it shows the current panel number and the amount of panels.
++        createHeadingCounter(back, navPanel, leftHeadingPanel);
++        // It is possible to place an icon on the right side of the heading panel.
++        JPanel imgPanel = createHeadingIcon(back);
++
++        // The panel for text and icon.
++        JPanel northPanel = new JPanel();
++        if (back != null) northPanel.setBackground(back);
++        northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.X_AXIS));
++        northPanel.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 0));
++        northPanel.add(leftHeadingPanel);
++        northPanel.add(Box.createHorizontalGlue());
++        northPanel.add(imgPanel);
++        headingPanel = new JPanel(new BorderLayout());
++        headingPanel.add(northPanel);
++        headingPanel.add(new JSeparator(), BorderLayout.SOUTH);
++
++        //contentPane.add(northPanel, BorderLayout.NORTH);
++        contentPane.add(headingPanel, BorderLayout.NORTH);
++
++    }
++
++    /**
++     * Returns whether this installer frame uses with the given panel a
++     * separated heading panel or not. Be aware, this is an other heading
++     * as given by the IzPanel which will be placed in the IzPanel.
++     * This heading will be placed if the gui preferences contains an 
++     * modifier with the key &quot;useHeadingPanel&quot; and the value &quot;yes&quot; and
++     * there is a message with the key &quot;&amp;lt;class name&amp;gt;.headline&quot;.
++     * @param caller the IzPanel for which heading should be resolved
++     * @return whether an heading panel will be used or not
++     */
++    public boolean isHeading(IzPanel caller)
++    {
++        if (!installdata.guiPrefs.modifier.containsKey(&quot;useHeadingPanel&quot;)
++                || !((String) installdata.guiPrefs.modifier.get(&quot;useHeadingPanel&quot;))
++                        .equalsIgnoreCase(&quot;yes&quot;)) return (false);
++        if (caller == null) return (true);
++        return (caller.getI18nStringForClass(&quot;headline&quot;, null) != null);
++
++    }
++
++    private void performHeading(IzPanel panel)
++    {
++        int i;
++        int headingLines = 1;
++        if (installdata.guiPrefs.modifier.containsKey(&quot;headingLineCount&quot;))
++            headingLines = Integer.parseInt((String) installdata.guiPrefs.modifier
++                    .get(&quot;headingLineCount&quot;));
++
++        if (headingLabels == null) return;
++        String headline = panel.getI18nStringForClass(&quot;headline&quot;);
++        if (headline == null)
++        {
++            headingPanel.setVisible(false);
++            return;
++        }
++        for (i = 0; i &lt;= headingLines; ++i)
++            if (headingLabels[i] != null) headingLabels[i].setVisible(false);
++        String info;
++        String key = &quot;info&quot;;
++        for (i = 0; i &lt; headingLines - 1; ++i)
++        {
++            info = panel.getI18nStringForClass(key);
++            if (info == null) info = &quot; &quot;;
++            if (info.endsWith(&quot;:&quot;))
++            {
++                info = info.substring(0, info.length() - 1) + &quot;.&quot;;
++            }
++            headingLabels[i + 1].setText(info);
++            headingLabels[i + 1].setVisible(true);
++            key = &quot;info&quot; + Integer.toString(i);
++        }
++        // Do not forgett the first headline.
++        headingLabels[0].setText(headline);
++        headingLabels[0].setVisible(true);
++        int curPanelNo = ((Integer) visiblePanelMapping.get(installdata.curPanelNumber)).intValue();
++        if (headingCounterComponent != null)
++        {
++            int visPanelsCount = ((Integer) visiblePanelMapping.get(((Integer) visiblePanelMapping
++                    .get(installdata.panels.size())).intValue())).intValue();
++
++            StringBuffer buf = new StringBuffer();
++            buf.append(langpack.getString(&quot;installer.step&quot;)).append(&quot; &quot;).append(curPanelNo + 1)
++                    .append(&quot; &quot;).append(langpack.getString(&quot;installer.of&quot;)).append(&quot; &quot;).append(
++                            visPanelsCount + 1);
++            if (headingCounterComponent instanceof JProgressBar)
++            {
++                JProgressBar headingProgressBar = (JProgressBar) headingCounterComponent;
++                headingProgressBar.setMaximum(visPanelsCount + 1);
++                headingProgressBar.setValue(curPanelNo + 1);
++                headingProgressBar.setString(buf.toString());
++            }
++            else
++                ((JLabel) headingCounterComponent).setText(buf.toString());
++        }
++        if (headingLabels[headingLines] != null)
++        {
++            loadAndShowImage(headingLabels[headingLines], HEADING_ICON_RESOURCE, curPanelNo);
++            headingLabels[headingLines].setVisible(true);
++        }
++        headingPanel.setVisible(true);
++
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/IzPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/IzPanel.java	2006-06-30 14:26:05 UTC (rev 1468)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/IzPanel.java	2006-07-03 07:55:46 UTC (rev 1469)
+@@ -39,6 +39,7 @@
+ import com.izforge.izpack.util.AbstractUIHandler;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.MultiLineLabel;
++import com.izforge.izpack.util.VariableSubstitutor;
+ 
+ /**
+  * Defines the base class for the IzPack panels. Any panel should be a subclass of it and should
+@@ -92,6 +93,21 @@
+     /** internal headline Label */
+     protected JLabel headLineLabel;
+     
++    /** Is this panel general hidden or not */
++    protected boolean hidden;
++    
++    /** Layout anchor declared in the xml file
++     *  with the guiprefs modifier &quot;layoutAnchor&quot;
++     */ 
++    protected static int ANCHOR = -1;
++    
++    /** Gap which should be used for (multiline) labels 
++     *  to create a consistent view. The value will
++     *  be configurable by guiprefs modifier &quot;labelGap&quot;.  
++     */
++    protected static int LABEL_GAP = -1;
++    private final static int LABEL_GAP_DEFAULT = 5;
++    
+     /** HEADLINE = &quot;headline&quot; */
+     public final static String HEADLINE = &quot;headline&quot;;
+     
+@@ -153,10 +169,11 @@
+       setLayout(  );
+       buildHeadline( iconName, instance );
+       gridyCounter++;
+-    }   
++    }
+     
+     /** 
+-     * Build the Headline of a Panel.
++     * Build the IzPanel internal Headline. If an external headline#
++     * is used, this method returns immediately with false.
+      * Allows also to display a leading Icon for the PanelHeadline.
+      * This Icon can also be different if the panel has more than one Instances. 
+      * The UserInputPanel is one of these Candidates.
+@@ -171,6 +188,8 @@
+     protected boolean buildHeadline( String imageIconName, int instanceNumber )
+     {
+       boolean result = false;
++      if( parent.isHeading(this))
++          return(false);
+ 
+       // TODO: proteced instancenumber
+       // TODO: is to be validated
+@@ -240,7 +259,6 @@
+ 
+       return result;
+     }
+-
+     
+     /** 
+      * Gets a language Resource String from the parent, which  holds these global resource.
+@@ -452,15 +470,43 @@
+     /**
+      * Calls the langpack of parent InstallerFrame for the String &lt;tt&gt;RuntimeClassName.subkey&lt;/tt&gt;.
+      * Do not add a point infront of subkey, it is always added in this method.
++     * If &lt;tt&gt;RuntimeClassName.subkey&lt;/tt&gt; is not found, the super class name will be used
++     * until it is &lt;tt&gt;IzPanel&lt;/tt&gt;. If no key will be found, null returns.
+      * 
+      * @param subkey the subkey for the string which should be returned
++     * @return the founded string
++     */
++    public String getI18nStringForClass(String subkey)
++    {
++        String retval = null;
++        Class clazz = this.getClass();
++        while (retval == null &amp;&amp; !clazz.getName().endsWith(&quot;.IzPanel&quot;))
++        {
++            retval = getI18nStringForClass(clazz.getName(), subkey, null);
++            clazz = clazz.getSuperclass();
++        }
++        return (retval);
++    }
++
++    /**
++     * Calls the langpack of parent InstallerFrame for the String &lt;tt&gt;RuntimeClassName.subkey&lt;/tt&gt;.
++     * Do not add a point infront of subkey, it is always added in this method.
++     * If no key will be found the key or - if alternate class is null - null returns.
++     * 
++     * @param subkey the subkey for the string which should be returned
+      * @param alternateClass the short name of the class which should be used if no string is
+      * present with the runtime class name
+      * @return the founded string
+      */
+     public String getI18nStringForClass(String subkey, String alternateClass)
+     {
+-        String curClassName = this.getClass().getName();
++        return( getI18nStringForClass(getClass().getName(), subkey, alternateClass));
++
++    }
++
++    private String getI18nStringForClass(String curClassName, String subkey, String alternateClass)
++    {
++
+         int nameStart = curClassName.lastIndexOf('.') + 1;
+         curClassName = curClassName.substring(nameStart, curClassName.length());
+         StringBuffer buf = new StringBuffer();
+@@ -469,13 +515,20 @@
+         String retval = parent.langpack.getString(fullkey);
+         if (retval == null || retval.startsWith(fullkey))
+         {
++            if (alternateClass == null) return (null);
+             buf.delete(0, buf.length());
+             buf.append(alternateClass).append(&quot;.&quot;).append(subkey);
+             retval = parent.langpack.getString(buf.toString());
+         }
++        if (retval != null &amp;&amp; retval.indexOf('$') &gt; -1)
++        {
++            VariableSubstitutor substitutor = new VariableSubstitutor(idata.getVariables());
++            retval = substitutor.substitute(retval, null);
++        }
+         return (retval);
+     }
+-
++    
++        
+     /**
+      * Returns the parent of this IzPanel (which is a InstallerFrame).
+      * 
+@@ -720,54 +773,123 @@
+ 
+     /**
+      * Start layout determining. If it is needed, a dummy component will be created as first row.
+-     * This will be done, if the IzPack variable &lt;code&gt;IzPanel.LayoutType&lt;/code&gt; has the value
+-     * &quot;BOTTOM&quot;.
++     * This will be done, if the IzPack guiprefs modifier with the key &quot;layoutAnchor&quot; has the value
++     * &quot;SOUTH&quot; or &quot;SOUTHWEST&quot;. The earlier used value &quot;BOTTOM&quot; and the declaration via the IzPack
++     * variable &lt;code&gt;IzPanel.LayoutType&lt;/code&gt; are also supported.
+      */
+     public void startGridBagLayout()
+     {
+         if (gridBagLayoutStarted) return;
+         gridBagLayoutStarted = true;
+         GridBagLayout layout = new GridBagLayout();
+-        defaultGridBagConstraints.insets = new Insets(0, 0, 20, 0);
++        defaultGridBagConstraints.insets = new Insets(0, 0, getLabelGap(), 0);
+         defaultGridBagConstraints.anchor = GridBagConstraints.WEST;
+         setLayout(layout);
+-        String todo = idata.getVariable(&quot;IzPanel.LayoutType&quot;);
+-        if (todo == null) // No command, no work.
+-            return;
+-        if (&quot;BOTTOM&quot;.equals(todo))
+-        { // Make a header to push the rest to the bottom.
++        switch (getAnchor())
++        {
++        case GridBagConstraints.SOUTH:
++        case GridBagConstraints.SOUTHWEST:
++            // Make a header to push the rest to the bottom.
+             Filler dummy = new Filler();
+             GridBagConstraints gbConstraint = getNextYGridBagConstraints();
+             gbConstraint.weighty = 1.0;
+             gbConstraint.fill = GridBagConstraints.BOTH;
+             gbConstraint.anchor = GridBagConstraints.WEST;
+             this.add(dummy, gbConstraint);
++            break;
++        default:
++            break;
+         }
+-
+         // TODO: impl for layout type CENTER, ...
+     }
+ 
+     /**
+      * Complete layout determining. If it is needed, a dummy component will be created as last row.
+-     * This will be done, if the IzPack variable &lt;code&gt;IzPanel.LayoutType&lt;/code&gt; has the value
+-     * &quot;TOP&quot;.
++     * This will be done, if the IzPack guiprefs modifier with the key &quot;layoutAnchor&quot; has the value
++     * &quot;NORTH&quot; or &quot;NORTHWEST&quot;. The earlier used value &quot;TOP&quot; and the declaration via the IzPack
++     * variable &lt;code&gt;IzPanel.LayoutType&lt;/code&gt; are also supported.
+      */
+     public void completeGridBagLayout()
+     {
+-        String todo = idata.getVariable(&quot;IzPanel.LayoutType&quot;);
+-        if (todo == null) // No command, no work.
+-            return;
+-        if (&quot;TOP&quot;.equals(todo))
+-        { // Make a footer to push the rest to the top.
++        switch (getAnchor())
++        {
++        case GridBagConstraints.NORTH:
++        case GridBagConstraints.NORTHWEST:
++            // Make a footer to push the rest to the top.
+             Filler dummy = new Filler();
+             GridBagConstraints gbConstraint = getNextYGridBagConstraints();
+             gbConstraint.weighty = 1.0;
+             gbConstraint.fill = GridBagConstraints.BOTH;
+             gbConstraint.anchor = GridBagConstraints.WEST;
+-            this.add(dummy, gbConstraint);
++            add(dummy, gbConstraint);
++            break;
++        default:
++            break;
+         }
+     }
+ 
++    /**
++     * Returns the anchor as value declared in GridBagConstraints. Possible are NORTH,
++     * NORTHWEST, SOUTH, SOUTHWEST and CENTER. The values can be configured in the
++     * xml description file with the variable &quot;IzPanel.LayoutType&quot;. The old values
++     * &quot;TOP&quot; and &quot;BOTTOM&quot; from the xml file are mapped to NORTH and SOUTH.
++     *  
++     * @return
++     */
++    public static int getAnchor()
++    {
++        if( ANCHOR &gt;= 0)
++            return(ANCHOR);
++        AutomatedInstallData idata = AutomatedInstallData.getInstance();  
++        String todo;
++        if (idata instanceof InstallData
++                &amp;&amp; ((InstallData) idata).guiPrefs.modifier.containsKey(&quot;layoutAnchor&quot;))
++            todo = (String) ((InstallData) idata).guiPrefs.modifier.get(&quot;layoutAnchor&quot;);
++        else
++            todo = idata.getVariable(&quot;IzPanel.LayoutType&quot;);
++        if (todo == null) // No command, no work.
++            ANCHOR = GridBagConstraints.NONE;
++        else if(&quot;TOP&quot;.equals(todo) || &quot;NORTH&quot;.equals(todo))
++            ANCHOR = GridBagConstraints.NORTH;
++        else if(&quot;BOTTOM&quot;.equals(todo) || &quot;SOUTH&quot;.equals(todo))
++            ANCHOR = GridBagConstraints.SOUTH;
++        else if(&quot;SOUTHWEST&quot;.equals(todo))
++            ANCHOR = GridBagConstraints.SOUTHWEST;
++        else if(&quot;NORTHWEST&quot;.equals(todo))
++            ANCHOR = GridBagConstraints.NORTHWEST;
++        return(ANCHOR);
++    }
++    
++    /**
++     * Returns the gap which should be used for (multiline) labels 
++     *  to create a consistent view. The value will
++     *  be configurable by the guiprefs modifier &quot;labelGap&quot;.
++     * @return
++     */
++    public static int getLabelGap()
++    {
++        if( LABEL_GAP &gt;= 0)
++            return( LABEL_GAP );
++        LABEL_GAP = LABEL_GAP_DEFAULT;
++        AutomatedInstallData idata = AutomatedInstallData.getInstance();  
++        String var = null;
++        if (idata instanceof InstallData
++                &amp;&amp; ((InstallData) idata).guiPrefs.modifier.containsKey(&quot;labelGap&quot;))
++            var = (String) ((InstallData) idata).guiPrefs.modifier.get(&quot;labelGap&quot;);
++        if( var != null)
++        {
++            try
++            {
++                LABEL_GAP = Integer.parseInt(var);
++            }
++            catch(NumberFormatException nfe)
++            {
++                // Do nothing else use the default value. 
++                // Need to set it again at this position??
++            }
++        }
++        return( LABEL_GAP);
++    }
+     // ------------------- Layout stuff -------------------- END ---
+ 
+     // ------------------- Summary stuff -------------------- START ---
+@@ -810,4 +932,31 @@
+     }
+     // ------------------- Inner classes ------------------- END ---
+ 
++    
++    /**
++     * Returns whether this panel will be hidden general or not.
++     * A hidden panel will be not counted  in the step counter and
++     * for panel icons.
++     * @return whether this panel will be hidden general or not
++     */
++    /**
++     * @return
++     */
++    public boolean isHidden()
++    {
++        return hidden;
++    }
++
++    
++    /**
++     * Set whether this panel should be hidden or not.
++     * A hidden panel will be not counted  in the step counter and
++     * for panel icons.
++     * @param hidden flag to be set
++     */
++    public void setHidden(boolean hidden)
++    {
++        this.hidden = hidden;
++    }
++
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000216.html">[izpack-changes] r1470 - izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#215">[ date ]</a>
+              <a href="thread.html#215">[ thread ]</a>
+              <a href="subject.html#215">[ subject ]</a>
+              <a href="author.html#215">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

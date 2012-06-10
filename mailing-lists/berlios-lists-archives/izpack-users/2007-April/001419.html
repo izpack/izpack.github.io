@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] how to use createForUnselectedPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20how%20to%20use%20createForUnselectedPack&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C899101653F20%40svrexol1.ol.reddot.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001413.html">
+   <LINK REL="Next"  HREF="001420.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] how to use createForUnselectedPack</H1>
+    <B>abdess</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20how%20to%20use%20createForUnselectedPack&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C899101653F20%40svrexol1.ol.reddot.de"
+       TITLE="[izpack-users] how to use createForUnselectedPack">danguir2 at caramail.com
+       </A><BR>
+    <I>Fri Apr 13 13:46:40 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001413.html">[izpack-users] how to use createForUnselectedPack
+</A></li>
+        <LI>Next message: <A HREF="001420.html">[izpack-users] how to use createForUnselectedPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1419">[ date ]</a>
+              <a href="thread.html#1419">[ thread ]</a>
+              <a href="subject.html#1419">[ subject ]</a>
+              <a href="author.html#1419">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+hi Dennis ,
+thank  you very much for your answer.
+i'd like to tell you , that i have done what you have suggested  to me , but
+i still don't have what i want .
+bellow what i've done :
+
+----------------------------------
+in my install.xml file , i have :
+
+&lt;installation version=&quot;1.0&quot;&gt;
+         ...
+        &lt;resources&gt;
+                 ...
+                 &lt;res src=&quot;BASE/UserInputSpec.xml&quot; id=&quot;userInputSpec.xml&quot;/&gt;
+	         &lt;res src=&quot;BASE/conditions.xml&quot;  id=&quot;conditions.xml&quot;/&gt;
+	&lt;/resources&gt;
+        &lt;panels&gt;
+                 ...
+                 &lt;panel classname=&quot;UserInputPanel&quot; id=&quot;panel.0&quot;/&gt;
+		&lt;panel classname=&quot;UserInputPanel&quot; id=&quot;panel.1&quot;/&gt;
+        &lt;/panels&gt;
+         ...
+        &lt;packs&gt;
+             ...
+             &lt;pack name=&quot;MyPack&quot; preselected=&quot;yes&quot; required=&quot;no&quot;
+id=&quot;install.myPack&quot; os=&quot;unix&quot;&gt;
+                   ...
+	     &lt;/pack&gt;	
+        &lt;/packs&gt;
+&lt;/installation&gt;
+----------------------------------        
+my UserInputSpec.xml file contains :
+&lt;userInput&gt;
+     &lt;panel order=&quot;0&quot; id=&quot;panel.0&quot;&gt;
+       ....
+     &lt;/panel&gt;
+     &lt;panel order=&quot;1&quot; id=&quot;panel.1&quot;&gt;
+       ....
+     &lt;/panel&gt;
+&lt;/userInput&gt;
+----------------------------------
+finally i added a file conditions.xml , which contains :
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;conditions&gt;
+
+&lt;!--condition 1 --&gt;
+&lt;condition type=&quot;de.reddot.installer.rules.JavaCondition&quot;
+id=&quot;linux.install&quot;&gt;
+		&lt;java&gt;
+			&lt;class&gt;com.izforge.izpack.util.OsVersion&lt;/class&gt;
+			&lt;field&gt;IS_LINUX&lt;/field&gt;
+		&lt;/java&gt;
+		&lt;returnvalue type=&quot;boolean&quot;&gt;true&lt;/returnvalue&gt;
+&lt;/condition&gt;
+
+&lt;!--condition 2--&gt;
+&lt;condition type=&quot;packselection&quot; id=&quot;MyPackSelected&quot;&gt;
+        &lt;packid&gt;install.myPack&lt;/packid&gt;
+&lt;/condition&gt;
+
+&lt;!--condition 3 --&gt;
+&lt;condition type=&quot;not&quot; id=&quot;NotMyPackSelected&quot;&gt;
+	&lt;condition type=&quot;ref&quot; refid=&quot;MyPackSelected&quot;/&gt;
+&lt;/condition&gt;
+
+&lt;!--condition 4 --&gt;
+&lt;condition type=&quot;and&quot; id=&quot;showMyPackInstall&quot;&gt;
+	&lt;condition type=&quot;ref&quot; refid=&quot;linux.install&quot;/&gt;
+	&lt;condition type=&quot;ref&quot; refid=&quot;MyPackSelected&quot;/&gt;
+&lt;/condition&gt;
+
+&lt;!--condition 5 --&gt;
+&lt;condition type=&quot;and&quot; id=&quot;showMyPackNotInstall&quot;&gt;
+	&lt;condition type=&quot;ref&quot; refid=&quot;linux.install&quot;/&gt;
+	&lt;condition type=&quot;ref&quot; refid=&quot;NotMyPackSelected&quot;/&gt;
+&lt;/condition&gt;
+
+&lt;panelcondition conditionid=&quot;showMyPackInstall&quot; panelid=&quot;panel.0&quot;/&gt; 
+&lt;panelcondition conditionid=&quot;showMYPackNotInstall&quot; panelid=&quot;panel.1&quot;/&gt; 
+
+&lt;/conditions&gt;
+
+my problem is ,  whatever i do a Linux installation or a windows  one ,  the
+two panels appear alwayse.
+
+please help!
+
+-- 
+View this message in context: <A HREF="http://www.nabble.com/how-to-use-createForUnselectedPack-tf3552508.html#a9977488">http://www.nabble.com/how-to-use-createForUnselectedPack-tf3552508.html#a9977488</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001413.html">[izpack-users] how to use createForUnselectedPack
+</A></li>
+	<LI>Next message: <A HREF="001420.html">[izpack-users] how to use createForUnselectedPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1419">[ date ]</a>
+              <a href="thread.html#1419">[ thread ]</a>
+              <a href="subject.html#1419">[ subject ]</a>
+              <a href="author.html#1419">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

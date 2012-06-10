@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1616 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1616%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000360.html">
+   <LINK REL="Next"  HREF="000362.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1616 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1616%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1616 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Mon Sep 25 06:07:33 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000360.html">[izpack-changes] r1615 -	izpack-src/branches/branch-3.9/src/dist-files
+</A></li>
+        <LI>Next message: <A HREF="000362.html">[izpack-changes] r1617 - in izpack-src/branches/branch-3.9: . src	src/dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#361">[ date ]</a>
+              <a href="thread.html#361">[ thread ]</a>
+              <a href="subject.html#361">[ subject ]</a>
+              <a href="author.html#361">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-09-25 06:07:28 +0200 (Mon, 25 Sep 2006)
+New Revision: 1616
+
+Modified:
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+Log:
+NPE bugfix on OS X.
+Skip the shortcuts panel on OS X since there are no shortcuts on this platform anyway.
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2006-09-24 19:05:08 UTC (rev 1615)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2006-09-25 04:07:28 UTC (rev 1616)
+@@ -17,12 +17,24 @@
+  */
+ package com.izforge.izpack.panels;
+ 
+-import java.awt.Dimension;
+-import java.awt.GridBagConstraints;
+-import java.awt.GridBagLayout;
+-import java.awt.GridLayout;
+-import java.awt.Insets;
+-import java.awt.LayoutManager2;
++import com.izforge.izpack.ExecutableFile;
++import com.izforge.izpack.Pack;
++import com.izforge.izpack.gui.ButtonFactory;
++import com.izforge.izpack.gui.LabelFactory;
++import com.izforge.izpack.installer.*;
++import com.izforge.izpack.util.*;
++import com.izforge.izpack.util.os.Shortcut;
++import com.izforge.izpack.util.os.unix.UnixHelper;
++import com.izforge.izpack.util.xml.XMLHelper;
++import net.n3.nanoxml.*;
++
++import javax.swing.*;
++import javax.swing.border.Border;
++import javax.swing.border.EmptyBorder;
++import javax.swing.border.TitledBorder;
++import javax.swing.event.ListSelectionEvent;
++import javax.swing.event.ListSelectionListener;
++import java.awt.*;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+ import java.io.File;
+@@ -32,51 +44,6 @@
+ import java.util.Enumeration;
+ import java.util.Vector;
+ 
+-import javax.swing.ButtonGroup;
+-import javax.swing.JButton;
+-import javax.swing.JCheckBox;
+-import javax.swing.JFileChooser;
+-import javax.swing.JLabel;
+-import javax.swing.JList;
+-import javax.swing.JPanel;
+-import javax.swing.JRadioButton;
+-import javax.swing.JScrollPane;
+-import javax.swing.JTextField;
+-import javax.swing.ListSelectionModel;
+-import javax.swing.border.Border;
+-import javax.swing.border.EmptyBorder;
+-import javax.swing.border.TitledBorder;
+-import javax.swing.event.ListSelectionEvent;
+-import javax.swing.event.ListSelectionListener;
+-
+-import net.n3.nanoxml.NonValidator;
+-import net.n3.nanoxml.StdXMLBuilder;
+-import net.n3.nanoxml.StdXMLParser;
+-import net.n3.nanoxml.StdXMLReader;
+-import net.n3.nanoxml.XMLElement;
+-
+-import com.izforge.izpack.ExecutableFile;
+-import com.izforge.izpack.Pack;
+-import com.izforge.izpack.gui.ButtonFactory;
+-import com.izforge.izpack.gui.LabelFactory;
+-import com.izforge.izpack.installer.AutomatedInstallData;
+-import com.izforge.izpack.installer.InstallData;
+-import com.izforge.izpack.installer.InstallerFrame;
+-import com.izforge.izpack.installer.IzPanel;
+-import com.izforge.izpack.installer.ResourceNotFoundException;
+-import com.izforge.izpack.installer.UninstallData;
+-import com.izforge.izpack.util.Debug;
+-import com.izforge.izpack.util.FileExecutor;
+-import com.izforge.izpack.util.MultiLineLabel;
+-import com.izforge.izpack.util.OsConstraint;
+-import com.izforge.izpack.util.OsVersion;
+-import com.izforge.izpack.util.StringTool;
+-import com.izforge.izpack.util.TargetFactory;
+-import com.izforge.izpack.util.VariableSubstitutor;
+-import com.izforge.izpack.util.os.Shortcut;
+-import com.izforge.izpack.util.os.unix.UnixHelper;
+-import com.izforge.izpack.util.xml.XMLHelper;
+-
+ //
+ // import com.izforge.izpack.panels.ShortcutData;
+ 
+@@ -701,7 +668,8 @@
+         }
+         else
+         {
+-            ; // parent.skipPanel ();
++            // Skip on OS X
++            parent.skipPanel();
+         }
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000360.html">[izpack-changes] r1615 -	izpack-src/branches/branch-3.9/src/dist-files
+</A></li>
+	<LI>Next message: <A HREF="000362.html">[izpack-changes] r1617 - in izpack-src/branches/branch-3.9: . src	src/dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#361">[ date ]</a>
+              <a href="thread.html#361">[ thread ]</a>
+              <a href="subject.html#361">[ subject ]</a>
+              <a href="author.html#361">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

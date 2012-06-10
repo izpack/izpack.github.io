@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1964 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1964%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20installer%20panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000708.html">
+   <LINK REL="Next"  HREF="000710.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1964 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1964%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20installer%20panels&In-Reply-To="
+       TITLE="[izpack-changes] r1964 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels">noreply at berlios.de
+       </A><BR>
+    <I>Mon Dec 17 22:15:24 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000708.html">[izpack-changes] r1962 - in izpack-src/trunk/src: . dist-files	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000710.html">[izpack-changes] r1965 - izpack-utils/tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#709">[ date ]</a>
+              <a href="thread.html#709">[ thread ]</a>
+              <a href="subject.html#709">[ subject ]</a>
+              <a href="author.html#709">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-12-17 22:15:19 +0100 (Mon, 17 Dec 2007)
+New Revision: 1964
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+Log:
+Pixel pushing
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-12-17 17:57:56 UTC (rev 1963)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-12-17 21:15:19 UTC (rev 1964)
+@@ -588,17 +588,18 @@
+             GridBagConstraints gbConstraints = new GridBagConstraints();
+             gbConstraints.anchor = GridBagConstraints.CENTER;
+             gbConstraints.insets = new Insets(5, 5, 5, 5);
+-            gbConstraints.fill = GridBagConstraints.NONE;
++            gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+             gbConstraints.gridx = 0;
+             gbConstraints.weightx = 1.0;
+             gbConstraints.weighty = 1.0;
++			gbConstraints.ipadx = 0;
++			gbConstraints.ipady = 6;
+ 
+             ImageIcon img = getImage();
+             JLabel imgLabel = new JLabel(img);
+             gbConstraints.gridy = 0;
+             contentPane.add(imgLabel);
+ 
+-            gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+             String firstMessage = &quot;Please select your language&quot;;
+             if (getLangType().equals(LANGUAGE_DISPLAY_TYPES[0]))
+             // iso3
+@@ -606,22 +607,21 @@
+ 
+             JLabel label1 = new JLabel(firstMessage, SwingConstants.LEADING);
+             gbConstraints.gridy = 1;
+-            gbConstraints.insets = new Insets(15, 5, 2, 5);
++            gbConstraints.insets = new Insets(15, 5, 5, 5);
+             layout.addLayoutComponent(label1, gbConstraints);
+             contentPane.add(label1);
+-            gbConstraints.insets = new Insets(2, 5, 2, 5);
+ 
++            gbConstraints.insets = new Insets(5, 5, 5, 5);
+             items = reviseItems(items);
+ 
+             comboBox = new JComboBox(items);
+             if (useFlags()) comboBox.setRenderer(new FlagRenderer());
+-            gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+             gbConstraints.gridy = 3;
+             layout.addLayoutComponent(comboBox, gbConstraints);
+             contentPane.add(comboBox);
+ 
+-            gbConstraints.insets = new Insets(15, 5, 5, 5);
+-            JButton okButton = new JButton(&quot;OK&quot;);
++            gbConstraints.insets = new Insets(15, 5, 15, 5);
++            JButton okButton = new JButton(&quot;Ok&quot;);
+             okButton.addActionListener(this);
+             gbConstraints.fill = GridBagConstraints.NONE;
+             gbConstraints.gridy = 4;
+@@ -633,9 +633,10 @@
+             // Packs and centers
+             // Fix for bug &quot;Installer won't show anything on OSX&quot;
+             if (System.getProperty(&quot;mrj.version&quot;) == null)
++			{
+                 pack();
+-            else
+-                setSize(getPreferredSize());
++			}
++            setSize(getPreferredSize());
+ 
+             Dimension frameSize = getSize();
+             Point center = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-12-17 17:57:56 UTC (rev 1963)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-12-17 21:15:19 UTC (rev 1964)
+@@ -641,7 +641,7 @@
+                 boolean isSelected, boolean hasFocus, int row, int column)
+         {
+             JCheckBox display = new JCheckBox();
+-            if(com.izforge.izpack.util.OsVersion.IS_UNIX)
++            if(com.izforge.izpack.util.OsVersion.IS_UNIX &amp;&amp; !com.izforge.izpack.util.OsVersion.IS_OSX)
+             {
+                 display.setIcon(new LFIndependentIcon());
+                 display.setDisabledIcon(new LFIndependentIcon());
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000708.html">[izpack-changes] r1962 - in izpack-src/trunk/src: . dist-files	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000710.html">[izpack-changes] r1965 - izpack-utils/tags
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#709">[ date ]</a>
+              <a href="thread.html#709">[ thread ]</a>
+              <a href="subject.html#709">[ subject ]</a>
+              <a href="author.html#709">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

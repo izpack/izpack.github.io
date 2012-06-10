@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Compilation Error Found 
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Compilation%20Error%20Found%20&In-Reply-To=009101c67808%24ec580220%240c01a8c0%40OKTA">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000196.html">
+   <LINK REL="Next"  HREF="000198.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Compilation Error Found </H1>
+    <B>Oliver Kiddle</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Compilation%20Error%20Found%20&In-Reply-To=009101c67808%24ec580220%240c01a8c0%40OKTA"
+       TITLE="[izpack-devel] Compilation Error Found ">okiddle at yahoo.co.uk
+       </A><BR>
+    <I>Fri May 19 17:21:37 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000196.html">[izpack-devel] Compilation Error Found
+</A></li>
+        <LI>Next message: <A HREF="000198.html">[izpack-devel] Compilation Error Found 
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#197">[ date ]</a>
+              <a href="thread.html#197">[ thread ]</a>
+              <a href="subject.html#197">[ subject ]</a>
+              <a href="author.html#197">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 15 May, <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A> wrote:
+&gt;<i> TO:
+</I>&gt;<i> String izHome = System.getProperty(&quot;IZPACK_HOME&quot;);
+</I>&gt;<i>       if (izHome != null) home = izHome;
+</I>
+That looks like the change I made in the patch put on the berlios patch
+tracker. See:
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=778&amp;group_id=1408">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=778&amp;group_id=1408</A>
+
+&gt;<i> now, my question is, is there a reason for that ?
+</I>
+Yes. The compile shell script distributed with IzPack was broken.
+
+&gt;<i> I use the program arguments in eclipse as follows for the compiler:
+</I>&gt;<i> 
+</I>&gt;<i> -HOME &quot;C:\cvs_izpack_head\izpack-src&quot; &quot;C:\IzPack
+</I>&gt;<i> Projects\trunks\installer\InstallTest.xml&quot; -b &quot;C:\IzPack
+</I>&gt;<i> Projects\trunks\installer&quot; -o &quot;C:\IzPack Projects\trunks\installer\test.jar&quot;
+</I>
+That explains why you don't see the problem I saw. The compile script
+uses the following:
+&quot;$JAVACMD&quot; $IZPACK_OPTS \
+  -classpath &quot;${IZPACK_HOME}/lib/standalone-compiler.jar&quot; \
+  &quot;-Dtools.jar=$TOOLS_JAR&quot; \
+  &quot;-Dizpack.home=${IZPACK_HOME}&quot; \
+  $MAIN_CLASS &quot;$@&quot;
+
+So it uses the izpack.home property instead of the -HOME option. You can
+probably change you eclipse settings to do that. That would seem the
+best solution to me.
+
+If you do want to restore the -HOME option, I would very much suggest
+that the option is rewritten to work properly. -HOME should not need to
+be the very first argument. compile -\? should work without it in any
+case. And it'd be nice if the -o option could be specified before the
+name of the XML file (the more conventional order of options on UNIX
+systems).
+
+Also, the latest release of IzPack installs the compile script with DOS
+line endings. That also breaks the script.
+
+Oliver
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000196.html">[izpack-devel] Compilation Error Found
+</A></li>
+	<LI>Next message: <A HREF="000198.html">[izpack-devel] Compilation Error Found 
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#197">[ date ]</a>
+              <a href="thread.html#197">[ thread ]</a>
+              <a href="subject.html#197">[ subject ]</a>
+              <a href="author.html#197">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

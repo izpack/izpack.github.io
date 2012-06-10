@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1987 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1987%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000732.html">
+   <LINK REL="Next"  HREF="000734.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1987 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1987%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1987 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 17 22:07:14 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000732.html">[izpack-changes] r1986 - in izpack-src/trunk: . src src/doc-reST	src/lib/com/coi/tools/os/izpack src/lib/com/coi/tools/os/win	src/lib/com/coi/tools/os/win/resources	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/ant	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/compressor	src/lib/com/izforge/izpack/event src/lib/com/izforge/izpack/gui	src/lib/com/izforge/izpack/installer src/lib/com/izforge/izpack/io	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules	src/lib/com/izforge/izpack/sample	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util src/lib/com/izforge/izpack/util/os	src/lib/com/izforge/izpack/util/os/unix	src/lib/com/izforge/izpack/util/xml src/tests/com/izforge/izpack	src/tests/com/izforge/izpack/compiler	src/tests/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000734.html">[izpack-changes] r1988 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#733">[ date ]</a>
+              <a href="thread.html#733">[ thread ]</a>
+              <a href="subject.html#733">[ subject ]</a>
+              <a href="author.html#733">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-01-17 22:07:11 +0100 (Thu, 17 Jan 2008)
+New Revision: 1987
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/HTMLInfoPanel.java
+Log:
+HTMLInfoPanel: open external links in a web browser on Mac OS X as well (Alexander Maslov via Julien Ponge)
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2008-01-13 14:33:50 UTC (rev 1986)
++++ izpack-src/trunk/Versions.txt	2008-01-17 21:07:11 UTC (rev 1987)
+@@ -83,6 +83,7 @@
+ - PacksPanelAutomationHelper fix (Jeff Gordon via Julien Ponge)
+ - 'parsexml' attribute for resources (Matthew Fudge via Julien Ponge)
+ - InstallationGroupPanel UI improvements (Jeff Gordon via Julien Ponge)
++- HTMLInfoPanel: open external links in a web browser on Mac OS X as well (Alexander Maslov via Julien Ponge)
+ 
+ 
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/HTMLInfoPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/HTMLInfoPanel.java	2008-01-13 14:33:50 UTC (rev 1986)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/HTMLInfoPanel.java	2008-01-17 21:07:11 UTC (rev 1987)
+@@ -123,8 +123,11 @@
+                    textArea.setPage(e.getURL());
+                 else
+                 {
+-                   if(com.izforge.izpack.util.OsVersion.IS_UNIX)
++                   if(com.izforge.izpack.util.OsVersion.IS_OSX)
+                    {
++                       Runtime.getRuntime().exec(&quot;open &quot; + urls);
++                   } else if(com.izforge.izpack.util.OsVersion.IS_UNIX)
++                   {
+                       String[] launchers = {&quot;htmlview QqzURL&quot;, &quot;xdg-open QqzURL&quot;, &quot;gnome-open QqzURL&quot;, &quot;kfmclient openURL QqzURL&quot;, &quot;call-browser QqzURL&quot;, &quot;firefox QqzURL&quot;, &quot;opera QqzURL&quot;, &quot;konqueror QqzURL&quot;, &quot;epiphany QqzURL&quot;, &quot;mozilla QqzURL&quot;, &quot;netscape QqzURL&quot;};
+                       //String launchers = &quot;/bin/sh -c \&quot;htmlview QqzURL || xdg-open QqzURL || gnome-open QqzURL || kfmclient openURL QqzURL || call-browser QqzURL || firefox QqzURL || opera QqzURL || konqueror QqzURL || epiphany QqzURL || mozilla QqzURL || netscape QqzURL\&quot;&quot;;
+                       for(int q=0; q&lt;launchers.length; q++)
+@@ -143,7 +146,9 @@
+                       }
+                    }
+                    else // windows
+-                      Runtime.getRuntime().exec(&quot;cmd /C start &quot;+urls);
++                   {
++                      Runtime.getRuntime().exec(&quot;cmd /C start &quot; + urls);
++                   }
+                 }
+             }
+         }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000732.html">[izpack-changes] r1986 - in izpack-src/trunk: . src src/doc-reST	src/lib/com/coi/tools/os/izpack src/lib/com/coi/tools/os/win	src/lib/com/coi/tools/os/win/resources	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/ant	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/compressor	src/lib/com/izforge/izpack/event src/lib/com/izforge/izpack/gui	src/lib/com/izforge/izpack/installer src/lib/com/izforge/izpack/io	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules	src/lib/com/izforge/izpack/sample	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util src/lib/com/izforge/izpack/util/os	src/lib/com/izforge/izpack/util/os/unix	src/lib/com/izforge/izpack/util/xml src/tests/com/izforge/izpack	src/tests/com/izforge/izpack/compiler	src/tests/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000734.html">[izpack-changes] r1988 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#733">[ date ]</a>
+              <a href="thread.html#733">[ thread ]</a>
+              <a href="subject.html#733">[ subject ]</a>
+              <a href="author.html#733">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

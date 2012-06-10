@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Simple question about PathInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Simple%20question%20about%20PathInputPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001877.html">
+   <LINK REL="Next"  HREF="001879.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Simple question about PathInputPanel</H1>
+    <B>Christopher D. Jones</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Simple%20question%20about%20PathInputPanel&In-Reply-To="
+       TITLE="[izpack-users] Simple question about PathInputPanel">chris.jonesey at gmail.com
+       </A><BR>
+    <I>Sun Feb 10 16:46:09 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001877.html">[izpack-users] Next release and migration
+</A></li>
+        <LI>Next message: <A HREF="001879.html">[izpack-users] Simple question about PathInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1878">[ date ]</a>
+              <a href="thread.html#1878">[ thread ]</a>
+              <a href="subject.html#1878">[ subject ]</a>
+              <a href="author.html#1878">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I have extended the PathInputPanel to make a custom panel to select a
+directory needed for my installation.
+The problem I am having is I cannot figure out how to set the label on the
+panel.  The panel shows up but it looks like the default target install
+panel.
+I am sure I am missing something simple, so any help would be greatly
+appreciated.
+
+Here is my Java code:
+
+package com.izforge.izpack.panels;
+
+import javax.swing.JLabel;
+
+import com.izforge.izpack.installer.InstallData;
+import com.izforge.izpack.installer.InstallerFrame;
+
+/**
+ * Input panel for the data path.
+ *
+ */
+public class DataPathPanel extends PathInputPanel {
+
+    /**
+     *  The constructor.
+     *
+     * @param  parent  The parent window.
+     * @param  idata   The installation data.
+     */
+    public DataPathPanel(InstallerFrame parent, InstallData idata) {
+        super(parent, idata);
+        headline = &quot;FUBAR headline&quot;;
+        headLineLabel = new JLabel (&quot;FUBAR headlinelabel&quot;);
+    }
+
+    /**
+     *  Indicates whether the panel has been validated or not.
+     *
+     * @return    Whether the panel has been validated or not.
+     */
+    public boolean isValidated() {
+        if (!super.isValidated())
+            return (false);
+        System.out.println (&quot;isValidated&quot;);
+        String chosenPath = pathSelectionPanel.getPath();
+        if (chosenPath == null || chosenPath.length() &lt; 1)
+            return (false);
+        idata.setVariable(&quot;DATA_DIRECTORY&quot;, chosenPath);
+
+        return (true);
+    }
+
+    /* (non-Javadoc)
+     * @see com.izforge.izpack.installer.IzPanel#panelActivate()
+     */
+    public void panelActivate() {
+        super.panelActivate();
+        // Resolve and set the default for chosenPath
+        String chosenPath;
+        // common lines for back steps...
+        if (idata.getVariable(&quot;DATA_DIRECTORY&quot;) != null)
+            chosenPath = idata.getVariable(&quot;DATA_DIRECTORY&quot;);
+        else
+            chosenPath = idata.getInstallPath();
+        pathSelectionPanel.setPath(chosenPath);
+    }
+
+    /* (non-Javadoc)
+     * @see com.coi.tools.install.panels.SummaryPanelClient#getSummaryBody()
+     */
+    public String getSummaryBody() {
+        return (String) (idata.getVariable(&quot;DATA_DIRECTORY&quot;));
+    }
+}
+
+And here is my install file:
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+
+&lt;!--
+    To compile it :
+    - go in the bin directory where you installed IzPack
+    - call &quot;compile ../sample/install.xml -b ../sample&quot;
+--&gt;
+
+&lt;installation version=&quot;1.0&quot;&gt;
+
+    &lt;!--
+        The info section.
+        The meaning of the tags should be natural ...
+    --&gt;
+    &lt;info&gt;
+        &lt;appname&gt;Hello World&lt;/appname&gt;
+        &lt;appversion&gt;0.1 Beta&lt;/appversion&gt;
+        &lt;authors&gt;
+            &lt;author name=&quot;Ink Inc.&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">me at ink.com</A>&quot;/&gt;
+        &lt;/authors&gt;
+        &lt;url&gt;<A HREF="http://www.inkinc.com/&lt;/url">http://www.inkinc.com/&lt;/url</A>&gt;
+    &lt;/info&gt;
+
+    &lt;!--
+        The gui preferences indication.
+        Sets the installer window to 640x480. It will not be able to change
+the size.
+    --&gt;
+    &lt;guiprefs width=&quot;640&quot; height=&quot;480&quot; resizable=&quot;no&quot;/&gt;
+
+    &lt;!--
+        The locale section.
+        Asks here to include the English and French langpacks.
+    --&gt;
+    &lt;locale&gt;
+        &lt;langpack iso3=&quot;eng&quot;/&gt;
+    &lt;/locale&gt;
+
+    &lt;str id=&quot;DataPathPanel.intro&quot; txt=&quot;For the application configuration
+directory, another path can be selected than the project directory. You can
+choose the given project directory or select another one.&quot;/&gt;
+    &lt;str id=&quot;DataPathPanel.info&quot; txt=&quot;Path of application configuration
+directory: &quot;/&gt;
+
+    &lt;!--
+        The panels section.
+        We indicate here which panels we want to use. The order will be
+respected.
+    --&gt;
+    &lt;panels&gt;
+        &lt;panel classname=&quot;DataPathPanel&quot;/&gt;
+        &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+    &lt;/panels&gt;
+
+    &lt;!--
+        The packs section.
+        We specify here our packs.
+    --&gt;
+    &lt;packs&gt;
+        &lt;pack name=&quot;Application&quot; required=&quot;yes&quot; preselected=&quot;yes&quot;&gt;
+            &lt;description&gt;The application files.&lt;/description&gt;
+            &lt;file src=&quot;hello_world/bogus&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+        &lt;/pack&gt;
+        &lt;pack name=&quot;Documentation&quot; required=&quot;no&quot; preselected=&quot;yes&quot;&gt;
+            &lt;description&gt;The documentation&lt;/description&gt;
+            &lt;file src=&quot;doc&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+        &lt;/pack&gt;
+    &lt;/packs&gt;
+
+&lt;/installation&gt;
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20080210/e6893f4c/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20080210/e6893f4c/attachment.html</A> 
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001877.html">[izpack-users] Next release and migration
+</A></li>
+	<LI>Next message: <A HREF="001879.html">[izpack-users] Simple question about PathInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1878">[ date ]</a>
+              <a href="thread.html#1878">[ thread ]</a>
+              <a href="subject.html#1878">[ subject ]</a>
+              <a href="author.html#1878">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

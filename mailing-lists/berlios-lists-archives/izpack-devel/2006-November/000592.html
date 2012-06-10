@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] patch: use intance number to customize strings
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20patch%3A%20use%20intance%20number%20to%20customize%20strings&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889177E%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000591.html">
+   <LINK REL="Next"  HREF="000595.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] patch: use intance number to customize strings</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20patch%3A%20use%20intance%20number%20to%20customize%20strings&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889177E%40coi11.coi.com"
+       TITLE="[izpack-devel] patch: use intance number to customize strings">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Fri Nov 17 08:46:33 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000591.html">[izpack-devel] patch: use intance number to customize strings
+</A></li>
+        <LI>Next message: <A HREF="000595.html">[izpack-devel] patch: use intance number to customize strings
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#592">[ date ]</a>
+              <a href="thread.html#592">[ thread ]</a>
+              <a href="subject.html#592">[ subject ]</a>
+              <a href="author.html#592">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Stefan,
+
+You should use the panelid instead. (panel.getMetadata().getPanelid())
+That would be much more flexible.
+
+Regards,
+   Dennis
+
+&gt;<i> Hi Stefan,
+</I>&gt;<i> I do not use multiple instances of one panel class (else I 
+</I>&gt;<i> had seen the problem at impl the feature) but it hear good.
+</I>&gt;<i> Unfortunately I have nearly no time...
+</I>&gt;<i> Please send us your changes as a diff -u (comments as java 
+</I>&gt;<i> comments in the files). Simplest you checkout the SVN
+</I>&gt;<i> IzPack project and make the diff with SVN.
+</I>&gt;<i> 
+</I>&gt;<i> Cheers
+</I>&gt;<i> 
+</I>&gt;<i> Klaus
+</I>&gt;<i> 
+</I>&gt;<i> &gt;-----Original Message-----
+</I>&gt;<i> &gt;From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i> &gt;[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Stefan
+</I>&gt;<i> &gt;Wachter
+</I>&gt;<i> &gt;Sent: Thursday, November 16, 2006 2:53 PM
+</I>&gt;<i> &gt;To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt;Subject: [izpack-devel] patch: use intance number to customize strings
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Hi all,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;I have several UserInputPanels that should have different 
+</I>&gt;<i> &gt;headlines. I looked into the code and 
+</I>&gt;<i> &gt;recognized that only a single headline can be configured that 
+</I>&gt;<i> &gt;is used for all UserInputPanels. 
+</I>&gt;<i> &gt;Therefore I patched the getI18nStringForClass(String subkey) 
+</I>&gt;<i> &gt;method in the IzPanel class to consider 
+</I>&gt;<i> &gt;instance numbers and added the method getInstanceNumber() with 
+</I>&gt;<i> &gt;a default implementation that returns -1:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;// start code
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;public String getI18nStringForClass(String subkey)
+</I>&gt;<i> &gt;{
+</I>&gt;<i> &gt;     String retval = null;
+</I>&gt;<i> &gt;     Class clazz = this.getClass();
+</I>&gt;<i> &gt;     while (retval == null &amp;&amp; !clazz.getName().endsWith(&quot;.IzPanel&quot;))
+</I>&gt;<i> &gt;     {
+</I>&gt;<i> &gt;         int instanceNumber = getInstanceNumber();
+</I>&gt;<i> &gt;         if (instanceNumber != -1) {
+</I>&gt;<i> &gt;             retval = getI18nStringForClass(clazz.getName(), 
+</I>&gt;<i> &gt;subkey + &quot;.&quot; + instanceNumber, null);
+</I>&gt;<i> &gt;             if (retval != null) return retval;
+</I>&gt;<i> &gt;         }
+</I>&gt;<i> &gt;         retval = getI18nStringForClass(clazz.getName(), subkey, null);
+</I>&gt;<i> &gt;         clazz = clazz.getSuperclass();
+</I>&gt;<i> &gt;     }
+</I>&gt;<i> &gt;     return (retval);
+</I>&gt;<i> &gt;}
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;protected int getInstanceNumber() { return -1; }
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;// end code
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;In order to make use of this new flexibility, I overloaded the 
+</I>&gt;<i> &gt;getInstanceNumber() method in the 
+</I>&gt;<i> &gt;UserInputPanel class returning the instance number of the 
+</I>&gt;<i> &gt;UserInputPanel:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;// start code
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;protected int getInstanceNumber() { return instanceNumber; }
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;// end code
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Now different headlines can be configured for the various 
+</I>&gt;<i> &gt;UserInputPanels. For example:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&lt;langpack&gt;
+</I>&gt;<i> &gt;   &lt;str id=&quot;UserInputPanel.headline.0&quot; txt=&quot;Rechnername und Port&quot;/&gt;
+</I>&gt;<i> &gt;   &lt;str id=&quot;UserInputPanel.headline.1&quot; txt=&quot;Shortcuts&quot;/&gt;
+</I>&gt;<i> &gt;   &lt;str id=&quot;UserInputPanel.headline.2&quot; txt=&quot;PolFHa-Server starten&quot;/&gt;
+</I>&gt;<i> &gt;&lt;/langpack&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Is this code of public interest? Will someone integrate it into IzPack?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Cheers,
+</I>&gt;<i> &gt;--Stefan
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;_______________________________________________
+</I>&gt;<i> &gt;izpack-devel mailing list
+</I>&gt;<i> &gt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>
+In unseren kostenlosen Live Demos lernen Sie in 30 Minuten
+mehr dar&#252;ber, wie Sie Ihre Zielgruppen &#252;ber Website, Intranet
+und Portale einfacher, gezielter und kosteng&#252;nstiger mit
+Informationen versorgen. Alle Themen und Anmeldung unter
+www.reddot.de/webinare
+
+Check out our Live Demos and learn in just 30 minutes how easily 
+and efficiently you can provide information to your target 
+groups via Web sites, intranets, and portals. Register now: 
+<A HREF="http://www.reddot.com/products_content_management_demos.htm">http://www.reddot.com/products_content_management_demos.htm</A>
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000591.html">[izpack-devel] patch: use intance number to customize strings
+</A></li>
+	<LI>Next message: <A HREF="000595.html">[izpack-devel] patch: use intance number to customize strings
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#592">[ date ]</a>
+              <a href="thread.html#592">[ thread ]</a>
+              <a href="subject.html#592">[ subject ]</a>
+              <a href="author.html#592">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

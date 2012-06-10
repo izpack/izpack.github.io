@@ -1,0 +1,408 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Uninstaller leaves all files etc
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Uninstaller%20leaves%20all%20files%20etc&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001881.html">
+   <LINK REL="Next"  HREF="001883.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Uninstaller leaves all files etc</H1>
+    <B>Bar Zecharya</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Uninstaller%20leaves%20all%20files%20etc&In-Reply-To="
+       TITLE="[izpack-users] Uninstaller leaves all files etc">bzecharya at ibextechnologies.com
+       </A><BR>
+    <I>Tue Feb 12 17:13:05 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001881.html">[izpack-users] IzPack 3.11.0 released
+</A></li>
+        <LI>Next message: <A HREF="001883.html">[izpack-users] Problem while uninstalling an application
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1882">[ date ]</a>
+              <a href="thread.html#1882">[ thread ]</a>
+              <a href="subject.html#1882">[ subject ]</a>
+              <a href="author.html#1882">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>IZ Pack users,
+
+ 
+
+I've been using an IZ Pack installer for almost two years, and along the way
+have appreciated the neat things like creating custom panels and processes,
+and just recently making my Tomcat application run as a Windows service.
+There's one issue that I've never been able to resolve, though: the
+uninstaller appears to work (it runs through the list of files and then says
+&quot;Finished&quot;) but leaves the files, icons.  Before I just ignored the problem
+(and the occasional user's complaint  [embarrassed smiley]), but now I feel
+less comfortable leaving a Windows service installed and running than just
+wasting 50Mb of hard-drive space.
+
+ 
+
+Below is the installer XML file.  Does anyone have any ideas? 
+
+You'll notice that in addition to tomcat and the web application I'm also
+including the entire jre (6.0), to be used by both the installer and the
+application.
+
+ 
+
+Thanks!
+
+ 
+
+Ps. Since this is my first e-mail I'm not sure if the XML will show up
+correctly.  If not I can send it as an attachment.
+
+ 
+
+ 
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot;?&gt;
+
+&lt;installation version=&quot;1.0&quot;&gt;
+
+      &lt;info&gt;
+
+            &lt;appname&gt;X&lt;/appname&gt;
+
+            &lt;appversion&gt;X&lt;/appversion&gt;
+
+            &lt;authors&gt;
+
+                  &lt;author name=&quot;X&quot; email=&quot;&quot; /&gt;
+
+            &lt;/authors&gt;
+
+      &lt;/info&gt;
+
+      &lt;!--
+
+        The gui preferences indication.
+
+        Sets the installer window to 640x480. It will not be able to change
+the size.
+
+    --&gt;
+
+      &lt;guiprefs width=&quot;640&quot; height=&quot;460&quot; resizable=&quot;no&quot;&gt;
+
+            
+
+            &lt;laf name=&quot;metouia&quot;&gt;
+
+            &lt;os family=&quot;unix&quot; /&gt;
+
+            &lt;/laf&gt;
+
+            
+
+            &lt;laf name=&quot;looks&quot;&gt;
+
+            &lt;os family=&quot;windows&quot; /&gt;
+
+            &lt;param name=&quot;variant&quot; value=&quot;extwin&quot; /&gt;
+
+            &lt;/laf&gt;      
+
+      &lt;/guiprefs&gt; 
+
+      &lt;locale&gt;
+
+            &lt;langpack iso3=&quot;eng&quot;/&gt;
+
+            &lt;langpack iso3=&quot;fra&quot;/&gt;
+
+            &lt;langpack iso3=&quot;spa&quot;/&gt;
+
+            &lt;langpack iso3=&quot;por&quot;/&gt;
+
+            &lt;langpack iso3=&quot;rus&quot;/&gt;
+
+            &lt;langpack iso3=&quot;tur&quot;/&gt;
+
+            &lt;!-- &lt;langpack iso3=&quot;ara&quot;/&gt; --&gt;
+
+      &lt;/locale&gt;
+
+      &lt;!--
+
+        The resources section.
+
+        The ids must be these ones if you want to use the LicencePanel
+and/or the InfoPanel.
+
+    --&gt;
+
+      &lt;resources&gt;
+
+            &lt;res id=&quot;LicencePanel.licence&quot; src=&quot;Licence.txt&quot;/&gt;
+
+            &lt;res id=&quot;InfoPanel.info&quot; src=&quot;Readme.txt&quot;/&gt;
+
+            &lt;res id=&quot;Installer.image&quot; src=&quot;images/company_logo.gif&quot; /&gt; 
+
+            &lt;res id=&quot;shortcutSpec.xml&quot; src=&quot;shortcutSpec.xml&quot;/&gt;
+
+            &lt;res id=&quot;userInputSpec.xml&quot; src=&quot;UserInputSpec.xml&quot;/&gt;
+
+            &lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;ProcessPanel.Spec.xml&quot;/&gt;
+
+      &lt;/resources&gt;
+
+      
+
+      &lt;!--
+
+      &lt;variables&gt;
+
+            &lt;variable name=&quot;xyz&quot; value=&quot;8080&quot;/&gt;
+
+      &lt;/variables&gt;
+
+      --&gt;
+
+      
+
+      &lt;!--
+
+        The panels section.
+
+        We indicate here which panels we want to use. The order will be
+respected.
+
+    --&gt;
+
+      &lt;panels&gt;    
+
+            &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+
+            &lt;panel classname=&quot;InfoPanel&quot;/&gt;
+
+            &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+
+            &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+
+            &lt;!-- &lt;panel classname=&quot;PacksPanel&quot;/&gt; --&gt;
+
+            &lt;panel classname=&quot;UserInputPanel&quot;/&gt; 
+
+            &lt;panel classname=&quot;UserInputPanel&quot;/&gt; 
+
+            &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+
+            &lt;!--  &lt;panel classname=&quot;ShortcutPanel&quot;/&gt;--&gt;
+
+            &lt;panel classname=&quot;ProcessPanel&quot;/&gt;
+
+            &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+
+      &lt;/panels&gt;
+
+      &lt;native type=&quot;izpack&quot; name=&quot;ShellLink.dll&quot;/&gt;
+
+      &lt;packs&gt;
+
+            &lt;pack name=&quot;Apache Tomcat server&quot; required=&quot;yes&quot;&gt;
+
+                  &lt;description&gt;Apache Tomcat web server&lt;/description&gt;
+
+                  &lt;fileset dir=&quot;jakarta-tomcat&quot;
+targetdir=&quot;$INSTALL_PATH/jakarta-tomcat&quot; casesensitive=&quot;no&quot; override=&quot;true&quot;&gt;
+
+
+                        &lt;exclude name=&quot;**/Entr*&quot;/&gt;
+
+                        &lt;exclude name=&quot;**/CVS*&quot;/&gt;
+
+                        &lt;exclude name=&quot;**/bak*&quot;/&gt;
+
+                        &lt;exclude name=&quot;**/SVN*&quot;/&gt;
+
+                        &lt;exclude name=&quot;**/jrxml*&quot;/&gt;
+
+                  &lt;/fileset&gt;
+
+                  
+
+                  &lt;file src=&quot;jre&quot; targetdir=&quot;$INSTALL_PATH&quot;
+override=&quot;true&quot;/&gt; 
+
+                  &lt;file src=&quot;images&quot; targetdir=&quot;$INSTALL_PATH&quot;
+override=&quot;true&quot;/&gt; 
+
+                  &lt;file src=&quot;lib&quot; targetdir=&quot;$INSTALL_PATH&quot;
+override=&quot;true&quot;/&gt; 
+
+                  
+
+                  &lt;singlefile src=&quot;server_installer.xml&quot;
+target=&quot;$INSTALL_PATH/jakarta-tomcat/conf/server.xml&quot; override=&quot;true&quot; /&gt;
+
+
+                  &lt;parsable
+targetfile=&quot;$INSTALL_PATH/jakarta-tomcat/conf/server.xml&quot;/&gt;   
+
+                  &lt;parsable
+targetfile=&quot;$INSTALL_PATH/jakarta-tomcat/webapps/ROOT/WEB-INF/data/first.bat
+&quot;/&gt;
+
+            
+
+                  &lt;file src=&quot;service-installer.bat&quot;
+targetdir=&quot;$INSTALL_PATH/jakarta-tomcat/bin&quot; override=&quot;true&quot; /&gt;
+
+                  &lt;parsable
+targetfile=&quot;$INSTALL_PATH/jakarta-tomcat/bin/service-installer.bat&quot; /&gt;
+
+                  
+
+                  &lt;!-- Installs the Windows service for Tomcat --&gt;
+
+                  &lt;executable
+
+ 
+targetfile=&quot;$INSTALL_PATH/jakarta-tomcat/bin/service-installer.bat&quot;
+
+                    keep=&quot;true&quot; os=&quot;windows&quot; failure=&quot;warn&quot;
+stage=&quot;postinstall&quot;&gt;
+
+                    &lt;args&gt;
+
+                      &lt;arg value=&quot;install&quot; /&gt;
+
+                      &lt;arg value=&quot;X&quot; /&gt;
+
+                    &lt;/args&gt;
+
+                  &lt;/executable&gt;
+
+           
+
+                  &lt;!-- Uninstalls the Windows service for Tomcat --&gt;
+
+                  &lt;executable
+
+ 
+targetfile=&quot;$INSTALL_PATH/jakarta-tomcat/bin/service-installer.bat&quot;
+
+                    keep=&quot;true&quot; os=&quot;windows&quot; stage=&quot;uninstall&quot;&gt;
+
+                    &lt;args&gt;
+
+                      &lt;arg value=&quot;remove&quot; /&gt;
+
+                      &lt;arg value=&quot;X&quot; /&gt;
+
+                    &lt;/args&gt;
+
+                  &lt;/executable&gt;
+
+                  
+
+                  &lt;!-- Starts Tomcat services --&gt;
+
+                  &lt;executable targetfile=&quot;$INSTALL_PATH/startup-server.bat&quot;
+
+                              os=&quot;windows&quot; failure=&quot;warn&quot; keep=&quot;true&quot;
+stage=&quot;postinstall&quot; /&gt;
+
+               
+
+            &lt;/pack&gt;
+
+            
+
+            &lt;pack name=&quot;X Application and related files&quot; required=&quot;yes&quot;&gt;
+
+                  &lt;description&gt;X Installation Files&lt;/description&gt;
+
+                  
+
+                  &lt;fileset dir=&quot;ROOT&quot;
+targetdir=&quot;$INSTALL_PATH/jakarta-tomcat/webapps/ROOT&quot; casesensitive=&quot;no&quot;
+override=&quot;true&quot;&gt; 
+
+                        &lt;exclude name=&quot;**/Entr*&quot;/&gt;
+
+                        &lt;exclude name=&quot;**/CVS*&quot;/&gt;
+
+                        &lt;exclude name=&quot;**/bak*&quot;/&gt;
+
+                        &lt;exclude name=&quot;**/SVN*&quot;/&gt;
+
+                        &lt;exclude name=&quot;**/jrxml*&quot;/&gt;
+
+                  &lt;/fileset&gt;
+
+                  
+
+                  &lt;file src=&quot;Readme.txt&quot; targetdir=&quot;$INSTALL_PATH&quot;
+override=&quot;true&quot;/&gt;
+
+                  &lt;file src=&quot;Licence.txt&quot; targetdir=&quot;$INSTALL_PATH&quot;
+override=&quot;true&quot;/&gt;
+
+                  &lt;file src=&quot;icons&quot; targetdir=&quot;$INSTALL_PATH&quot;
+override=&quot;true&quot;/&gt;                 
+
+                  
+
+                  
+
+                  &lt;file src=&quot;X.exe&quot; targetdir=&quot;$INSTALL_PATH&quot;
+override=&quot;true&quot;/&gt; 
+
+                  &lt;file src=&quot;uninstall.bat&quot; targetdir=&quot;$INSTALL_PATH&quot;
+override=&quot;true&quot;/&gt; 
+
+                  &lt;parsable targetfile=&quot;$INSTALL_PATH/uninstall.bat&quot;/&gt;
+
+
+            &lt;/pack&gt;
+
+      &lt;/packs&gt;
+
+&lt;/installation&gt;
+
+ 
+
+ 
+
+ 
+
+  
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20080212/a0971583/attachment-0001.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20080212/a0971583/attachment-0001.html</A> 
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001881.html">[izpack-users] IzPack 3.11.0 released
+</A></li>
+	<LI>Next message: <A HREF="001883.html">[izpack-users] Problem while uninstalling an application
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1882">[ date ]</a>
+              <a href="thread.html#1882">[ thread ]</a>
+              <a href="subject.html#1882">[ subject ]</a>
+              <a href="author.html#1882">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

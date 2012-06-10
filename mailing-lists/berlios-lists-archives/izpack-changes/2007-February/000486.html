@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1740 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1740%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000485.html">
+   <LINK REL="Next"  HREF="000487.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1740 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1740%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1740 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Fri Feb 16 15:52:40 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000485.html">[izpack-changes] r1739 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000487.html">[izpack-changes] r1741 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#486">[ date ]</a>
+              <a href="thread.html#486">[ thread ]</a>
+              <a href="subject.html#486">[ subject ]</a>
+              <a href="author.html#486">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-02-16 15:52:39 +0100 (Fri, 16 Feb 2007)
+New Revision: 1740
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+Log:
+Fixed: NPE in combined conditions
+
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-02-16 14:16:21 UTC (rev 1739)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-02-16 14:52:39 UTC (rev 1740)
+@@ -48,7 +48,7 @@
+ 
+     protected static Map conditionsmap = new Hashtable();
+ 
+-    protected InstallData installdata;
++    protected static InstallData installdata;
+ 
+     /**
+      * 
+@@ -60,7 +60,7 @@
+         this.panelconditions = new Hashtable();
+         this.packconditions = new Hashtable();
+         this.optionalpackconditions = new Hashtable();
+-        this.installdata = installdata;
++        RulesEngine.installdata = installdata;
+         this.readConditions();
+     }
+ 
+@@ -109,6 +109,9 @@
+             {
+                 Class conditionclass = loader.loadClass(conditionclassname);
+                 result = (Condition) conditionclass.newInstance();
++                result.readFromXML(condition);
++                result.setId(condid);
++                result.setInstalldata(RulesEngine.installdata);
+             }
+             catch (ClassNotFoundException e)
+             {
+@@ -121,9 +124,7 @@
+             catch (IllegalAccessException e)
+             {
+                 Debug.trace(&quot;Illegal access to &quot; + conditionclassname);
+-            }
+-            result.readFromXML(condition);
+-            result.setId(condid);
++            }            
+         }
+         return result;
+     }
+@@ -153,7 +154,7 @@
+                     {
+                         // this.conditionslist.add(cond);
+                         String condid = cond.getId();
+-                        cond.setInstalldata(this.installdata);
++                        cond.setInstalldata(RulesEngine.installdata);
+                         if ((condid != null) &amp;&amp; !(&quot;UNKNOWN&quot;.equals(condid)))
+                         {
+                             conditionsmap.put(condid, cond);
+@@ -221,18 +222,21 @@
+                 Condition op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
+                 conditionexpr.delete(0, index + 1);
+                 result = new AndCondition(op1, getConditionByExpr(conditionexpr));
++                result.setInstalldata(RulesEngine.installdata);
+                 break;
+             case '|':
+                 // or-condition
+                 op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
+                 conditionexpr.delete(0, index + 1);
+                 result = new OrCondition(op1, getConditionByExpr(conditionexpr));
++                result.setInstalldata(RulesEngine.installdata);
+                 break;
+             case '\\':
+                 // xor-condition
+                 op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
+                 conditionexpr.delete(0, index + 1);
+                 result = new XOrCondition(op1, getConditionByExpr(conditionexpr));
++                result.setInstalldata(RulesEngine.installdata);
+                 break;
+             case '!':
+                 // not-condition
+@@ -245,6 +249,7 @@
+                     // delete not symbol
+                     conditionexpr.deleteCharAt(index);
+                     result = new NotCondition(getConditionByExpr(conditionexpr));
++                    result.setInstalldata(RulesEngine.installdata);
+                 }
+                 break;
+             default:
+@@ -255,6 +260,7 @@
+         if (conditionexpr.length() &gt; 0)
+         {
+             result = (Condition) conditionsmap.get(conditionexpr.toString());
++            result.setInstalldata(RulesEngine.installdata);
+             conditionexpr.delete(0, conditionexpr.length());
+         }
+         return result;
+@@ -271,7 +277,13 @@
+         else
+         {
+             Debug.trace(&quot;Checking condition&quot;);
+-            return cond.isTrue();
++            try {
++                return cond.isTrue();
++            }
++            catch (NullPointerException npe){
++                Debug.error(&quot;Nullpointerexception checking condition: &quot; + id);
++                return false;
++            }
+         }
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000485.html">[izpack-changes] r1739 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000487.html">[izpack-changes] r1741 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#486">[ date ]</a>
+              <a href="thread.html#486">[ thread ]</a>
+              <a href="subject.html#486">[ subject ]</a>
+              <a href="author.html#486">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Re :  Localizing InstallationGroupPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Re%20%3A%20%20Localizing%20InstallationGroupPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000556.html">
+   <LINK REL="Next"  HREF="000560.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Re :  Localizing InstallationGroupPanel</H1>
+    <B>Loic</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Re%20%3A%20%20Localizing%20InstallationGroupPanel&In-Reply-To="
+       TITLE="[izpack-devel] Re :  Localizing InstallationGroupPanel">lbndev at yahoo.fr
+       </A><BR>
+    <I>Mon Nov  6 17:56:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000556.html">[izpack-devel] Bug in InstallerFrame.java, v3.9.0
+</A></li>
+        <LI>Next message: <A HREF="000560.html">[izpack-devel] panelid
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#558">[ date ]</a>
+              <a href="thread.html#558">[ thread ]</a>
+              <a href="subject.html#558">[ subject ]</a>
+              <a href="author.html#558">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Fabrice,
+
+Continuing last month's discuss, as time is starting to get short for me...
+
+Did you have time to look into your solution ? Have you come to some result yet ?
+If yes, I would be really happy to hear about it.
+If not, is there a way I can help you to get it done ?
+
+My boss doesn't like the idea of maintaining our own patched  izPack version, for obvious support and maintainance reasons. Thus, I'd very much like to find a solution in izPack's next release (and hope it will be out before I have no choice but to use the SVN trunk, but that's another story - my point isn't to urge the izPack team into getting a new release out). 
+
+If I can be of any help to speed things up on this issue, please let me know and I will do my best to assist you.
+If not (or if you
+ prefer having this done by yourself, which I understand and respect), would it be acceptable to commit my patch as a temporary first-time fix, and make things better and cleaner with your solution in a second time ?
+
+Thank you for your understanding,
+
+Lo&#239;c
+
+----- Message d'origine ----
+De : miraodb &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">miraodb at hotmail.com</A>&gt;
+&#192; : <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Envoy&#233; le : Mercredi, 11 Octobre 2006, 15h47mn 33s
+Objet : Re: [izpack-devel] Localizing InstallationGroupPanel
+
+Hi Loic,
+
+First of all ,thanks for the patch and the interest you put in IzPack. I've 
+looked to your code and it seems pretty good. I have however to ask you to 
+wait a bit till i can commit such thing. The main reason is that a comming 
+future will probably solve that problem not only for this panel but for all 
+of
+ them. I'm still on it and i have yet not finish it nor documented it 
+properly. Once it's there i'll  post the whole thing.
+
+Cheers,
+Fabrice.
+
+PS: I keep your solution in mind, in case mine doesnt show up... :-(
+PS N&#176;2: If anyone is against that idea, say it loud :-)
+----- Original Message ----- 
+From: &quot;Loic&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">lbndev at yahoo.fr</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>&gt;
+Sent: Wednesday, October 11, 2006 5:52 AM
+Subject: [izpack-devel] Localizing InstallationGroupPanel
+
+
+Hi,
+
+Looks like the InstallationGroupPanel included in IzPack 3.9 is not 
+localizable beyond the groups descriptions.
+May I suggest the patch below to allow for some more localization (table 
+colums headers, group names) ?
+
+Thanks,
+
+Lo&#239;c
+
+--- InstallationGroupPanel-orig.java    2006-10-02 15:23:20.879057552 +0200
++++ InstallationGroupPanel-modif.java    2006-10-02
+ 15:43:44.785995416 +0200
+@@ -325,7 +325,8 @@
+                 if (data == null)
+                 {
+                     String description = getGroupDescription(group);
+-                    data = new GroupData(group, description);
++            String gname = getLocalizedGroupName(group);
++                    data = new GroupData(gname,
+ description);
+                     installGroups.put(group, data);
+                 }
+             }
+@@ -399,9 +400,51 @@
+         return description;
+     }
+
++    /**
++     * Look for a key = InstallationGroupPanel.group.[group] entry:
++     * first using idata.langpackgetString(key+&quot;.html&quot;)
++     * next using idata.langpack.getString(key)
++     * next using idata.getVariable(key)
++     * lastly, defaulting to group
++     * @param group - the installation group name
++     *
+ @return the localized group name
++     */
++    protected String getLocalizedGroupName(String group)
++    {
++        String gname = null;
++        String key = &quot;InstallationGroupPanel.group.&quot; + group;
++        if( idata.langpack != null )
++        {
++            String htmlKey = key+&quot;.html&quot;;
++            String html = idata.langpack.getString(htmlKey);
++            // This will equal the key if there is no entry
++            if( htmlKey.equalsIgnoreCase(html)
+ )
++                gname = idata.langpack.getString(key);
++            else
++                gname = html;
++        }
++        if (gname == null)
++            gname = idata.getVariable(key);
++        if (gname == null)
++            gname = group;
++        try
++        {
++            gname = URLDecoder.decode(description,
+ &quot;UTF-8&quot;);
++        }
++        catch (UnsupportedEncodingException e)
++        {
++            emitWarning(&quot;Failed to convert localized group name&quot;, 
+e.getMessage());
++        }
++
++        return gname;
++    }
++
+     protected TableModel getModel(HashMap groupData)
+     {
+-        String[] columns = { &quot;Selected&quot;, &quot;InstallType&quot;, &quot;Size&quot;};
++        String[] columns = { 
+idata.langpack.getString(&quot;InstallationGroupPanel.header.selection&quot;),
++ 
+idata.langpack.getString(&quot;InstallationGroupPanel.header.description&quot;),
++
+ 
+idata.langpack.getString(&quot;InstallationGroupPanel.header.size&quot;};
++
+          DefaultTableModel model = new DefaultTableModel (columns, 0)
+          {
+             public boolean isCellEditable (int row, int column)
+
+
+
+
+
+
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Yahoo! Mail r&#233;invente le mail ! D&#233;couvrez le nouveau Yahoo! Mail et son interface r&#233;volutionnaire.
+<A HREF="http://fr.mail.yahoo.com">http://fr.mail.yahoo.com</A>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061106/bf7ab99f/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061106/bf7ab99f/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000556.html">[izpack-devel] Bug in InstallerFrame.java, v3.9.0
+</A></li>
+	<LI>Next message: <A HREF="000560.html">[izpack-devel] panelid
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#558">[ date ]</a>
+              <a href="thread.html#558">[ thread ]</a>
+              <a href="subject.html#558">[ subject ]</a>
+              <a href="author.html#558">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,308 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] izpack-devel Digest, Vol 11, Issue 9
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20izpack-devel%20Digest%2C%20Vol%2011%2C%20Issue%209&In-Reply-To=mailman.89.1178791274.2845.izpack-devel%40lists.berlios.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001104.html">
+   <LINK REL="Next"  HREF="001095.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] izpack-devel Digest, Vol 11, Issue 9</H1>
+    <B>Marius Nicolae</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20izpack-devel%20Digest%2C%20Vol%2011%2C%20Issue%209&In-Reply-To=mailman.89.1178791274.2845.izpack-devel%40lists.berlios.de"
+       TITLE="[izpack-devel] izpack-devel Digest, Vol 11, Issue 9">mariusn007 at gmail.com
+       </A><BR>
+    <I>Thu May 10 13:48:45 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001104.html">[izpack-devel] Uninstaller bug Fixed :)
+</A></li>
+        <LI>Next message: <A HREF="001095.html">[izpack-devel] izpack-devel Digest, Vol 11, Issue 9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1094">[ date ]</a>
+              <a href="thread.html#1094">[ thread ]</a>
+              <a href="subject.html#1094">[ subject ]</a>
+              <a href="author.html#1094">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Mark,
+
+It doesn't matter if the uninstaller is run in GUI mode or in command
+line mode. It still doesn't finish its job.
+
+The problem seems to be that the installer runned with GUI creates an
+uninstaller different from the one created by the AutomatedInstaller.
+In fact, the difference is that the GUI-mode-generated uninstaller.jar
+file has three more files at the end of the archive, namely:
+
+rootScript
+uninstallerJars
+uninstallerListeners
+
+and the uninstaller error from my previous mail seems to have been
+caused by the absence of a rootScript file.
+
+I took some time to look in the source code and I think that the
+problem might be in the
+writeUninstallData()  method found in
+       com.izforge.izpack.installer.AutomatedInstaller.java
+and also in
+        com.izforge.izpack.installer.InstallerFrame.java
+
+They seem to be quite different even though the comments say:
+    /**
+     * Writes the uninstalldata.
+     *
+     * Unfortunately, Java doesn't allow multiple inheritance, so
+     *     &lt;code&gt;AutomatedInstaller&lt;/code&gt;
+     * and &lt;code&gt;InstallerFrame&lt;/code&gt; can't share this code ... :-/
+     *
+     * TODO: We should try to fix this in the future.
+     */
+
+Thank you for the quick response. Keep me posted :-)
+
+Best regards,
+Marius Nicolae
+
+&gt;<i> Date: Thu, 10 May 2007 08:29:03 +0200
+</I>&gt;<i> From: Marc Eppelmann &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">marc.eppelmann at gmx.de</A>&gt;
+</I>&gt;<i> Subject: Re: [izpack-devel] Uninstaller bug
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Message-ID: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">200705100829.03697.marc.eppelmann at gmx.de</A>&gt;
+</I>&gt;<i> Content-Type: text/plain;  charset=&quot;utf-8&quot;
+</I>&gt;<i>
+</I>&gt;<i> Hi Marius,
+</I>&gt;<i>
+</I>&gt;<i> It seems that there is a Bug left from my last implemented Feature. I will
+</I>&gt;<i> review and fix it this weekend.
+</I>&gt;<i>
+</I>&gt;<i> PS: But why runs the uninstaller in GUI-Mode, even if the Installer was
+</I>&gt;<i> started in non-GUI Mode?
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i> Marc
+</I>&gt;<i>
+</I>&gt;<i> Am Wednesday 09 May 2007 schrieb Marius Nicolae:
+</I>&gt;<i> &gt; Hi,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I was trying to build a command line installer/uninstaller using IzPack.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The install part can be automated with  an xml file. The uninstall
+</I>&gt;<i> &gt; part can be resolved by adding the -c flag to the uninstaller.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The problem:
+</I>&gt;<i> &gt; If I run the installer without a GUI (using an .xml file as a
+</I>&gt;<i> &gt; parameter), the uninstaller encounters a null pointer exception.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I've attached a screenshot of the error message.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; NOTE: To reproduce the error do the following:
+</I>&gt;<i> &gt; 1. Run the sample that comes with IzPack, save the xml script for
+</I>&gt;<i> &gt; automated installation then uninstalled the sample.
+</I>&gt;<i> &gt; 2. Run the installer with the xml script as a parameter. This should
+</I>&gt;<i> &gt; install the sample again.
+</I>&gt;<i> &gt; 3. Run the uninstaller from Sample Installation/Uninstaller
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Can we get around this in any way?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Best regards,
+</I>&gt;<i> &gt; Marius Nicolae
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; PS: this is a copy of the log file. The error is displayed here also.
+</I>&gt;<i> &gt; [myHome] represents my home folder
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; 2007-05-09T13:30:26.934 Phase 1: JarFile: [myHome]/Sample
+</I>&gt;<i> &gt; Installation/Uninstaller/uninstaller.jar
+</I>&gt;<i> &gt; 2007-05-09T13:30:26.987 Phase 1: Extracted 119 files into /tmp/izpack9522.d
+</I>&gt;<i> &gt; 2007-05-09T13:30:26.988 Phase 1: Spawning phase 2:
+</I>&gt;<i> &gt;         /usr/lib/jvm/java-1.5.0-sun-1.5.0_update8/jre/bin/java
+</I>&gt;<i> &gt;         -classpath
+</I>&gt;<i> &gt;         /tmp/izpack9522.d
+</I>&gt;<i> &gt;         -Dself.mod.base=/tmp/izpack9522
+</I>&gt;<i> &gt;         -Dself.mod.jar=[myHome]/Sample
+</I>&gt;<i> &gt; Installation/Uninstaller/uninstaller.jar
+</I>&gt;<i> &gt; -Dself.mod.class=com.izforge.izpack.uninstaller.Uninstaller
+</I>&gt;<i> &gt; -Dself.mod.method=uninstall
+</I>&gt;<i> &gt;         -Dself.mod.phase=2
+</I>&gt;<i> &gt;         com.izforge.izpack.uninstaller.SelfModifier
+</I>&gt;<i> &gt; 2007-05-09T13:30:26.993 Phase 1: Exit
+</I>&gt;<i> &gt; 2007-05-09T13:30:28.186 Phase 2: Spawning phase 3:
+</I>&gt;<i> &gt;         /usr/lib/jvm/java-1.5.0-sun-1.5.0_update8/jre/bin/java
+</I>&gt;<i> &gt;         -classpath
+</I>&gt;<i> &gt;         /tmp/izpack9522.d
+</I>&gt;<i> &gt;         -Dself.mod.base=/tmp/izpack9522
+</I>&gt;<i> &gt;         -Dself.mod.jar=[myHome]/Sample
+</I>&gt;<i> &gt; Installation/Uninstaller/uninstaller.jar
+</I>&gt;<i> &gt; -Dself.mod.class=com.izforge.izpack.uninstaller.Uninstaller
+</I>&gt;<i> &gt; -Dself.mod.method=uninstall
+</I>&gt;<i> &gt;         -Dself.mod.phase=3
+</I>&gt;<i> &gt;         com.izforge.izpack.uninstaller.SelfModifier
+</I>&gt;<i> &gt; 2007-05-09T13:30:28.274 Phase 3: Invoking method:
+</I>&gt;<i> &gt; com.izforge.izpack.uninstaller.Uninstaller.uninstall(String[] args)
+</I>&gt;<i> &gt; 2007-05-09T13:30:28.514 Phase 3: Method returned, waiting for other threads
+</I>&gt;<i> &gt; java.lang.NullPointerException
+</I>&gt;<i> &gt;         at
+</I>&gt;<i> &gt; java.io.ObjectInputStream$PeekInputStream.read(ObjectInputStream.java:2213)
+</I>&gt;<i> &gt; at
+</I>&gt;<i> &gt; java.io.ObjectInputStream$PeekInputStream.readFully(ObjectInputStream.java:
+</I>&gt;<i> &gt;2226) at
+</I>&gt;<i> &gt; java.io.ObjectInputStream$BlockDataInputStream.readShort(ObjectInputStream.
+</I>&gt;<i> &gt;java:2694) at
+</I>&gt;<i> &gt; java.io.ObjectInputStream.readStreamHeader(ObjectInputStream.java:761) at
+</I>&gt;<i> &gt; java.io.ObjectInputStream.&lt;init&gt;(ObjectInputStream.java:277) at
+</I>&gt;<i> &gt; com.izforge.izpack.uninstaller.Destroyer.getRootScript(Destroyer.java:223)
+</I>&gt;<i> &gt; at com.izforge.izpack.uninstaller.Destroyer.run(Destroyer.java:119)
+</I>&gt;<i> &gt; 2007-05-09T13:32:04.024 Phase 2: deleteing sandbox
+</I>&gt;<i> &gt; 2007-05-09T13:32:04.048 Phase 2: Phase 3 return value = 0
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> ------------------------------
+</I>&gt;<i>
+</I>&gt;<i> Message: 2
+</I>&gt;<i> Date: Thu, 10 May 2007 09:22:59 +0200
+</I>&gt;<i> From: &quot;Julien Ponge&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">julien.ponge at gmail.com</A>&gt;
+</I>&gt;<i> Subject: Re: [izpack-devel] Uninstaller bug
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Message-ID:
+</I>&gt;<i>         &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">9291ebe10705100022y48527f50t76064f51b1630283 at mail.gmail.com</A>&gt;
+</I>&gt;<i> Content-Type: text/plain; charset=UTF-8; format=flowed
+</I>&gt;<i>
+</I>&gt;<i> Hi Mark,
+</I>&gt;<i>
+</I>&gt;<i> Should I delay 3.10.2?
+</I>&gt;<i>
+</I>&gt;<i> On 5/10/07, Marc Eppelmann &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">marc.eppelmann at gmx.de</A>&gt; wrote:
+</I>&gt;<i> &gt; Hi Marius,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; It seems that there is a Bug left from my last implemented Feature. I will
+</I>&gt;<i> &gt; review and fix it this weekend.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; PS: But why runs the uninstaller in GUI-Mode, even if the Installer was
+</I>&gt;<i> &gt; started in non-GUI Mode?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Cheers
+</I>&gt;<i> &gt; Marc
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Am Wednesday 09 May 2007 schrieb Marius Nicolae:
+</I>&gt;<i> &gt; &gt; Hi,
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; I was trying to build a command line installer/uninstaller using IzPack.
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; The install part can be automated with  an xml file. The uninstall
+</I>&gt;<i> &gt; &gt; part can be resolved by adding the -c flag to the uninstaller.
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; The problem:
+</I>&gt;<i> &gt; &gt; If I run the installer without a GUI (using an .xml file as a
+</I>&gt;<i> &gt; &gt; parameter), the uninstaller encounters a null pointer exception.
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; I've attached a screenshot of the error message.
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; NOTE: To reproduce the error do the following:
+</I>&gt;<i> &gt; &gt; 1. Run the sample that comes with IzPack, save the xml script for
+</I>&gt;<i> &gt; &gt; automated installation then uninstalled the sample.
+</I>&gt;<i> &gt; &gt; 2. Run the installer with the xml script as a parameter. This should
+</I>&gt;<i> &gt; &gt; install the sample again.
+</I>&gt;<i> &gt; &gt; 3. Run the uninstaller from Sample Installation/Uninstaller
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; Can we get around this in any way?
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; Best regards,
+</I>&gt;<i> &gt; &gt; Marius Nicolae
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; PS: this is a copy of the log file. The error is displayed here also.
+</I>&gt;<i> &gt; &gt; [myHome] represents my home folder
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:30:26.934 Phase 1: JarFile: [myHome]/Sample
+</I>&gt;<i> &gt; &gt; Installation/Uninstaller/uninstaller.jar
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:30:26.987 Phase 1: Extracted 119 files into /tmp/izpack9522.d
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:30:26.988 Phase 1: Spawning phase 2:
+</I>&gt;<i> &gt; &gt;         /usr/lib/jvm/java-1.5.0-sun-1.5.0_update8/jre/bin/java
+</I>&gt;<i> &gt; &gt;         -classpath
+</I>&gt;<i> &gt; &gt;         /tmp/izpack9522.d
+</I>&gt;<i> &gt; &gt;         -Dself.mod.base=/tmp/izpack9522
+</I>&gt;<i> &gt; &gt;         -Dself.mod.jar=[myHome]/Sample
+</I>&gt;<i> &gt; &gt; Installation/Uninstaller/uninstaller.jar
+</I>&gt;<i> &gt; &gt; -Dself.mod.class=com.izforge.izpack.uninstaller.Uninstaller
+</I>&gt;<i> &gt; &gt; -Dself.mod.method=uninstall
+</I>&gt;<i> &gt; &gt;         -Dself.mod.phase=2
+</I>&gt;<i> &gt; &gt;         com.izforge.izpack.uninstaller.SelfModifier
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:30:26.993 Phase 1: Exit
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:30:28.186 Phase 2: Spawning phase 3:
+</I>&gt;<i> &gt; &gt;         /usr/lib/jvm/java-1.5.0-sun-1.5.0_update8/jre/bin/java
+</I>&gt;<i> &gt; &gt;         -classpath
+</I>&gt;<i> &gt; &gt;         /tmp/izpack9522.d
+</I>&gt;<i> &gt; &gt;         -Dself.mod.base=/tmp/izpack9522
+</I>&gt;<i> &gt; &gt;         -Dself.mod.jar=[myHome]/Sample
+</I>&gt;<i> &gt; &gt; Installation/Uninstaller/uninstaller.jar
+</I>&gt;<i> &gt; &gt; -Dself.mod.class=com.izforge.izpack.uninstaller.Uninstaller
+</I>&gt;<i> &gt; &gt; -Dself.mod.method=uninstall
+</I>&gt;<i> &gt; &gt;         -Dself.mod.phase=3
+</I>&gt;<i> &gt; &gt;         com.izforge.izpack.uninstaller.SelfModifier
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:30:28.274 Phase 3: Invoking method:
+</I>&gt;<i> &gt; &gt; com.izforge.izpack.uninstaller.Uninstaller.uninstall(String[] args)
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:30:28.514 Phase 3: Method returned, waiting for other threads
+</I>&gt;<i> &gt; &gt; java.lang.NullPointerException
+</I>&gt;<i> &gt; &gt;         at
+</I>&gt;<i> &gt; &gt; java.io.ObjectInputStream$PeekInputStream.read(ObjectInputStream.java:2213)
+</I>&gt;<i> &gt; &gt; at
+</I>&gt;<i> &gt; &gt; java.io.ObjectInputStream$PeekInputStream.readFully(ObjectInputStream.java:
+</I>&gt;<i> &gt; &gt;2226) at
+</I>&gt;<i> &gt; &gt; java.io.ObjectInputStream$BlockDataInputStream.readShort(ObjectInputStream.
+</I>&gt;<i> &gt; &gt;java:2694) at
+</I>&gt;<i> &gt; &gt; java.io.ObjectInputStream.readStreamHeader(ObjectInputStream.java:761) at
+</I>&gt;<i> &gt; &gt; java.io.ObjectInputStream.&lt;init&gt;(ObjectInputStream.java:277) at
+</I>&gt;<i> &gt; &gt; com.izforge.izpack.uninstaller.Destroyer.getRootScript(Destroyer.java:223)
+</I>&gt;<i> &gt; &gt; at com.izforge.izpack.uninstaller.Destroyer.run(Destroyer.java:119)
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:32:04.024 Phase 2: deleteing sandbox
+</I>&gt;<i> &gt; &gt; 2007-05-09T13:32:04.048 Phase 2: Phase 3 return value = 0
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-devel mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> ------------------------------
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> End of izpack-devel Digest, Vol 11, Issue 9
+</I>&gt;<i> *******************************************
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001104.html">[izpack-devel] Uninstaller bug Fixed :)
+</A></li>
+	<LI>Next message: <A HREF="001095.html">[izpack-devel] izpack-devel Digest, Vol 11, Issue 9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1094">[ date ]</a>
+              <a href="thread.html#1094">[ thread ]</a>
+              <a href="subject.html#1094">[ subject ]</a>
+              <a href="author.html#1094">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

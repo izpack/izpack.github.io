@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Running IzPack with VM 1.5 without SigSegV
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Running%20IzPack%20with%20VM%201.5%20without%20SigSegV&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000263.html">
+   <LINK REL="Next"  HREF="000259.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Running IzPack with VM 1.5 without SigSegV</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Running%20IzPack%20with%20VM%201.5%20without%20SigSegV&In-Reply-To="
+       TITLE="[izpack-devel] Running IzPack with VM 1.5 without SigSegV">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue Jun 20 10:30:51 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000263.html">[izpack-devel] Problem specifying path / Problems with Java 1.5.x
+</A></li>
+        <LI>Next message: <A HREF="000259.html">[izpack-devel] RE: Running IzPack with VM 1.5 without SigSegV
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#258">[ date ]</a>
+              <a href="thread.html#258">[ thread ]</a>
+              <a href="subject.html#258">[ subject ]</a>
+              <a href="author.html#258">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Elmar,
+see context related.
+
+Cheers
+
+Klaus
+
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>]On Behalf Of Elmar Grom
+</I>&gt;<i>Sent: Monday, June 19, 2006 7:10 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+</I>&gt;<i>Subject: RE: [izpack-devel] Running IzPack with VM 1.5 without SigSegV
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi folks,
+</I>&gt;<i>
+</I>&gt;<i>it's strange to hear all this stuff with Problems about 1.5. 
+</I>&gt;<i>Somehow I can't
+</I>&gt;<i>relate to that. Neither do I have any Problems on my machines 
+</I>&gt;<i>(Windows 2000
+</I>&gt;<i>and XP) nor do my customers report any.
+</I>
+But more than one other people have reported crashes with VM 1.5 if
+native parts are used. Not since IzPack 3.8 else since the first 1.5 VM.
+
+With a &quot;normal&quot; installation I have in the moment really rare crashes.
+But with one which exit fast the crash is reproduceable. If needed,
+I can send the used panel and build xml file. May be there is a 
+timing problem.
+
+&gt;<i>
+</I>&gt;<i>So I start wondering if it might be something else. One thing that is
+</I>&gt;<i>different in my case is that I use quite an old version of IzPack. So
+</I>&gt;<i>perhaps the causes are not with the shell link. As far as I 
+</I>&gt;<i>know this has
+</I>&gt;<i>not changed since it was first implemented.
+</I>&gt;<i>
+</I>
+There are changes; in the java part and in the C part. E.g. 0.9.2005 
+I have made the Unicode port.
+But I think the changes are not the problem. Crashes are existent before
+them.
+Crashes are if the ShellLink and/or Registry stuff used with outload
+from the jar file and use the FreeThread from Librarian.cleanUp.
+No crash seen if FreeThread will be not used.
+I am not certain that the 
+FreeLibraryAndExitThread (handle, 0);
+call in 
+JNIEXPORT void JNICALL Java_com_izforge_izpack_util_os_ShellLink_FreeLibrary
+is really the problem, but there are more than one indicationes that
+it is.
+I am waiting more than a year that some one else fix the crash problem.
+But now I need an IzPack version which is useable with VM 1.5 also
+native parts are included. I make the way I have found; I do not
+spend weeks to get a hard evidence for the reason.
+
+&gt;<i>It sounds awfully tedious but it might be worthwhile to start 
+</I>&gt;<i>going back in
+</I>&gt;<i>time in an effort to identify the first version of IzPack that 
+</I>&gt;<i>does exhibit
+</I>&gt;<i>the problems you observe. That might give us a narrower view 
+</I>&gt;<i>on the things
+</I>&gt;<i>that may cause the problem.
+</I>&gt;<i>
+</I>&gt;<i>One problem I do have is that I never could get newer versions 
+</I>&gt;<i>of IzPack to
+</I>&gt;<i>run in my environment. 
+</I>
+If there is a version which do not crash with native part in it it will
+be nice if you can write what version you use. Then there is a limit
+above old versions. If I can reproduce the crashes with that version
+we can concentrate us on fix the problem.
+
+&gt;<i>That is why I still stick with the old 
+</I>&gt;<i>one (Julien
+</I>&gt;<i>might remember a conversation on this topic quite a while 
+</I>&gt;<i>ago). Right now I
+</I>&gt;<i>am at a point where I have to give my build environment a 
+</I>&gt;<i>work-over to build
+</I>&gt;<i>a parallel version of my application. Therefore this might be a good
+</I>&gt;<i>opportunity for me to invest a day or two in order to get this 
+</I>&gt;<i>working. At
+</I>&gt;<i>the same time, there might be an opportunity for IzPack in general to
+</I>&gt;<i>benefit....
+</I>&gt;<i>
+</I>&gt;<i>	Elmar
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>]On Behalf Of Hal Vaughan
+</I>&gt;<i>Sent: Monday, June 19, 2006 7:43 AM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-devel] Running IzPack with VM 1.5 without SigSegV
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>On Monday 19 June 2006 10:19, Bartz, Klaus wrote:
+</I>&gt;&gt;<i> Hi Hal,
+</I>&gt;&gt;<i> yes, shortcuts on Windows are using native code (and the
+</I>&gt;&gt;<i> registry stuff).
+</I>&gt;&gt;<i> May be your Windows 2k reboots are related to this, but if so
+</I>&gt;&gt;<i> it will be more a bug in windows else in IzPack or the VM.
+</I>&gt;&gt;<i> The VM runs in user mode and no process in user mode should
+</I>&gt;&gt;<i> be able to alter system in a manner that it has to reboot.
+</I>&gt;<i>
+</I>&gt;<i>Does it make a difference that I was running it as Administrator?
+</I>&gt;<i>
+</I>&gt;&gt;<i> Time of DOS should be away :-) (where you can alter reference
+</I>&gt;&gt;<i> definition of boot device with a short c program).
+</I>&gt;&gt;<i> Will be nice if you can test my changes. I hope, I can check in
+</I>&gt;&gt;<i> it tomorrow.
+</I>&gt;<i>
+</I>&gt;<i>It'll be a while.  I'm still trying to figure out ANY versioning system
+</I>&gt;<i>so I can import those changes without losing the SimpleConfig stuff Fab
+</I>&gt;<i>and I still have to publish here.
+</I>&gt;<i>
+</I>&gt;<i>Hal
+</I>&gt;<i>
+</I>&gt;&gt;<i> Cheers
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> &gt;-----Original Message-----
+</I>&gt;&gt;<i> &gt;From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+</I>&gt;&gt;<i> &gt;[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>]On Behalf Of Hal Vaughan
+</I>&gt;&gt;<i> &gt;Sent: Monday, June 19, 2006 4:07 PM
+</I>&gt;&gt;<i> &gt;To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+</I>&gt;&gt;<i> &gt;Subject: Re: [izpack-devel] Running IzPack with VM 1.5 without
+</I>&gt;&gt;<i> &gt; SigSegV
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;On Monday 19 June 2006 07:12, Miraodb wrote:
+</I>&gt;&gt;<i> &gt;&gt; Hi Klaus,
+</I>&gt;&gt;<i> &gt;&gt;
+</I>&gt;&gt;<i> &gt;&gt; Great thing that you look into this. I think not izpack is
+</I>&gt;&gt;<i> &gt;&gt; suffering from 1.5 but many other projects.
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;It's quite possible the issue I had with IzPack making Windows 2000
+</I>&gt;&gt;<i> &gt;reboot when it created shortcuts is related to this, isn't it?
+</I>&gt;&gt;<i> &gt;(Wouldn't the shortcut panel be using the dll files Klaus
+</I>&gt;&gt;<i> &gt; mentioned?)
+</I>&gt;&gt;<i> &gt;
+</I>&gt;&gt;<i> &gt;Hal
+</I>&gt;&gt;<i> &gt;_______________________________________________
+</I>&gt;&gt;<i> &gt;izpack-devel mailing list
+</I>&gt;&gt;<i> &gt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> &gt;<A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-devel mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000263.html">[izpack-devel] Problem specifying path / Problems with Java 1.5.x
+</A></li>
+	<LI>Next message: <A HREF="000259.html">[izpack-devel] RE: Running IzPack with VM 1.5 without SigSegV
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#258">[ date ]</a>
+              <a href="thread.html#258">[ thread ]</a>
+              <a href="subject.html#258">[ subject ]</a>
+              <a href="author.html#258">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

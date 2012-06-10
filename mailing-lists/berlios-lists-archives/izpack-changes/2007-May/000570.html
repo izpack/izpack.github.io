@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1824 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1824%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000571.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1824 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1824%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1824 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Mon May  7 14:42:06 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000571.html">[izpack-changes] r1825 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#570">[ date ]</a>
+              <a href="thread.html#570">[ thread ]</a>
+              <a href="subject.html#570">[ subject ]</a>
+              <a href="author.html#570">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-05-07 14:41:38 +0200 (Mon, 07 May 2007)
+New Revision: 1824
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+added icon support to title fields
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2007-04-30 08:03:13 UTC (rev 1823)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2007-05-07 12:41:38 UTC (rev 1824)
+@@ -35,6 +35,7 @@
+ 
+ import javax.swing.BorderFactory;
+ import javax.swing.ButtonGroup;
++import javax.swing.ImageIcon;
+ import javax.swing.JButton;
+ import javax.swing.JCheckBox;
+ import javax.swing.JComboBox;
+@@ -48,9 +49,9 @@
+ import javax.swing.JTextField;
+ import javax.swing.event.DocumentEvent;
+ import javax.swing.event.DocumentListener;
++import javax.swing.filechooser.FileFilter;
+ import javax.swing.text.BadLocationException;
+ import javax.swing.text.Document;
+-import javax.swing.filechooser.FileFilter;
+ 
+ import net.n3.nanoxml.NonValidator;
+ import net.n3.nanoxml.StdXMLBuilder;
+@@ -62,6 +63,7 @@
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.Panel;
+ import com.izforge.izpack.gui.ButtonFactory;
++import com.izforge.izpack.gui.LabelFactory;
+ import com.izforge.izpack.gui.TwoColumnConstraints;
+ import com.izforge.izpack.gui.TwoColumnLayout;
+ import com.izforge.izpack.installer.InstallData;
+@@ -70,7 +72,6 @@
+ import com.izforge.izpack.installer.ResourceManager;
+ import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.Debug;
+-import com.izforge.izpack.util.FileExecutor;
+ import com.izforge.izpack.util.MultiLineLabel;
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.OsVersion;
+@@ -165,6 +166,8 @@
+ 
+     private static final int POS_GROUP = 10;
+ 
++    protected static final String ICON_KEY = &quot;icon&quot;;
++    
+     /** The name of the XML file that specifies the panel layout */
+     private static final String SPEC_FILE_NAME = &quot;userInputSpec.xml&quot;;
+ 
+@@ -1195,35 +1198,62 @@
+         boolean bold = getBoolean(spec, BOLD, false);
+         float multiplier = getFloat(spec, SIZE, 2.0f);
+         int justify = getAlignment(spec);
++        
++        String icon = getIconName(spec);
+ 
+         if (title != null)
+         {
+-            JLabel label = new JLabel(title);
+-            Font font = label.getFont();
+-            float size = font.getSize();
+-            int style = 0;
++          JLabel label = null;
++          ImageIcon imgicon = null;
++          try {
++            imgicon = parent.icons.getImageIcon(icon);
++            label = LabelFactory.create(title, imgicon , JLabel.TRAILING , true);
++          }
++          catch (Exception e){
++            Debug.trace(&quot;Icon &quot; + icon + &quot; not found in icon list. &quot; + e.getMessage());
++            label = LabelFactory.create(title);
++          }       
++          Font font = label.getFont();
++          float size = font.getSize();
++          int style = 0;      
++          
++          if (bold) {
++            style += Font.BOLD;
++          }
++          if (italic) {
++            style += Font.ITALIC;
++          }
+ 
+-            if (bold)
+-            {
+-                style += Font.BOLD;
+-            }
+-            if (italic)
+-            {
+-                style += Font.ITALIC;
+-            }
++          font = font.deriveFont(style, (size * multiplier));
++          label.setFont(font);
++          label.setAlignmentX(0);
+ 
+-            font = font.deriveFont(style, (size * multiplier));
+-            label.setFont(font);
+-            label.setAlignmentX(0);
++          TwoColumnConstraints constraints = new TwoColumnConstraints();
++          constraints.align = justify;
++          constraints.position = TwoColumnConstraints.NORTH;
+ 
+-            TwoColumnConstraints constraints = new TwoColumnConstraints();
+-            constraints.align = justify;
+-            constraints.position = TwoColumnConstraints.NORTH;
+-
+-            add(label, constraints);
++          add(label, constraints);          
+         }
+     }
+ 
++    protected String getIconName(XMLElement element) {
++      if (element == null) {
++        return (null);
++      }
++
++      String key = element.getAttribute(ICON_KEY);
++      String text = null;
++      if ((key != null) &amp;&amp; (langpack != null)) {
++        try {
++          text = langpack.getString(key);
++        } catch (Throwable exception) {
++          text = null;
++        }
++      }
++
++      return (text);
++    }        
++
+     /*--------------------------------------------------------------------------*/
+     /**
+      * Adds a rule field to the list of UI elements.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000571.html">[izpack-changes] r1825 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#570">[ date ]</a>
+              <a href="thread.html#570">[ thread ]</a>
+              <a href="subject.html#570">[ subject ]</a>
+              <a href="author.html#570">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

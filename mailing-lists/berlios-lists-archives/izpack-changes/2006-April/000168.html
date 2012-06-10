@@ -1,0 +1,981 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r191 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/view/mode izpack/frontend/view/stages izpack/frontend/view/stages/compile utils
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r191%20-%20in%20izpack-frontend/trunk/src%3A%20izpack/frontend/actions%20izpack/frontend/controller%20izpack/frontend/view/mode%20izpack/frontend/view/stages%20izpack/frontend/view/stages/compile%20utils&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000167.html">
+   <LINK REL="Next"  HREF="000169.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r191 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/view/mode izpack/frontend/view/stages izpack/frontend/view/stages/compile utils</H1>
+    <B>gumbo at BerliOS</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r191%20-%20in%20izpack-frontend/trunk/src%3A%20izpack/frontend/actions%20izpack/frontend/controller%20izpack/frontend/view/mode%20izpack/frontend/view/stages%20izpack/frontend/view/stages/compile%20utils&In-Reply-To="
+       TITLE="[izpack-changes] r191 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/view/mode izpack/frontend/view/stages izpack/frontend/view/stages/compile utils">gumbo at berlios.de
+       </A><BR>
+    <I>Wed Apr 12 01:46:59 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000167.html">[izpack-changes] r190 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/model/files izpack/frontend/model/stages izpack/frontend/view/stages/configure/panels utils
+</A></li>
+        <LI>Next message: <A HREF="000169.html">[izpack-changes] r192 - /
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#168">[ date ]</a>
+              <a href="thread.html#168">[ thread ]</a>
+              <a href="subject.html#168">[ subject ]</a>
+              <a href="author.html#168">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: gumbo
+Date: 2006-04-12 01:46:53 +0200 (Wed, 12 Apr 2006)
+New Revision: 191
+
+Modified:
+   izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java
+   izpack-frontend/trunk/src/izpack/frontend/actions/CompileConsole.java
+   izpack-frontend/trunk/src/izpack/frontend/actions/CompileDisplay.java
+   izpack-frontend/trunk/src/izpack/frontend/actions/CompileListener.java
+   izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java
+   izpack-frontend/trunk/src/izpack/frontend/controller/RecentFileManager.java
+   izpack-frontend/trunk/src/izpack/frontend/controller/XMLCreator.java
+   izpack-frontend/trunk/src/izpack/frontend/view/mode/WelcomeScreen.java
+   izpack-frontend/trunk/src/izpack/frontend/view/mode/WizardMode.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/IzPackStage.java
+   izpack-frontend/trunk/src/izpack/frontend/view/stages/compile/Compile.java
+   izpack-frontend/trunk/src/utils/UI.java
+Log:
+Improved compiler functionality - added a way to return to the settings page.
+
+Added a menubar to save, load, etc. from the wizard
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/ActionHandler.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -24,14 +24,17 @@
+ package izpack.frontend.actions;
+ 
+ import izpack.frontend.controller.RecentFileManager;
++import izpack.frontend.controller.XMLCreator;
+ import izpack.frontend.view.GUIConstants;
+ import izpack.frontend.view.mode.WelcomeScreen;
+ import izpack.frontend.view.mode.WizardMode;
++import izpack.frontend.view.stages.IzPackStage;
+ 
+ import java.awt.Dimension;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+ import java.io.File;
++import java.lang.Thread.State;
+ import java.util.ArrayList;
+ import java.util.Iterator;
+ 
+@@ -40,29 +43,68 @@
+ import javax.swing.JMenuItem;
+ import javax.swing.JPopupMenu;
+ 
++import org.w3c.dom.Document;
++
+ import utils.UI;
++import utils.XML;
+ import exceptions.DocumentCreationException;
+ 
+ public class ActionHandler implements ActionListener
+ {
+-    public ActionHandler(WizardMode installerUI, WelcomeScreen welcomeUI)
+-    {
+-        this.installerUI = installerUI;
++    public ActionHandler(WelcomeScreen welcomeUI)
++    {        
+         this.welcomeUI = welcomeUI;
+     }
+     
++    public void setInstallerUI(WizardMode ui)
++    {
++        installerUI = ui;
++    }
++    
+     public void actionPerformed(ActionEvent e)
+-    {
++    {   
++        String actionName = &quot;&quot;;
++        JButton button = null;
++        
+         if (e.getSource() instanceof JMenuItem)
+         {
+-            openFile(((JMenuItem) e.getSource()).getName());
++            String menuItemName = ((JMenuItem) e.getSource()).getName();
+             
+-            return;
++            System.out.println(&quot;Menu Item: &quot; + menuItemName);            
++
++            if (menuItemName.equals(&quot;open&quot;))
++            {
++                actionName = GUIConstants.BUTTON_OPEN;
++            }
++            else if (menuItemName.equals(&quot;save&quot;))
++            {
++                actionName = &quot;Save&quot;; 
++            }
++            else if (menuItemName.equals(&quot;saveas&quot;))
++            {
++                actionName = &quot;SaveAs&quot;; 
++            }
++            else if (menuItemName.equals(&quot;exit&quot;))
++            {
++                // TODO Prompt to save an unsaved file
++                
++                actionName = &quot;Exit&quot;;
++            }
++            else
++            {
++                openFile(((JMenuItem) e.getSource()).getName());
++                
++                return;
++            }
+         }
++        else if (e.getSource() instanceof JButton)
++        {
++            button = (JButton) e.getSource();
++            actionName = button.getName();
++        }            
+ 
+-        JButton button = (JButton) e.getSource();
+-        String name = button.getName();
+-        if (name.equals(GUIConstants.BUTTON_NEW))
++        
++        if (actionName.equals(GUIConstants.BUTTON_NEW))
+         {
+             //Display the installer
+             if (installerUI != null)
+@@ -71,17 +113,30 @@
+                 installerUI.setVisible(true);
+             }
+         }
+-        if (name.equals(GUIConstants.BUTTON_OPEN))
++        if (actionName.equals(GUIConstants.BUTTON_OPEN))
+         {            
+             //TODO for all file choosers, set a *.xml filter
+             File f = UI.getFile(welcomeUI, &quot;Open an installer XML file...&quot;, false);
+             
+             if (f != null)
+-                openFile(f.getAbsolutePath());                
++                openFile(f.getAbsolutePath());                            
++        }        
++        if (actionName.equals(&quot;SaveAs&quot;))
++        {   
++            String current = RecentFileManager.getInstance().getCurrentFile();
+             
++            File f = UI.getSaveFile(installerUI, new File(current));
++            
++            RecentFileManager.getInstance().addUsedFile(f.getAbsolutePath(), true);
++            
++            saveInstallerXML();
+         }
+-        if (name.equals(GUIConstants.BUTTON_COMPILE))
++        if (actionName.equals(&quot;Save&quot;))
+         {
++            saveInstallerXML();
++        }
++        if (actionName.equals(GUIConstants.BUTTON_COMPILE))
++        {
+             //TODO for all file choosers, set a *.xml filter
+             final File f = UI.getFile(welcomeUI, &quot;Open an installer XML file...&quot;, false);
+             
+@@ -103,6 +158,11 @@
+                             ce.getOutputFile()},
+                             displayer.getPackagerListener()
+                             );
++                    }
++
++                    public void cancelCompile()
++                    {
++                        CompileManager.stopCompile();                        
+                     }                    
+                 });
+                 
+@@ -114,10 +174,11 @@
+             }
+             
+         }
+-        if (name.equals(GUIConstants.BUTTON_RECENT))
++        if (actionName.equals(GUIConstants.BUTTON_RECENT))
+         {
+             JPopupMenu menu = new JPopupMenu();
+             ArrayList recent = RecentFileManager.getInstance().loadRecentList();
++            
+             for (Iterator iter = recent.iterator(); iter.hasNext();)
+             {
+                 String file = (String) iter.next();
+@@ -133,7 +194,7 @@
+                 }
+ 
+                 JMenuItem mi = menu.add(file);
+-                mi.setName(fileBak);
++                mi.setName(fileBak);                
+                 mi.addActionListener(this);
+             }
+ 
+@@ -141,22 +202,39 @@
+             menu.show(welcomeUI, button.getX() + d.width + 4, button.getY());
+         }
+ 
+-        if (name.equals(GUIConstants.BUTTON_WEBSITE))
++        if (actionName.equals(GUIConstants.BUTTON_WEBSITE))
+         {
+             final String[] browserArgs = {&quot;<A HREF="http://www.izforge.com/izpack&quot;,">http://www.izforge.com/izpack&quot;,</A>
+                             &quot;nodebug&quot;, &quot;dispose&quot;};
+             se.bysoft.sureshot.gui.browser.MiniBrowser.main(browserArgs);
+ 
+         }
+-        else if (name.equals(GUIConstants.BUTTON_MAILLIST))
++        else if (actionName.equals(GUIConstants.BUTTON_MAILLIST))
+         {
+             final String[] browserArgs = {
+                             &quot;<A HREF="http://lists.berlios.de/pipermail/izpack-users&quot;,">http://lists.berlios.de/pipermail/izpack-users&quot;,</A>
+                             &quot;nodebug&quot;, &quot;dispose&quot;};
+             se.bysoft.sureshot.gui.browser.MiniBrowser.main(browserArgs);
+         }
++        
++        if (actionName.equals(&quot;Exit&quot;))
++        {
++            installerUI.dispose();
++            welcomeUI.dispose();
++            
++            System.exit(0);
++        }
+     }
+ 
++    private void saveInstallerXML()
++    {
++        Document doc = new XMLCreator(IzPackStage.getAllStages()).createInstallXML();
++        
++        String current = RecentFileManager.getInstance().getCurrentFile();
++        
++        XML.writeXML(current, doc);
++    }
++
+     /**
+      * @param xmlFile
+      */
+@@ -166,8 +244,7 @@
+         {
+             installerUI.initializeFromXML(xmlFile);
+         
+-            RecentFileManager.getInstance().addUsedFile(
+-                            xmlFile);
++            RecentFileManager.getInstance().addUsedFile(xmlFile, true);
+             
+             installerUI.setVisible(true);
+         }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/CompileConsole.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/CompileConsole.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/CompileConsole.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -20,7 +20,10 @@
+ import java.awt.BorderLayout;
+ import java.awt.Color;
+ import java.awt.Dimension;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
+ 
++import javax.swing.JButton;
+ import javax.swing.JComponent;
+ import javax.swing.JScrollPane;
+ import javax.swing.JTextPane;
+@@ -67,7 +70,12 @@
+ 
+         setLayout(new BorderLayout());
+         add(scroll, BorderLayout.CENTER);
+-
++        
++        //TODO Internationalize
++        redo = new JButton(&quot;Return to the settings panel&quot;);
++        
++        add(redo, BorderLayout.SOUTH);
++        
+         consoleDocument = console.getDocument();
+     }
+ 
+@@ -133,9 +141,15 @@
+         {
+         }
+     }
++    
++    public JButton getReturnButton()
++    {
++        return redo;
++    }
+ 
+     private JTextPane console;
+     private JScrollPane scroll;
++    private JButton redo;
+ 
+-    private Document consoleDocument;
++    private Document consoleDocument;    
+ }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/CompileDisplay.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/CompileDisplay.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/CompileDisplay.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -24,6 +24,9 @@
+ package izpack.frontend.actions;
+ 
+ import java.awt.CardLayout;
++import java.awt.Component;
++import java.awt.Container;
++import java.awt.Window;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+ import java.io.File;
+@@ -72,15 +75,34 @@
+         layout.next(this);
+     }
+     
++    public void dispose()
++    {
++        Component c = this;
++        
++        while ( !(c.getParent() instanceof Window) )
++        {
++            c = c.getParent();
++        }       
++        
++
++        ( (Window) c.getParent() ).dispose();
++    }
++    
+     /**
+      * Provide browse action
+      */
+     public void actionPerformed(ActionEvent e)
+     {
+         File file = null;
+-
+-        if (e.getSource().equals(browseBase))
++        
++        if (e.getSource().equals(redoCompile))
+         {
++            fireCompileCanel();
++            
++            layout.previous(this);
++        }
++        else if (e.getSource().equals(browseBase))
++        {
+             File baseDirFile = null;
+             
+             if (baseDir.getText() != null &amp;&amp; baseDir.getText().length() &gt; 0)
+@@ -200,7 +222,17 @@
+         
+         JButton cancel = null;
+         if (showingInDialog)
++        {
+              cancel = new JButton(&quot;Cancel&quot;);
++             
++             cancel.addActionListener(new ActionListener()
++                             {
++                                public void actionPerformed(ActionEvent e)
++                                {
++                                    dispose();                                    
++                                }                 
++                             });
++        }
+ 
+         builder.setColumn(3);
+         
+@@ -217,8 +249,14 @@
+     public CompileConsole getConsole()
+     {
+         if (console == null)
++        {
+             console = new CompileConsole();
+         
++            redoCompile = console.getReturnButton();
++            
++            redoCompile.addActionListener(this);
++        }
++        
+         return console;
+     }
+     
+@@ -238,12 +276,20 @@
+     }
+     
+     private void fireCompileEvent(CompileEvent ce)
+-    {
++    {        
+         for (CompileListener cl : listeners)    
+         {
+             cl.compileRequested(ce);
+         }
+     }
++    
++    private void fireCompileCanel()
++    {
++        for (CompileListener cl : listeners)    
++        {
++            cl.cancelCompile();
++        }
++    }
+ 
+     private JTextField baseDir, output;
+     private JButton browseBase, browseOutput;
+@@ -251,6 +297,8 @@
+     private JPanel settingsPanel;
+     private CompileConsole console;
+     
++    private JButton redoCompile;
++    
+     private final boolean showingInDialog;
+     
+     private final ArrayList&lt;CompileListener&gt; listeners;
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/CompileListener.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/CompileListener.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/CompileListener.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -26,4 +26,6 @@
+ public interface CompileListener
+ {
+     public void compileRequested(CompileEvent ce);
++    
++    public void cancelCompile();
+ }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/actions/CompileManager.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -23,8 +23,8 @@
+ 
+ package izpack.frontend.actions;
+ 
+-import java.awt.EventQueue;
+ import java.io.StringWriter;
++import java.lang.Thread.State;
+ 
+ import javax.swing.SwingUtilities;
+ import javax.xml.transform.stream.StreamResult;
+@@ -32,7 +32,6 @@
+ import org.w3c.dom.Document;
+ 
+ import utils.XML;
+-import utils.XMLAggregator;
+ 
+ import com.izforge.izpack.compiler.CompilerConfig;
+ import com.izforge.izpack.compiler.CompilerException;
+@@ -62,13 +61,21 @@
+         //TODO Make this configurable
+         XML.writeXML(installArgs[2] + &quot;.xml&quot;, xmlFile);
+      
+-        System.out.println(&quot;Starting compiler&quot;);
+-        System.out.println(&quot;On EVT: &quot; + SwingUtilities.isEventDispatchThread());
+-        //SwingUtilities.invokeLater(new CompileThread(pl, installArgs, stringStream.toString()));
+-        new CompileThread(pl, installArgs, stringStream.toString()).start();
+-        System.out.println(&quot;After start&quot;);
++        currentCompile = new CompileThread(pl, installArgs, stringStream.toString());
++        
++        currentCompile.start();        
+     }
+     
++    @SuppressWarnings(&quot;deprecation&quot;)
++    public static void stopCompile()
++    {
++        //Check to see if there is a compiler to stop        
++        if (currentCompile != null &amp;&amp; currentCompile.getState() == State.RUNNABLE)
++        {
++            currentCompile.getCompiler().stop();
++        }
++    }
++    
+     protected static class CompileThread extends Thread
+     {
+         public CompileThread(PackagerListener pl, String[] installArgs, String xmlData)
+@@ -93,6 +100,11 @@
+             }            
+         }
+         
++        public CompilerConfig getCompiler()
++        {
++            return compiler;
++        }
++        
+         @Override
+         public void run()
+         {       
+@@ -134,4 +146,6 @@
+         private final PackagerListener packagerListener;
+         private CompilerConfig compiler;
+     }
++    
++    private static CompileThread currentCompile;    
+ }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/controller/RecentFileManager.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/controller/RecentFileManager.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/controller/RecentFileManager.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -50,12 +50,12 @@
+         if (instance == null)
+         {
+             instance = new RecentFileManager();
+-            files = new ArrayList();
++            files = new ArrayList&lt;String&gt;();
+         }
+         return instance;
+     }
+     
+-    public ArrayList loadRecentList()
++    public ArrayList&lt;String&gt; loadRecentList()
+     {
+         if (files.size() != 0)
+             return files;
+@@ -86,9 +86,12 @@
+         return files;
+     }
+     
+-    public void addUsedFile(String file)
++    public void addUsedFile(String file, boolean current)
+     {
+         files.add(0, file);
++        
++        if (current)
++            currentFile = file;
+     }
+     
+     public void saveRecentFiles() throws IOException
+@@ -111,6 +114,12 @@
+         XML.writeXML(&quot;conf/recent.xml&quot;, doc);
+     }
+     
+-    private static ArrayList files;
++    public String getCurrentFile()
++    {
++        return currentFile;
++    } 
++    
++    private static String currentFile;
++    private static ArrayList&lt;String&gt; files;
+     private static RecentFileManager instance;
+ }
+\ No newline at end of file
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/controller/XMLCreator.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/controller/XMLCreator.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/controller/XMLCreator.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -51,7 +51,6 @@
+     {
+         Document doc = XML.createDocument();
+         
+-        
+         loadXMLChunksFromStages(doc);        
+         
+         Element root = XML.createElement(&quot;installation&quot;, doc);        
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/mode/WelcomeScreen.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/mode/WelcomeScreen.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/view/mode/WelcomeScreen.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -28,13 +28,16 @@
+ import izpack.frontend.model.LangResources;
+ import izpack.frontend.view.GUIConstants;
+ 
++import java.awt.Dimension;
++import java.awt.Toolkit;
++
+ import javax.swing.ImageIcon;
+ import javax.swing.JButton;
+ import javax.swing.JFrame;
+ import javax.swing.JLabel;
+ import javax.swing.JPanel;
+ 
+-import reporting.CrashHandler;
++import sun.security.krb5.internal.ac;
+ import utils.PersistanceShutdownHook;
+ 
+ import com.jgoodies.forms.builder.DefaultFormBuilder;
+@@ -57,12 +60,14 @@
+     }
+ 
+     public WelcomeScreen()
+-    {        
+-        installerUI = new WizardMode(this);
++    {   
++        actionHandler = new ActionHandler(this);        
++        installerUI = new WizardMode(this);        
++        actionHandler.setInstallerUI(installerUI);
+         
+-        actionHandler = new ActionHandler(installerUI, this);
+         
+-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
++        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);        
++        setTitle(&quot;IzPack Frontend - alpha&quot;);
+         
+         
+         FormLayout layout = new FormLayout(&quot;left:pref, 15dlu, left:pref&quot;,
+@@ -112,9 +117,16 @@
+             }
+         }
+ 
+-        setContentPane(builder.getPanel());
++        builder.setDefaultDialogBorder();
++        setContentPane(builder.getPanel());        
+         pack();
+         
++        //Center on the screen        
++        Dimension windowSize = getSize();
++        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
++        setLocation((screenSize.width - windowSize.width) / 2,
++                (screenSize.height - windowSize.height) / 2);
++        
+         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+     }
+     
+@@ -122,5 +134,5 @@
+                     .langResources();    
+     
+     private WizardMode installerUI = null;
+-    private ActionHandler actionHandler = null;
++    protected ActionHandler actionHandler = null;
+ }
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/mode/WizardMode.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/mode/WizardMode.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/view/mode/WizardMode.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -21,6 +21,7 @@
+ 
+ package izpack.frontend.view.mode;
+ 
++import izpack.frontend.actions.ActionHandler;
+ import izpack.frontend.controller.StageChangeEvent;
+ import izpack.frontend.controller.StageChangeListener;
+ import izpack.frontend.view.stages.IzPackStage;
+@@ -33,6 +34,8 @@
+ import java.awt.BorderLayout;
+ import java.awt.CardLayout;
+ import java.awt.Dimension;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
+ import java.awt.event.WindowEvent;
+ import java.awt.event.WindowListener;
+ import java.io.File;
+@@ -43,7 +46,11 @@
+ import javax.swing.ImageIcon;
+ import javax.swing.JFrame;
+ import javax.swing.JLabel;
++import javax.swing.JMenu;
++import javax.swing.JMenuBar;
++import javax.swing.JMenuItem;
+ import javax.swing.JPanel;
++import javax.swing.JSeparator;
+ import javax.swing.SwingConstants;
+ 
+ import org.w3c.dom.Document;
+@@ -65,7 +72,8 @@
+     public WizardMode(WelcomeScreen launcherInstance)
+     {
+         launcher = launcherInstance;
+-        
++        actionHandler = launcher.actionHandler;        
++
+         long start = System.currentTimeMillis();
+ 
+         setLayout(new BorderLayout());
+@@ -94,26 +102,18 @@
+         getContentPane().add(infoPanel, BorderLayout.SOUTH);
+         getContentPane().add(leftNavBar, BorderLayout.WEST);
+ 
++        createMenuBar();
++
+         setPreferredSize(new Dimension(700, 700));
+-        pack();        
++        pack();
+ 
+         long stop = System.currentTimeMillis();
+ 
+         long startupTime = stop - start;
+-        System.out.println(startupTime + &quot;ms &quot; + (startupTime / 1000f) + &quot;s &quot;
++        System.out.println(&quot;Startup time: &quot; + startupTime + &quot;ms &quot; + (startupTime / 1000f) + &quot;s &quot;
+                         + (startupTime / 1000 / 60f) + &quot;min&quot;);
+-    }    
+-
+-    public void initializeFromXML(String xmlFile) throws DocumentCreationException
+-    {
+-        Document d = XML.createDocument(xmlFile);
+-
+-        ArrayList&lt;IzPackStage&gt; stages = IzPackStage.getAllStages();
+-        for (IzPackStage stage : stages)
+-        {
+-            stage.initializeStageFromXML(d);
+-        }
+     }
++
+     /*
+      * (non-Javadoc)
+      * 
+@@ -150,84 +150,34 @@
+         layout.show(base, e.getStageClass().toString());
+     }
+ 
+-    /*
+-     * (non-Javadoc)
+-     * 
+-     * @see java.awt.event.WindowListener#windowActivated(java.awt.event.WindowEvent)
+-     */
+-    public void windowActivated(WindowEvent e)
+-    {
+-        // TODO Auto-generated method stub
++    public void initializeFromXML(String xmlFile)
++                    throws DocumentCreationException
++    {        
++        Document d = XML.createDocument(xmlFile);
+ 
++        ArrayList&lt;IzPackStage&gt; stages = IzPackStage.getAllStages();
++        for (IzPackStage stage : stages)
++        {
++            stage.initializeStageFromXML(d);
++        }
++        
++        changeStage(new StageChangeEvent(GeneralInformation.class));
+     }
+-
+-    /*
+-     * (non-Javadoc)
+-     * 
+-     * @see java.awt.event.WindowListener#windowClosed(java.awt.event.WindowEvent)
+-     */
+-    public void windowClosed(WindowEvent e)
+-    {
+-        // TODO Auto-generated method stub
+-
+-    }
+-
+-    /*
+-     * (non-Javadoc)
+-     * 
+-     * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
+-     */
++    
+     public void windowClosing(WindowEvent e)
+     {
+         //TODO Make welcome screen visible
+-        launcher.setVisible(true);        
++        launcher.setVisible(true);
+     }
+-
++    
++    public void windowActivated(WindowEvent e) {}    
++    public void windowClosed(WindowEvent e) {}    
++    public void windowDeactivated(WindowEvent e) {}    
++    public void windowDeiconified(WindowEvent e) {}    
++    public void windowIconified(WindowEvent e) {}    
++    public void windowOpened(WindowEvent e) {}
++    
+     /*
+-     * (non-Javadoc)
+-     * 
+-     * @see java.awt.event.WindowListener#windowDeactivated(java.awt.event.WindowEvent)
+-     */
+-    public void windowDeactivated(WindowEvent e)
+-    {
+-        // TODO Auto-generated method stub
+-
+-    }
+-
+-    /*
+-     * (non-Javadoc)
+-     * 
+-     * @see java.awt.event.WindowListener#windowDeiconified(java.awt.event.WindowEvent)
+-     */
+-    public void windowDeiconified(WindowEvent e)
+-    {
+-        // TODO Auto-generated method stub
+-
+-    }
+-
+-    /*
+-     * (non-Javadoc)
+-     * 
+-     * @see java.awt.event.WindowListener#windowIconified(java.awt.event.WindowEvent)
+-     */
+-    public void windowIconified(WindowEvent e)
+-    {
+-        // TODO Auto-generated method stub
+-
+-    }
+-
+-    /*
+-     * (non-Javadoc)
+-     * 
+-     * @see java.awt.event.WindowListener#windowOpened(java.awt.event.WindowEvent)
+-     */
+-    public void windowOpened(WindowEvent e)
+-    {
+-        // TODO Auto-generated method stub
+-        System.out.println(&quot;window opened&quot;);
+-    }
+-
+-    /*
+      * Create a panel with the 'IzPack' logo for the top left corner
+      */
+     private JPanel createIconPanel()
+@@ -245,6 +195,37 @@
+         return navPanel;
+     }
+ 
++    private void createMenuBar()
++    {   
++        //TODO Internationalize
++        JMenuBar menuBar = new JMenuBar();
++
++        JMenu fileMenu = new JMenu(&quot;File&quot;);
++        JMenuItem openItem = new JMenuItem(&quot;Open&quot;);
++        openItem.setName(&quot;open&quot;);
++        JMenuItem saveItem = new JMenuItem(&quot;Save&quot;);
++        saveItem.setName(&quot;save&quot;);
++        JMenuItem saveAsItem = new JMenuItem(&quot;Save As&quot;);
++        saveAsItem.setName(&quot;saveas&quot;);
++        JMenuItem exitItem = new JMenuItem(&quot;Exit&quot;);
++        exitItem.setName(&quot;exit&quot;);
++
++        openItem.addActionListener(actionHandler);
++        saveItem.addActionListener(actionHandler);
++        saveAsItem.addActionListener(actionHandler);
++        exitItem.addActionListener(actionHandler);
++
++        fileMenu.add(openItem);
++        fileMenu.add(saveItem);
++        fileMenu.add(saveAsItem);
++        fileMenu.add(new JSeparator());
++        fileMenu.add(exitItem);
++
++        menuBar.add(fileMenu);
++        
++        this.setJMenuBar(menuBar);
++    }
++
+     /*
+      * Create a stage instance based on the class. Also initializes and
+      * registers the stage listener
+@@ -276,14 +257,11 @@
+         return null;
+     }
+ 
+-    
+-
+     JPanel base = new JPanel(), iconPanel, infoPanel = new JPanel(),
+-                    leftNavBar = new JPanel();    
++                    leftNavBar = new JPanel();
+ 
+-    CardLayout layout = new CardLayout();
++    CardLayout layout = new CardLayout();    
+ 
+-    private static WizardMode instance = null;
+     private static WelcomeScreen launcher;
++    private static ActionHandler actionHandler; 
+ }
+- 
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/IzPackStage.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/IzPackStage.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/IzPackStage.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -177,7 +177,7 @@
+      * @return The stage object
+      */    
+     public static IzPackStage getStage(Class stage)
+-    {
++    {         
+         for (IzPackStage element : stageList)
+         {            
+             if (element.getClass().equals(stage))
+
+Modified: izpack-frontend/trunk/src/izpack/frontend/view/stages/compile/Compile.java
+===================================================================
+--- izpack-frontend/trunk/src/izpack/frontend/view/stages/compile/Compile.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/izpack/frontend/view/stages/compile/Compile.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -64,6 +64,11 @@
+                         ce.getOutputFile()}, 
+                         displayer.getPackagerListener());
+     }
++    
++    public void cancelCompile()
++    {
++        CompileManager.stopCompile();                        
++    }
+ 
+     @Override
+     public Element[] createInstallerData(Document doc)
+
+Modified: izpack-frontend/trunk/src/utils/UI.java
+===================================================================
+--- izpack-frontend/trunk/src/utils/UI.java	2006-04-10 23:23:36 UTC (rev 190)
++++ izpack-frontend/trunk/src/utils/UI.java	2006-04-11 23:46:53 UTC (rev 191)
+@@ -60,7 +60,7 @@
+         if (directoriesOnly)
+             jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+         else
+-            jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
++            jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+         
+         if (jfc.showOpenDialog(parent) == JFileChooser.APPROVE_OPTION)
+         {
+@@ -72,6 +72,26 @@
+         }
+     }
+     
++    public static File getSaveFile(Container parent, File start)
++    {
++        JFileChooser jfc = new JFileChooser();        
++        jfc.setDialogTitle(&quot;Save As&quot;);
++
++        if (start != null)
++            jfc.setSelectedFile(start);
++        
++        jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
++
++        if (jfc.showSaveDialog(parent) == JFileChooser.APPROVE_OPTION)
++        {
++            return jfc.getSelectedFile();
++        }
++        else
++        {
++            return null;
++        }
++    }
++    
+     public static void showError(String message, String title)
+     {
+         JOptionPane.showMessageDialog(UI.getApplicationFrame(), message, title, JOptionPane.ERROR_MESSAGE);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000167.html">[izpack-changes] r190 - in izpack-frontend/trunk/src: izpack/frontend/actions izpack/frontend/controller izpack/frontend/model/files izpack/frontend/model/stages izpack/frontend/view/stages/configure/panels utils
+</A></li>
+	<LI>Next message: <A HREF="000169.html">[izpack-changes] r192 - /
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#168">[ date ]</a>
+              <a href="thread.html#168">[ thread ]</a>
+              <a href="subject.html#168">[ subject ]</a>
+              <a href="author.html#168">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

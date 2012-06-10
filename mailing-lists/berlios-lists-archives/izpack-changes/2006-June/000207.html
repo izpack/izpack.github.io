@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1461 - izpack-src/trunk/src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1461%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000206.html">
+   <LINK REL="Next"  HREF="000208.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1461 - izpack-src/trunk/src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1461%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1461 - izpack-src/trunk/src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Fri Jun 30 12:33:51 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000206.html">[izpack-changes] r1460 - izpack-src/trunk/src/lib/com/izforge/izpack/util/xml
+</A></li>
+        <LI>Next message: <A HREF="000208.html">[izpack-changes] r1462 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#207">[ date ]</a>
+              <a href="thread.html#207">[ thread ]</a>
+              <a href="subject.html#207">[ subject ]</a>
+              <a href="author.html#207">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-06-30 12:33:49 +0200 (Fri, 30 Jun 2006)
+New Revision: 1461
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/VariableSubstitutor.java
+Log:
+Added a substitute method variant that gets an InputStream and returns a String
+(currently needed to apply the VariableSubstitutor to the ShortcutSpec )
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/VariableSubstitutor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/VariableSubstitutor.java	2006-06-30 10:27:32 UTC (rev 1460)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/VariableSubstitutor.java	2006-06-30 10:33:49 UTC (rev 1461)
+@@ -76,6 +76,9 @@
+ 
+     /** A constant for file type. Plain file with '@' start char. */
+     protected final static int TYPE_AT = 4;
++    
++    /** PLAIN = &quot;plain&quot; */
++    public final static String PLAIN = &quot;plain&quot;;
+ 
+     /** A mapping of file type names to corresponding integer constants. */
+     protected final static Map typeNameToConstantMap;
+@@ -196,7 +199,60 @@
+ 
+         return subs;
+     }
++    
++    /** 
++     * Substitute method Variant that gets An Input Stream and returns A String
++     *
++     * @param in The Input Stream, with Placeholders
++     * @param out The Substituted String
++     * @param type The used FormatType
++     * @param encoding The used encoding Type
++     * @param hidePasswd Set to true, to hide Password masked Placeholders in Logfile
++     *
++     * @throws IllegalArgumentException If a wrong input was given.
++     * @throws UnsupportedEncodingException If the file comes with a wrong Encoding
++     * @throws IOException If an I/O Error occurs.
++     */
++    public String substitute( InputStream in,  String type
++                             )
++                    throws IllegalArgumentException, UnsupportedEncodingException, 
++                           IOException
++    {
++      // Check if file type specific default encoding known
++      String encoding =  PLAIN;
++      {
++        int t = getTypeConstant( type );
+ 
++        switch( t )
++        {
++          case TYPE_JAVA_PROPERTIES:
++            encoding = &quot;ISO-8859-1&quot;;
++
++            break;
++
++          case TYPE_XML:
++            encoding = &quot;UTF-8&quot;;
++
++            break;
++        }
++      }
++
++      // Create the reader and writer
++      InputStreamReader  reader = ( ( encoding != null )
++                                    ? new InputStreamReader( in, encoding )
++                                    : new InputStreamReader( in ) );
++      StringWriter writer =  new StringWriter( ) ;
++
++      // Copy the data and substitute variables
++      substitute( reader, writer, type );
++
++      // Flush the writer so that everything gets written out
++      writer.flush(  );
++      
++      return writer.getBuffer().toString();
++    }
++
++
+     /**
+      * Substitutes the variables found in the data read from the specified reader. Escapes special
+      * characters using file type specific escaping if necessary.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000206.html">[izpack-changes] r1460 - izpack-src/trunk/src/lib/com/izforge/izpack/util/xml
+</A></li>
+	<LI>Next message: <A HREF="000208.html">[izpack-changes] r1462 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#207">[ date ]</a>
+              <a href="thread.html#207">[ thread ]</a>
+              <a href="subject.html#207">[ subject ]</a>
+              <a href="author.html#207">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

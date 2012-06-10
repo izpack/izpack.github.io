@@ -1,0 +1,1797 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1879 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . compiler installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1879%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20.%20compiler%20installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000624.html">
+   <LINK REL="Next"  HREF="000626.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1879 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . compiler installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1879%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20.%20compiler%20installer&In-Reply-To="
+       TITLE="[izpack-changes] r1879 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . compiler installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon Oct  8 00:21:38 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000624.html">[izpack-changes] r1878 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000626.html">[izpack-changes] r1880 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#625">[ date ]</a>
+              <a href="thread.html#625">[ thread ]</a>
+              <a href="subject.html#625">[ subject ]</a>
+              <a href="author.html#625">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-10-08 00:21:30 +0200 (Mon, 08 Oct 2007)
+New Revision: 1879
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/DownloadPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/LoggedInputStream.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebRepositoryAccessor.java
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebAccessor.java
+Log:
+Big Web Installer Update
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/PackFile.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -99,7 +99,7 @@
+     /** Additional attributes or any else for customisation */
+     private Map additionals = null;
+ 
+-    public int previousPackNumber = -1;
++    public String previousPackId = null;
+ 
+     public long offsetInPreviousPack = -1;
+ 
+@@ -193,10 +193,10 @@
+         return null;
+     }
+ 
+-    public void setPreviousPackFileRef(int previousPackNumber, long offsetInPreviousPack)
++    public void setPreviousPackFileRef(String previousPackId, Long offsetInPreviousPack)
+     {
+-        this.previousPackNumber = previousPackNumber;
+-        this.offsetInPreviousPack = offsetInPreviousPack;
++        this.previousPackId = previousPackId;
++        this.offsetInPreviousPack = offsetInPreviousPack.longValue();
+     }
+ 
+     /** The target operating system constraints of this file */
+@@ -230,7 +230,7 @@
+ 
+     public final boolean isBackReference()
+     {
+-        return (previousPackNumber &gt;= 0);
++        return (previousPackId != null);
+     }
+ 
+     /** The full path name of the target file, using '/' as fileseparator. */
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -392,11 +392,11 @@
+                 Debug.trace(&quot;Next file: &quot; + file.getAbsolutePath());
+                 // use a back reference if file was in previous pack, and in
+                 // same jar
+-                long[] info = (long[]) storedFiles.get(file);
++                Object[] info = (Object[]) storedFiles.get(file);
+                 if (info != null &amp;&amp; !packJarsSeparate)
+                 {
+                     Debug.trace(&quot;File already included in other pack&quot;);
+-                    pf.setPreviousPackFileRef((int) info[0], info[1]);
++                    pf.setPreviousPackFileRef((String) info[0], (Long)info[1]);
+                     addFile = false;
+                 }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -79,7 +79,7 @@
+      * @param loose files of pack should be stored separatly or not
+      * @param excludegroup name of the exclude group 
+      */
+-    protected PackInfo(String name, String id, String description, boolean required, boolean loose, String excludegroup)
++    public PackInfo(String name, String id, String description, boolean required, boolean loose, String excludegroup)
+     {
+         boolean ispreselected = (excludegroup == null) ? true : false;
+         pack = new Pack(name, id, description, null, null, required, ispreselected, loose, excludegroup);
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -22,6 +22,7 @@
+ 
+ import java.io.File;
+ import java.io.FileInputStream;
++import java.io.FileWriter;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.ObjectOutputStream;
+@@ -38,6 +39,7 @@
+ import java.util.zip.ZipInputStream;
+ 
+ import net.n3.nanoxml.XMLElement;
++import net.n3.nanoxml.XMLWriter;
+ 
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.PackFile;
+@@ -227,6 +229,9 @@
+         
+         int packNumber = 0;
+         Iterator packIter = packsList.iterator();
++        
++        XMLElement root = new XMLElement(&quot;packs&quot;);
++        
+         while (packIter.hasNext())
+         {
+             PackInfo packInfo = (PackInfo) packIter.next();
+@@ -238,7 +243,7 @@
+             if (packJarsSeparate)
+             {
+                 // See installer.Unpacker#getPackAsStream for the counterpart
+-                String name = baseFile.getName() + &quot;.pack&quot; + packNumber + &quot;.jar&quot;;
++                String name = baseFile.getName() + &quot;.pack-&quot; + pack.id + &quot;.jar&quot;;
+                 packStream = getJarOutputStream(name);
+             }
+             OutputStream comprStream = packStream;
+@@ -247,7 +252,7 @@
+ 
+             // Retrieve the correct output stream
+             org.apache.tools.zip.ZipEntry entry = 
+-                new org.apache.tools.zip.ZipEntry(&quot;packs/pack&quot; + packNumber);
++                new org.apache.tools.zip.ZipEntry(&quot;packs/pack-&quot; + pack.id);
+             if( ! compressor.useStandardCompression())
+             {
+                 entry.setMethod(ZipEntry.STORED);
+@@ -282,10 +287,10 @@
+ 
+                 // use a back reference if file was in previous pack, and in
+                 // same jar
+-                long[] lInfo = (long[]) storedFiles.get(file);
+-                if (lInfo != null &amp;&amp; !packJarsSeparate)
++                Object[] info = (Object[]) storedFiles.get(file);
++                if (info != null &amp;&amp; !packJarsSeparate)
+                 {
+-                    pf.setPreviousPackFileRef((int) lInfo[0], lInfo[1]);
++                    pf.setPreviousPackFileRef((String) info[0], (Long)info[1]);
+                     addFile = false;
+                 }
+ 
+@@ -303,7 +308,7 @@
+                         throw new IOException(&quot;File size mismatch when reading &quot; + file);
+ 
+                     inStream.close();
+-                    storedFiles.put(file, new long[] { packNumber, pos});
++                    storedFiles.put(file, new Object[] { pack.id, new Long(pos)});
+                 }
+ 
+                 // even if not written, it counts towards pack size
+@@ -340,9 +345,21 @@
+             // close pack specific jar if required
+             if (packJarsSeparate) packStream.closeAlways();
+ 
++            XMLElement child = new XMLElement(&quot;pack&quot;);
++            child.setAttribute(&quot;nbytes&quot;, new Long(pack.nbytes).toString());
++            child.setAttribute(&quot;name&quot;, pack.name);
++            if(pack.id != null) child.setAttribute(&quot;id&quot;, pack.id);
++            root.addChild(child);
++            
+             packNumber++;
+         }
+-
++        
++        // Wrtie packsinfo for web installers
++        FileWriter writer = new FileWriter(baseFile.getParent()
++              + File.separator + &quot;packsinfo.xml&quot;);
++        XMLWriter xmlwriter = new XMLWriter(writer);
++        xmlwriter.write(root);
++        
+         // Now that we know sizes, write pack metadata to primary jar.
+         primaryJarStream.putNextEntry(new org.apache.tools.zip.ZipEntry(&quot;packs.info&quot;));
+         ObjectOutputStream out = new ObjectOutputStream(primaryJarStream);
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/DownloadPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/DownloadPanel.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/DownloadPanel.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -0,0 +1,120 @@
++package com.izforge.izpack.installer;
++
++import javax.swing.*;
++
++import java.awt.event.*;
++import java.awt.*;
++import java.awt.image.*;
++
++/**
++ * Displays progress and stats while downloading repository files.
++ * 
++ * @author &lt;a href=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">vralev at redhat.com</A>&quot;&gt;Vladimir Ralev&lt;/a&gt;
++ * @version $Revision: 1.1 $
++ */
++public class DownloadPanel extends JDialog implements ActionListener
++{
++   JLabel statusLabel = new JLabel(&quot;&quot;, JLabel.RIGHT);
++
++   JLabel fileLabel = new JLabel(&quot;File&quot;, JLabel.LEFT);
++
++   JButton button = new JButton(&quot;Cancel&quot;);
++
++   JProgressBar progressBar = new JProgressBar();
++
++   String statusText;
++
++   String fileText;
++
++   LoggedInputStream lis;
++
++   public DownloadPanel(LoggedInputStream lis)
++   {
++      Dimension dialogSize = new Dimension(406, 150);
++      this.setLayout(null);
++      this.setMinimumSize(dialogSize);
++      this.setMaximumSize(dialogSize);
++      this.setPreferredSize(dialogSize);
++      this.setAlwaysOnTop(true);
++      this.setResizable(false);
++      this.setSize(dialogSize);
++      this.lis = lis;
++
++      progressBar = new JProgressBar();
++      progressBar.setIndeterminate(false);
++      JPanel contents = (JPanel) getContentPane();
++      contents.setLayout(null);
++      contents.setSize(dialogSize);
++
++      setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
++
++      contents.add(fileLabel);
++      contents.add(statusLabel);
++      contents.add(progressBar);
++      contents.add(button);
++
++      button.addActionListener(this);
++
++      fileLabel.setBounds(10, 10, 260, 20);
++      statusLabel.setBounds(270, 10, 120, 20);
++      progressBar.setBounds(10, 35, 380, 20);
++      button.setBounds(200 - 50, 70, 100, 25);
++      pack();
++   }
++
++   public void setStatusLabel(String text)
++   {
++      statusText = text;
++      if (!SwingUtilities.isEventDispatchThread())
++         SwingUtilities.invokeLater(new Runnable()
++         {
++            public void run()
++            {
++               statusLabel.setText(statusText);
++            }
++         });
++
++   }
++
++   public void setFileLabel(String text)
++   {
++      int maxStr = 35;
++      int lastSeparator = text.lastIndexOf(&quot;/&quot;);
++      text = text.substring(lastSeparator + 1, text.length());
++      int length = text.length();
++
++      if (length &gt; maxStr)
++         fileText = &quot;..&quot; + text.substring(length - maxStr, length);
++      else
++         fileText = text;
++
++      if (!SwingUtilities.isEventDispatchThread())
++         SwingUtilities.invokeLater(new Runnable()
++         {
++            public void run()
++            {
++               fileLabel.setText(fileText);
++            }
++         });
++
++   }
++
++   public void actionPerformed(ActionEvent e)
++   {
++      lis.setCancelled(true);
++      this.dispose();
++   }
++
++   public void setProgressMax(int total)
++   {
++      progressBar.setIndeterminate(false);
++      progressBar.setStringPainted(true);
++      progressBar.setMaximum(total);
++      progressBar.setMinimum(0);
++   }
++
++   public void setProgressCurrent(int curr)
++   {
++      progressBar.setValue(curr);
++   }
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/LoggedInputStream.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/LoggedInputStream.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/LoggedInputStream.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -0,0 +1,142 @@
++package com.izforge.izpack.installer;
++
++import java.io.IOException;
++import java.awt.event.*;
++import java.io.InputStream;
++import javax.swing.*;
++import com.izforge.izpack.Pack;
++
++/**
++ * 
++ * Wraps an InputStream in order to track how much bytes are being read, and
++ * then updates the progress dialog. When the stream is opened the progress 
++ * dialog shows up. When the stream is closed the dialog is disposed. Make sure
++ * you are closing the streams.
++ * 
++ * @author &lt;a href=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">vralev at redhat.com</A>&quot;&gt;Vladimir Ralev&lt;/a&gt;
++ * @version $Revision: 1.1 $
++ */
++public class LoggedInputStream extends InputStream
++{
++   private long bytesRead = 0;
++   private InputStream is;
++   private DownloadPanel downloader;
++   private WebAccessor webAccessor;
++   private boolean cancelled = false;
++   private long lastTime = -1;
++   private long lastBytes = -1;
++   
++   public void setCancelled(boolean cancel)
++   {
++      cancelled = cancel;
++   }
++   
++   public LoggedInputStream(InputStream is, WebAccessor webAccessor)
++   {
++      if(is == null) throw new RuntimeException(&quot;Unable to connect&quot;);
++      this.is = is;
++      this.webAccessor = webAccessor;
++      
++      String sizeStr;
++      if(webAccessor.getContentLength()&gt;0)
++         sizeStr = &quot;(&quot; + Pack.toByteUnitsString(webAccessor.getContentLength()) + &quot;)&quot;;
++      else
++         sizeStr = &quot;&quot;;
++      
++      downloader = new DownloadPanel(this);
++      downloader.setTitle(&quot;Downloading&quot;);
++      downloader.setFileLabel(webAccessor.getUrl() + &quot; &quot; + sizeStr);
++      downloader.setLocationRelativeTo(null);
++      downloader.setVisible(true);
++      if(webAccessor.getContentLength()&gt;0)
++      {
++         downloader.setProgressMax(webAccessor.getContentLength());
++         downloader.setProgressCurrent(0);
++      }
++   }
++   
++   public int available() throws IOException
++   {
++      return is.available();
++   }
++
++   public void close() throws IOException
++   {
++      downloader.setVisible(false);
++      downloader.dispose();
++      is.close();
++   }
++
++   public synchronized void mark(int readlimit)
++   {
++      is.mark(readlimit);
++   }
++
++   public boolean markSupported()
++   {
++      return is.markSupported();
++   }
++
++   public synchronized void reset() throws IOException
++   {
++      is.reset();
++   }
++
++   public long skip(long n) throws IOException
++   {
++      return is.skip(n);
++   }
++   
++   public int read(byte[] b, int off, int len) throws IOException
++   {
++      int bytes = is.read(b, off, len);
++      if(bytes &gt; 0) bytesRead += bytes;
++      update();
++      return bytes;
++   }
++
++   public int read(byte[] b) throws IOException
++   {
++      int bytes =  is.read(b);
++      if(bytes &gt; 0) bytesRead += bytes;
++      update();
++      return bytes;
++   }
++
++   public long getBytesRead()
++   {
++      return bytesRead;
++   }
++
++   public int read() throws IOException
++   {
++      int bytes =  is.read();
++      if(bytes &gt; 0) bytesRead += 1;
++      update();
++      return bytes;
++   }
++   
++   private void update()
++   {
++      if(lastTime &gt; 0)
++      {
++         long currTime = System.currentTimeMillis();
++         long diff = currTime - lastTime;
++         if(diff &gt; 800)
++         {
++            double bps = (double)(bytesRead-lastBytes)/((double)(diff)/1000.);
++            downloader.setStatusLabel(Pack.toByteUnitsString(Math.round(bps)) + &quot;/s&quot;);
++            lastTime = currTime;
++            lastBytes = bytesRead;
++         }
++      }
++      else
++      {
++         lastTime = System.currentTimeMillis();
++         lastBytes = bytesRead;
++      }
++      downloader.setProgressCurrent((int)bytesRead);
++      if(cancelled)
++         throw new RuntimeException(&quot;Cancelled&quot;);
++   }
++}
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -110,6 +110,8 @@
+     /** The result of the operation. */
+     private boolean result = true;
+     
++    private static final String tempPath = &quot;$INSTALL_PATH/Uninstaller/IzpackWebTemp&quot;;
++    
+     /**
+      * The constructor.
+      * 
+@@ -304,11 +306,12 @@
+             {
+                 // We get the pack stream
+                 int n = idata.allPacks.indexOf(packs.get(i));
++                Pack p = (Pack) packs.get(i);
+ 
+                 // Custom action listener stuff --- beforePack ----
+                 informListeners(customActions, InstallerListener.BEFORE_PACK, packs.get(i),
+                         new Integer(npacks), handler);
+-                ObjectInputStream objIn = new ObjectInputStream(getPackAsStream(n));
++                ObjectInputStream objIn = new ObjectInputStream(getPackAsStream(p.id));
+ 
+                 // We unpack the files
+                 int nfiles = objIn.readInt();
+@@ -432,7 +435,7 @@
+                         InputStream pis = objIn;
+                         if (pf.isBackReference())
+                         {
+-                            InputStream is = getPackAsStream(pf.previousPackNumber);
++                            InputStream is = getPackAsStream(pf.previousPackId);
+                             pis = new ObjectInputStream(is);
+                             // must wrap for blockdata use by objectstream
+                             // (otherwise strange result)
+@@ -628,10 +631,18 @@
+         catch (Exception err)
+         {
+             // TODO: finer grained error handling with useful error messages
+-            handler.stopAction();
+-            handler.emitError(&quot;An error occured&quot;, err.toString());
+-            err.printStackTrace();
++            handler.stopAction(); 
++            if(&quot;Installation cancelled&quot;.equals(err.getMessage()))
++            {
++                handler.emitNotification(&quot;Installation cancelled&quot;);
++            }
++            else
++            {
++                handler.emitError(&quot;An error occured&quot;, err.getMessage());
++                err.printStackTrace();
++            }
+             this.result = false;
++            System.exit(4);
+         }
+         finally
+         {
+@@ -984,15 +995,17 @@
+      * @return The stream or null if it could not be found.
+      * @exception Exception Description of the Exception
+      */
+-    private InputStream getPackAsStream(int n) throws Exception
++    private InputStream getPackAsStream(String packid) throws Exception
+     {
+         InputStream in = null;
+ 
+         String webDirURL = idata.info.getWebDirURL();
+ 
++        packid = &quot;-&quot; + packid;
++        
+         if (webDirURL == null) // local
+         {
+-            in = Unpacker.class.getResourceAsStream(&quot;/packs/pack&quot; + n);
++            in = Unpacker.class.getResourceAsStream(&quot;/packs/pack&quot; + packid);
+         }
+         else
+         // web based
+@@ -1003,15 +1016,31 @@
+ 
+             // See compiler.Packager#getJarOutputStream for the counterpart
+             String baseName = idata.info.getInstallerBase();
+-            String packURL = webDirURL + &quot;/&quot; + baseName + &quot;.pack&quot; + n + &quot;.jar&quot;;
+-            URL url = new URL(&quot;jar:&quot; + packURL + &quot;!/packs/pack&quot; + n);
++            String packURL = webDirURL + &quot;/&quot; + baseName + &quot;.pack&quot; + packid + &quot;.jar&quot;;
++            String tf = IoHelper.translatePath(Unpacker.tempPath, vs);
++            String tempfile;
++            try
++            {
++               tempfile = WebRepositoryAccessor.getCachedUrl(packURL, tf);
++               udata.addFile(tempfile);
++            }
++            catch(Exception e)
++            {
++               if(&quot;Cancelled&quot;.equals(e.getMessage()))
++                  throw new InstallerException(&quot;Installation cancelled&quot;, e);
++               else
++                  throw new InstallerException(&quot;Installation failed&quot;, e);
++            }
++            URL url = new URL(&quot;jar:&quot; + tempfile + &quot;!/packs/pack&quot; + packid);
++
++            //URL url = new URL(&quot;jar:&quot; + packURL + &quot;!/packs/pack&quot; + packid);
+             // JarURLConnection jarConnection = (JarURLConnection)
+             // url.openConnection();
+             // TODO: what happens when using an automated installer?
+             in = new WebAccessor(null).openInputStream(url);
+             // TODO: Fails miserably when pack jars are not found, so this is
+             // temporary
+-            if (in == null) throw new FileNotFoundException(url.toString());
++            if (in == null) throw new InstallerException(url.toString() + &quot; not available&quot;, new FileNotFoundException(url.toString()));
+         }
+         if( in != null &amp;&amp; idata.info.getPackDecoderClassName() != null )
+         {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebAccessor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebAccessor.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebAccessor.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -43,303 +43,326 @@
+ import javax.swing.JTextField;
+ import javax.swing.UIManager;
+ import javax.swing.JProgressBar;
++import java.net.*;
+ 
+ /**
+  * Dialogs for password authentication and firewall specification, when needed, during web
+  * installation.
+  * 
+  * @author Chadwick McHenry
++ * @author &lt;a href=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">vralev at redhat.com</A>&quot;&gt;Vladimir Ralev&lt;/a&gt;
+  * @version 1.0
+  */
+ public class WebAccessor
+ {
+ 
+-    private Thread openerThread = null;
++   private Thread openerThread = null;
+ 
+-    private InputStream iStream = null;
++   private InputStream iStream = null;
+ 
+-    private Exception exception = null;
++   private Exception exception = null;
+ 
+-    private Object soloCancelOption = null;
++   private Object soloCancelOption = null;
+ 
+-    private Component parent = null;
++   private Component parent = null;
+ 
+-    private JDialog dialog = null;
++   private JDialog dialog = null;
+ 
+-    private boolean tryProxy = false;
++   private boolean tryProxy = false;
+ 
+-    private JPanel passwordPanel = null;
++   private JPanel passwordPanel = null;
+ 
+-    private JLabel promptLabel;
++   private JLabel promptLabel;
+ 
+-    private JTextField nameField;
++   private JTextField nameField;
+ 
+-    private JPasswordField passField;
++   private JPasswordField passField;
+ 
+-    private JPanel proxyPanel = null;
++   private JPanel proxyPanel = null;
+ 
+-    private JLabel errorLabel;
++   private JLabel errorLabel;
+ 
+-    private JTextField hostField;
++   private JTextField hostField;
+ 
+-    private JTextField portField;
++   private JTextField portField;
+ 
+-    /**
+-     * Not yet Implemented: placeholder for headless installs.
+-     * 
+-     * @throws UnsupportedOperationException
+-     */
+-    public WebAccessor()
+-    {
+-        // the class should probably be rearranged to do this.
+-        throw new UnsupportedOperationException();
+-    }
++   private String url;
+ 
+-    /**
+-     * Create a WebAccessor that prompts for proxies and passwords using a JDialog.
+-     * 
+-     * @param parent determines the frame in which the dialog is displayed; if the parentComponent
+-     * has no Frame, a default Frame is used
+-     */
+-    public WebAccessor(Component parent)
+-    {
+-        this.parent = parent;
+-        Locale l = null;
+-        if (parent != null) parent.getLocale();
+-        soloCancelOption = UIManager.get(&quot;OptionPane.cancelButtonText&quot;, l);// TODO:
+-        // i18n?
+-        Authenticator.setDefault(new MyDialogAuthenticator());
+-    }
++   private int contentLength = -1;
+ 
+-    /**
+-     * Opens a URL connection and returns it's InputStream for the specified URL.
+-     * 
+-     * @param url the url to open the stream to.
+-     * @return an input stream ready to read, or null on failure
+-     */
+-    public InputStream openInputStream(URL url)
+-    {
+-        // TODO: i18n everything
+-        Object[] options = { soloCancelOption};
+-        
+-        JProgressBar progressBar = new JProgressBar(1, 100);
+-        progressBar.setIndeterminate(true);
+-        Object[] contents = { &quot;Connecting to the Internet&quot;, progressBar };
+-        JOptionPane pane = new JOptionPane(contents, 
+-        				JOptionPane.INFORMATION_MESSAGE, 
+-        				JOptionPane.DEFAULT_OPTION, null, options,
+-                options[0]);
+-        dialog = pane.createDialog(parent, &quot;Accessing Install Files&quot;);
+-        pane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
++   /**
++    * Not yet Implemented: placeholder for headless installs.
++    * 
++    * @throws UnsupportedOperationException
++    */
++   public WebAccessor()
++   {
++      // the class should probably be rearranged to do this.
++      throw new UnsupportedOperationException();
++   }
+ 
+-        Object value = null;
+-        OPEN_URL: while (true)
+-        {
+-            startOpening(url); // this starts a thread that may dismiss the
+-            // dialog before user
+-            dialog.setVisible(true);
+-            value = pane.getValue();
++   /**
++    * Create a WebAccessor that prompts for proxies and passwords using a JDialog.
++    * 
++    * @param parent determines the frame in which the dialog is displayed; if the parentComponent
++    * has no Frame, a default Frame is used
++    */
++   public WebAccessor(Component parent)
++   {
++      this.parent = parent;
++      Locale l = null;
++      if (parent != null)
++         parent.getLocale();
++      soloCancelOption = UIManager.get(&quot;OptionPane.cancelButtonText&quot;, l);// TODO:
++      // i18n?
++      Authenticator.setDefault(new MyDialogAuthenticator());
++   }
+ 
+-            // dialog closed or canceled (by widget)
+-            if (value == null || value == soloCancelOption)
++   /**
++    * Opens a URL connection and returns it's InputStream for the specified URL.
++    * 
++    * @param url the url to open the stream to.
++    * @return an input stream ready to read, or null on failure
++    */
++   public InputStream openInputStream(URL url)
++   {
++      setUrl(url.toExternalForm());
++      OPEN_URL : while (true)
++      {
++         startOpening(url); // this starts a thread
++
++         Thread.yield();
++
++         
++         // Wait a bit to see if the stream comes up
++         int retry = 28;
++         while (exception == null &amp;&amp; iStream == null &amp;&amp; retry &gt; 0)
++            try
+             {
+-                try
+-                {
+-                    openerThread.interrupt();// stop the connection
+-                }
+-                catch (Exception e)
+-                {}
+-                iStream = null; // even if connection was made just after cancel
+-                break;
++               Thread.sleep(200);
++               retry--;
+             }
+-
+-            // dialog closed by thread so either a connection error or success!
+-            else if (value == JOptionPane.UNINITIALIZED_VALUE)
++            catch (Exception e)
+             {
+-                // success!
+-                if (iStream != null) break;
++               System.out.println(&quot;In openInputStream: &quot; + e);
++            }
+ 
+-                // System.err.println(exception);
++         /* Try to find a proxy if that failed */
+ 
+-                // an exception we don't expect setting a proxy to fix
+-                if (!tryProxy) break;
++         // success!
++         if (iStream != null)
++            break;
+ 
+-                // else (exception != null)
+-                // show proxy dialog until valid values or cancel
+-                JPanel panel = getProxyPanel();
+-                errorLabel.setText(&quot;Unable to connect: &quot; + exception.getMessage());
+-                while (true)
+-                {
+-                    int result = JOptionPane.showConfirmDialog(parent, panel,
+-                            &quot;Proxy Configuration&quot;, JOptionPane.OK_CANCEL_OPTION,
+-                            JOptionPane.QUESTION_MESSAGE);
+-                    if (result != JOptionPane.OK_OPTION) // canceled
+-                        break OPEN_URL;
++         // an exception we don't expect setting a proxy to fix
++         if (!tryProxy)
++            break;
+ 
+-                    String host = null;
+-                    String port = null;
++         // else (exception != null)
++         // show proxy dialog until valid values or cancel
++         JPanel panel = getProxyPanel();
++         errorLabel.setText(&quot;Unable to connect: &quot; + exception.getMessage());
++         while (true)
++         {
++            int result = JOptionPane.showConfirmDialog(parent, panel, &quot;Proxy Configuration&quot;,
++                  JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
++            if (result != JOptionPane.OK_OPTION) // canceled
++               break OPEN_URL;
+ 
+-                    try
+-                    {
+-                        InetAddress addr = InetAddress.getByName(hostField.getText());
+-                        host = addr.getHostName();
+-                    }
+-                    catch (Exception x)
+-                    {
+-                        errorLabel.setText(&quot;Unable to resolve Host&quot;);
+-                        Toolkit.getDefaultToolkit().beep();
+-                    }
++            String host = null;
++            String port = null;
+ 
+-                    try
+-                    {
+-                        if (host != null) port = Integer.valueOf(portField.getText()).toString();
+-                    }
+-                    catch (NumberFormatException x)
+-                    {
+-                        errorLabel.setText(&quot;Invalid Port&quot;);
+-                        Toolkit.getDefaultToolkit().beep();
+-                    }
++            try
++            {
++               InetAddress addr = InetAddress.getByName(hostField.getText());
++               host = addr.getHostName();
++            }
++            catch (Exception x)
++            {
++               errorLabel.setText(&quot;Unable to resolve Host&quot;);
++               Toolkit.getDefaultToolkit().beep();
++            }
+ 
+-                    if (host != null &amp;&amp; port != null)
+-                    {
+-                        // System.err.println (&quot;Setting http proxy: &quot;+ host
+-                        // +&quot;:&quot;+ port);
+-                        System.getProperties().put(&quot;proxySet&quot;, &quot;true&quot;);
+-                        System.getProperties().put(&quot;proxyHost&quot;, host);
+-                        System.getProperties().put(&quot;proxyPort&quot;, port);
+-                        break;
+-                    }
+-                }
++            try
++            {
++               if (host != null)
++                  port = Integer.valueOf(portField.getText()).toString();
+             }
+-        }
+-        return iStream;
+-    }
++            catch (NumberFormatException x)
++            {
++               errorLabel.setText(&quot;Invalid Port&quot;);
++               Toolkit.getDefaultToolkit().beep();
++            }
+ 
+-    private void startOpening(final URL url)
+-    {
+-        openerThread = new Thread() {
++            if (host != null &amp;&amp; port != null)
++            {
++               // System.err.println (&quot;Setting http proxy: &quot;+ host
++               // +&quot;:&quot;+ port);
++               System.getProperties().put(&quot;proxySet&quot;, &quot;true&quot;);
++               System.getProperties().put(&quot;proxyHost&quot;, host);
++               System.getProperties().put(&quot;proxyPort&quot;, port);
++               break;
++            }
++         }
++      }
+ 
+-            public void run()
++      if (iStream == null)
++         openerThread.interrupt();
++
++      return iStream;
++   }
++
++   private void startOpening(final URL url)
++   {
++      final WebAccessor wa = this;
++      openerThread = new Thread()
++      {
++         public void run()
++         {
++            iStream = null;
++            try
+             {
+-                iStream = null;
+-                try
+-                {
+-                    tryProxy = false;
+-                    URLConnection connection = url.openConnection();
+-                    iStream = connection.getInputStream(); // just to make
+-                    // connection
++               tryProxy = false;
+ 
+-                }
+-                catch (ConnectException x)
+-                { // could be an incorrect proxy
+-                    tryProxy = true;
+-                    exception = x;
++               URLConnection connection = url.openConnection();
+ 
+-                }
+-                catch (Exception x)
+-                {
+-                    // Exceptions that get here are considered cancels or
+-                    // missing
+-                    // pages, eg 401 if user finally cancels auth
+-                    exception = x;
++               if (connection instanceof HttpURLConnection)
++               {
++                  HttpURLConnection htc = (HttpURLConnection) connection;
++                  contentLength = htc.getContentLength();
++               }
+ 
+-                }
+-                finally
+-                {
+-                    // if dialog is in use, allow it to become visible /before/
+-                    // closing
+-                    // it, else on /fast/ connectinos, it may open later and
+-                    // hang!
+-                    if (dialog != null)
+-                    {
+-                        Thread.yield();
+-                        dialog.setVisible(false);
+-                    }
+-                }
++               //InputStream iii = echoSocket.getInputStream();
++               InputStream i = connection.getInputStream();
++               iStream = new LoggedInputStream(i, wa); // just to make
++
+             }
+-        };
+-        openerThread.start();
+-    }
++            catch (ConnectException x)
++            { // could be an incorrect proxy
++               tryProxy = true;
++               exception = x;
+ 
+-    /**
+-     * Only to be called after an initial error has indicated a connection problem
+-     */
+-    private JPanel getProxyPanel()
+-    {
+-        if (proxyPanel == null)
+-        {
+-            proxyPanel = new JPanel(new BorderLayout(5, 5));
++            }
++            catch (Exception x)
++            {
++               // Exceptions that get here are considered cancels or
++               // missing
++               // pages, eg 401 if user finally cancels auth
++               exception = x;
+ 
+-            errorLabel = new JLabel();
++            }
++            finally
++            {
++               // if dialog is in use, allow it to become visible /before/
++               // closing
++               // it, else on /fast/ connectinos, it may open later and
++               // hang!
++               if (dialog != null)
++               {
++                  Thread.yield();
++                  dialog.setVisible(false);
++               }
++            }
++         }
++      };
++      openerThread.start();
++   }
+ 
+-            JPanel fields = new JPanel(new GridLayout(2, 2));
+-            String h = (String) System.getProperties().get(&quot;proxyHost&quot;);
+-            String p = (String) System.getProperties().get(&quot;proxyPort&quot;);
+-            hostField = new JTextField(h != null ? h : &quot;&quot;);
+-            portField = new JTextField(p != null ? p : &quot;&quot;);
+-            JLabel host = new JLabel(&quot;Host: &quot;); // TODO: i18n
+-            JLabel port = new JLabel(&quot;Port: &quot;); // TODO: i18n
+-            fields.add(host);
+-            fields.add(hostField);
+-            fields.add(port);
+-            fields.add(portField);
++   /**
++    * Only to be called after an initial error has indicated a connection problem
++    */
++   private JPanel getProxyPanel()
++   {
++      if (proxyPanel == null)
++      {
++         proxyPanel = new JPanel(new BorderLayout(5, 5));
+ 
+-            JLabel exampleLabel = new JLabel(&quot;e.g. host=\&quot;gatekeeper.example.com\&quot; port=\&quot;80\&quot;&quot;);
++         errorLabel = new JLabel();
+ 
+-            proxyPanel.add(errorLabel, BorderLayout.NORTH);
+-            proxyPanel.add(fields, BorderLayout.CENTER);
+-            proxyPanel.add(exampleLabel, BorderLayout.SOUTH);
+-        }
+-        proxyPanel.validate();
++         JPanel fields = new JPanel(new GridLayout(2, 2));
++         String h = (String) System.getProperties().get(&quot;proxyHost&quot;);
++         String p = (String) System.getProperties().get(&quot;proxyPort&quot;);
++         hostField = new JTextField(h != null ? h : &quot;&quot;);
++         portField = new JTextField(p != null ? p : &quot;&quot;);
++         JLabel host = new JLabel(&quot;Host: &quot;); // TODO: i18n
++         JLabel port = new JLabel(&quot;Port: &quot;); // TODO: i18n
++         fields.add(host);
++         fields.add(hostField);
++         fields.add(port);
++         fields.add(portField);
+ 
+-        return proxyPanel;
+-    }
++         JLabel exampleLabel = new JLabel(&quot;e.g. host=\&quot;gatekeeper.example.com\&quot; port=\&quot;80\&quot;&quot;);
+ 
+-    private JPanel getPasswordPanel()
+-    {
+-        if (passwordPanel == null)
+-        {
+-            passwordPanel = new JPanel(new BorderLayout(5, 5));
++         proxyPanel.add(errorLabel, BorderLayout.NORTH);
++         proxyPanel.add(fields, BorderLayout.CENTER);
++         proxyPanel.add(exampleLabel, BorderLayout.SOUTH);
++      }
++      proxyPanel.validate();
+ 
+-            promptLabel = new JLabel();
++      return proxyPanel;
++   }
+ 
+-            JPanel fields = new JPanel(new GridLayout(2, 2));
+-            nameField = new JTextField();
+-            passField = new JPasswordField();
+-            JLabel name = new JLabel(&quot;Name: &quot;); // TODO: i18n
+-            JLabel pass = new JLabel(&quot;Password: &quot;); // TODO: i18n
+-            fields.add(name);
+-            fields.add(nameField);
+-            fields.add(pass);
+-            fields.add(passField);
++   private JPanel getPasswordPanel()
++   {
++      if (passwordPanel == null)
++      {
++         passwordPanel = new JPanel(new BorderLayout(5, 5));
+ 
+-            passwordPanel.add(promptLabel, BorderLayout.NORTH);
+-            passwordPanel.add(fields, BorderLayout.CENTER);
+-        }
+-        passField.setText(&quot;&quot;);
++         promptLabel = new JLabel();
+ 
+-        return passwordPanel;
+-    }
++         JPanel fields = new JPanel(new GridLayout(2, 2));
++         nameField = new JTextField();
++         passField = new JPasswordField();
++         JLabel name = new JLabel(&quot;Name: &quot;); // TODO: i18n
++         JLabel pass = new JLabel(&quot;Password: &quot;); // TODO: i18n
++         fields.add(name);
++         fields.add(nameField);
++         fields.add(pass);
++         fields.add(passField);
+ 
+-    /**
+-     * Authenticates via dialog when needed.
+-     */
+-    private class MyDialogAuthenticator extends Authenticator
+-    {
++         passwordPanel.add(promptLabel, BorderLayout.NORTH);
++         passwordPanel.add(fields, BorderLayout.CENTER);
++      }
++      passField.setText(&quot;&quot;);
+ 
+-        public PasswordAuthentication getPasswordAuthentication()
+-        {
+-            // TODO: i18n
+-            JPanel p = getPasswordPanel();
+-            String prompt = getRequestingPrompt();
+-            InetAddress addr = getRequestingSite();
+-            if (addr != null) prompt += &quot; (&quot; + addr.getHostName() + &quot;)&quot;;
+-            promptLabel.setText(prompt);
+-            int result = JOptionPane.showConfirmDialog(parent, p, &quot;Enter Password&quot;,
+-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+-            if (result != JOptionPane.OK_OPTION) return null;
++      return passwordPanel;
++   }
+ 
+-            return new PasswordAuthentication(nameField.getText(), passField.getPassword());
+-        }
+-    }
++   /**
++    * Authenticates via dialog when needed.
++    */
++   private class MyDialogAuthenticator extends Authenticator
++   {
++
++      public PasswordAuthentication getPasswordAuthentication()
++      {
++         // TODO: i18n
++         JPanel p = getPasswordPanel();
++         String prompt = getRequestingPrompt();
++         InetAddress addr = getRequestingSite();
++         if (addr != null)
++            prompt += &quot; (&quot; + addr.getHostName() + &quot;)&quot;;
++         promptLabel.setText(prompt);
++         int result = JOptionPane.showConfirmDialog(parent, p, &quot;Enter Password&quot;, JOptionPane.OK_CANCEL_OPTION,
++               JOptionPane.QUESTION_MESSAGE);
++         if (result != JOptionPane.OK_OPTION)
++            return null;
++
++         return new PasswordAuthentication(nameField.getText(), passField.getPassword());
++      }
++   }
++
++   public String getUrl()
++   {
++      return url;
++   }
++
++   public void setUrl(String url)
++   {
++      this.url = url;
++   }
++
++   public int getContentLength()
++   {
++      return contentLength;
++   }
+ }
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebRepositoryAccessor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebRepositoryAccessor.java	2007-10-07 22:12:26 UTC (rev 1878)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebRepositoryAccessor.java	2007-10-07 22:21:30 UTC (rev 1879)
+@@ -0,0 +1,594 @@
++package com.izforge.izpack.installer;
++
++import java.net.MalformedURLException;
++import java.net.URL;
++import java.util.*;
++import java.io.*;
++import com.izforge.izpack.compiler.*;
++import com.izforge.izpack.*;
++import com.izforge.izpack.util.*;
++
++import com.izforge.izpack.compiler.CompilerException;
++
++import net.n3.nanoxml.*;
++
++/**
++ * 
++ * This class enumerates the availabe packs at the web repository. Parses the config files
++ *  - install.xml, packsinfo.xml, langpacks and is used to override the static configuration
++ *  in the installer jar.
++ * 
++ * @author &lt;a href=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">vralev at redhat.com</A>&quot;&gt;Vladimir Ralev&lt;/a&gt;
++ * @version $Revision: 1.1 $
++ */
++public class WebRepositoryAccessor
++{
++   /** URL to remote install.xml */
++   private String installXmlUrl;
++
++   /** Base repository URL */
++   private String baseUrl;
++
++   /** install.xml */
++   private String installXmlString;
++
++   /** packsinfo.xml contains nbytes, pack name and pack id */
++   private String packsInfo;
++
++   /** list of PackInfo entries */
++   private ArrayList packs;
++
++   /** Constant for checking attributes. */
++   private static boolean YES = true;
++
++   /** Constant for checking attributes. */
++   private static boolean NO = false;
++
++   /** Files to be looked for at the repository base url */
++   private static final String installFilename = &quot;install.xml&quot;;
++
++   private static final String packsinfoFilename = &quot;packsinfo.xml&quot;;
++
++   /** Files being downloaded in the buffer, 1MB max */
++   private static final int BUFFER_SIZE = 1000000;
++   
++
++   /**
++    * 
++    * Create a new WebRepositoryAccessor.
++    * 
++    * @param urlbase
++    */
++   public WebRepositoryAccessor(String urlbase)
++   {
++      this.installXmlUrl = urlbase + &quot;/&quot; + installFilename;
++      this.baseUrl = urlbase;
++   }
++
++   /**
++    * Get the list of the packs from the remore install.xml
++    * 
++    * @return
++    */
++   public ArrayList getOnlinePacks()
++   {
++      readConfig();
++      packs = parsePacks();
++      readPacksInfo();
++      parsePacksInfo();
++      return packs;
++   }
++
++   /**
++    * Returns the contents of a file at url as a string (must be a text file)
++    * 
++    * @param url
++    * @return
++    */
++   private String stringFromURL(String url)
++   {
++      int max = BUFFER_SIZE;
++      byte[] raw = new byte[max];
++      InputStream in = null;
++      try
++      {
++         WebAccessor w = new WebAccessor(null);
++         in = w.openInputStream(new URL(url));
++         if (in == null)
++            throw new RuntimeException(&quot;Unable to open network stream&quot;);
++         int r = in.read(raw);
++         int off = r;
++         while (r &gt; 0)
++         {
++            r = in.read(raw, off, max - off);
++            off += r;
++         }
++         return new String(raw);
++      }
++      catch (Exception e)
++      {
++         System.out.println(e + &quot; while trying to download &quot; + url);
++         return null;
++      }
++      finally
++      {
++         try
++         {
++            if(in != null) in.close();
++         }
++         catch(Exception e){}
++      }
++   }
++
++   /**
++    * Reads the install.xml into confgiString
++    *
++    */
++   private void readConfig()
++   {
++      installXmlString = stringFromURL(installXmlUrl);
++   }
++
++   
++   /**
++    * Reads packsinfo.xml
++    *
++    */
++   private void readPacksInfo()
++   {
++      String url = this.baseUrl + &quot;/&quot; + packsinfoFilename;
++      packsInfo = stringFromURL(url);
++   }
++
++   /**
++    * Parse install.xml and return the list of packs
++    * 
++    * @return
++    */
++   private ArrayList parsePacks()
++   {
++      try
++      {
++         IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
++         IXMLReader reader = StdXMLReader.stringReader(installXmlString);
++         parser.setReader(reader);
++         XMLElement xml = (XMLElement) parser.parse();
++         return loadPacksList(xml);
++      }
++      catch (Exception e)
++      {
++         System.out.println(&quot;WARN: Unable to parse install.xml&quot;);
++         return null;
++      }
++   }
++
++   /**
++    * Parse packsinfo.xml, fill the nbytes field, which is not available at runtime
++    * otherwise.
++    *
++    */
++   private void parsePacksInfo()
++   {
++      try
++      {
++         IXMLParser parser = XMLParserFactory.createDefaultXMLParser();
++         IXMLReader reader = StdXMLReader.stringReader(packsInfo);
++         parser.setReader(reader);
++         XMLElement xml = (XMLElement) parser.parse();
++         XMLElement root = xml; //requireChildNamed(xml, &quot;packs&quot;);
++         for (int q = 0; q &lt; root.getChildrenCount(); q++)
++         {
++            XMLElement ch = root.getChildAtIndex(q);
++            PackInfo pi = (PackInfo) packs.get(q);
++            Pack p = pi.getPack();
++            p.nbytes = Long.parseLong(ch.getAttribute(&quot;nbytes&quot;));
++         }
++      }
++      catch (Exception e)
++      {
++         System.out.println(&quot;WARN: Unable to parse packsinfo.xml&quot;);
++      }
++   }
++
++   /**
++    * First download the jar file. The create the input stream from the
++    * downloaded file. This is because the Jar connection's openInputStream
++    * will blocks until the whole jar in order to unzip it (there is no way
++    * to see the download progress there).
++    * 
++    * @param url
++    * @return
++    */
++   public static String getCachedUrl(String url, String tempFolder) throws Exception
++   {
++      int max = BUFFER_SIZE;
++      byte[] raw = new byte[max];
++      try
++      {
++         WebAccessor w = new WebAccessor(null);
++         InputStream in = w.openInputStream(new URL(url));
++         int r = in.read(raw);
++         File tempDir = new File(tempFolder);
++
++         tempDir.mkdirs();
++
++         File temp = File.createTempFile(&quot;izpacktempfile&quot;, &quot;jar&quot;, new File(tempFolder));
++         FileOutputStream fos = new FileOutputStream(temp);
++         String path = &quot;<A HREF="file:///&quot;">file:///&quot;</A> + temp.getAbsolutePath();
++         while (r &gt; 0)
++         {
++            fos.write(raw, 0, r);
++            r = in.read(raw);
++         }
++         in.close();
++         fos.close();
++
++         return path;
++      }
++      catch (SecurityException e)
++      {
++         System.out.println(e + &quot; while trying to write temp file: &quot; + tempFolder);
++         throw e;
++      }
++      catch (Exception e)
++      {
++         System.out.println(e + &quot; while trying to download &quot; + url);
++         throw e;
++      }
++   }
++
++   
++   protected ArrayList loadPacksList(XMLElement data) throws CompilerException
++   {
++      ArrayList result = new ArrayList();
++
++      // Initialisation
++      XMLElement root = requireChildNamed(data, &quot;packs&quot;);
++
++      // at least one pack is required
++      Vector packElements = root.getChildrenNamed(&quot;pack&quot;);
++      if (packElements.isEmpty())
++         parseError(root, &quot;&lt;packs&gt; requires a &lt;pack&gt;&quot;);
++
++      Iterator packIter = packElements.iterator();
++      while (packIter.hasNext())
++      {
++         XMLElement el = (XMLElement) packIter.next();
++
++         // Trivial initialisations
++         String name = requireAttribute(el, &quot;name&quot;);
++         String id = el.getAttribute(&quot;id&quot;);
++
++         boolean loose = &quot;true&quot;.equalsIgnoreCase(el.getAttribute(&quot;loose&quot;, &quot;false&quot;));
++         String description = requireChildNamed(el, &quot;description&quot;).getContent();
++         boolean required = requireYesNoAttribute(el, &quot;required&quot;);
++         String group = el.getAttribute(&quot;group&quot;);
++         String installGroups = el.getAttribute(&quot;installGroups&quot;);
++         String excludeGroup = el.getAttribute(&quot;excludeGroup&quot;);
++         String parent = el.getAttribute(&quot;parent&quot;);
++
++         if (required &amp;&amp; excludeGroup != null)
++         {
++            parseError(el, &quot;Pack, which has excludeGroup can not be required.&quot;, new Exception(
++                  &quot;Pack, which has excludeGroup can not be required.&quot;));
++         }
++
++         PackInfo pack = new PackInfo(name, id, description, required, loose, excludeGroup);
++         pack.setOsConstraints(OsConstraint.getOsList(el)); // TODO:
++         pack.setParent(parent);
++
++         // unverified
++         // if the pack belongs to an excludeGroup it's not preselected by default
++         if (excludeGroup == null)
++            pack.setPreselected(validateYesNoAttribute(el, &quot;preselected&quot;, YES));
++         else
++            pack.setPreselected(validateYesNoAttribute(el, &quot;preselected&quot;, NO));
++
++         // Set the pack group if specified
++         if (group != null)
++            pack.setGroup(group);
++         // Set the pack install groups if specified
++         if (installGroups != null)
++         {
++            StringTokenizer st = new StringTokenizer(installGroups, &quot;,&quot;);
++            while (st.hasMoreTokens())
++            {
++               String igroup = st.nextToken();
++               pack.addInstallGroup(igroup);
++            }
++         }
++
++         // We get the parsables list
++         Iterator iter = el.getChildrenNamed(&quot;parsable&quot;).iterator();
++         while (iter.hasNext())
++         {
++            XMLElement p = (XMLElement) iter.next();
++            String target = requireAttribute(p, &quot;targetfile&quot;);
++            String type = p.getAttribute(&quot;type&quot;, &quot;plain&quot;);
++            String encoding = p.getAttribute(&quot;encoding&quot;, null);
++            List osList = OsConstraint.getOsList(p); // TODO: unverified
++
++            pack.addParsable(new ParsableFile(target, type, encoding, osList));
++         }
++
++         // We get the executables list
++         iter = el.getChildrenNamed(&quot;executable&quot;).iterator();
++         while (iter.hasNext())
++         {
++            XMLElement e = (XMLElement) iter.next();
++            ExecutableFile executable = new ExecutableFile();
++            String val; // temp value
++
++            executable.path = requireAttribute(e, &quot;targetfile&quot;);
++
++            // when to execute this executable
++            val = e.getAttribute(&quot;stage&quot;, &quot;never&quot;);
++            if (&quot;postinstall&quot;.equalsIgnoreCase(val))
++               executable.executionStage = ExecutableFile.POSTINSTALL;
++            else if (&quot;uninstall&quot;.equalsIgnoreCase(val))
++               executable.executionStage = ExecutableFile.UNINSTALL;
++
++            // type of this executable
++            val = e.getAttribute(&quot;type&quot;, &quot;bin&quot;);
++            if (&quot;jar&quot;.equalsIgnoreCase(val))
++            {
++               executable.type = ExecutableFile.JAR;
++               executable.mainClass = e.getAttribute(&quot;class&quot;); // executable
++               // class
++            }
++
++            // what to do if execution fails
++            val = e.getAttribute(&quot;failure&quot;, &quot;ask&quot;);
++            if (&quot;abort&quot;.equalsIgnoreCase(val))
++               executable.onFailure = ExecutableFile.ABORT;
++            else if (&quot;warn&quot;.equalsIgnoreCase(val))
++               executable.onFailure = ExecutableFile.WARN;
++
++            // whether to keep the executable after executing it
++            val = e.getAttribute(&quot;keep&quot;);
++            executable.keepFile = &quot;true&quot;.equalsIgnoreCase(val);
++
++            // get arguments for this executable
++            XMLElement args = e.getFirstChildNamed(&quot;args&quot;);
++            if (null != args)
++            {
++               Iterator argIterator = args.getChildrenNamed(&quot;arg&quot;).iterator();
++               while (argIterator.hasNext())
++               {
++                  XMLElement arg = (XMLElement) argIterator.next();
++                  executable.argList.add(requireAttribute(arg, &quot;value&quot;));
++               }
++            }
++
++            executable.osList = OsConstraint.getOsList(e); // TODO:
++            // unverified
++
++            pack.addExecutable(executable);
++         }
++
++         // get the updatechecks list
++         iter = el.getChildrenNamed(&quot;updatecheck&quot;).iterator();
++         while (iter.hasNext())
++         {
++            XMLElement f = (XMLElement) iter.next();
++
++            String casesensitive = f.getAttribute(&quot;casesensitive&quot;);
++
++            // get includes and excludes
++            ArrayList includesList = new ArrayList();
++            ArrayList excludesList = new ArrayList();
++
++            // get includes and excludes
++            Iterator include_it = f.getChildrenNamed(&quot;include&quot;).iterator();
++            while (include_it.hasNext())
++            {
++               XMLElement inc_el = (XMLElement) include_it.next();
++               includesList.add(requireAttribute(inc_el, &quot;name&quot;));
++            }
++
++            Iterator exclude_it = f.getChildrenNamed(&quot;exclude&quot;).iterator();
++            while (exclude_it.hasNext())
++            {
++               XMLElement excl_el = (XMLElement) exclude_it.next();
++               excludesList.add(requireAttribute(excl_el, &quot;name&quot;));
++            }
++
++            pack.addUpdateCheck(new UpdateCheck(includesList, excludesList, casesensitive));
++         }
++         // We get the dependencies
++         iter = el.getChildrenNamed(&quot;depends&quot;).iterator();
++         while (iter.hasNext())
++         {
++            XMLElement dep = (XMLElement) iter.next();
++            String depName = requireAttribute(dep, &quot;packname&quot;);
++            pack.addDependency(depName);
++
++         }
++         result.add(pack);
++      }
++      return result;
++   }
++
++   /**
++    * Create parse error with consistent messages. Includes file name. For use When parent is
++    * unknown.
++    * 
++    * @param message Brief message explaining error
++    */
++   protected void parseError(String message) throws CompilerException
++   {
++      throw new CompilerException(installFilename + &quot;:&quot; + message);
++   }
++
++   /**
++    * Create parse error with consistent messages. Includes file name and line # of parent. It is
++    * an error for 'parent' to be null.
++    * 
++    * @param parent The element in which the error occured
++    * @param message Brief message explaining error
++    */
++   protected void parseError(XMLElement parent, String message) throws CompilerException
++   {
++      throw new CompilerException(installFilename + &quot;:&quot; + parent.getLineNr() + &quot;: &quot; + message);
++   }
++
++   /**
++    * Create a chained parse error with consistent messages. Includes file name and line # of
++    * parent. It is an error for 'parent' to be null.
++    * 
++    * @param parent The element in which the error occured
++    * @param message Brief message explaining error
++    */
++   protected void parseError(XMLElement parent, String message, Throwable cause) throws CompilerException
++   {
++      throw new CompilerException(installFilename + &quot;:&quot; + parent.getLineNr() + &quot;: &quot; + message, cause);
++   }
++
++   /**
++    * Create a parse warning with consistent messages. Includes file name and line # of parent. It
++    * is an error for 'parent' to be null.
++    * 
++    * @param parent The element in which the warning occured
++    * @param message Warning message
++    */
++   protected void parseWarn(XMLElement parent, String message)
++   {
++      System.out.println(installFilename + &quot;:&quot; + parent.getLineNr() + &quot;: &quot; + message);
++   }
++
++   /**
++    * Call getFirstChildNamed on the parent, producing a meaningful error message on failure. It is
++    * an error for 'parent' to be null.
++    * 
++    * @param parent The element to search for a child
++    * @param name Name of the child element to get
++    */
++   protected XMLElement requireChildNamed(XMLElement parent, String name) throws CompilerException
++   {
++      XMLElement child = parent.getFirstChildNamed(name);
++      if (child == null)
++         parseError(parent, &quot;&lt;&quot; + parent.getName() + &quot;&gt; requires child &lt;&quot; + name + &quot;&gt;&quot;);
++      return child;
++   }
++
++   /**
++    * Call getContent on an element, producing a meaningful error message if not present, or empty,
++    * or a valid URL. It is an error for 'element' to be null.
++    * 
++    * @param element The element to get content of
++    */
++   protected URL requireURLContent(XMLElement element) throws CompilerException
++   {
++      URL url = null;
++      try
++      {
++         url = new URL(requireContent(element));
++      }
++      catch (MalformedURLException x)
++      {
++         parseError(element, &quot;&lt;&quot; + element.getName() + &quot;&gt; requires valid URL&quot;, x);
++      }
++      return url;
++   }
++
++   /**
++    * Call getContent on an element, producing a meaningful error message if not present, or empty.
++    * It is an error for 'element' to be null.
++    * 
++    * @param element The element to get content of
++    */
++   protected String requireContent(XMLElement element) throws CompilerException
++   {
++      String content = element.getContent();
++      if (content == null || content.length() == 0)
++         parseError(element, &quot;&lt;&quot; + element.getName() + &quot;&gt; requires content&quot;);
++      return content;
++   }
++
++   /**
++    * Call getAttribute on an element, producing a meaningful error message if not present, or
++    * empty. It is an error for 'element' or 'attribute' to be null.
++    * 
++    * @param element The element to get the attribute value of
++    * @param attribute The name of the attribute to get
++    */
++   protected String requireAttribute(XMLElement element, String attribute) throws CompilerException
++   {
++      String value = element.getAttribute(attribute);
++      if (value == null)
++         parseError(element, &quot;&lt;&quot; + element.getName() + &quot;&gt; requires attribute '&quot; + attribute + &quot;'&quot;);
++      return value;
++   }
++
++   /**
++    * Get a required attribute of an element, ensuring it is an integer. A meaningful error message
++    * is generated as a CompilerException if not present or parseable as an int. It is an error for
++    * 'element' or 'attribute' to be null.
++    * 
++    * @param element The element to get the attribute value of
++    * @param attribute The name of the attribute to get
++    */
++   protected int requireIntAttribute(XMLElement element, String attribute) throws CompilerException
++   {
++      String value = element.getAttribute(attribute);
++      if (value == null || value.length() == 0)
++         parseError(element, &quot;&lt;&quot; + element.getName() + &quot;&gt; requires attribute '&quot; + attribute + &quot;'&quot;);
++      try
++      {
++         return Integer.parseInt(value);
++      }
++      catch (NumberFormatException x)
++      {
++         parseError(element, &quot;'&quot; + attribute + &quot;' must be an integer&quot;);
++      }
++      return 0; // never happens
++   }
++
++   /**
++    * Call getAttribute on an element, producing a meaningful error message if not present, or one
++    * of &quot;yes&quot; or &quot;no&quot;. It is an error for 'element' or 'attribute' to be null.
++    * 
++    * @param element The element to get the attribute value of
++    * @param attribute The name of the attribute to get
++    */
++   protected boolean requireYesNoAttribute(XMLElement element, String attribute) throws CompilerException
++   {
++      String value = requireAttribute(element, attribute);
++      if (&quot;yes&quot;.equalsIgnoreCase(value))
++         return true;
++      if (&quot;no&quot;.equalsIgnoreCase(value))
++         return false;
++
++      parseError(element, &quot;&lt;&quot; + element.getName() + &quot;&gt; invalid attribute '&quot; + attribute + &quot;': Expected (yes|no)&quot;);
++
++      return false; // never happens
++   }
++
++   /**
++    * Call getAttribute on an element, producing a meaningful warning if not &quot;yes&quot; or &quot;no&quot;. If the
++    * 'element' or 'attribute' are null, the default value is returned.
++    * 
++    * @param element The element to get the attribute value of
++    * @param attribute The name of the attribute to get
++    * @param defaultValue Value returned if attribute not present or invalid
++    */
++   protected boolean validateYesNoAttribute(XMLElement element, String attribute, boolean defaultValue)
++   {
++      if (element == null)
++         return defaultValue;
++
++      String value = element.getAttribute(attribute, (defaultValue ? &quot;yes&quot; : &quot;no&quot;));
++      if (&quot;yes&quot;.equalsIgnoreCase(value))
++         return true;
++      if (&quot;no&quot;.equalsIgnoreCase(value))
++         return false;
++
++      // TODO: should this be an error if it's present but &quot;none of the
++      // above&quot;?
++      parseWarn(element, &quot;&lt;&quot; + element.getName() + &quot;&gt; invalid attribute '&quot; + attribute
++            + &quot;': Expected (yes|no) if present&quot;);
++
++      return defaultValue;
++   }
++
++}
+\ No newline at end of file
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000624.html">[izpack-changes] r1878 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000626.html">[izpack-changes] r1880 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#625">[ date ]</a>
+              <a href="thread.html#625">[ thread ]</a>
+              <a href="subject.html#625">[ subject ]</a>
+              <a href="author.html#625">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

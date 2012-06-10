@@ -1,0 +1,913 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1444 - in izpack-src/trunk/src: . lib/com/izforge/izpack/installer lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1444%20-%20in%20izpack-src/trunk/src%3A%20.%20lib/com/izforge/izpack/installer%20lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000188.html">
+   <LINK REL="Next"  HREF="000191.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1444 - in izpack-src/trunk/src: . lib/com/izforge/izpack/installer lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1444%20-%20in%20izpack-src/trunk/src%3A%20.%20lib/com/izforge/izpack/installer%20lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1444 - in izpack-src/trunk/src: . lib/com/izforge/izpack/installer lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Fri Jun  9 17:44:52 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000188.html">[izpack-changes] r1443 - izpack-src/tags
+</A></li>
+        <LI>Next message: <A HREF="000191.html">[izpack-changes] r1445 - izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: tschwarze
+Date: 2006-06-09 17:44:51 +0200 (Fri, 09 Jun 2006)
+New Revision: 1444
+
+Modified:
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Installer.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/PanelAutomation.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ImgPacksPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ProcessPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanelAutomationHelper.java
+Log:
+merged automation fixes from branch-3-8-automation-fixes to trunk
+
+
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/build.xml	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -555,6 +555,7 @@
+             &lt;include name=&quot;com/izforge/izpack/panels/PacksModel.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/PacksPanelBase.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/PacksPanelInterface.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/panels/PacksPanelAutomationHelper.java&quot; /&gt;
+         &lt;/build-panel&gt;
+         &lt;build-panel name=&quot;HTMLLicencePanel&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/HTMLLicencePanel.java&quot; /&gt;
+@@ -607,7 +608,7 @@
+         &lt;/build-panel&gt;
+         &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/ProcessPanel.java&quot; /&gt;
+-            &lt;include name=&quot;com/izforge/izpack/panels/ProcessPanelAutomationPanel.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/panels/ProcessPanelAutomationHelper.java&quot; /&gt;
+         &lt;/build-panel&gt;
+         &lt;build-panel name=&quot;SudoPanel&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/SudoPanel.java&quot; /&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -64,6 +64,9 @@
+     /** The automated installation data. */
+     private AutomatedInstallData idata = new AutomatedInstallData();
+ 
++    /** The result of the installation. */
++    private boolean result = false;
++    
+     /**
+      * Constructing an instance triggers the install.
+      * 
+@@ -77,26 +80,24 @@
+         File input = new File(inputFilename);
+ 
+         // Loads the installation data
+-        loadInstallData(idata);
++        loadInstallData(this.idata);
+ 
+         // Loads the xml data
+-        idata.xmlData = getXMLData(input);
++        this.idata.xmlData = getXMLData(input);
+ 
+         // Loads the langpack
+-        idata.localeISO3 = idata.xmlData.getAttribute(&quot;langpack&quot;, &quot;eng&quot;);
+-        InputStream in = getClass().getResourceAsStream(&quot;/langpacks/&quot; + idata.localeISO3 + &quot;.xml&quot;);
+-        idata.langpack = new LocaleDatabase(in);
+-        idata.setVariable(ScriptParser.ISO3_LANG, idata.localeISO3);
++        this.idata.localeISO3 = this.idata.xmlData.getAttribute(&quot;langpack&quot;, &quot;eng&quot;);
++        InputStream in = getClass().getResourceAsStream(&quot;/langpacks/&quot; + this.idata.localeISO3 + &quot;.xml&quot;);
++        this.idata.langpack = new LocaleDatabase(in);
++        this.idata.setVariable(ScriptParser.ISO3_LANG, this.idata.localeISO3);
+ 
+         // create the resource manager singleton
+-        ResourceManager.create(idata);
++        ResourceManager.create(this.idata);
+ 
+         // Load custom langpack if exist.
+-        addCustomLangpack(idata);
++        addCustomLangpack(this.idata);
+ 
+         this.panelInstanceCount = new TreeMap();
+-
+-        doInstall(idata);
+     }
+ 
+     /**
+@@ -107,23 +108,24 @@
+      * 
+      * TODO: We should try to fix this in the future.
+      */
+-    private void writeUninstallData()
++    private boolean writeUninstallData()
+     {
+         try
+         {
+             // We get the data
+             UninstallData udata = UninstallData.getInstance();
+             List files = udata.getFilesList();
+-            ZipOutputStream outJar = idata.uninstallOutJar;
++            ZipOutputStream outJar = this.idata.uninstallOutJar;
+ 
+-            if (outJar == null) return;
++            if (outJar == null) 
++                return true; // it is allowed not to have an installer
+ 
+             System.out.println(&quot;[ Writing the uninstaller data ... ]&quot;);
+ 
+             // We write the files log
+             outJar.putNextEntry(new ZipEntry(&quot;install.log&quot;));
+             BufferedWriter logWriter = new BufferedWriter(new OutputStreamWriter(outJar));
+-            logWriter.write(idata.getInstallPath());
++            logWriter.write(this.idata.getInstallPath());
+             logWriter.newLine();
+             Iterator iter = files.iterator();
+             while (iter.hasNext())
+@@ -159,112 +161,141 @@
+             // Cleanup
+             outJar.flush();
+             outJar.close();
++            return true;
+         }
+         catch (Exception err)
+         {
+             err.printStackTrace();
++            return false;
+         }
+     }
+ 
+     /**
+      * Runs the automated installation logic for each panel in turn.
+      * 
+-     * @param installdata the installation data.
+      * @throws Exception
+      */
+-    private void doInstall(AutomatedInstallData installdata) throws Exception
++    protected void doInstall() throws Exception
+     {
+         // TODO: i18n
+         System.out.println(&quot;[ Starting automated installation ]&quot;);
+ 
+-        // walk the panels in order
+-        Iterator panelsIterator = installdata.panelsOrder.iterator();
+-        while (panelsIterator.hasNext())
++        try
+         {
+-            Panel p = (Panel) panelsIterator.next();
+-            String praefix = &quot;com.izforge.izpack.panels.&quot;;
+-            if (p.className.compareTo(&quot;.&quot;) &gt; -1)
+-            // Full qualified class name
+-                praefix = &quot;&quot;;
+-            if (!OsConstraint.oneMatchesCurrentSystem(p.osConstraints)) continue;
+-
+-            String panelClassName = p.className;
+-            String automationHelperClassName = praefix + panelClassName + &quot;AutomationHelper&quot;;
+-            Class automationHelperClass = null;
+-            // determine if the panel supports automated install
+-            try
++            // assume that installation will succeed
++            this.result = true;
++            
++            // walk the panels in order
++            Iterator panelsIterator = this.idata.panelsOrder.iterator();
++            while (panelsIterator.hasNext())
+             {
+-                automationHelperClass = Class.forName(automationHelperClassName);
+-            }
+-            catch (ClassNotFoundException e)
+-            {
+-                // this is OK - not all panels have/need automation support.
+-                continue;
+-            }
+-
+-            // instantiate the automation logic for the panel
+-            PanelAutomation automationHelperInstance = null;
+-            if (automationHelperClass != null)
+-            {
++                Panel p = (Panel) panelsIterator.next();
++                String praefix = &quot;com.izforge.izpack.panels.&quot;;
++                if (p.className.compareTo(&quot;.&quot;) &gt; -1)
++                // Full qualified class name
++                    praefix = &quot;&quot;;
++                if (!OsConstraint.oneMatchesCurrentSystem(p.osConstraints)) continue;
++    
++                String panelClassName = p.className;
++                String automationHelperClassName = praefix + panelClassName + &quot;AutomationHelper&quot;;
++                Class automationHelperClass = null;
++                // determine if the panel supports automated install
+                 try
+                 {
+-                    automationHelperInstance = (PanelAutomation) automationHelperClass
+-                            .newInstance();
++                    automationHelperClass = Class.forName(automationHelperClassName);
+                 }
+-                catch (Exception e)
++                catch (ClassNotFoundException e)
+                 {
+-                    System.err.println(&quot;ERROR: no default constructor for &quot;
+-                            + automationHelperClassName + &quot;, skipping...&quot;);
++                    // this is OK - not all panels have/need automation support.
+                     continue;
+                 }
+-            }
+-
+-            // We get the panels root xml markup
+-            Vector panelRoots = installdata.xmlData.getChildrenNamed(panelClassName);
+-            int panelRootNo = 0;
+-
+-            if (this.panelInstanceCount.containsKey(panelClassName))
+-            {
+-                // get number of panel instance to process
+-                panelRootNo = ((Integer) this.panelInstanceCount.get(panelClassName)).intValue();
+-            }
+-
+-            XMLElement panelRoot = (XMLElement) panelRoots.elementAt(panelRootNo);
+-
+-            this.panelInstanceCount.put(panelClassName, new Integer(panelRootNo + 1));
+-
+-            // execute the installation logic for the current panel, if it has
+-            // any:
+-            if (automationHelperInstance != null)
+-            {
+-                try
++    
++                // instantiate the automation logic for the panel
++                PanelAutomation automationHelperInstance = null;
++                if (automationHelperClass != null)
+                 {
+-                    automationHelperInstance.runAutomated(installdata, panelRoot);
++                    try
++                    {
++                        automationHelperInstance = (PanelAutomation) automationHelperClass
++                                .newInstance();
++                    }
++                    catch (Exception e)
++                    {
++                        System.err.println(&quot;ERROR: no default constructor for &quot;
++                                + automationHelperClassName + &quot;, skipping...&quot;);
++                        continue;
++                    }
+                 }
+-                catch (Exception e)
++    
++                // We get the panels root xml markup
++                Vector panelRoots = this.idata.xmlData.getChildrenNamed(panelClassName);
++                int panelRootNo = 0;
++    
++                if (this.panelInstanceCount.containsKey(panelClassName))
+                 {
+-                    System.err.println(&quot;ERROR: automated installation failed for panel &quot;
+-                            + panelClassName);
+-                    e.printStackTrace();
++                    // get number of panel instance to process
++                    panelRootNo = ((Integer) this.panelInstanceCount.get(panelClassName)).intValue();
+                 }
+-
++    
++                XMLElement panelRoot = (XMLElement) panelRoots.elementAt(panelRootNo);
++    
++                this.panelInstanceCount.put(panelClassName, new Integer(panelRootNo + 1));
++    
++                // execute the installation logic for the current panel, if it has
++                // any:
++                if (automationHelperInstance != null)
++                {
++                    try
++                    {
++                        if (! automationHelperInstance.runAutomated(this.idata, panelRoot))
++                        {
++                            // make installation fail instantly
++                            this.result = false;
++                            return;
++                        }
++                    }
++                    catch (Exception e)
++                    {
++                        System.err.println(&quot;ERROR: automated installation failed for panel &quot;
++                                + panelClassName);
++                        e.printStackTrace();
++                        this.result = false;
++                        continue;
++                    }
++    
++                }
++    
+             }
+-
++    
++            // this does nothing if the uninstaller was not included
++            writeUninstallData();
++    
++            if (this.result)
++                System.out.println(&quot;[ Automated installation done ]&quot;);
++            else
++                System.out.println(&quot;[ Automated installation FAILED! ]&quot;);
+         }
+-
+-        // this does nothing if the uninstaller was not included
+-        writeUninstallData();
+-
+-        System.out.println(&quot;[ Automated installation done ]&quot;);
+-
+-        // Bye
+-        Housekeeper.getInstance().shutDown(0);
++        catch (Exception e)
++        {
++            this.result = false;
++            System.err.println(e.toString());
++            e.printStackTrace();
++            System.out.println(&quot;[ Automated installation FAILED! ]&quot;);
++        }
++        finally
++        {    
++            // Bye
++            Housekeeper.getInstance().shutDown(this.result ? 0 : 1);
++        }
+     }
+ 
+     /**
+      * Loads the xml data for the automated mode.
+      * 
+      * @param input The file containing the installation data.
++     * 
++     * @return The root of the XML file.
++     * 
+      * @exception Exception thrown if there are problems reading the file.
+      */
+     public XMLElement getXMLData(File input) throws Exception
+@@ -282,4 +313,14 @@
+ 
+         return rtn;
+     }
++    
++    /**
++     * Get the result of the installation.
++     * 
++     * @return True if the installation was successful.
++     */
++    public boolean getResult()
++    {
++        return this.result;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Installer.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Installer.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Installer.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -63,17 +63,18 @@
+             }
+             else
+             {
+-                new AutomatedInstaller(args[0]);
++                AutomatedInstaller ai = new AutomatedInstaller(args[0]);
++                // this method will also exit!
++                ai.doInstall();
+             }
+         }
+         catch (Exception e)
+         {
+-            System.err.println(&quot;- Error -&quot;);
++            System.err.println(&quot;- ERROR -&quot;);
+             System.err.println(e.toString());
+             e.printStackTrace();
+-            System.exit(0);
++            System.exit(1);
+         }
+     }
+ 
+-    
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/PanelAutomation.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/PanelAutomation.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/PanelAutomation.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -52,6 +52,8 @@
+      * 
+      * @param installData The installation data
+      * @param panelRoot The XML root element of the panels blackbox tree.
++     * 
++     * @return true if the automated work was performed successful, false if it failed critically.
+      */
+-    public void runAutomated(AutomatedInstallData installData, XMLElement panelRoot);
++    public boolean runAutomated(AutomatedInstallData installData, XMLElement panelRoot);
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -74,6 +74,8 @@
+ 
+     private ArrayList jobs = new ArrayList();
+ 
++    private boolean result = true;
++    
+     private static PrintWriter logfile = null;
+ 
+     private String logfiledir = null;
+@@ -281,11 +283,11 @@
+ 
+             this.handler.startProcess(pj.name);
+ 
+-            boolean result = pj.run(this.handler, this.vs);
++            this.result = pj.run(this.handler, this.vs);
+ 
+             this.handler.finishProcess();
+ 
+-            if (!result) break;
++            if (!this.result) break;
+         }
+ 
+         this.handler.finishProcessing();
+@@ -300,6 +302,16 @@
+         processingThread.start();
+     }
+ 
++    /**
++     * Return the result of the process execution.
++     * 
++     * @return true if all processes succeeded, false otherwise.
++     */
++    public boolean getResult()
++    {
++        return this.result;
++    }
++    
+     interface Processable
+     {
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -107,6 +107,9 @@
+ 
+     public static final String INTERRUPTED = &quot;interruppted&quot;;
+ 
++    /** The result of the operation. */
++    private boolean result = true;
++    
+     /**
+      * The constructor.
+      * 
+@@ -247,6 +250,7 @@
+             if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED)))
+             {
+                 instances.put(this, INTERRUPTED);
++                this.result = false;
+                 return (true);
+             }
+             return (false);
+@@ -348,6 +352,7 @@
+                                     handler.emitError(&quot;Error creating directories&quot;,
+                                             &quot;Could not create directory\n&quot; + dest.getPath());
+                                     handler.stopAction();
++                                    this.result = false;
+                                     return;
+                                 }
+                             }
+@@ -451,7 +456,7 @@
+                             int maxBytes = (int) Math.min(pf.length() - bytesCopied, buffer.length);
+                             int bytesInBuffer = pis.read(buffer, 0, maxBytes);
+                             if (bytesInBuffer == -1)
+-                                throw new IOException(&quot;Unexpected end of stream&quot;);
++                                throw new IOException(&quot;Unexpected end of stream (installer corrupted?)&quot;);
+ 
+                             out.write(buffer, 0, bytesInBuffer);
+ 
+@@ -541,7 +546,10 @@
+             // We use the file executor
+             FileExecutor executor = new FileExecutor(executables);
+             if (executor.executeFiles(ExecutableFile.POSTINSTALL, handler) != 0)
++            {
+                 handler.emitError(&quot;File execution failed&quot;, &quot;The installation was not completed&quot;);
++                this.result = false;
++            }
+ 
+             if (performInterrupted())
+             { // Interrupt was initiated; perform it.
+@@ -575,6 +583,7 @@
+             handler.stopAction();
+             handler.emitError(&quot;An error occured&quot;, err.toString());
+             err.printStackTrace();
++            this.result = false;
+         }
+         finally
+         {
+@@ -583,6 +592,16 @@
+     }
+ 
+     /**
++     * Return the state of the operation.
++     * 
++     * @return true if the operation was successful, false otherwise.
++     */
++    public boolean getResult()
++    {
++        return this.result;
++    }
++    
++    /**
+      * @param updatechecks
+      */
+     private void performUpdateChecks(ArrayList updatechecks)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanelAutomationHelper.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/CompilePanelAutomationHelper.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -68,7 +68,7 @@
+      * 
+      * @param panelRoot The panel XML tree root.
+      */
+-    public void runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
++    public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+     {
+         XMLElement compiler_xml = panelRoot.getFirstChildNamed(&quot;compiler&quot;);
+ 
+@@ -79,7 +79,7 @@
+         if (compiler == null)
+         {
+             System.out.println(&quot;invalid automation data: could not find compiler&quot;);
+-            return;
++            return false;
+         }
+ 
+         XMLElement args_xml = panelRoot.getFirstChildNamed(&quot;arguments&quot;);
+@@ -91,7 +91,7 @@
+         if (args_xml == null)
+         {
+             System.out.println(&quot;invalid automation data: could not find compiler arguments&quot;);
+-            return;
++            return false;
+         }
+ 
+         try
+@@ -101,10 +101,13 @@
+             this.worker.setCompilerArguments(args);
+ 
+             this.worker.run();
++            
++            return this.worker.getResult().isSuccess();
+         }
+         catch (IOException e)
+         {
+             e.printStackTrace();
++            return false;
+         }
+     }
+ 
+@@ -135,8 +138,8 @@
+         System.err.println(error.getStdout());
+         System.err.println(&quot;stderr of compiler:&quot;);
+         System.err.println(error.getStderr());
+-        // do not abort compilation, just continue
+-        error.setAction(CompileResult.ACTION_CONTINUE);
++        // abort instantly and make installation fail
++        error.setAction(CompileResult.ACTION_ABORT);
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ImgPacksPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ImgPacksPanelAutomationHelper.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ImgPacksPanelAutomationHelper.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -21,72 +21,14 @@
+ 
+ package com.izforge.izpack.panels;
+ 
+-import java.util.Vector;
+ 
+-import net.n3.nanoxml.XMLElement;
+-
+-import com.izforge.izpack.Pack;
+-import com.izforge.izpack.installer.AutomatedInstallData;
+-import com.izforge.izpack.installer.PanelAutomation;
+-
+ /**
+  * Functions to support automated usage of the ImgPacksPanel
+  * 
+  * @author Jonathan Halliday
+  * @author Julien Ponge
+  */
+-public class ImgPacksPanelAutomationHelper implements PanelAutomation
++public class ImgPacksPanelAutomationHelper extends PacksPanelAutomationHelper
+ {
+-
+-    /**
+-     * Asks to make the XML panel data.
+-     * 
+-     * @param idata The installation data.
+-     * @param panelRoot The XML root to write the data in.
+-     */
+-    public void makeXMLData(AutomatedInstallData idata, XMLElement panelRoot)
+-    {
+-        // Selected packs markup
+-        XMLElement sel = new XMLElement(&quot;selected&quot;);
+-
+-        // We add each selected pack to sel
+-        int size = idata.selectedPacks.size();
+-        for (int i = 0; i &lt; size; i++)
+-        {
+-            XMLElement el = new XMLElement(&quot;pack&quot;);
+-            Pack pack = (Pack) idata.selectedPacks.get(i);
+-            Integer integer = new Integer(idata.availablePacks.indexOf(pack));
+-            el.setAttribute(&quot;index&quot;, integer.toString());
+-            sel.addChild(el);
+-        }
+-
+-        // Joining
+-        panelRoot.addChild(sel);
+-    }
+-
+-    /**
+-     * Asks to run in the automated mode.
+-     * 
+-     * @param idata The installation data.
+-     * @param panelRoot The root of the panel data.
+-     */
+-    public void runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+-    {
+-        // We get the selected markup
+-        XMLElement sel = panelRoot.getFirstChildNamed(&quot;selected&quot;);
+-
+-        // We get the packs markups
+-        Vector pm = sel.getChildrenNamed(&quot;pack&quot;);
+-
+-        // We select each of them
+-        int size = pm.size();
+-        idata.selectedPacks.clear();
+-        for (int i = 0; i &lt; size; i++)
+-        {
+-            XMLElement el = (XMLElement) pm.get(i);
+-            Integer integer = new Integer(el.getAttribute(&quot;index&quot;));
+-            int index = integer.intValue();
+-            idata.selectedPacks.add(idata.availablePacks.get(index));
+-        }
+-    }
++    // simply inherit everything from PacksPanelAutomationHelper
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanelAutomationHelper.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallPanelAutomationHelper.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -55,8 +55,10 @@
+      * Perform the installation actions.
+      * 
+      * @param panelRoot The panel XML tree root.
++     * 
++     * @return true if the installation was successful.
+      */
+-    public void runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
++    public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+     {
+         Unpacker unpacker = new Unpacker(idata, this);
+         unpacker.start();
+@@ -72,6 +74,7 @@
+                 // ignore it, we're waiting for the unpacker to finish...
+             }
+         }
++        return unpacker.getResult();
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -66,14 +66,16 @@
+      * 
+      * @param idata The installation data.
+      * @param panelRoot The root of the panel data.
++     * 
++     * @return true if all packs were found and selected, false if something was wrong.
+      */
+-    public void runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
++    public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+     {
+-        // We first get the &lt;selected&gt; child (new from version 3.7.0).
+-        XMLElement selectedPacks = panelRoot.getFirstChildNamed(&quot;selected&quot;);
+         // We get the packs markups
+-        Vector pm = selectedPacks.getChildrenNamed(&quot;pack&quot;);
++        Vector pm = panelRoot.getChildrenNamed(&quot;pack&quot;);
+ 
++        boolean result = true;
++        
+         // We figure out the selected ones
+         int size = pm.size();
+         idata.selectedPacks.clear();
+@@ -88,8 +90,7 @@
+ 
+                 // be liberal in what we accept
+                 // (For example, this allows auto-installer files to be fitted
+-                // to automatically
+-                // generated installers, yes I need this! tisc.)
++                // to automatically generated installers, yes I need this! tschwarze.)
+                 if (index_str != null)
+                 {
+                     try
+@@ -103,12 +104,14 @@
+                         {
+                             System.err.println(&quot;Invalid pack index \&quot;&quot; + index_str + &quot;\&quot; in line &quot;
+                                     + el.getLineNr());
++                            result = false;
+                         }
+                     }
+                     catch (NumberFormatException e)
+                     {
+                         System.err.println(&quot;Invalid pack index \&quot;&quot; + index_str + &quot;\&quot; in line &quot;
+                                 + el.getLineNr());
++                        result = false;
+                     }
+                 }
+                 else
+@@ -138,6 +141,7 @@
+                         {
+                             System.err.println(&quot;Could not find selected pack named \&quot;&quot; + name
+                                     + &quot;\&quot; in line &quot; + el.getLineNr());
++                            result = false;
+                         }
+ 
+                     }
+@@ -148,6 +152,7 @@
+ 
+         }
+ 
++        return result;
+     }
+ 
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ProcessPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ProcessPanelAutomationHelper.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ProcessPanelAutomationHelper.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -61,18 +61,23 @@
+      * Perform the installation actions.
+      * 
+      * @param panelRoot The panel XML tree root.
++     * 
++     * @return true if processes were run successfully.
+      */
+-    public void runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
++    public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+     {
+         try
+         {
+             ProcessPanelWorker worker = new ProcessPanelWorker(idata, this);
+ 
+             worker.run();
++            
++            return this.worker.getResult();
+         }
+         catch (IOException e)
+         {
+             e.printStackTrace();
++            return false;
+         }
+ 
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanelAutomationHelper.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/TargetPanelAutomationHelper.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -61,11 +61,14 @@
+      * 
+      * @param idata The installation data.
+      * @param panelRoot The XML tree to read the data from.
++     * 
++     * @return always true.
+      */
+-    public void runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
++    public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+     {
+         // We set the installation path
+         XMLElement ipath = panelRoot.getFirstChildNamed(&quot;installpath&quot;);
+         idata.setInstallPath(ipath.getContent());
++        return true;
+     }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanelAutomationHelper.java	2006-06-09 15:38:36 UTC (rev 1443)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanelAutomationHelper.java	2006-06-09 15:44:51 UTC (rev 1444)
+@@ -60,6 +60,9 @@
+     // ------------------------------------------------------
+     private Map entries;
+ 
++    /**
++     * Default constructor, used during automated installation.
++     */
+     public UserInputPanelAutomationHelper()
+     {
+         this.entries = null;
+@@ -94,11 +97,11 @@
+         // ----------------------------------------------------
+         // add all entries
+         // ----------------------------------------------------
+-        Iterator keys = entries.keySet().iterator();
++        Iterator keys = this.entries.keySet().iterator();
+         while (keys.hasNext())
+         {
+             String key = (String) keys.next();
+-            String value = (String) entries.get(key);
++            String value = (String) this.entries.get(key);
+ 
+             dataElement = new XMLElement(AUTO_KEY_ENTRY);
+             dataElement.setAttribute(AUTO_ATTRIBUTE_KEY, key);
+@@ -113,8 +116,10 @@
+      * 
+      * @param idata The installation data.
+      * @param panelRoot The XML root element of the panels blackbox tree.
++     * 
++     * @return true if the variables were found and set.
+      */
+-    public void runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
++    public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+     {
+         XMLElement userInput;
+         XMLElement dataElement;
+@@ -126,11 +131,11 @@
+         // ----------------------------------------------------
+         userInput = panelRoot.getFirstChildNamed(AUTO_KEY_USER_INPUT);
+ 
+-        if (userInput == null) { return; }
++        if (userInput == null) { return false; }
+ 
+         Vector userEntries = userInput.getChildrenNamed(AUTO_KEY_ENTRY);
+ 
+-        if (userEntries == null) { return; }
++        if (userEntries == null) { return false; }
+ 
+         // ----------------------------------------------------
+         // retieve each entry and substitute the associated
+@@ -145,5 +150,7 @@
+             Debug.trace(&quot;UserInputPanel: setting variable &quot; + variable + &quot; to &quot; + value);
+             idata.setVariable(variable, value);
+         }
++        
++        return true;
+     }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000188.html">[izpack-changes] r1443 - izpack-src/tags
+</A></li>
+	<LI>Next message: <A HREF="000191.html">[izpack-changes] r1445 - izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

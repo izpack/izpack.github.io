@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Patches for IzPack - branch or trunk ?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patches%20for%20IzPack%20-%20branch%20or%20trunk%20%3F&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000663.html">
+   <LINK REL="Next"  HREF="000665.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Patches for IzPack - branch or trunk ?</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patches%20for%20IzPack%20-%20branch%20or%20trunk%20%3F&In-Reply-To="
+       TITLE="[izpack-devel] Patches for IzPack - branch or trunk ?">markus.schlegel at pulinco.com
+       </A><BR>
+    <I>Mon Dec  4 17:08:50 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000663.html">[izpack-devel] Good practice for the Eclipse &quot;Problem&quot;-Tab...
+</A></li>
+        <LI>Next message: <A HREF="000665.html">[izpack-devel] Patches for IzPack - branch or trunk ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#664">[ date ]</a>
+              <a href="thread.html#664">[ thread ]</a>
+              <a href="subject.html#664">[ subject ]</a>
+              <a href="author.html#664">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi
+ 
+I have now checked out izpack from svn.
+ 
+After merging my changes into the trunk, I get several bad behavior.
+Also the code in trunk does not include changes that are in the 3.9
+branch head.
+ 
+So I am not sure, where to provide the patch (diffs).
+If I have changes to be incorporated into IzPack, for which branch
+should I provide diffs, the trunk or the 3.9-branch?
+ 
+Here the List of Changes:
+1.) Read ProgramFiles from Environment if possible, else fall back to
+3.9 behavior.
+2.) Allow writing to toplevel Registry Key for those roots where this is
+possible (views). Reverting those keys (aka. delete them on uninstall)
+does not work. This is already discussed with Klaus - he will (?)
+provide a fix for this. 
+3.) Added a commandline switch to disable the language-selection dialog
+if a provided language matches the systemlanguage. --&gt; A User with a
+german system does not want to select the installationlanguage, if there
+is german as an option. Same applies to english users on english systems
+and so on. This is now added as an option, but I think this could also
+be the default behavior.
+4.) &quot;loose&quot;-Option of Packs worked with absolute file path's, while the
+Dokumentation stated, that one sould take care of the relative file
+path's. I have now included a fix, that stores only the relative
+filepath in the serialized data and which restores the filepath on
+Installationtime based on the location of the jar-file and if that fails
+the current working directory and the provided relative path of the
+PackFile. With this fix, I am now able to define a privately bundled JRE
+as &quot;loose&quot; and provide it with the installer-executable (Launch4j) on a
+CD. Clients without a preinstalled JRE use this bundled JRE to start the
+installer and the Installer will then copy the JRE into the
+installdirectory.
+I can hardly imagine a usecase, where the absolute path to the file at
+packaging time should also be used at installation time. So I guess the
+old behavior is just a bug. If not, we should discuss how the
+&quot;loose&quot;-feature should work.
+5.) Add some exeption.printStackTrace() to be able to find the reason
+for not working features. Open point with the new Log-API from Elmar.
+6.) Fix bug with &quot;TargetPanel.dir&quot; setting
+ 
+ 
+Markus 
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061204/0b6b65af/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061204/0b6b65af/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000663.html">[izpack-devel] Good practice for the Eclipse &quot;Problem&quot;-Tab...
+</A></li>
+	<LI>Next message: <A HREF="000665.html">[izpack-devel] Patches for IzPack - branch or trunk ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#664">[ date ]</a>
+              <a href="thread.html#664">[ thread ]</a>
+              <a href="subject.html#664">[ subject ]</a>
+              <a href="author.html#664">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

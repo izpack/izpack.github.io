@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Ideas For Possible Encryption Feature (and Request for Suggestions)
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Ideas%20For%20Possible%20Encryption%20Feature%20%28and%20Request%20for%20Suggestions%29&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000077.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Ideas For Possible Encryption Feature (and Request for Suggestions)</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Ideas%20For%20Possible%20Encryption%20Feature%20%28and%20Request%20for%20Suggestions%29&In-Reply-To="
+       TITLE="[izpack-devel] Ideas For Possible Encryption Feature (and Request for Suggestions)">hal at thresholddigital.com
+       </A><BR>
+    <I>Fri Jan 27 18:33:42 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000077.html">[izpack-devel] User Input Panel
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I want to use the web installer for my program, so I don't have to send my 
+clients CDs and can just have them run it from the web.  That means the 
+software is available on the web and even if I protect it, there is still the 
+possibility of hackers (however unlikely) gaining access.  I know I am not 
+alone in thinking it would be nice if the programs in an IzPack install jar 
+file could be encrypted and when the program is installed, it asks the end 
+user for a password.  That password is used to decrypt the data before it is 
+written to the disk as it is installed.  This would allow developers to 
+create relatively secure install files of their software that they can be 
+reasonably sure can only be obtained by their clients.
+
+I have just reinstalled Debian my workstation, and do not yet have Eclipse 
+running, so I may reference the wrong classes here and cannot provide line 
+numbers, but this is just a general outline and I'm not at the point where I 
+want to get too detailed yet.
+
+The encryption settings would require EncryptionSpec.xml, which could 
+essentially contain a list of which packs to encrypt and the password needed 
+to decrypt them.  (The password would NOT be plain text.  More on that 
+later.)   Encryption would be done by an IO stream, so the Packer class would 
+handle it with minimal modifications.  Most of the work for this would be in 
+a separate class (for now, let's call it IzCrypt).  As the Packer iterates 
+through each pack to include in the install jar, it would pass the 
+compression stream to IzCrypt with the pack name or number.  IzCrypt would 
+determine if the pack is encrypted.  If so, it would wrap an encryption 
+stream around the ZipOutputStream, THEN wrap the other output stream around 
+that and returns the final output stream.  If it is NOT to be encrypted, it 
+just wraps the output stream around the ZipOutputStream stream and returns 
+that stream.
+
+This would mean the Packer class would not have to do anything else to handle 
+any encryption.  It would simply instantiate the IzCrypt class and call it 
+for each pack to get the output stream.  It doesn't even need to know if the 
+output stream is being encrypted.  I understand that there might be a concern 
+about this changing the format of the zip archives the packs are stored in. 
+The stored packs would not appear to be in a zip archive, but just files 
+stored in the install jar.
+
+When the Unpacker class unpacks each pack, it works in the same way.  It 
+instantiates the IzCrypt class and as it iterates through each pack, it calls 
+a method in IzCrypt with the input stream and the pack name or number.  
+IzCrypt determines if the pack is encrypted.  If so, it wraps the decryption 
+stream around it, THEN wraps the ZipInputStream and returns the 
+ZipInputStream for the Unpacker to use to read the pack.  If the pack is not 
+encrypted, it just wraps the ZipInputStream around the input stream and 
+returns that.  Again, just as in the Packer class, there is no need for the 
+Unpacker class to even know if the pack is encrypted. Either way, it reads 
+the pack data from the ZipInputStream.
+
+It would not matter that the packs are stored in the jar in a file that 
+doesn't even resemble a zip archive, since the only class that needs to read 
+them would have an IO stream decrypting the data before the ZipInputStream 
+reads it.  This might even help, since it would mean anyone trying to decode 
+the pack files would have to take all the time to read IzPack code to 
+determine the files are actually encrypted zip files.
+
+This leaves one point left: the password.  The password would not be in 
+EncryptionSpec.xml, but would be in a separate file, by itself, so it is 
+never included in the install jar.  I was even planning on writing a utility 
+class that would read this password, then store the hashed form of the 
+password in EncryptionSpec.xml.  When the pack is compiled, IzCrypt would 
+read the password file and use it for encrypting the data.  
+EncryptionSpec.xml would be stored as a resource in the install jar, which 
+means the hashed form of the password would be available.
+
+The only thing the end user ever sees of all this is the DecryptPanel, which 
+would ask him for his password (which would be sent to him by some channel 
+other than the way the install jar was distributed).  When the password is 
+entered, IzCrypt would create a hash and compare it to the stored hashed 
+version of the password.  If they match, it stores the plain text password in 
+InstallData.  (Otherwise, a &quot;You cannot proceed without the correct password&quot; 
+message would be appropriate.)  When the Unpacker class instantiates IzCrypt, 
+it passes it the InstallData class that all the panels have used as a 
+parameter, so IzCrypt has the password available for decrypting the packs.
+
+There is one catch, and I do not know if it is an issue to IzPack developers.  
+I've looked around for Java implementations of the Unix Crypt() function.  
+I'm not a cryptography expert (I just use it when I have to).  I do know that 
+this function is non-reversable and creates password hashses that can NOT be 
+used to determine the original password.  There are Java implementations of 
+the class, but they are under a more permissive licensing than Apache 2.0, 
+which would mean in the licensing statements for IzPack, a line like, &quot;IzPack 
+is liscenses under the Apache 2.0 license, except for the EncryptPassword 
+class, which is based on work by Wes Biggs and is licensed under the BSD 
+License.  See EncryptPassword.java in the source for details.&quot;
+
+I do not know if that is a big issue or not.  I have already written Wes to 
+make verify the licensing and ask about using the class.  (The original 
+source for his class was posted on the Internet, clearly with the intent of 
+allowing re-use.  His class was based on a class by John Dumas, which is 
+based on Crypt in C (or C++, forgot which) by Eric Young.)  If there is a 
+Java class, either built in or freely available, which will do the same 
+thing, I would certainly be glad to use it instead.  I'm open to suggestions.
+
+I've already written another panel which could benefit from the use of a class 
+that does this kind of hashing so the password for it would not have to be 
+stored in plain text or in an easily decrypted form in the install jar.
+
+As with the other work I've been doing for my use of IzPack, I would be making 
+this available for inclusion in the IzPack distribution.  (I've got several 
+other panels, in various stages of completion.)  Basically it would be 
+invisible and 100% ignorable to anyone creating non-encrypted installs, but 
+would be easily set up for those that would like encrypted installs.
+
+If anyone has comments, either about the idea of encryption or about the 
+licensing questions (or potential issue), I'd like to hear them.
+
+Thank you!
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000077.html">[izpack-devel] User Input Panel
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

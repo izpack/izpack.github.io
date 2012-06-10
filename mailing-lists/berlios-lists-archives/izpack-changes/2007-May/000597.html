@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1851 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1851%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000596.html">
+   <LINK REL="Next"  HREF="000598.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1851 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1851%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1851 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Tue May 29 22:32:56 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000596.html">[izpack-changes] r1850 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000598.html">[izpack-changes] r1852 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#597">[ date ]</a>
+              <a href="thread.html#597">[ thread ]</a>
+              <a href="subject.html#597">[ subject ]</a>
+              <a href="author.html#597">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-05-29 22:32:50 +0200 (Tue, 29 May 2007)
+New Revision: 1851
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+GUI modifiers for headingForegroundColor and headingImageBorderSize by Daniel Azarov, Exadel Inc.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-05-29 20:31:39 UTC (rev 1850)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-05-29 20:32:50 UTC (rev 1851)
+@@ -1614,6 +1614,17 @@
+         headingLabels[0] = new JLabel(&quot;&quot;);
+         // First line ist the &quot;main heading&quot; which should be bold.
+         headingLabels[0].setFont(headingLabels[0].getFont().deriveFont(Font.BOLD));
++        
++        // Updated by Daniel Azarov, Exadel Inc.
++        // start
++        Color foreground = null;
++        if (installdata.guiPrefs.modifier.containsKey(&quot;headingForegroundColor&quot;)){
++            foreground = Color.decode((String) installdata.guiPrefs.modifier
++                    .get(&quot;headingForegroundColor&quot;));
++            headingLabels[0].setForeground(foreground);
++        }
++        // end
++        
+         if (installdata.guiPrefs.modifier.containsKey(&quot;headingFontSize&quot;))
+         {
+             float fontSize = Float.parseFloat((String) installdata.guiPrefs.modifier
+@@ -1660,6 +1671,16 @@
+                 JLabel headingCountPanels = new JLabel(&quot; &quot;);
+                 headingCounterComponent = headingCountPanels;
+                 headingCounterComponent.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
++                
++                // Updated by Daniel Azarov, Exadel Inc.
++                // start
++                Color foreground = null;
++                if (installdata.guiPrefs.modifier.containsKey(&quot;headingForegroundColor&quot;)){
++                    foreground = Color.decode((String) installdata.guiPrefs.modifier
++                            .get(&quot;headingForegroundColor&quot;));
++                    headingCountPanels.setForeground(foreground);
++                }
++                // end
+             }
+             if (&quot;inHeading&quot;.equals(counterPos))
+             {
+@@ -1696,7 +1717,18 @@
+         }
+         JPanel imgPanel = new JPanel();
+         imgPanel.setLayout(new BoxLayout(imgPanel, BoxLayout.Y_AXIS));
+-        imgPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
++        
++        // Updated by Daniel Azarov, Exadel Inc.
++        // start
++        int borderSize = 8;
++        if (installdata.guiPrefs.modifier.containsKey(&quot;headingImageBorderSize&quot;))
++        {
++            borderSize = Integer.parseInt((String) installdata.guiPrefs.modifier
++                    .get(&quot;headingImageBorderSize&quot;));
++        }
++        imgPanel.setBorder(BorderFactory.createEmptyBorder(borderSize, borderSize, borderSize, borderSize));
++        // end
++        
+         if (back != null) imgPanel.setBackground(back);
+         JLabel iconLab = new JLabel(icon);
+         imgPanel.add(iconLab, BorderLayout.EAST);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000596.html">[izpack-changes] r1850 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000598.html">[izpack-changes] r1852 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#597">[ date ]</a>
+              <a href="thread.html#597">[ thread ]</a>
+              <a href="subject.html#597">[ subject ]</a>
+              <a href="author.html#597">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

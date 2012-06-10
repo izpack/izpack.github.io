@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1710 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1710%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000454.html">
+   <LINK REL="Next"  HREF="000456.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1710 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1710%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1710 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon Jan 15 08:39:56 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000454.html">[izpack-changes] r1709 - izpack-src/trunk/src/dist-files
+</A></li>
+        <LI>Next message: <A HREF="000456.html">[izpack-changes] r1711 - in izpack-src/trunk/src: . dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#455">[ date ]</a>
+              <a href="thread.html#455">[ thread ]</a>
+              <a href="subject.html#455">[ subject ]</a>
+              <a href="author.html#455">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-15 08:39:53 +0100 (Mon, 15 Jan 2007)
+New Revision: 1710
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+icon resource name extension for dynamically changing the installer image
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-01-14 21:08:50 UTC (rev 1709)
++++ izpack-src/trunk/Versions.txt	2007-01-15 07:39:53 UTC (rev 1710)
+@@ -51,6 +51,7 @@
+   - support for the new &quot;installGroup&quot;-attribute for the &quot;programGroup&quot; element of the shortcutSpec.xml
+   - late creation of shortcuts, for example in case ShortcutPanel is displayed before InstallPanel
+   - fixed a bug where each Shortcut-Subgroup influenced the remaining Shortcut creation
++- Added icon resource extension, to dynamically change installer icon (Dennis Reil) 
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-01-14 21:08:50 UTC (rev 1709)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-01-15 07:39:53 UTC (rev 1710)
+@@ -108,11 +108,12 @@
+  * 
+  * @author Julien Ponge created October 27, 2002
+  * @author Fabrice Mirabile added fix for alert window on cross button, July 06 2005
+- * @author Dennis Reil, added RulesEngine November 10 2006
++ * @author Dennis Reil, added RulesEngine November 10 2006, several changes in January 2007
+  */
+ public class InstallerFrame extends JFrame
+ {
+ 
++   
+     private static final long serialVersionUID = 3257852069162727473L;
+ 
+     /**
+@@ -122,7 +123,13 @@
+             .getProperty(&quot;java.specification.version&quot;));
+ 
+     private static final String ICON_RESOURCE = &quot;Installer.image&quot;;
++    
++    /**
++     * Name of the variable where to find an extension to the resource name of the icon resource
++     */
++    private static final String ICON_RESOURCE_EXT_VARIABLE_NAME = &quot;installerimage.ext&quot;;
+ 
++
+     private static final String HEADING_ICON_RESOURCE = &quot;Heading.image&quot;;
+ 
+     // private static final int HEADINGLINES = 1;
+@@ -554,6 +561,7 @@
+     {
+         ResourceManager rm = ResourceManager.getInstance();
+         ImageIcon icon = null;
++        String iconext = this.getIconResourceNameExtension();
+         if (tryBaseIcon)
+         {
+             try
+@@ -562,11 +570,11 @@
+             }
+             catch (Exception e) // This is not that clean ...
+             {
+-                icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + PanelNo);
++                icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + PanelNo + iconext);
+             }
+         }
+         else
+-            icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + PanelNo);
++            icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + PanelNo + iconext);
+         return (icon);
+     }
+ 
+@@ -575,6 +583,7 @@
+     {
+         ResourceManager rm = ResourceManager.getInstance();
+         ImageIcon icon = null;
++        String iconext = this.getIconResourceNameExtension();
+         if (tryBaseIcon)
+         {
+             try
+@@ -583,13 +592,43 @@
+             }
+             catch (Exception e) // This is not that clean ...
+             {
+-                icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + panelid);
++                icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + panelid + iconext);
+             }
+         }
+         else
+-            icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + panelid);
++            icon = rm.getImageIconResource(resPrefix + &quot;.&quot; + panelid + iconext);
+         return (icon);
+     }
++    
++    /**
++     * Returns the current set extension to icon resource names. Can be used to change
++     * the static installer image based on user input
++     * @return a resource extension 
++     *         or an empty string if the variable was not set.
++     */
++    private String getIconResourceNameExtension()
++    {
++        try 
++        {
++            String iconext = this.installdata.getVariable(ICON_RESOURCE_EXT_VARIABLE_NAME);
++            if (iconext == null){
++              iconext = &quot;&quot;;
++            }
++            else {
++              
++              if ((iconext.length() &gt; 0) &amp;&amp; (iconext.charAt(0) != '.')){
++                iconext = &quot;.&quot; + iconext;
++              }
++            }
++            iconext = iconext.trim();
++            return iconext;
++        }
++        catch (Exception e)
++        {
++            // in case of error, return an empty string
++            return &quot;&quot;;
++        }
++   }
+ 
+     private void loadAndShowImage(int panelNo)
+     {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000454.html">[izpack-changes] r1709 - izpack-src/trunk/src/dist-files
+</A></li>
+	<LI>Next message: <A HREF="000456.html">[izpack-changes] r1711 - in izpack-src/trunk/src: . dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#455">[ date ]</a>
+              <a href="thread.html#455">[ thread ]</a>
+              <a href="subject.html#455">[ subject ]</a>
+              <a href="author.html#455">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Disable/Enable or Select/Deselect packs based on a variable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Disable/Enable%20or%20Select/Deselect%20packs%20based%20on%20a%20variable&In-Reply-To=930646CAF3680A4AAA1A930EF63BC09F032F2D0E%40pf-mail01.vninet.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000303.html">
+   <LINK REL="Next"  HREF="000305.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Disable/Enable or Select/Deselect packs based on a variable</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Disable/Enable%20or%20Select/Deselect%20packs%20based%20on%20a%20variable&In-Reply-To=930646CAF3680A4AAA1A930EF63BC09F032F2D0E%40pf-mail01.vninet.com"
+       TITLE="[izpack-users] Disable/Enable or Select/Deselect packs based on a variable">hal at thresholddigital.com
+       </A><BR>
+    <I>Mon Mar  6 23:59:58 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000303.html">[izpack-users] Disable/Enable or Select/Deselect packs based on a variable
+</A></li>
+        <LI>Next message: <A HREF="000305.html">[izpack-users] Is the Berlios server not working?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Monday 06 March 2006 17:21, Rich Stephens wrote:
+&gt;<i> I have a need to set whether a pack is available to be installed
+</I>&gt;<i> based on a variable set at install time.
+</I>&gt;<i>
+</I>&gt;<i> I have a hidden custom panel that does some system checks and
+</I>&gt;<i> determines things about the current installation and sets a variable,
+</I>&gt;<i> let's call it &quot;install_type&quot;.  In this case, I would like certain
+</I>&gt;<i> packs to be preselected (and others to be completely disabled) if
+</I>&gt;<i> &quot;install_type&quot; is set to &quot;server&quot;, and a different set of panels to
+</I>&gt;<i> be preselected (and again, others disabled) if &quot;install_type&quot; is set
+</I>&gt;<i> to &quot;client&quot;.
+</I>&gt;<i>
+</I>&gt;<i> I see and understand packs dependencies where one pack depends upon
+</I>&gt;<i> the selection of another, but there doesn't appear to be a way to set
+</I>&gt;<i> a pack to be dependent upon the value of a variable.
+</I>&gt;<i>
+</I>&gt;<i> If that feature doesn't exist (and it appears that it doesn't) could
+</I>&gt;<i> someone point me to the best place in the code to check for and
+</I>&gt;<i> disable/enable and/or select/deselect a panel based on a variable
+</I>&gt;<i> value? I know how to check a variable's value, but I'm unsure of the
+</I>&gt;<i> best place in the code to go about trying
+</I>&gt;<i> disable/enable/select/deselect a panel on the fly based on a
+</I>&gt;<i> variable.
+</I>
+In the InstallData object, which is passed to each panel when 
+constructed, contains two lists, allPacks and selectedPacks.  In many 
+panels, InstallData is named iData (or, also, id).  Can read the packs 
+list with iData.allPacks or iData.selectedPacks.
+
+If you want an example, and a panel you can use for troubleshooting, I 
+just posted DataCheckPanel to the list yesterday, which reads all the 
+InstallData variables and all the packs.  This could give you an 
+example for reading the packs (both all and selected), and may well 
+help you with debugging.  Just in case, I've taken the liberty of 
+attaching the updated source code (fine tuned by Fabrice Mirable).
+
+That lists the packs, and, basically, all you need to do to remove a 
+pack is use the List remove() method on either allPacks or 
+selectedPacks.
+
+Hope this helps!
+
+Hal
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: DataCheckPanel.java
+Type: text/x-java
+Size: 4322 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060306/90bce9cd/attachment.bin">https://lists.berlios.de/pipermail/izpack-users/attachments/20060306/90bce9cd/attachment.bin</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000303.html">[izpack-users] Disable/Enable or Select/Deselect packs based on a variable
+</A></li>
+	<LI>Next message: <A HREF="000305.html">[izpack-users] Is the Berlios server not working?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

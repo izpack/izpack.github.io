@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Another shortcut localisation problem
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Another%20shortcut%20localisation%20problem&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001518.html">
+   <LINK REL="Next"  HREF="001516.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Another shortcut localisation problem</H1>
+    <B>Gernot Stenz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Another%20shortcut%20localisation%20problem&In-Reply-To="
+       TITLE="[izpack-users] Another shortcut localisation problem">stenzg at in.tum.de
+       </A><BR>
+    <I>Wed Jun  6 12:55:25 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001518.html">[izpack-users] Application menu shortcuts under Linux
+</A></li>
+        <LI>Next message: <A HREF="001516.html">[izpack-users] userInputSpec.xml - Comprehensive example needed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1514">[ date ]</a>
+              <a href="thread.html#1514">[ thread ]</a>
+              <a href="subject.html#1514">[ subject ]</a>
+              <a href="author.html#1514">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Hello, again!
+
+As part of my attempts to create a multi-language installer, I am trying to
+arrange desktop shortcuts depending on the selected installer language. This
+means: 
+
+- In the application menu, for each tool two entries are added, such as Editor
+  (English) and Editor (German). These are linked to shell scripts called
+  startup-en.sh and startup-de.sh.
+- On the desktop, a single Editor icon is created pointing to
+  startup.sh. startup.sh itself is supposed to be created by copying either
+  startup-en.sh or startup-de.sh depending on the value of ISO3_LANG.
+
+However, the latter does not seem to work. I have created a conditions file:
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+
+&lt;conditions&gt;
+  &lt;condition type=&quot;variable&quot; id=&quot;englishToolsDefault&quot;&gt;
+    &lt;name&gt;ISO3_LANG&lt;/name&gt;
+    &lt;value&gt;eng&lt;/value&gt;
+  &lt;/condition&gt;
+
+  &lt;condition type=&quot;not&quot; id=&quot;notEnglishToolsDefault&quot;&gt;
+    &lt;condition type=&quot;ref&quot; refid=&quot;englishToolsDefault&quot; /&gt;
+  &lt;/condition&gt;
+&lt;/conditions&gt;
+
+and in the &lt;packs&gt; section of the installer xml, I have specified to
+following: 
+
+&lt;singlefile os=&quot;unix&quot; src=&quot;../../installer/V-Modell-XT/Release-1.2.1/Projektassistent-1.2.4rc3/startup-de.sh&quot; target=&quot;$INSTALL_PATH/Projektassistent-1.2.4rc3/startup.sh&quot; conditionid=&quot;notEnglishToolsDefault&quot; /&gt;
+
+But it does not work. Anybody know how I can get around this problem? I am
+currently using IzPack 3.10.0.
+
+Thanks in advance, Gernot
+
+-- 
+    __o  Gernot Stenz  e-mail:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">stenzg at informatik.tu-muenchen.de</A>        /\
+   -\&lt;,          WWW:  <A HREF="http://www4.in.tum.de/~stenzg">http://www4.in.tum.de/~stenzg</A>               /\/--\
+_(_)/(_)_London - Paris: 3547 km__________________________________/      \
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001518.html">[izpack-users] Application menu shortcuts under Linux
+</A></li>
+	<LI>Next message: <A HREF="001516.html">[izpack-users] userInputSpec.xml - Comprehensive example needed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1514">[ date ]</a>
+              <a href="thread.html#1514">[ thread ]</a>
+              <a href="subject.html#1514">[ subject ]</a>
+              <a href="author.html#1514">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

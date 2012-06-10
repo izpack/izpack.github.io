@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1938 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1938%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20.%20panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000683.html">
+   <LINK REL="Next"  HREF="000685.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1938 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1938%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20.%20panels&In-Reply-To="
+       TITLE="[izpack-changes] r1938 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . panels">noreply at berlios.de
+       </A><BR>
+    <I>Fri Dec  7 16:15:52 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000683.html">[izpack-changes] r1937 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000685.html">[izpack-changes] r1939 - /
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#684">[ date ]</a>
+              <a href="thread.html#684">[ thread ]</a>
+              <a href="subject.html#684">[ subject ]</a>
+              <a href="author.html#684">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-12-07 16:15:48 +0100 (Fri, 07 Dec 2007)
+New Revision: 1938
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/Panel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationTypePanel.java
+Log:
+bugfix
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/Panel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/Panel.java	2007-12-07 14:26:54 UTC (rev 1937)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/Panel.java	2007-12-07 15:15:48 UTC (rev 1938)
+@@ -63,7 +63,7 @@
+     public String getPanelid() {
+       if (this.panelid == null)
+       {
+-        this.panelid = &quot;UNKNOWN&quot;;
++        this.panelid = &quot;UNKNOWN (&quot; + className + &quot;)&quot;;
+       }
+       return this.panelid;
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationTypePanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationTypePanel.java	2007-12-07 14:26:54 UTC (rev 1937)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/InstallationTypePanel.java	2007-12-07 15:15:48 UTC (rev 1938)
+@@ -14,6 +14,7 @@
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.util.Debug;
+ 
+ 
+ /**
+@@ -28,7 +29,7 @@
+     public InstallationTypePanel(InstallerFrame parent, InstallData idata)
+     {
+         super(parent, idata, new IzPanelLayout());
+-        
++        buildGUI();        
+     }
+     
+     private void buildGUI() {
+@@ -66,17 +67,32 @@
+      */
+     public void panelActivate()
+     {
+-        buildGUI();
++        boolean modifyinstallation = Boolean.valueOf(idata.getVariable(InstallData.MODIFY_INSTALLATION)).booleanValue();
++        if (modifyinstallation) {
++            modifyinstall.setSelected(true);
++        }
++        else {
++            normalinstall.setSelected(true);
++        }
+     }
+    
+     public void actionPerformed(ActionEvent e)
+-    {
+-        if (normalinstall.isSelected()) {
++    {        
++        Debug.trace(&quot;installation type changed&quot;);
++        if (e.getSource() == normalinstall) {
++            Debug.trace(&quot;normal installation&quot;);
+             idata.setVariable(InstallData.MODIFY_INSTALLATION, &quot;false&quot;);
+         }
+         else {
+-            idata.setVariable(InstallData.MODIFY_INSTALLATION, &quot;true&quot;);
+-        } 
++            Debug.trace(&quot;modification installation&quot;);
++            idata.setVariable(InstallData.MODIFY_INSTALLATION, &quot;true&quot;);            
++        }
++        /*
++        if (normalinstall.isSelected()) {
++            
++        }
++        else {
++        } */
+         
+     }
+ }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000683.html">[izpack-changes] r1937 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000685.html">[izpack-changes] r1939 - /
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#684">[ date ]</a>
+              <a href="thread.html#684">[ thread ]</a>
+              <a href="subject.html#684">[ subject ]</a>
+              <a href="author.html#684">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

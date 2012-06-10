@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Passing arguments to executable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001389.html">
+   <LINK REL="Next"  HREF="001396.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Passing arguments to executable</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To="
+       TITLE="[izpack-users] Passing arguments to executable">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Mar 29 11:18:28 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001389.html">[izpack-users] 32-bit or 64-bit
+</A></li>
+        <LI>Next message: <A HREF="001396.html">[izpack-users] Passing arguments to executable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1394">[ date ]</a>
+              <a href="thread.html#1394">[ thread ]</a>
+              <a href="subject.html#1394">[ subject ]</a>
+              <a href="author.html#1394">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Riaan,
+in what config file do you have written the &lt;pack&gt; tag with the subtags?
+ 
+Cheers
+ 
+Klaus
+
+	-----Original Message-----
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Zycor.net
+Development Solutions
+	Sent: Thursday, March 29, 2007 10:50 AM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+	Subject: Re: [izpack-users] Passing arguments to executable
+	
+	
+	Hi everybody,
+	
+	Can anybody help with this? As far as I can tell, the correct
+way of doing this would actually be as follows (From the ProcessPanel
+docs...):
+	
+	&lt;pack name=&quot;MSDE 2005&quot; id=&quot;sqlExpress.package&quot; required=&quot;no&quot; 
+	                installGroups=&quot;Stand Alone (Vista),Network
+Server (Vista)&quot;
+	                loose=&quot;true&quot;&gt;
+	            &lt;description&gt;The MS SQL Server Express&lt;/description&gt;
+	                &lt;file src=&quot;serverExpress&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+	                &lt;executable 
+	
+targetfile=&quot;$INSTALL_PATH/serverExpress/setup.exe&quot; 
+	                            stage=&quot;postinstall&quot; keep=&quot;false&quot;
+failure=&quot;warn&quot;&gt;
+	                    &lt;arg&gt; /qb &lt;/arg&gt;
+	                    &lt;arg&gt; INSTANCENAME=CORETALK &lt;/arg&gt;
+	                    &lt;arg&gt; ADDLOCAL=ALL &lt;/arg&gt;
+	                    &lt;arg&gt; SQLAUTOSTART=1 &lt;/arg&gt;
+	                    &lt;arg&gt; AGTAUTOSTART=1 &lt;/arg&gt;
+	                    &lt;arg&gt; SECURITYMODE=SQL &lt;/arg&gt;
+	                    &lt;arg&gt; SAPWD=root &lt;/arg&gt;
+	                    &lt;arg&gt; DISABLENETWORKPROTOCOLS=0 &lt;/arg&gt;
+	                &lt;/executable&gt;
+	    &lt;/pack&gt;        
+	
+	But this still does not pass any arguments to the setup.exe...
+	
+	Thanks
+	
+Riaan Cornelius  Software Developer - B.Sc(IT)  -  <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">neo at zycor.net</A>	
+
+
+	Zycor.net Development Solutions wrote: 
+
+		Hi All,
+		
+		I have the following problem on Windows XP and Windows
+Vista (Only ones I've tested):
+		
+		I declare the SQL Express pack as follows:
+		
+		&lt;pack name=&quot;MSDE 2005&quot; id=&quot;sqlExpress.package&quot;
+required=&quot;no&quot; 
+		                installGroups=&quot;Stand Alone
+(Vista),Network Server (Vista)&quot;
+		                loose=&quot;true&quot;&gt;
+		            &lt;description&gt;The MS SQL Server
+Express&lt;/description&gt;
+		                &lt;file src=&quot;serverExpress&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+		                &lt;executable 
+	
+targetfile=&quot;$INSTALL_PATH/serverExpress/setup.exe&quot; 
+		                            stage=&quot;postinstall&quot;
+keep=&quot;false&quot; failure=&quot;warn&quot;&gt;
+		                    &lt;args&gt;
+		                        &lt;arg value=&quot;/qb&quot; /&gt;
+		                        &lt;arg
+value=&quot;INSTANCENAME=CORETALK&quot; /&gt;
+		                        &lt;arg value=&quot;ADDLOCAL=ALL&quot; /&gt;
+		                        &lt;arg value=&quot;SQLAUTOSTART=1&quot; /&gt;
+		                        &lt;arg value=&quot;AGTAUTOSTART=1&quot; /&gt;
+		                        &lt;arg value=&quot;SECURITYMODE=SQL&quot; /&gt;
+		                        &lt;arg value=&quot;SAPWD=root&quot; /&gt;
+		                        &lt;arg
+value=&quot;DISABLENETWORKPROTOCOLS=0&quot; /&gt;
+		                    &lt;/args&gt;
+		                &lt;/executable&gt;
+		    &lt;/pack&gt;
+		
+		The executable runs fine after installation, but as far
+as I can see, The arguments isn't passed to it... Am I doing something
+wrong?
+		
+		If I run the following from the command prompt, it works
+as expected (From within the $INSTALL_PATH/serverExpress/ folder ):
+		setup /qb INSTANCENAME=CORETALK ADDLOCAL=ALL
+SQLAUTOSTART=1 AGTAUTOSTART=1 SECURITYMODE=SQL SAPWD=root
+DISABLENETWORKPROTOCOLS=0.
+		
+		Thanks in advance
+		
+Riaan Cornelius  Software Developer - B.Sc(IT)  -  <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">neo at zycor.net</A>	
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/04ebe2aa/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/04ebe2aa/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001389.html">[izpack-users] 32-bit or 64-bit
+</A></li>
+	<LI>Next message: <A HREF="001396.html">[izpack-users] Passing arguments to executable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1394">[ date ]</a>
+              <a href="thread.html#1394">[ thread ]</a>
+              <a href="subject.html#1394">[ subject ]</a>
+              <a href="author.html#1394">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

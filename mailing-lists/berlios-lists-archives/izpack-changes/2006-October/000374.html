@@ -1,0 +1,294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1629 - in izpack-src/trunk: . src	src/doc-ng/XHTML src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1629%20-%20in%20izpack-src/trunk%3A%20.%20src%0A%09src/doc-ng/XHTML%20src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000373.html">
+   <LINK REL="Next"  HREF="000375.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1629 - in izpack-src/trunk: . src	src/doc-ng/XHTML src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1629%20-%20in%20izpack-src/trunk%3A%20.%20src%0A%09src/doc-ng/XHTML%20src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1629 - in izpack-src/trunk: . src	src/doc-ng/XHTML src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Oct 19 20:21:46 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000373.html">[izpack-changes] r1628 - in izpack-src/branches/branch-3.9: . src
+</A></li>
+        <LI>Next message: <A HREF="000375.html">[izpack-changes] r1630 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#374">[ date ]</a>
+              <a href="thread.html#374">[ thread ]</a>
+              <a href="subject.html#374">[ subject ]</a>
+              <a href="author.html#374">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: miraodb
+Date: 2006-10-19 20:21:41 +0200 (Thu, 19 Oct 2006)
+New Revision: 1629
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/DataCheckPanel.java
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/doc-ng/XHTML/node4.html
+Log:
+Added the DataCheckPanel class for debugging purpose. (FM and Hal)
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2006-10-10 18:23:24 UTC (rev 1628)
++++ izpack-src/trunk/Versions.txt	2006-10-19 18:21:41 UTC (rev 1629)
+@@ -3,6 +3,7 @@
+ 	&gt; 3.9.1 (build xxxx.xx.xx)
+ - Added docu: executeForPack, executeclass,logfiledir  for ProcessPanel (Fabrice Mirabile)
+ - Added docu: createForUnselectedPack for UserInputPanel (Fabrice Mirabile)
++- Added DataCheckPanel (Fabrice Mirabile &amp; Hal Vaughan)
+ 
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2006-10-10 18:23:24 UTC (rev 1628)
++++ izpack-src/trunk/src/build.xml	2006-10-19 18:21:41 UTC (rev 1629)
+@@ -153,6 +153,9 @@
+         
+   14.09.2006: (Marc Eppelmann)   
+       Added target src.tar.gz and clean.src.tar.gz
++      
++  19.10.2006: (Fabrice Mirabile &amp; Hal Vaughan)   
++      Added DataCheckPanel
+               
+   Mini-HowTo:
+ 
+@@ -523,6 +526,9 @@
+         &lt;build-panel name=&quot;SelectPrinterPanel&quot;&gt;
+ 	          &lt;include name=&quot;com/izforge/izpack/panels/SelectPrinterPanel.java&quot;/&gt;
+ 	      &lt;/build-panel&gt;
++	      &lt;build-panel name=&quot;DataCheckPanel&quot;&gt;
++				  &lt;include name=&quot;com/izforge/izpack/panels/DataCheckPanel.java&quot; /&gt;
++				&lt;/build-panel&gt;
+         &lt;build-panel name=&quot;CheckedHelloPanel&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/CheckedHelloPanel.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/HelloPanel.java&quot; /&gt;
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node4.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node4.html	2006-10-10 18:23:24 UTC (rev 1628)
++++ izpack-src/trunk/src/doc-ng/XHTML/node4.html	2006-10-19 18:21:41 UTC (rev 1629)
+@@ -1313,7 +1313,7 @@
+ &lt;p&gt;DataCheckPanel is not for inclusion in an actuall install, but is a debugging resource for developers writing custom panels or code to be included in IzPack.  
+ 	&lt;br /&gt;It creates a list of all the variables in InstallData, their values and a list of all packs, indicating which are selected.  &lt;br /&gt;
+ 	This list is printed to the console and appears in a scrollable text area on the panel.  &lt;br /&gt;
+-	Put the panel in whereever you to see any variables in InstallData or a listing of the packs with a line like this in the &amp;lt;panels&amp;gt; section of install.xml:
++	Put the panel in wherever you want to see any variables in InstallData or a listing of the packs with a line like this in the &amp;lt;panels&amp;gt; section of install.xml:
+ &lt;/p&gt;
+ &lt;p&gt;
+ &amp;lt;panel classname=&quot;DataCheckPanel&quot; /&amp;gt;
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/DataCheckPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/DataCheckPanel.java	2006-10-10 18:23:24 UTC (rev 1628)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/DataCheckPanel.java	2006-10-19 18:21:41 UTC (rev 1629)
+@@ -0,0 +1,168 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2002 Jan Blok
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ *
++ * This panel written by Hal Vaughan
++ * <A HREF="http://thresholddigital.com">http://thresholddigital.com</A>
++ * <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">hal at thresholddigital.com</A>
++ * 
++ * And updated by Fabrice Mirabile
++ * <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">miraodb at hotmail.com</A>
++ */
++
++package com.izforge.izpack.panels;
++
++import java.util.Enumeration;
++import java.util.List;
++import java.util.Properties;
++
++import javax.swing.BoxLayout;
++import javax.swing.JEditorPane;
++import javax.swing.JLabel;
++import javax.swing.JScrollPane;
++
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.Pack;
++
++/**
++ * 
++ * DataCheckPanel: Provide a lot of debugging information.  Print a simple header of our 
++ * instance number and a line to separate output from other instances, then print all
++ * the InstallData variables and list all the packs and selected packs.  I hope this will
++ * be expanded by others to provide needed debugging information by those developing panels
++ * for IzPack.
++ * @author Hal Vaughan
++ * @author Fabrice Mirabile
++ */
++public class DataCheckPanel extends IzPanel
++{
++	
++	private static final long serialVersionUID = 3257848774955905587L;
++	
++	static int instanceCount = 0;
++	
++	protected int instanceNumber = 0;
++	
++	private InstallData iData;
++	
++	JEditorPane staticText;
++			
++	/**
++	 * The constructor.
++	 *
++	 * @param parent The parent.
++	 * @param id The installation data.
++	 */
++	public DataCheckPanel(InstallerFrame parent, InstallData id)
++	{
++		super(parent, id);
++		
++		iData = id;
++		instanceNumber = instanceCount++;
++		
++		String sInfo = &quot;Debugging data.  All InstallData variables and all packs (selected packs are marked).&quot;;
++		BoxLayout bLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
++		setLayout (bLayout);
++//		setLayout(new GridLayout(3,1));
++		JLabel lInfo = new JLabel(sInfo);
++		add(lInfo);
++        staticText = new JEditorPane();
++        staticText.setEditable(false);
++        JScrollPane scrollText = new JScrollPane(staticText);
++        add(new JLabel(&quot;  &quot;));
++        add(scrollText);
++		
++	}
++	
++	/**
++	 * When the panel is made active, call the printDebugInfo method.
++     * 
++	 * @see com.izforge.izpack.installer.IzPanel#panelActivate()
++     * @param none
++     * @return void
++	 */
++	public void panelActivate()
++	{
++        printDebugInfo();
++		return;
++	}	
++	
++    /**
++     * Get and return the list of pack names.
++     * 
++     * @param packList
++     * @return String
++     */
++	private String getPackNames(List packList)
++	{
++		int i;
++		String pStatus;
++		String sOutput = &quot;&quot;;
++		Pack iPack;
++		for (i = 0; i &lt; packList.size(); i++)
++		{
++			iPack = (Pack) packList.get(i);
++			if (iData.selectedPacks.indexOf(iPack) != -1)
++				pStatus = &quot;Selected&quot;;
++			else
++				pStatus = &quot;Unselected&quot;;
++			sOutput = sOutput + &quot;\t&quot; + i + &quot;: &quot; + iPack.name + &quot; (&quot; + pStatus + &quot;)\n&quot;;
++		}
++		return sOutput;
++	}
++
++    /**
++     * Print list of variables names and value, as well as the list
++     * of packages and their status (selected or not).
++     * 
++     * @param none
++     * @return void
++     */
++    private void printDebugInfo()
++    {
++        int i = 0;
++        String sInfo = &quot;InstallData Variables:\n&quot;;
++        System.out.println(&quot;------------------------Data Check Panel Instance &quot; + 
++                instanceNumber + &quot;------------------------&quot;);
++        System.out.println(&quot;InstallData Variables:&quot;);
++        Properties varList = iData.getVariables();
++        String[] alphaName = new String[varList.size()];
++        Enumeration varNames = varList.propertyNames();
++        while (varNames.hasMoreElements())
++            alphaName[i++] = (String) varNames.nextElement();
++        java.util.Arrays.sort(alphaName);
++        for (i = 0; i &lt; alphaName.length; i++)
++            sInfo = sInfo + &quot;\tName: &quot; + alphaName[i] + &quot;, Value: &quot; + varList.getProperty(alphaName[i]) + &quot;\n&quot;;
++        sInfo = sInfo + &quot;\nAvailable Packs: \n&quot; + getPackNames(iData.allPacks) + &quot;\n&quot;;
++        System.out.println(sInfo);
++        staticText.setText(sInfo);
++    }
++
++	/**
++	 * By nature, always true.
++	 *
++	 * @return True
++	 */
++	public boolean isValidated()
++	{
++		return true;
++	}
++}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000373.html">[izpack-changes] r1628 - in izpack-src/branches/branch-3.9: . src
+</A></li>
+	<LI>Next message: <A HREF="000375.html">[izpack-changes] r1630 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#374">[ date ]</a>
+              <a href="thread.html#374">[ thread ]</a>
+              <a href="subject.html#374">[ subject ]</a>
+              <a href="author.html#374">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1564 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1564%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000308.html">
+   <LINK REL="Next"  HREF="000310.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1564 -	izpack-src/trunk/src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1564%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1564 -	izpack-src/trunk/src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:27:45 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000308.html">[izpack-changes] r1563 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000310.html">[izpack-changes] r1565 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#309">[ date ]</a>
+              <a href="thread.html#309">[ thread ]</a>
+              <a href="subject.html#309">[ subject ]</a>
+              <a href="author.html#309">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:27:44 +0200 (Wed, 06 Sep 2006)
+New Revision: 1564
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/StringTool.java
+Log:
+-implemented  the X-KDE subsitute user - shortcut attribute (see Unix_shortcutSpec.xml).
+-write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+-write common shortcuts  to the new freedesktop.org common &quot;/usr/share/applications&quot; 
+and &quot;/usr/share/pixmaps&quot; folders to display these in the commons [start].menu
+Here: maintenance
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/StringTool.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/StringTool.java	2006-09-06 20:25:31 UTC (rev 1563)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/StringTool.java	2006-09-06 20:27:44 UTC (rev 1564)
+@@ -168,34 +168,36 @@
+     {
+         return (normalizePath(destination, null));
+     }
+-    
++
+     /**
+-     * Converts an String Array to a space separated String w/o any check 
++     * Converts an String Array to a space separated String w/o any check
++     * 
+      * @param args The StringArray
+      * @return the space separated result.
+      */
+-    public static String stringArrayToSpaceSeparatedString( String[] args )
++    public static String stringArrayToSpaceSeparatedString(String[] args)
+     {
+-      String result = &quot;&quot;;
+-        for( int idx = 0; idx &lt; args.length; idx++ )
++        String result = &quot;&quot;;
++        for (int idx = 0; idx &lt; args.length; idx++)
+         {
+-          result += args[ idx ]+ &quot; &quot;;
++            result += args[idx] + &quot; &quot;;
+         }
+-      return result;
++        return result;
+     }
+ 
+     public static String getPlatformEncoding()
+     {
+         // TODO Auto-generated method stub
+-        return System.getProperty( &quot;file.encoding&quot; );
++        return System.getProperty(&quot;file.encoding&quot;);
+     }
++
+     public static String UTF16()
+     {
+         return &quot;UTF-16&quot;;
+     }
+ 
+     /**
+-     * Transforms a (Array)List of Strings into a printable Stringlist
++     * Transforms a (Array)List of Strings into a line.separator=&quot;\n&quot; separated Stringlist.
+      * 
+      * @param aStringList
+      * 
+@@ -203,13 +205,28 @@
+      */
+     public static String stringArrayListToString(ArrayList aStringList)
+     {
++        return stringArrayListToString(aStringList, null);
++    }
++
++    /**
++     * Transforms a (Array)List of Strings into an aLineSeparator separated Stringlist.
++     * 
++     * @param aStringList
++     * 
++     * @return a printable list
++     */
++    public static String stringArrayListToString(ArrayList aStringList, String aLineSeparator)
++    {
++        String LineSeparator = aLineSeparator;
++        if (LineSeparator == null) LineSeparator = System.getProperty(&quot;line.separator&quot;, &quot;\n&quot;);
++
+         StringBuffer temp = new StringBuffer();
+-    
++
+         for (int idx = 0; idx &lt; aStringList.size(); idx++)
+         {
+-            temp.append(aStringList.get(idx)).append(&quot;\n&quot;);
++            temp.append(aStringList.get(idx)).append(LineSeparator);
+         }
+-    
++
+         return temp.toString();
+     }
+ 
+@@ -236,7 +253,8 @@
+      */
+     public static boolean startsWithIgnoreCase(String str, String prefix)
+     {
+-        return (str != null) &amp;&amp; (prefix!=null) &amp;&amp; str.toUpperCase().startsWith(prefix.toUpperCase());
++        return (str != null) &amp;&amp; (prefix != null)
++                &amp;&amp; str.toUpperCase().startsWith(prefix.toUpperCase());
+     }
+-    
++
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000308.html">[izpack-changes] r1563 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000310.html">[izpack-changes] r1565 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#309">[ date ]</a>
+              <a href="thread.html#309">[ thread ]</a>
+              <a href="subject.html#309">[ subject ]</a>
+              <a href="author.html#309">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

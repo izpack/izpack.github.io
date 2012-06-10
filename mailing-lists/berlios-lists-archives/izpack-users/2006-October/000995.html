@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Setting Built-In Variable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Setting%20Built-In%20Variable&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891740%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000994.html">
+   <LINK REL="Next"  HREF="000996.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Setting Built-In Variable</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Setting%20Built-In%20Variable&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891740%40coi11.coi.com"
+       TITLE="[izpack-users] Setting Built-In Variable">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Wed Oct 18 13:30:23 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000994.html">[izpack-users] Setting Built-In Variable
+</A></li>
+        <LI>Next message: <A HREF="000996.html">[izpack-users] Setting Built-In Variable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#995">[ date ]</a>
+              <a href="thread.html#995">[ thread ]</a>
+              <a href="subject.html#995">[ subject ]</a>
+              <a href="author.html#995">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I think you can create an installer listener. The modification of the
+variable should be done in the beforePacks-method, so that it will be
+modified right before starting the install process.
+
+regards
+   Dennis
+
+
+Am Mittwoch, den 18.10.2006, 10:42 +0200 schrieb Bartz, Klaus:
+&gt;<i> Hi Thao,
+</I>&gt;<i> I thought a little bit about your problem, but the only resolution
+</I>&gt;<i> I have seen is to create a custom panel.
+</I>&gt;<i> Following my custom panel to ask for the BEA path.
+</I>&gt;<i> In my properties file I do not use $FILE_SEPARATOR because it is
+</I>&gt;<i> something like readonly, else I use a custom variable named
+</I>&gt;<i> EJBProperties.ServerHomeDir. In method isValidated you can see
+</I>&gt;<i> how to make the separators we need. There are two variables,
+</I>&gt;<i> one with UNIX, one with DOS separator.
+</I>&gt;<i> For creating a custom panel see the docu you have installed (I hope).
+</I>&gt;<i> There are also some threads in the izpack-users list, e.g. 
+</I>&gt;<i> <A HREF="https://lists.berlios.de/pipermail/izpack-users/2006-October/002697.html">https://lists.berlios.de/pipermail/izpack-users/2006-October/002697.html</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/pipermail/izpack-users/2006-October/002729.html">https://lists.berlios.de/pipermail/izpack-users/2006-October/002729.html</A>
+</I>&gt;<i> Some threads are broken on the mail archive, therefore search with
+</I>&gt;<i> &quot;subject&quot; sorting.
+</I>&gt;<i> 
+</I>&gt;<i> Cheers
+</I>&gt;<i> 
+</I>&gt;<i> Klaus
+</I>&gt;<i> 
+</I>&gt;<i> -----------------------------------------------------------------------------
+</I>&gt;<i> package com.coi.tools.install.panels;
+</I>&gt;<i> 
+</I>&gt;<i> import java.io.File;
+</I>&gt;<i> import java.net.InetAddress;
+</I>&gt;<i> import java.net.UnknownHostException;
+</I>&gt;<i> 
+</I>&gt;<i> import javax.swing.JCheckBox;
+</I>&gt;<i> import javax.swing.JTextField;
+</I>&gt;<i> import javax.swing.border.EmptyBorder;
+</I>&gt;<i> 
+</I>&gt;<i> import com.izforge.izpack.installer.InstallData;
+</I>&gt;<i> import com.izforge.izpack.installer.InstallerFrame;
+</I>&gt;<i> import com.izforge.izpack.panels.PathInputPanel;
+</I>&gt;<i> import com.izforge.izpack.util.IoHelper;
+</I>&gt;<i> 
+</I>&gt;<i> /**
+</I>&gt;<i>  * Panel which asks for the path of BEA and whether extended configuration should be performed or
+</I>&gt;<i>  * not. Additional the host of the EJB will be verified.
+</I>&gt;<i>  * 
+</I>&gt;<i>  * @author Klaus Bartz
+</I>&gt;<i>  */
+</I>&gt;<i> public class BEAPathPanel extends PathInputPanel
+</I>&gt;<i> {
+</I>&gt;<i> 
+</I>&gt;<i>     private static final String[] testFiles = new String[] { &quot;server&quot; + File.separator + &quot;lib&quot;
+</I>&gt;<i>             + File.separator + &quot;weblogic.jar&quot;};
+</I>&gt;<i> 
+</I>&gt;<i>     /** The text field for the host name. */
+</I>&gt;<i>     protected JTextField hostName;
+</I>&gt;<i> 
+</I>&gt;<i>     /** The 'extended button. */
+</I>&gt;<i>     protected JCheckBox extendedCheckBox;
+</I>&gt;<i> 
+</I>&gt;<i>     /**
+</I>&gt;<i>      * The constructor.
+</I>&gt;<i>      * 
+</I>&gt;<i>      * @param parent The parent window.
+</I>&gt;<i>      * @param idata The installation data.
+</I>&gt;<i>      */
+</I>&gt;<i>     public BEAPathPanel(InstallerFrame parent, InstallData idata)
+</I>&gt;<i>     {
+</I>&gt;<i>         super(parent, idata);
+</I>&gt;<i>         setMustExist(true);
+</I>&gt;<i>         setExistFiles(BEAPathPanel.testFiles);
+</I>&gt;<i> 
+</I>&gt;<i>     }
+</I>&gt;<i> 
+</I>&gt;<i>     /**
+</I>&gt;<i>      * This method will be called from ctor of PathInputPanel, after standard components are
+</I>&gt;<i>      * defined.
+</I>&gt;<i>      */
+</I>&gt;<i>     public void createLayoutBottom()
+</I>&gt;<i>     {
+</I>&gt;<i>         hostName = CustomPanel.createHostNameFieldIfNeeded(this);
+</I>&gt;<i>         extendedCheckBox = new JCheckBox(parent.langpack.getString(&quot;customCommon.extended&quot;), false);
+</I>&gt;<i>         extendedCheckBox.setBorder( new EmptyBorder( 0,0,0,0 ) );
+</I>&gt;<i>         add(extendedCheckBox, NEXT_LINE);
+</I>&gt;<i>     }
+</I>&gt;<i> 
+</I>&gt;<i>     /**
+</I>&gt;<i>      * Indicates wether the panel has been validated or not.
+</I>&gt;<i>      * 
+</I>&gt;<i>      * @return Wether the panel has been validated or not.
+</I>&gt;<i>      */
+</I>&gt;<i>     public boolean isValidated()
+</I>&gt;<i>     {
+</I>&gt;<i>         if(idata.getVariable(&quot;PANEL_LAYOUT_TEST&quot;) != null)
+</I>&gt;<i>             return(true);
+</I>&gt;<i>         if (!super.isValidated()) return (false);
+</I>&gt;<i>         String chosenPath = pathSelectionPanel.getPath();
+</I>&gt;<i>         if (chosenPath == null || chosenPath.length() &lt; 1) return (false);
+</I>&gt;<i>         String hostNameStr = null;
+</I>&gt;<i>         try
+</I>&gt;<i>         {
+</I>&gt;<i>             hostNameStr = (hostName != null) ? hostName.getText() : idata.getVariable(&quot;LocalHost&quot;);
+</I>&gt;<i>             InetAddress.getByName(hostNameStr);
+</I>&gt;<i>         }
+</I>&gt;<i>         catch (UnknownHostException e)
+</I>&gt;<i>         {
+</I>&gt;<i>             emitError(parent.langpack.getString(&quot;installer.error&quot;), parent.langpack
+</I>&gt;<i>                     .getString(&quot;SelectEJBTypePanel.invalidHost&quot;));
+</I>&gt;<i>             return (false);
+</I>&gt;<i>         }
+</I>&gt;<i>         idata.setVariable(&quot;EJBProperties.EJB_Host&quot;, hostNameStr);
+</I>&gt;<i> 
+</I>&gt;<i>         idata.setVariable(&quot;EJBPath&quot;, chosenPath);
+</I>&gt;<i>         idata.setVariable(&quot;BEAExtendedConfig&quot;, extendedCheckBox.isSelected() ? &quot;yes&quot; : &quot;no&quot;);
+</I>&gt;<i>         String path = chosenPath;
+</I>&gt;<i>         path = IoHelper.replaceString(path, &quot;\\&quot;, &quot;/&quot;);
+</I>&gt;<i>         idata.setVariable(&quot;EJBProperties.ServerHomeDir&quot;, path);
+</I>&gt;<i>         path = IoHelper.replaceString(path, &quot;/&quot;, &quot;\\&quot;);
+</I>&gt;<i>         idata.setVariable(&quot;ServerHomeDirDOS&quot;, path);
+</I>&gt;<i>         path = IoHelper.replaceString(path, &quot;\\&quot;, &quot;\\\\&quot;);
+</I>&gt;<i>         idata.setVariable(&quot;EJBProperties.ServerHomeDirDOS&quot;, path);
+</I>&gt;<i> 
+</I>&gt;<i>         return (true);
+</I>&gt;<i>     }
+</I>&gt;<i> 
+</I>&gt;<i>     /*
+</I>&gt;<i>      * (non-Javadoc)
+</I>&gt;<i>      * 
+</I>&gt;<i>      * @see com.izforge.izpack.installer.IzPanel#panelActivate()
+</I>&gt;<i>      */
+</I>&gt;<i>     public void panelActivate()
+</I>&gt;<i>     {
+</I>&gt;<i>         super.panelActivate();
+</I>&gt;<i>         if (!SelectEJBTypePanel.isTypeChoosen(idata, SelectEJBTypePanel.BEA)
+</I>&gt;<i>                 &amp;&amp; idata.getVariable(&quot;PANEL_LAYOUT_TEST&quot;) == null)
+</I>&gt;<i>             parent.skipPanel();
+</I>&gt;<i>         else
+</I>&gt;<i>         {
+</I>&gt;<i>             String defaultPath = IoHelper.getenv(&quot;WLS_HOME&quot;);
+</I>&gt;<i>             if (defaultPath == null) defaultPath = &quot;&quot;;
+</I>&gt;<i>             if (idata.getVariable(&quot;EJBPath&quot;) != null)
+</I>&gt;<i>                 pathSelectionPanel.setPath(idata.getVariable(&quot;EJBPath&quot;));
+</I>&gt;<i>             else
+</I>&gt;<i>                 pathSelectionPanel.setPath(defaultPath);
+</I>&gt;<i>             if (hostName != null)
+</I>&gt;<i>             {
+</I>&gt;<i>                 if (idata.getVariable(&quot;EJBProperties.EJB_Host&quot;) != null)
+</I>&gt;<i>                     hostName.setText(idata.getVariable(&quot;EJBProperties.EJB_Host&quot;));
+</I>&gt;<i>                 else
+</I>&gt;<i>                     hostName.setText(idata.getVariable(&quot;LocalHost&quot;));
+</I>&gt;<i>             }
+</I>&gt;<i>         }
+</I>&gt;<i>     }
+</I>&gt;<i> 
+</I>&gt;<i> }
+</I>&gt;<i> 
+</I>&gt;<i> ----------------------------------------------------------------------
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> &gt;-----Original Message-----
+</I>&gt;<i> &gt;From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i> &gt;[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of thach thao
+</I>&gt;<i> &gt;Sent: Wednesday, October 18, 2006 6:29 AM
+</I>&gt;<i> &gt;To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt;Subject: [izpack-users] Setting Built-In Variable
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Hi all,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;I set the value for $FILE_SEPARATOR but it same does not work :-(.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;I have a variable named $tomcat_home, during installing, this 
+</I>&gt;<i> &gt;variable will
+</I>&gt;<i> &gt;receive the real-value of tomcat home of user machine.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;In window, the value will be as the same &quot;c:\Program Files\Apache
+</I>&gt;<i> &gt;Group\Tomcat 4.1\&quot; and i want to change it to &quot;c:/Program Files/Apache
+</I>&gt;<i> &gt;Group/Tomcat 4.1/&quot; before installer use it for parsering in files.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;How I can do it?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;I attach the installation.xml file and a example files need to parse.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Thanks so much for your support.
+</I>&gt;<i> &gt;Thach Thao.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;<A HREF="http://www.nabble.com/file/3730/Installation.xml">http://www.nabble.com/file/3730/Installation.xml</A> Installation.xml 
+</I>&gt;<i> &gt;<A HREF="http://www.nabble.com/file/3731/log4j.properties%20%28Using%20f">http://www.nabble.com/file/3731/log4j.properties%20%28Using%20f</A>
+</I>&gt;<i> or%20Package%29
+</I>&gt;<i> log4j.properties (Using for Package) 
+</I>&gt;<i> <A HREF="http://www.nabble.com/file/3732/log4j.properties%28After%20installed%29">http://www.nabble.com/file/3732/log4j.properties%28After%20installed%29</A>
+</I>&gt;<i> log4j.properties(After installed) 
+</I>&gt;<i> 
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000994.html">[izpack-users] Setting Built-In Variable
+</A></li>
+	<LI>Next message: <A HREF="000996.html">[izpack-users] Setting Built-In Variable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#995">[ date ]</a>
+              <a href="thread.html#995">[ thread ]</a>
+              <a href="subject.html#995">[ subject ]</a>
+              <a href="author.html#995">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How does variable substitution work?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20does%20variable%20substitution%20work%3F&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001546.html">
+   <LINK REL="Next"  HREF="001543.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How does variable substitution work?</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20does%20variable%20substitution%20work%3F&In-Reply-To="
+       TITLE="[izpack-users] How does variable substitution work?">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Jun 14 11:50:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001546.html">[izpack-users] IzPack on Vista reports wrong free disk space
+</A></li>
+        <LI>Next message: <A HREF="001543.html">[izpack-users] Allow war files as well as zip files for unpack	op	tion
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1542">[ date ]</a>
+              <a href="thread.html#1542">[ thread ]</a>
+              <a href="subject.html#1542">[ subject ]</a>
+              <a href="author.html#1542">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Gernot,
+see context related.
+
+Cheers 
+
+Klaus
+
+&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of 
+</I>&gt;<i> Gernot Stenz
+</I>&gt;<i> Sent: Thursday, June 14, 2007 10:45 AM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Subject: Re: [izpack-users] How does variable substitution work?
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> &quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; writes:
+</I>&gt;<i> 
+</I>&gt;<i> &gt; Hi Gernot,
+</I>&gt;<i> 
+</I>&gt;<i> Good morning!
+</I>&gt;<i> 
+</I>&gt;<i> &gt; variables will be not substituted by the contents of 
+</I>&gt;<i> variables. I see 
+</I>&gt;<i> &gt; to ways to solve your problem.
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; 1: write a custom action which does the substitution.
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; 2: use
+</I>&gt;<i> &gt; in install.xml
+</I>&gt;<i> &gt; ...
+</I>&gt;<i> &gt; &lt;variable name=&quot;APPLICATIONS_SUB_PATH&quot; 
+</I>&gt;<i> &gt;     
+</I>&gt;<i> &gt; value=&quot;/OpenOffice/orgPortable/App/openoffice/program/soffice.exe&quot;/&gt;
+</I>&gt;<i> &gt; in your parsable file
+</I>&gt;<i> &gt; &lt;value&gt;${APPLICATIONS_DEFAULT_ROOT}${APPLICATIONS_SUB_PATH}&lt;/value&gt;
+</I>&gt;<i> 
+</I>&gt;<i> Thank you! I hadn't thought of that! BTW, why the braces 
+</I>&gt;<i> here? Are they necessary?
+</I>
+At this point they are not necessary but they do not disturb. If you
+ever had thought why a variable will be not replaced and after some
+times you have learned that variables with special cases (e.g. a dot)
+needs braces, you never write a variable without braces :-)
+
+&gt;<i> 
+</I>&gt;<i> Also, on my way to the office this morning I thought of 
+</I>&gt;<i> something different that turned out to be working:
+</I>&gt;<i> 
+</I>&gt;<i> I simply doubled the line containing the &lt;parsable&gt; tag. My 
+</I>&gt;<i> installer xml now looks like this: ... &lt;parsable type=&quot;xml&quot; 
+</I>&gt;<i> targetfile=&quot;$INSTALL_PATH/Projektassistent-1.2.4rc3/res/vmodel
+</I>&gt;<i> lexport.xml&quot;/&gt;
+</I>&gt;<i> &lt;parsable type=&quot;xml&quot; 
+</I>&gt;<i> targetfile=&quot;$INSTALL_PATH/Projektassistent-1.2.4rc3/res/vmodel
+</I>&gt;<i> lexport.xml&quot;/&gt;
+</I>&gt;<i> ...
+</I>&gt;<i> 
+</I>&gt;<i> And this procuded the desired result. Obviously the 
+</I>&gt;<i> &lt;parsable&gt; tag does not only mark a file as parsable, every 
+</I>&gt;<i> tag seems to initiate a parsing run, and for a two level 
+</I>&gt;<i> variable substitution problem, two tags apparently do the trick.
+</I>&gt;<i> 
+</I>
+Yes, &lt;parsable&gt; do not mark a file for parsing else it is really
+a &lt;doparse&gt;. Therefore in this special case a doubled call will work
+for you. But is it not to much overhead compared with the usage of
+two variables? You create a new file, removes the old one and rename
+the new, you know...
+
+&gt;<i> But now that I have more than one solution for the problem, I 
+</I>&gt;<i> ask myself: Which is the canonical one more in line iwth 
+</I>&gt;<i> IzPack's future development?
+</I>&gt;<i> 
+</I>
+I prefer the usage of more than one variable to supress a recursive
+design. If you think generic, you do not really know which variable
+depends on which and the secound on which third and so on. Possible
+to resolve, but not a thirty second job. Prevent circular dependencies
+and so on.
+If I need a variable which I can only determine at runtime (why ever),
+I set it from a custom panel (may be where I have called the user for
+the contents of the variable) or write a custom action (beforePack) 
+which creates the variable. More than one time done.
+
+&gt;<i> Ciao, Gernot
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i>     __o  Gernot Stenz  
+</I>&gt;<i> e-mail:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">stenzg at informatik.tu-muenchen.de</A>        /\
+</I>&gt;<i>    -\&lt;,          WWW:  <A HREF="http://www4.in.tum.de/~stenzg">http://www4.in.tum.de/~stenzg</A>          
+</I>&gt;<i>      /\/--\
+</I>&gt;<i> _(_)/(_)_London - Paris: 3547 
+</I>&gt;<i> km__________________________________/      \
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A> 
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001546.html">[izpack-users] IzPack on Vista reports wrong free disk space
+</A></li>
+	<LI>Next message: <A HREF="001543.html">[izpack-users] Allow war files as well as zip files for unpack	op	tion
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1542">[ date ]</a>
+              <a href="thread.html#1542">[ thread ]</a>
+              <a href="subject.html#1542">[ subject ]</a>
+              <a href="author.html#1542">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

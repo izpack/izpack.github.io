@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] mutually exclusive packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20mutually%20exclusive%20packs&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000651.html">
+   <LINK REL="Next"  HREF="000653.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] mutually exclusive packs</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20mutually%20exclusive%20packs&In-Reply-To="
+       TITLE="[izpack-devel] mutually exclusive packs">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Nov 29 18:27:37 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000651.html">[izpack-devel] Logging
+</A></li>
+        <LI>Next message: <A HREF="000653.html">[izpack-devel] FW:  Logging
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#652">[ date ]</a>
+              <a href="thread.html#652">[ thread ]</a>
+              <a href="subject.html#652">[ subject ]</a>
+              <a href="author.html#652">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+I have tested the patch given by Vladmir Ralev; thanks
+to Vladmir in advance.
+The logical behavior seems as described below.
+
+I have changed some positions in the code to support I18N
+for this feature. eng.xml and deu.xml contains the additional
+strings. For other languages it is needed.
+At merging the patch into the sources I have tried to fix the
+warnings given by my eclipse predominant beneath the new code. 
+After Compiler.java I have forsaken it. 
+It is really a stupid work to add the missing or change syntactical
+wrong written java docs. Sometimes I do not know for what a param
+is. We should only accept patches/new features with correct
+I18N, java doc and HTML doc I think.
+
+The HTML docu I have not written. May be Fabrice can do it.
+May be it is possible to use the description below.
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Vladimir
+</I>&gt;<i>Ralev
+</I>&gt;<i>Sent: Thursday, November 16, 2006 7:29 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-devel] mutually exclusive packs
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>I think it's done. The patch should be applied against the current 
+</I>&gt;<i>trunk, not over the previous patch. The only deviation from 
+</I>&gt;<i>the plan was 
+</I>&gt;<i>that I made the packs with a specified excludeGroup to be 
+</I>&gt;<i>preselected=&quot;no&quot; by default (it's annoying to write it 
+</I>&gt;<i>manually for each 
+</I>&gt;<i>of the member packs, because most of them need to be preselected=&quot;no&quot; 
+</I>&gt;<i>anyway). So the feature description becomes:
+</I>&gt;<i>
+</I>&gt;<i>1. &quot;excludeGroup&quot; is an attribute (ATTLIST) of element &quot;pack&quot;
+</I>&gt;<i>
+</I>&gt;<i>2. &quot;excludeGroup&quot; can only contain one group.
+</I>&gt;<i>
+</I>&gt;<i>3. This group is a String which is unique for one group of all
+</I>&gt;<i>&quot;excludeGroup&quot;s, but has no relation to other groups like the
+</I>&gt;<i>&quot;installGroups&quot; or the pack name or id.
+</I>&gt;<i>
+</I>&gt;<i>4. A functional  &quot;excludeGroup&quot; can contain at least two members. A 
+</I>&gt;<i>member is
+</I>&gt;<i>a pack which has the attribute &quot;excludeGroup&quot; with the given name.
+</I>&gt;<i>If only one member is declared, nothing will be done.
+</I>&gt;<i>
+</I>&gt;<i>5. A member in the &quot;excludeGroup&quot; cannot have the attribute 
+</I>&gt;<i>&quot;required=&quot;yes&quot;&quot;.
+</I>&gt;<i>
+</I>&gt;<i>6. Only one member in the &quot;excludeGroup&quot; can have the attribute 
+</I>&gt;<i>&quot;preselected=&quot;yes&quot;&quot;.
+</I>&gt;<i>Packs, which have an excludeGroup attribute are not preselected by 
+</I>&gt;<i>default (Unlike
+</I>&gt;<i>the packs with no specified excludeGroup).
+</I>&gt;<i>
+</I>&gt;<i>7. From all members of an &quot;excludeGroup&quot; only one member can be
+</I>&gt;<i>selected. One member of the group is mutually exclusive to each other 
+</I>&gt;<i>member.
+</I>&gt;<i>If a second pack is selected, the previous will be deselected. If no 
+</I>&gt;<i>previous pack
+</I>&gt;<i>from the same excludeGroup is selected, the pack will be 
+</I>&gt;<i>selected without
+</I>&gt;<i>excluding any other packs.
+</I>&gt;<i>
+</I>&gt;<i>Let me know.
+</I>&gt;<i>
+</I>&gt;<i>Bartz, Klaus wrote:
+</I>&gt;&gt;<i> Hi Vladimir,
+</I>&gt;&gt;<i> of course &quot;pack&quot;...
+</I>&gt;&gt;<i> Using the require text area for both is OK, I think. Code
+</I>&gt;&gt;<i> have to be addapted.
+</I>&gt;&gt;<i> Will be good if you can expand the docu with points related
+</I>&gt;&gt;<i> to the added rules.
+</I>&gt;&gt;<i> In the moment I am very busy, therefore staccato style :-)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Cheers
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus
+</I>&gt;&gt;<i>   
+</I>&gt;<i>-- 
+</I>&gt;<i>Vladimir Ralev, JBoss/RedHat
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000651.html">[izpack-devel] Logging
+</A></li>
+	<LI>Next message: <A HREF="000653.html">[izpack-devel] FW:  Logging
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#652">[ date ]</a>
+              <a href="thread.html#652">[ thread ]</a>
+              <a href="subject.html#652">[ subject ]</a>
+              <a href="author.html#652">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

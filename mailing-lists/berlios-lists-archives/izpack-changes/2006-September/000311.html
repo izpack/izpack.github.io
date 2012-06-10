@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1566 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1566%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000310.html">
+   <LINK REL="Next"  HREF="000312.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1566 -	izpack-src/trunk/src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1566%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1566 -	izpack-src/trunk/src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:30:12 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000310.html">[izpack-changes] r1565 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000312.html">[izpack-changes] r1567 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:30:11 +0200 (Wed, 06 Sep 2006)
+New Revision: 1566
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java
+Log:
+-implemented  the X-KDE subsitute user - shortcut attribute (see Unix_shortcutSpec.xml).
+-write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+-write common shortcuts  to the new freedesktop.org common &quot;/usr/share/applications&quot; 
+and &quot;/usr/share/pixmaps&quot; folders to display these in the commons [start].menu
+Here: added new static method for immediate exec()
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java	2006-09-06 20:28:42 UTC (rev 1565)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java	2006-09-06 20:30:11 UTC (rev 1566)
+@@ -137,6 +137,43 @@
+     }
+ 
+     /**
++     * Gets the output of the given (console based) commandline
++     * 
++     * @param aCommandLine to execute
++     * @return the result of the command
++     */
++    public static String getExecOutput(String[] aCommandLine)
++    {
++        return getExecOutput(aCommandLine, false);
++
++    }
++
++    /**
++     * Executes the given Command and gets the result of StdOut, or if exec returns !=0:  StdErr.
++     * 
++     * @param aCommandLine aCommandLine to execute
++     * @param forceToGetStdOut if true returns stdout
++     * @return the result of the command stdout or stderr if exec returns !=0
++     */
++    public static String getExecOutput(String[] aCommandLine, boolean forceToGetStdOut)
++    {
++        FileExecutor fe = new FileExecutor();
++
++        String[] execOut = new String[2];
++
++        int execResult = fe.executeCommand(aCommandLine, execOut);
++
++        if (execResult == 0)
++
++            return execOut[0];
++
++        else if (forceToGetStdOut == true)
++            return execOut[0];
++        else
++            return execOut[1];
++    }
++
++    /**
+      * Executed a system command and waits for completion.
+      * 
+      * @param params system command as string array
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000310.html">[izpack-changes] r1565 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000312.html">[izpack-changes] r1567 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

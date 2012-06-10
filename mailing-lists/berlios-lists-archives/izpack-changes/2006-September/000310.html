@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1565 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1565%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000309.html">
+   <LINK REL="Next"  HREF="000311.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1565 -	izpack-src/trunk/src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1565%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1565 -	izpack-src/trunk/src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:28:43 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000309.html">[izpack-changes] r1564 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000311.html">[izpack-changes] r1566 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#310">[ date ]</a>
+              <a href="thread.html#310">[ thread ]</a>
+              <a href="subject.html#310">[ subject ]</a>
+              <a href="author.html#310">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:28:42 +0200 (Wed, 06 Sep 2006)
+New Revision: 1565
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/UnixUserProcessor.java
+Log:
+-implemented  the X-KDE subsitute user - shortcut attribute (see Unix_shortcutSpec.xml).
+-write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+-write common shortcuts  to the new freedesktop.org common &quot;/usr/share/applications&quot; 
+and &quot;/usr/share/pixmaps&quot; folders to display these in the commons [start].menu
+Here: use now the new UnixHelper
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/UnixUserProcessor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/UnixUserProcessor.java	2006-09-06 20:27:44 UTC (rev 1564)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/UnixUserProcessor.java	2006-09-06 20:28:42 UTC (rev 1565)
+@@ -1,56 +1,45 @@
+ /* 
+-*  Copyright (C) 2004 Thorsten Kamann
+-*
+-*  File :               UnixUserProcessor.java
+-*  Description :       Retrieves a list of the current users
+-*  Author's email :     <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">thorsten.kamann at planetes.de</A>
+-*  Author's Website :   <A HREF="http://www.izforge.com">http://www.izforge.com</A>
+-*
+-* Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+-* you may not use this file except in compliance with the License.
+-* You may obtain a copy of the License at
+-* 
+-*     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+-*     
+-* Unless required by applicable law or agreed to in writing, software
+-* distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-* See the License for the specific language governing permissions and
+-* limitations under the License.
+-*/
++ *  Copyright (C) 2004 Thorsten Kamann
++ *
++ *  File :               UnixUserProcessor.java
++ *  Description :       Retrieves a list of the current users
++ *  Author's email :     <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">thorsten.kamann at planetes.de</A>
++ *  Author's Website :   <A HREF="http://www.izforge.com">http://www.izforge.com</A>
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
+ 
+ package com.izforge.izpack.util;
+ 
+-import java.io.BufferedReader;
+-import java.io.FileReader;
+-
+ import com.izforge.izpack.panels.ProcessingClient;
+ import com.izforge.izpack.panels.Processor;
++import com.izforge.izpack.util.os.unix.UnixUsers;
+ 
+ /**
+  * @author thorsten-kamann
+  */
+-public class UnixUserProcessor implements Processor {
++public class UnixUserProcessor implements Processor
++{
++    
++    
++    /**
++     * Overridden Method returns a list of users in the /etc/passwd
++     */
++    public String process(ProcessingClient client)
++    {
++        return UnixUsers.getUsersColonString();
++    }
++    
+ 
+-	public String process (ProcessingClient client){
+-		String retValue = &quot;&quot;;
+-		String filepath = &quot;/etc/passwd&quot;;
+-		BufferedReader reader = null;
+-		String line = &quot;&quot;;
+-				
+-		try{
+-			reader = new BufferedReader(new FileReader(filepath));
+-			while ((line = reader.readLine()) != null){
+-				retValue += line.substring(0, line.indexOf(&quot;:&quot;))+&quot;:&quot;;
+-			}
+-			if (retValue.endsWith(&quot;:&quot;)){
+-				retValue = retValue.substring(0, retValue.length()-1);
+-			}			
+-		}catch (Exception ex){
+-			retValue = &quot;&quot;;
+-		}
+-		
+-		return retValue;
+-	}
+ 
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000309.html">[izpack-changes] r1564 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000311.html">[izpack-changes] r1566 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#310">[ date ]</a>
+              <a href="thread.html#310">[ thread ]</a>
+              <a href="subject.html#310">[ subject ]</a>
+              <a href="author.html#310">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1534 - in izpack-src/trunk/src: img/installer/img	lib/com/izforge/izpack/installer lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1534%20-%20in%20izpack-src/trunk/src%3A%20img/installer/img%0A%09lib/com/izforge/izpack/installer%20lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000278.html">
+   <LINK REL="Next"  HREF="000280.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1534 - in izpack-src/trunk/src: img/installer/img	lib/com/izforge/izpack/installer lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1534%20-%20in%20izpack-src/trunk/src%3A%20img/installer/img%0A%09lib/com/izforge/izpack/installer%20lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1534 - in izpack-src/trunk/src: img/installer/img	lib/com/izforge/izpack/installer lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Aug 24 18:06:18 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000278.html">[izpack-changes] r1533 - in	izpack-src/trunk/src/lib/com/izforge/izpack: gui util
+</A></li>
+        <LI>Next message: <A HREF="000280.html">[izpack-changes] r1535 - izpack-launcher/trunk/dist
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#279">[ date ]</a>
+              <a href="thread.html#279">[ thread ]</a>
+              <a href="subject.html#279">[ subject ]</a>
+              <a href="author.html#279">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsshilli
+Date: 2006-08-24 18:06:10 +0200 (Thu, 24 Aug 2006)
+New Revision: 1534
+
+Added:
+   izpack-src/trunk/src/img/installer/img/done.png
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/icons.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+Log:
+Adding a done icon that is a nice checkmark instead of a red X.
+
+Added: izpack-src/trunk/src/img/installer/img/done.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: izpack-src/trunk/src/img/installer/img/done.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-08-24 14:41:56 UTC (rev 1533)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-08-24 16:06:10 UTC (rev 1534)
+@@ -972,6 +972,16 @@
+         quitButton.setText(text1);
+     }
+ 
++    public void setQuitButtonIcon(String iconName)
++    {
++        String useButtonIcons = (String) installdata.guiPrefs.modifier.get(&quot;useButtonIcons&quot;);
++
++        if ( useButtonIcons == null || &quot;yes&quot;.equalsIgnoreCase(useButtonIcons))
++        {
++            quitButton.setIcon(icons.getImageIcon(iconName));
++        }
++    }
++
+     /*
+      * FocusTraversalPolicy objects to handle keybord blocking; the declaration os Object allows to
+      * use a pre version 1.4 VM.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/icons.xml
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/icons.xml	2006-08-24 14:41:56 UTC (rev 1533)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/icons.xml	2006-08-24 16:06:10 UTC (rev 1534)
+@@ -5,6 +5,7 @@
+     &lt;icon res=&quot;/img/leftarrow.png&quot; id=&quot;stepback&quot;/&gt;
+     &lt;icon res=&quot;/img/rightarrow.png&quot; id=&quot;stepforward&quot;/&gt;
+     &lt;icon res=&quot;/img/stop.png&quot; id=&quot;stop&quot;/&gt;
++    &lt;icon res=&quot;/img/done.png&quot; id=&quot;done&quot;/&gt;
+     &lt;icon res=&quot;/img/kcontrol.png&quot; id=&quot;host&quot;/&gt;
+     &lt;icon res=&quot;/img/info.png&quot; id=&quot;information&quot;/&gt;
+     &lt;icon res=&quot;/img/contents.png&quot; id=&quot;history&quot;/&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java	2006-08-24 14:41:56 UTC (rev 1533)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/FinishPanel.java	2006-08-24 16:06:10 UTC (rev 1534)
+@@ -48,10 +48,10 @@
+     private static final long serialVersionUID = 3257282535107998009L;
+ 
+     /** The automated installers generation button. */
+-    private JButton autoButton;
++    protected JButton autoButton;
+ 
+     /** The variables substitutor. */
+-    private VariableSubstitutor vs;
++    protected VariableSubstitutor vs;
+ 
+     /**
+      * The constructor.
+@@ -82,6 +82,7 @@
+         parent.lockNextButton();
+         parent.lockPrevButton();
+         parent.setQuitButtonText(parent.langpack.getString(&quot;FinishPanel.done&quot;));
++        parent.setQuitButtonIcon(&quot;done&quot;);
+         if (idata.installSuccess)
+         {
+             // We set the information
+@@ -158,7 +159,7 @@
+      * @param destination The path to translate.
+      * @return The translated path.
+      */
+-    private String translatePath(String destination)
++    protected String translatePath(String destination)
+     {
+         // Parse for variables
+         destination = vs.substitute(destination, null);
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java	2006-08-24 14:41:56 UTC (rev 1533)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/SimpleFinishPanel.java	2006-08-24 16:06:10 UTC (rev 1534)
+@@ -77,6 +77,7 @@
+         parent.lockNextButton();
+         parent.lockPrevButton();
+         parent.setQuitButtonText(parent.langpack.getString(&quot;FinishPanel.done&quot;));
++        parent.setQuitButtonIcon(&quot;done&quot;);
+         if (idata.installSuccess)
+         {
+             
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000278.html">[izpack-changes] r1533 - in	izpack-src/trunk/src/lib/com/izforge/izpack: gui util
+</A></li>
+	<LI>Next message: <A HREF="000280.html">[izpack-changes] r1535 - izpack-launcher/trunk/dist
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#279">[ date ]</a>
+              <a href="thread.html#279">[ thread ]</a>
+              <a href="subject.html#279">[ subject ]</a>
+              <a href="author.html#279">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

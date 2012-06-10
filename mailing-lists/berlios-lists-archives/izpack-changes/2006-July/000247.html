@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1503 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1503%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000246.html">
+   <LINK REL="Next"  HREF="000248.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1503 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1503%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1503 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Tue Jul 25 09:27:59 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000246.html">[izpack-changes] r1502 - in izpack-launcher/trunk: . src
+</A></li>
+        <LI>Next message: <A HREF="000248.html">[izpack-changes] r1504 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#247">[ date ]</a>
+              <a href="thread.html#247">[ thread ]</a>
+              <a href="subject.html#247">[ subject ]</a>
+              <a href="author.html#247">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-07-25 09:27:40 +0200 (Tue, 25 Jul 2006)
+New Revision: 1503
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+Stuff for writing the installed file list into a separate logfile added.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-07-23 05:38:09 UTC (rev 1502)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-07-25 07:27:40 UTC (rev 1503)
+@@ -44,6 +44,8 @@
+ import java.io.BufferedWriter;
+ import java.io.ByteArrayOutputStream;
+ import java.io.File;
++import java.io.FileNotFoundException;
++import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.ObjectOutputStream;
+@@ -95,6 +97,7 @@
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.Housekeeper;
++import com.izforge.izpack.util.IoHelper;
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.VariableSubstitutor;
+ 
+@@ -558,6 +561,30 @@
+     /** Writes the uninstalldata. */
+     private void writeUninstallData()
+     {
++        // Show whether a separated logfile should be also written or not.
++        String logfile = installdata.getVariable(&quot;InstallerFrame.logfilePath&quot;);
++        BufferedWriter extLogWriter = null;
++        if (logfile != null)
++        {
++            if( logfile.toLowerCase().startsWith(&quot;default&quot;))
++                logfile = &quot;$INSTALL_PATH/Uninstaller/install.log&quot;;
++            logfile = IoHelper.translatePath(logfile, new VariableSubstitutor(installdata.getVariables()));
++            File outFile = new File(logfile);
++            if( ! outFile.getParentFile().exists())
++                outFile.getParentFile().mkdirs();
++            FileOutputStream out = null;
++            try
++            {
++                out = new FileOutputStream(outFile);
++            }
++            catch (FileNotFoundException e)
++            {
++                Debug.trace(&quot;Cannot create logfile!&quot;);
++                Debug.error(e);
++            }
++            if( out != null)
++                extLogWriter = new BufferedWriter(new OutputStreamWriter(out));
++        }
+         try
+         {
+             // We get the data
+@@ -573,12 +600,32 @@
+             logWriter.write(installdata.getInstallPath());
+             logWriter.newLine();
+             Iterator iter = files.iterator();
+-            while (iter.hasNext())
++            if (extLogWriter != null)
++            { // Write intern (in uninstaller.jar) and extern log file.
++                while (iter.hasNext())
++                {
++                    String txt = (String) iter.next();
++                    logWriter.write(txt);
++                    extLogWriter.write(txt);
++                    if (iter.hasNext())
++                    {
++                        logWriter.newLine();
++                        extLogWriter.newLine();
++                    }
++                }
++                logWriter.flush();
++                extLogWriter.flush();
++                extLogWriter.close();
++            }
++            else
+             {
+-                logWriter.write((String) iter.next());
+-                if (iter.hasNext()) logWriter.newLine();
++                while (iter.hasNext())
++                {
++                    logWriter.write((String) iter.next());
++                    if (iter.hasNext()) logWriter.newLine();
++                }
++                logWriter.flush();
+             }
+-            logWriter.flush();
+             outJar.closeEntry();
+ 
+             // We write the uninstaller jar file log
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000246.html">[izpack-changes] r1502 - in izpack-launcher/trunk: . src
+</A></li>
+	<LI>Next message: <A HREF="000248.html">[izpack-changes] r1504 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#247">[ date ]</a>
+              <a href="thread.html#247">[ thread ]</a>
+              <a href="subject.html#247">[ subject ]</a>
+              <a href="author.html#247">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

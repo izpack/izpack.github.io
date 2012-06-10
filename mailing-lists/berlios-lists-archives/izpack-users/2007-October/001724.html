@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Questions on getting up and running with Izpack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Questions%20on%20getting%20up%20and%20running%20with%20Izpack&In-Reply-To=4715C92B.2030103%40fastmail.fm">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001723.html">
+   <LINK REL="Next"  HREF="001735.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Questions on getting up and running with Izpack</H1>
+    <B>Joseph.Fiedler at l-3com.com</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Questions%20on%20getting%20up%20and%20running%20with%20Izpack&In-Reply-To=4715C92B.2030103%40fastmail.fm"
+       TITLE="[izpack-users] Questions on getting up and running with Izpack">Joseph.Fiedler at l-3com.com
+       </A><BR>
+    <I>Wed Oct 17 19:07:08 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001723.html">[izpack-users] Questions on getting up and running with Izpack
+</A></li>
+        <LI>Next message: <A HREF="001735.html">[izpack-users] Questions on getting up and running with Izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1724">[ date ]</a>
+              <a href="thread.html#1724">[ thread ]</a>
+              <a href="subject.html#1724">[ subject ]</a>
+              <a href="author.html#1724">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Paul,
+
+Try rearranging your install.xml file as follows:
+Also, rename your shortcut specification file to shortcutSpec.xml; I ran
+into some problems when using a different filename and/or extension.
+
+  &lt;native type=&quot;izpack&quot; name=&quot;Shelllink.dll&quot;&gt;
+    &lt;os family=&quot;windows&quot;/&gt;
+  &lt;/native&gt;
+
+  &lt;resources&gt;
+    &lt;res src=&quot;shortcutSpec.xml&quot; id=&quot;shortcutSpec.xml&quot;/&gt;
+  &lt;/resources&gt;
+
+  &lt;panels&gt;
+    &lt;!-- panel elements --&gt;
+  &lt;/panels&gt;
+
+  &lt;packs&gt;
+    &lt;!-- pack elements --&gt;
+  &lt;/packs&gt;
+
+- Joseph Fiedler
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Paul Taylor
+Sent: Wednesday, October 17, 2007 1:35 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Subject: [izpack-users] Questions on getting up and running with Izpack
+
+Hi , Im just moving from Install Anywhere Now to Izpack because IAN 
+doesnt run on Windows Vista and I have to say Im very impressed with it.
+
+I just have a few issues that Im hoping somebody could help with.
+
+1. I am not managing to get the shortcuts stuff against a Windows Vista 
+installation (havent tried against linux), I cant even get the Shortcut 
+Panel to come up. Below is the relevant exercpt from install.xml and my 
+shortcutSpec.xml, both
+Shelllink.dll and shortcutSpec.xml exist in the same folder as the 
+install.xml file. Can you see what im doing wrong,
+
+ &lt;panels&gt;
+        &lt;panel classname=&quot;HelloPanel&quot;/&gt;       
+        &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+        &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+        &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+        &lt;panel classname=&quot;ShortcutPanel&quot;/&gt; 
+        &lt;panel classname=&quot;InstallPanel&quot;/&gt;             
+        &lt;panel classname=&quot;SimpleFinishPanel&quot;/&gt;
+    &lt;/panels&gt;
+   
+    &lt;!--
+        The packs section.
+        We specify here our packs.
+    --&gt;
+    &lt;packs&gt;
+          &lt;native type=&quot;izpack&quot; name=&quot;Shelllink.dll&quot;/&gt;
+          &lt;res src=&quot;default_shortcut_specification.html&quot; 
+id=&quot;shortcutSpec.xml&quot;/&gt;
+        &lt;pack name=&quot;Base&quot; required=&quot;yes&quot; preselected=&quot;yes&quot;&gt;
+            &lt;description&gt;Jaikoz&lt;/description&gt;
+ ..........
+
+&lt;shortcuts&gt;
+&lt;programGroup defaultname=&quot;Jthink\Jaikoz&quot; location=&quot;applications&quot;/&gt;
+&lt;shortcut
+name=&quot;Jaikoz&quot;
+target=&quot;$INSTALL_PATH\Jaikoz.exe&quot;
+commandLine=&quot;&quot;
+workingDirectory=&quot;$INSTALL_PATH&quot;
+description=&quot;Jaikoz Audio Tagger&quot;
+iconFile=&quot;$INSTALL_PATH\jaikoz.gif&quot;
+iconIndex=&quot;0&quot;
+initialState=&quot;maximized&quot;
+programGroup=yes&quot;
+desktop=&quot;yes&quot;
+applications=&quot;yes&quot;
+startMenu=&quot;no&quot;
+startup=&quot;no&quot;&gt;
+&lt;/shortcut&gt;
+&lt;/shortcuts&gt;
+
+it would be useful if there was another example in the Samples folder, 
+which had Shortcuts, it would also be useful if the manual was 
+distributed in an html format as well as the pdf format so users could 
+cut and paste the example code.
+
+2. For Windows I have integrated Izpack with JSmooth, Ive taken the 
+following steps:
+
+Jsmooth my main jar file to produce exe
+Create Izpack install.jar from jars and exe created from jsmooth
+Jsmooth the install.jar to provide install.exe
+
+is this right, do I need all these steps, (some more documentation on 
+this area would be useful) ?
+
+3. For Linux Ive done the Izpack, but obviously cant use Jsmooth what 
+should I do instead, what is the defacto standard for Linux, what would 
+users expect ?
+
+thanks Paul Taylor
+
+_______________________________________________
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+
+
+--------------------------------------------------------------------
+This message and any attachments are solely for the use of the individual or entity to which it is addressed and may contain information that is privileged or confidential. If you are not the intended recipient, any disclosure, use or distribution of the information contained herein is prohibited. If you have received this communication in error, please notify the sender by reply e-mail and immediately delete this message and any attachments.
+</PRE>
+
+
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001723.html">[izpack-users] Questions on getting up and running with Izpack
+</A></li>
+	<LI>Next message: <A HREF="001735.html">[izpack-users] Questions on getting up and running with Izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1724">[ date ]</a>
+              <a href="thread.html#1724">[ thread ]</a>
+              <a href="subject.html#1724">[ subject ]</a>
+              <a href="author.html#1724">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

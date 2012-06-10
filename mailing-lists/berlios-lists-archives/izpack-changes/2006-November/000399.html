@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1654 - in izpack-src/trunk: . src/doc-ng/XHTML
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1654%20-%20in%20izpack-src/trunk%3A%20.%20src/doc-ng/XHTML&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000398.html">
+   <LINK REL="Next"  HREF="000400.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1654 - in izpack-src/trunk: . src/doc-ng/XHTML</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1654%20-%20in%20izpack-src/trunk%3A%20.%20src/doc-ng/XHTML&In-Reply-To="
+       TITLE="[izpack-changes] r1654 - in izpack-src/trunk: . src/doc-ng/XHTML">noreply at berlios.de
+       </A><BR>
+    <I>Fri Nov 24 15:47:36 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000398.html">[izpack-changes] r1653 - izpack-src/trunk/src
+</A></li>
+        <LI>Next message: <A HREF="000400.html">[izpack-changes] r1655 - in izpack-src/trunk/src/lib/com:	coi/tools/os/win coi/tools/os/win/resources	izforge/izpack/panels izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#399">[ date ]</a>
+              <a href="thread.html#399">[ thread ]</a>
+              <a href="subject.html#399">[ subject ]</a>
+              <a href="author.html#399">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-11-24 15:47:35 +0100 (Fri, 24 Nov 2006)
+New Revision: 1654
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/doc-ng/XHTML/node5.html
+Log:
+Docu added for support of panelid in heading panel.
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2006-11-24 13:40:24 UTC (rev 1653)
++++ izpack-src/trunk/Versions.txt	2006-11-24 14:47:35 UTC (rev 1654)
+@@ -9,7 +9,8 @@
+ - Added Rulesengine, Conditions, panelconditions (Dennis Reil)
+ - Fix DestroyButton in UninstallerFrame clickable only once (Dennis Reil)
+ - Added conditions to UserInputPanel-fields (Dennis Reil)
+-
++- Heading panel strings can be depend on the panelid (Klaus Bartz, thangs
++  to Stefan Wachter).
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix Accents In French Langpack (Fabrice Mirabile)
+ - Update French Langpack (Julien Ponge)
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node5.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node5.html	2006-11-24 13:40:24 UTC (rev 1653)
++++ izpack-src/trunk/src/doc-ng/XHTML/node5.html	2006-11-24 14:47:35 UTC (rev 1654)
+@@ -409,11 +409,11 @@
+     &lt;h2&gt;&lt;a id=&quot;headingPanels&quot; name=&quot;headingPanels&quot;&gt;Using a Separated Heading Panel&lt;/a&gt;&lt;/h2&gt;
+ 
+     &lt;p&gt;Some standard panels have headings (e.g. ShortcutPanel). These headings are integrated in
+-    the IzPanel. In oposite to this following heading will be done in a separated panel potential
++    the IzPanel. In oposite to this following heading will be displayed in a separated panel potential
+     for all panels with the same design. There is no need to modify existent java classes else
+     declaration of some key/value pairs are enough.&lt;/p&gt;
+ 
+-    &lt;p&gt;There can be one real headline and one or more info lines. The headline will be written
++    &lt;p&gt;There can be one real head and zero or more info lines. The headline will be written
+     bold, the fontsize can be changed. Info lines will be indented and written with the normal used
+     font. The heading message has to be written into the langpack (or custom langpack) file with
+     the key &lt;tt&gt;&amp;lt;panel class name&amp;gt;.headline&lt;/tt&gt;. Examples can be seen in &lt;tt&gt;eng.xml&lt;/tt&gt;.
+@@ -422,6 +422,35 @@
+     number&amp;gt;&lt;/tt&gt;. First info line has number zero. If no or empty headline messages will be 
+ 	declared in the chosen language no heading panel will be shown. This behavior can be used to 
+     suppress heading for special panels.&lt;/p&gt;
++	&lt;p&gt;It is also possible to declare head and info lines additonal dependent on the panelid.
++	The result is, that it is possible to declare different messages for panels which are shown
++	more than one time (e.g. the UserInputPanel. In this case the key for heading is&lt;/p&gt;
++	&lt;pre&gt;&amp;lt;panel class name&amp;gt;.headline.&amp;lt;panelid&amp;gt;&lt;/pre&gt;
++	&lt;p&gt;and for info lines&lt;/p&gt;
++	&lt;pre&gt;&amp;lt;panel class name&amp;gt;.headinfo&amp;lt;info line number&amp;gt;.&amp;lt;panelid&amp;gt;&lt;/pre&gt;
++	&lt;p&gt;Panelids are declared in ELEMENT %lt;panel&amp;gt;. See &lt;a href=&quot;node4.html#SECTION00437000000000000000&quot;&gt;
++	The Panels Element &lt;tt&gt;&amp;lt;panels&amp;gt;&lt;/tt&gt;&lt;/a&gt; . The standard strings are declared in the
++	standard langpack file. For customized panels it is common to write the string into the
++	custom langpack (see &lt;a href=&quot;node7.html#SECTION00720000000000000000&quot;&gt;
++	The Internationalization of custom panels&lt;/a&gt;. If (as example) in &lt;i&gt;install.xml&lt;/i&gt;
++	was following written:&lt;/p&gt;
++	&lt;pre&gt;    &amp;lt;panels&amp;gt;
++        ...
++        &amp;lt;panel classname=&quot;UserInputPanel&quot; id=&quot;one&quot;/&amp;gt;
++        &amp;lt;panel classname=&quot;UserInputPanel&quot;id=&quot;two&quot;/&amp;gt;
++        ...
++    &amp;lt;/panels&amp;gt;&lt;/pre&gt;
++	&lt;p&gt;Then the messages can be declared in &lt;i&gt;CustomLangpack.xml_eng&lt;/i&gt; like&lt;/p&gt;
++	&lt;pre&gt;&amp;lt;langpack&amp;gt;
++    ...
++    &amp;lt;str id=&quot;UserInputPanel.headline.one&quot; txt=&quot;User Data one&quot;/&amp;gt;
++    &amp;lt;str id=&quot;UserInputPanel.headline.two&quot; txt=&quot;User Data two&quot;/&amp;gt;
++    &amp;lt;str id=&quot;UserInputPanel.headinfo0.one&quot; txt=&quot;Info 1 one&quot;/&amp;gt;
++    &amp;lt;str id=&quot;UserInputPanel.headinfo1.one&quot; txt=&quot;Info 2 one&quot;/&amp;gt;
++    &amp;lt;str id=&quot;UserInputPanel.headinfo0.two&quot; txt=&quot;Info 1 two&quot;/&amp;gt;
++    &amp;lt;str id=&quot;UserInputPanel.headinfo1.two&quot; txt=&quot;Info 2 two&quot;/&amp;gt;
++    ...
++&amp;lt;langpack&amp;gt;&lt;/pre&gt;
+ 	&lt;p&gt;It is possible to place an icon on the right side of the heading. To do this a simple 
+ 	resource entry will be needed:&lt;/p&gt;
+ 	&lt;pre&gt;&amp;lt;resources&amp;gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000398.html">[izpack-changes] r1653 - izpack-src/trunk/src
+</A></li>
+	<LI>Next message: <A HREF="000400.html">[izpack-changes] r1655 - in izpack-src/trunk/src/lib/com:	coi/tools/os/win coi/tools/os/win/resources	izforge/izpack/panels izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#399">[ date ]</a>
+              <a href="thread.html#399">[ thread ]</a>
+              <a href="subject.html#399">[ subject ]</a>
+              <a href="author.html#399">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

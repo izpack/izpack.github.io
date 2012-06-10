@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] OS restrictions, matching criteria?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20OS%20restrictions%2C%20matching%20criteria%3F&In-Reply-To=CA47BB2706D4CE4497C233DB9FCDB571021764%40blconexc1.sg.gr.fcc.es">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000545.html">
+   <LINK REL="Next"  HREF="000546.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] OS restrictions, matching criteria?</H1>
+    <B>David Ferrero</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20OS%20restrictions%2C%20matching%20criteria%3F&In-Reply-To=CA47BB2706D4CE4497C233DB9FCDB571021764%40blconexc1.sg.gr.fcc.es"
+       TITLE="[izpack-users] OS restrictions, matching criteria?">david.ferrero at zion.com
+       </A><BR>
+    <I>Wed Jun  7 22:08:04 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000545.html">[izpack-users] jvm detection 32bit vs. 64bit
+</A></li>
+        <LI>Next message: <A HREF="000546.html">[izpack-users] automatic installation doesn't run process panel ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#544">[ date ]</a>
+              <a href="thread.html#544">[ thread ]</a>
+              <a href="subject.html#544">[ subject ]</a>
+              <a href="author.html#544">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi folks:
+
+question regarding the OS restrictions element and attributes:
+
+I was looking at the OsConstraint.java and noticed that it has a method:
+
+/**
+...
+   * @return true if one of the OsConstraints matched the current  
+system or constraint_list is
+   * null (no constraints), false if none of the OsConstraints matched
+  */
+  public static boolean oneMatchesCurrentSystem(...)
+
+
+I noticed this method is called during Unpacking (installation) and  
+is used to determine which packs, files, etc are installed...
+The method's javadoc matches the source, however it seems like it  
+misses the goal of the xml. It seems we should be looking for  
+something like  AND rather than OR...
+
+For example if I have a file within a pack like:
+
+&lt;file src=&quot;dist/unix_service/server.sh&quot; targetdir=&quot;$INSTALL_PATH/bin&quot;&gt;
+     &lt;os family=&quot;unix&quot; name=&quot;Mac OS X&quot; /&gt;
+&lt;/file&gt;
+
+My intent is ONLY INSTALL THIS FILE ON a Mac OS X system. After  
+reviewing the OsConstraint.java methods, unless I am missing  
+something in the flow of the whole installer, it appears this FILE  
+will get copied if at least one matches (hence the method name)  
+os.family=&quot;unix&quot; OR os.name=&quot;Mac OS X&quot;.  I would think we really want  
+strict control such as os.family=&quot;unix&quot; AND os.family=&quot;Mac OS X&quot;.
+
+Comments?
+
+
+
+
+On Oct 7, 2004, at 9:42 AM, Perez Carmona, David wrote:
+
+&gt;<i> Hi,
+</I>&gt;<i>
+</I>&gt;<i> Another question.
+</I>&gt;<i>
+</I>&gt;<i> What specifies the os attribute of a fileset?. The os family, the  
+</I>&gt;<i> os version or the os architecture?.
+</I>&gt;<i> I think the doc isn't clear enough.
+</I>&gt;<i> On the other hand the &lt;os&gt; tag has a lot of attributes for  
+</I>&gt;<i> specifying this.
+</I>&gt;<i> I need to filter a fileset sometimes for the operating system name  
+</I>&gt;<i> (Java property &quot;os.name&quot;) and others for the family.
+</I>&gt;<i>
+</I>&gt;<i> If I create separate packs and use the &lt;os&gt; tag, it works ok.   :-)
+</I>&gt;<i>
+</I>&gt;&gt;<i> -----Mensaje original-----
+</I>&gt;&gt;<i> De: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]En nombre de Perez
+</I>&gt;&gt;<i> Carmona, David
+</I>&gt;&gt;<i> Enviado el: jueves, 07 de octubre de 2004 15:15
+</I>&gt;&gt;<i> Para: IzUsr (E-mail)
+</I>&gt;&gt;<i> Asunto: [izpack-users] fileset os attribute
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Dear IzPackers,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I have the following in the definition of a pack
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> &lt;pack name=&quot;Base&quot; required=&quot;yes&quot;&gt;
+</I>&gt;&gt;<i> 	.....
+</I>&gt;&gt;<i>    	&lt;fileset targetdir=&quot;$INSTALL_PATH&quot; dir=&quot;.&quot; os=&quot;Linux&quot;&gt;
+</I>&gt;&gt;<i>    		&lt;include name=&quot;bin/linux/**&quot;/&gt;
+</I>&gt;&gt;<i>     	&lt;/fileset&gt;
+</I>&gt;&gt;<i> &lt;/pack&gt;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> and I install under Windows, and these files are copied.
+</I>&gt;&gt;<i> Why? Is this a bug?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Best regards
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> David
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000545.html">[izpack-users] jvm detection 32bit vs. 64bit
+</A></li>
+	<LI>Next message: <A HREF="000546.html">[izpack-users] automatic installation doesn't run process panel ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#544">[ date ]</a>
+              <a href="thread.html#544">[ thread ]</a>
+              <a href="subject.html#544">[ subject ]</a>
+              <a href="author.html#544">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

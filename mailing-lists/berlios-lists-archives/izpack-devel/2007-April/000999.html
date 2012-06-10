@@ -1,0 +1,159 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] New file parsing type needed
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20New%20file%20parsing%20type%20needed&In-Reply-To=9291ebe10704162334v47eb8a07ja1e8155f73b9ccea%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000996.html">
+   <LINK REL="Next"  HREF="001005.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] New file parsing type needed</H1>
+    <B>Max Fedorov</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20New%20file%20parsing%20type%20needed&In-Reply-To=9291ebe10704162334v47eb8a07ja1e8155f73b9ccea%40mail.gmail.com"
+       TITLE="[izpack-devel] New file parsing type needed">mfedorov at netflexity.com
+       </A><BR>
+    <I>Tue Apr 17 14:46:20 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000996.html">[izpack-devel] New file parsing type needed
+</A></li>
+        <LI>Next message: <A HREF="001005.html">[izpack-devel] New file parsing type needed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#999">[ date ]</a>
+              <a href="thread.html#999">[ thread ]</a>
+              <a href="subject.html#999">[ subject ]</a>
+              <a href="author.html#999">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi, Julien. Not sure what you mean by a patch, but here is my code merged
+with latest (3.10.1) VariableSubstitutor.java.
+
+Thanks a lot.
+-Max
+
+On 4/17/07, Julien Ponge &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">julien.ponge at gmail.com</A>&gt; wrote:
+&gt;<i>
+</I>&gt;<i> Can you please send a patch instead? Thanks a lot.
+</I>&gt;<i>
+</I>&gt;<i> On 4/12/07, Max Fedorov &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">mfedorov at netflexity.com</A>&gt; wrote:
+</I>&gt;<i> &gt; I've been using IzPack for some time and very glad with it, but sick of
+</I>&gt;<i> &gt; rebuilding it for every new version to incorporate my enhancements. I
+</I>&gt;<i> use
+</I>&gt;<i> &gt; IzPack to deploy a java web application to Unix and Windows
+</I>&gt;<i> environments.
+</I>&gt;<i> &gt; The problem that I have is with backslashes &quot;\&quot;, which are returned by
+</I>&gt;<i> &gt; $INSTALL_PATH variable on Windows, for example, and are not going to
+</I>&gt;<i> work if
+</I>&gt;<i> &gt; substituted in files that are used by java application, for example,
+</I>&gt;<i> web.xml
+</I>&gt;<i> &gt; or other configuration files. What I added is another file type called
+</I>&gt;<i> &gt; JAVA_TYPE in VariableSubstitutor.java with a tiny if. Thank you very
+</I>&gt;<i> much
+</I>&gt;<i> &gt; for your product. Hope this will help other people as well!!!
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Here are the changes:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; /** A constant for file type. Java file, where \ have to be escaped. */
+</I>&gt;<i> &gt; protected final static int TYPE_JAVA = 5;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; // Initialize the file type map
+</I>&gt;<i> &gt;     static
+</I>&gt;<i> &gt;     {
+</I>&gt;<i> &gt;         typeNameToConstantMap = new HashMap();
+</I>&gt;<i> &gt;         typeNameToConstantMap.put(&quot;plain&quot;, new Integer(TYPE_PLAIN));
+</I>&gt;<i> &gt;         typeNameToConstantMap.put (&quot;javaprop&quot;, new
+</I>&gt;<i> &gt; Integer(TYPE_JAVA_PROPERTIES));
+</I>&gt;<i> &gt;         typeNameToConstantMap.put(&quot;java&quot;, new Integer(TYPE_JAVA));
+</I>&gt;<i> &gt;         typeNameToConstantMap.put(&quot;xml&quot;, new Integer(TYPE_XML));
+</I>&gt;<i> &gt;         typeNameToConstantMap.put(&quot;shell&quot;, new Integer(TYPE_SHELL));
+</I>&gt;<i> &gt;         typeNameToConstantMap.put(&quot;at&quot;, new Integer(TYPE_AT));
+</I>&gt;<i> &gt;     }
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; case TYPE_JAVA_PROPERTIES:
+</I>&gt;<i> &gt; case TYPE_JAVA:
+</I>&gt;<i> &gt;             buffer = new StringBuffer(str);
+</I>&gt;<i> &gt;             len = str.length();
+</I>&gt;<i> &gt;             for (i = 0; i &lt; len; i++)
+</I>&gt;<i> &gt;             {
+</I>&gt;<i> &gt;                 // Check for control characters
+</I>&gt;<i> &gt;                 char c = buffer.charAt(i);
+</I>&gt;<i> &gt;                 if (type == TYPE_JAVA_PROPERTIES){
+</I>&gt;<i> &gt;                     if(c == '\t' || c == '\n' || c == '\r')
+</I>&gt;<i> &gt;                     {
+</I>&gt;<i> &gt;                         char tag;
+</I>&gt;<i> &gt;                         if (c == '\t')
+</I>&gt;<i> &gt;                             tag = 't';
+</I>&gt;<i> &gt;                         else if (c == '\n')
+</I>&gt;<i> &gt;                             tag = 'n';
+</I>&gt;<i> &gt;                         else
+</I>&gt;<i> &gt;                             tag = 'r';
+</I>&gt;<i> &gt;                         buffer.replace(i, i + 1, &quot;\\&quot; + tag);
+</I>&gt;<i> &gt;                         len++;
+</I>&gt;<i> &gt;                         i++;
+</I>&gt;<i> &gt;                     }
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;                     // Check for special characters
+</I>&gt;<i> &gt;                     if (c == '\\' || c == '&quot;' || c == '\'' || c == ' ')
+</I>&gt;<i> &gt;                     {
+</I>&gt;<i> &gt;                         buffer.insert(i, '\\');
+</I>&gt;<i> &gt;                         len++;
+</I>&gt;<i> &gt;                         i++;
+</I>&gt;<i> &gt;                     }
+</I>&gt;<i> &gt;                 }
+</I>&gt;<i> &gt;                 else{
+</I>&gt;<i> &gt;                     if (c == '\\'){
+</I>&gt;<i> &gt;                         buffer.replace(i, i + 1, &quot;\\\\&quot;);
+</I>&gt;<i> &gt;                         len++;
+</I>&gt;<i> &gt;                         i++;
+</I>&gt;<i> &gt;                     }
+</I>&gt;<i> &gt;                 }
+</I>&gt;<i> &gt;             }
+</I>&gt;<i> &gt;             return buffer.toString();
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-devel mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070417/e5d27d94/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070417/e5d27d94/attachment.html</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: VariableSubstitutor.java
+Type: application/octet-stream
+Size: 15990 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070417/e5d27d94/attachment.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070417/e5d27d94/attachment.obj</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000996.html">[izpack-devel] New file parsing type needed
+</A></li>
+	<LI>Next message: <A HREF="001005.html">[izpack-devel] New file parsing type needed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#999">[ date ]</a>
+              <a href="thread.html#999">[ thread ]</a>
+              <a href="subject.html#999">[ subject ]</a>
+              <a href="author.html#999">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

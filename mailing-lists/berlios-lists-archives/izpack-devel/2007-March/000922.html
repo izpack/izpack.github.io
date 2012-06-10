@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Custom Actions NPE, patch
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Custom%20Actions%20NPE%2C%20patch&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139ACE1%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000920.html">
+   <LINK REL="Next"  HREF="000923.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Custom Actions NPE, patch</H1>
+    <B>Scott Plante</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Custom%20Actions%20NPE%2C%20patch&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139ACE1%40coi11.coi.com"
+       TITLE="[izpack-devel] Custom Actions NPE, patch">splante at insightsys.com
+       </A><BR>
+    <I>Thu Mar  8 11:51:59 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000920.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+        <LI>Next message: <A HREF="000923.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#922">[ date ]</a>
+              <a href="thread.html#922">[ thread ]</a>
+              <a href="subject.html#922">[ subject ]</a>
+              <a href="author.html#922">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus, et.al.,
+
+Sorry. I wasn't complaining. I just didn't understand at first. I 
+thought the build-installer-listener tag associated the name with the 
+class, but I see now that you might include several classes in there, so 
+that wouldn't really work.
+
+I made a patch for the doc on how to create a listener, but when I do an 
+&quot;ant build.docu&quot; it doesn't change the html, and I don't see anything in 
+the build.xml that would generate the node9.html from the node9.xml. I 
+only see the copy of the xml. How do you gen the .html? Do you use a 
+tool for editing the docbook xml?
+
+Scott
+
+PS. Since I haven't been able to view it in the browser, it might not be 
+right yet. This is just to give you an idea of what I'm doing in case 
+I'm on the wrong track.
+
+
+
+Index: src/doc-ng/docbooks/node9.xml
+===================================================================
+--- src/doc-ng/docbooks/node9.xml       (revision 1753)
++++ src/doc-ng/docbooks/node9.xml       (working copy)
+@@ -319,13 +319,14 @@
+         Implement 
+&lt;literal&gt;com.izforge.izpack.event.CompilerListener&lt;/literal&gt; or extend 
+&lt;literal&gt;com.izforge.izpack.event.SimpleCompilerListener&lt;/literal&gt;. 
+Place it as &lt;literal&gt;
+         
+[IzPackRoot]/src/lib/[MyPackagePath]/MyCompilerListener.java&lt;/literal&gt;.
+       &lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;
+-        Add a &quot;compile.simple&quot; antcall in to 
+&lt;literal&gt;[IzPackRoot]/src/build.xml&lt;/literal&gt;.
++        Add a &quot;build-install-listener&quot; antcall in to the 
+&lt;literal&gt;build.listeners&lt;/literal&gt; target in 
+&lt;literal&gt;[IzPackRoot]/src/build.xml&lt;/literal&gt;. Note that
++        the name attribute value in the build-instealler-listener must 
+match
++        &lt;literal&gt;CompilerListener&lt;/literal&gt; implementation class name (not
++            including the package).
+ &lt;programlisting&gt;
+-&amp;lt;antcall target=&quot;compile.listener.simple&quot;&amp;gt;
+-  &amp;lt;param name=&quot;listener&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+-  &amp;lt;param name=&quot;listener-dir&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+-  &amp;lt;param name=&quot;listener-include&quot; value=&quot;[MyPackagePath]&quot;/&amp;gt;
+-&amp;lt;/antcall&amp;gt;
++        &amp;lt;build-installer-listener name=&quot;MyCompilerListener&quot;&amp;gt;
++            &amp;lt;include 
+name=&quot;com/zyross/izpack/MyCompilerListener.java&quot;/&amp;gt;
++        &amp;lt;/build-installer-listener&amp;gt;
+ &lt;/programlisting&gt;
+       &lt;/para&gt;&lt;/listitem&gt;&lt;listitem&gt;&lt;para&gt;
+         Run &lt;literal&gt;[IzPackRoot]/src/build.xml&lt;/literal&gt;.
+@@ -744,4 +745,4 @@
+        &lt;address xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml&quot;">http://www.w3.org/1999/xhtml&quot;</A>&gt;
+       Julien Ponge 2005-05-24
+     &lt;/address&gt;
+-  &lt;para/&gt;&lt;/section&gt;&lt;/article&gt;
+\ No newline at end of file
++  &lt;para/&gt;&lt;/section&gt;&lt;/article&gt;
+
+
+
+
+
+Bartz, Klaus wrote:
+&gt;<i> Hi Scott,
+</I>&gt;<i> I do not really understand how the compiler should detect
+</I>&gt;<i> the custom action class if they is not determined in any way.
+</I>&gt;<i> To search for a class which implements the interface will
+</I>&gt;<i> not help because you can derive the classes, then you have more
+</I>&gt;<i> as one which implements the interface.
+</I>&gt;<i> But this is not a really necessary discussion. Problem can be
+</I>&gt;<i> appearanced and a nullpointer exception is not a feature else
+</I>&gt;<i> a bug...
+</I>&gt;<i> I have just checked in you patch into trunk (1772).
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A> 
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of 
+</I>&gt;&gt;<i> Scott Plante
+</I>&gt;&gt;<i> Sent: Thursday, March 08, 2007 10:46 AM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: Re: [izpack-devel] Custom Actions NPE, patch
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus wrote:
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;&gt;<i> ?? What is the listener name?? Do you mean the name of the jar file?
+</I>&gt;&gt;&gt;<i>   
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;<i> Well, yes, the jar file too, but I was talking about the name 
+</I>&gt;&gt;<i> you put in 
+</I>&gt;&gt;<i> the compiler or installer attribute in the izpack.xml file, 
+</I>&gt;&gt;<i> and the name 
+</I>&gt;&gt;<i> attribute to the build-installer-listener  tag in the izpack 
+</I>&gt;&gt;<i> build.xml 
+</I>&gt;&gt;<i> file.
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;&gt;<i> Yes this have to be the same. This is not only for the 
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;<i> listener else 
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;&gt;<i> also for panels. It is something since many years (never 
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;<i> seen IzPack 
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;&gt;<i> other), therefore we do not remember it at the first step. May be 
+</I>&gt;&gt;&gt;<i> about that I have not verified this in the compiler code. 
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;<i> To do it is 
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;&gt;<i> a good way to reduce errors, therefor I will put it into trunk.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Cheers
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Klaus
+</I>&gt;&gt;&gt;<i>   
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;&gt;<i> Thanks Klaus!
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A> 
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>
+-- 
+Scott Plante, CTO
+Insight Systems, Inc.
+(+1) 404 873 0058 x104
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">splante at insightsys.com</A>
+<A HREF="http://zyross.com">http://zyross.com</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000920.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+	<LI>Next message: <A HREF="000923.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#922">[ date ]</a>
+              <a href="thread.html#922">[ thread ]</a>
+              <a href="subject.html#922">[ subject ]</a>
+              <a href="author.html#922">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

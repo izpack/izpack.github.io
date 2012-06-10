@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Using Compression in Packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Using%20Compression%20in%20Packs&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000502.html">
+   <LINK REL="Next"  HREF="000504.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Using Compression in Packs</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Using%20Compression%20in%20Packs&In-Reply-To="
+       TITLE="[izpack-users] Using Compression in Packs">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu May  4 11:39:52 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000502.html">AW: [izpack-users] Using Compression in Packs
+</A></li>
+        <LI>Next message: <A HREF="000504.html">[izpack-users] Using Compression in Packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#503">[ date ]</a>
+              <a href="thread.html#503">[ thread ]</a>
+              <a href="subject.html#503">[ subject ]</a>
+              <a href="author.html#503">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+last year I have implemented the compressor stuff.
+At default we use the &quot;normal&quot; deflate compression of a jar file.
+Our server installation will be compressed from ~700 MB to ~350 MB.
+If nothing compresses, there is something wrong.
+
+I have also seen at implementation time, that bzip2 is not much
+better as deflate; 3 - 5 %. I do not know why. May be this is related
+to the point that IzPack often used for java appls which contains
+already comprest jar files.
+
+I had played a little bit with LZMA (7zip); it was ~ 25 % better as deflate.
+But up to know I have had no time to write a filter output stream 
+which compresses with LZMA. 
+The java impl of LZMA self is not filter output stream orientated.
+In the current design of pack compression we cannot use the 7zip
+classes. May be it will be possible to write a wrapper around the classes
+which wrappes it to an filter output stream. LZMA will be sometimes
+very slow (much slower as bzip2) at encoding...
+If some one will do the work - to write an encoder as filter output stream
+and an decoder as filter input stream using 
+interface com.izforge.izpack.compressor.PackCompressor
+as integration wrapper - I will be very happy.
+
+Never heard of a compression which is reproducable 60% better as deflate.
+Means not only for special cases used; e.g. CCITT T.6 is better as deflate, 
+(can be more than 60 %) if you compress a BW image without noise, but at 
+halftone images CCITT T.6 will compress nothing. And an exe you cannot compress
+with CCITT T.6.
+Will be very nice if some one can send me the sources or a link to the
+description of the (non patent) algorithm.
+
+On the other hand, it is possible that I have made a mistake at
+implementation. Please look into package com.izforge.izpack.compressor.
+There are the related classes. 
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of &quot;Schr&#246;der Frank, HH&quot;
+</I>&gt;<i>Sent: Thursday, May 04, 2006 10:50 AM
+</I>&gt;<i>To: '<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>'
+</I>&gt;<i>Subject: AW: [izpack-users] Using Compression in Packs
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi Hal,
+</I>&gt;<i>
+</I>&gt;<i>I wrote a similar mail a few weeks ago (see below).
+</I>&gt;<i>If you have the time to analyze and fix the problem or need some
+</I>&gt;<i>support (I'm not an expert in this field, too) send me your ideas.
+</I>&gt;<i>
+</I>&gt;<i>best regards
+</I>&gt;<i>Frank
+</I>&gt;<i>
+</I>&gt;<i>Frank Schr&#246;der
+</I>&gt;<i>FJA Hamburg
+</I>&gt;<i>S&#252;derstr. 77
+</I>&gt;<i>20099 Hamburg
+</I>&gt;<i>Tel  040 / 236005-51
+</I>&gt;<i>Fax 040 / 236005-56
+</I>&gt;<i>mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">frank.schroeder at fja.com</A>
+</I>&gt;<i>
+</I>&gt;<i>---------------------------------
+</I>&gt;<i>Von:	Schr&#246;der Frank, HH
+</I>&gt;<i>Gesendet:	Montag, 10. April 2006 16:06
+</I>&gt;<i>An:	'<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>'
+</I>&gt;<i>Betreff:	how to use compression?
+</I>&gt;<i>
+</I>&gt;<i>Hi,
+</I>&gt;<i>
+</I>&gt;<i>is there anyone who knows how to use the different compressors 
+</I>&gt;<i>in IzPack?
+</I>&gt;<i>I played around with &quot;raw&quot; and &quot;bzip2&quot; and different levels, 
+</I>&gt;<i>for example
+</I>&gt;<i>
+</I>&gt;<i>compile ... -c bzip2 -l 9
+</I>&gt;<i>
+</I>&gt;<i>but I saw no (significant) influence on the installers size 
+</I>&gt;<i>(only on the
+</I>&gt;<i>time to build it).
+</I>&gt;<i>For the application I want to pack, IzPack produces an 170 MB Jar. 
+</I>&gt;<i>(with InstallShield I got an 60 MB exe!)
+</I>&gt;<i>
+</I>&gt;<i>thanks
+</I>&gt;<i>Frank
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;<i> -----Urspr&#252;ngliche Nachricht-----
+</I>&gt;&gt;<i> Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> 
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>] Im Auftrag von Hal Vaughan
+</I>&gt;&gt;<i> Gesendet: Dienstag, 2. Mai 2006 20:24
+</I>&gt;&gt;<i> An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;&gt;<i> Betreff: [izpack-users] Using Compression in Packs
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> When I was working on finding a way to integrate encrypting packs I 
+</I>&gt;&gt;<i> remember looking over some of the jar handling routines for 
+</I>&gt;<i>input and 
+</I>&gt;&gt;<i> output.  I haven't done a lot with jars and IO is not one of 
+</I>&gt;&gt;<i> my strong 
+</I>&gt;&gt;<i> points, but it appears to me that there is no compression 
+</I>&gt;<i>used at all 
+</I>&gt;&gt;<i> in creating packs or the entire install jar file.  Is this a 
+</I>&gt;&gt;<i> deliberate 
+</I>&gt;&gt;<i> decision and is there a reason for it?
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Would there be any interest in making a small change to add 
+</I>&gt;&gt;<i> compression?
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Would there be interest in the ability of the developer to pick a 
+</I>&gt;&gt;<i> desired level of compression?
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> I started thinking about this when realizing that one of the 
+</I>&gt;&gt;<i> 4 packs I 
+</I>&gt;&gt;<i> need for my program is 91 MB and another one I haven't quite 
+</I>&gt;<i>finished 
+</I>&gt;&gt;<i> with will likely be even larger.  It took over half an hour 
+</I>&gt;<i>to upload 
+</I>&gt;&gt;<i> this 91MB pack to my web site in a test run today.  After 
+</I>&gt;&gt;<i> dealing with 
+</I>&gt;&gt;<i> that I would much rather wait longer for the pack or jar file to be 
+</I>&gt;&gt;<i> created and have a smaller file than to have such a large pack.
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Thanks!
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Hal
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A> 
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpac">http://lists.berlios.de/mailman/listinfo/izpac</A>&gt; k-users
+</I>&gt;&gt;<i> 
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000502.html">AW: [izpack-users] Using Compression in Packs
+</A></li>
+	<LI>Next message: <A HREF="000504.html">[izpack-users] Using Compression in Packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#503">[ date ]</a>
+              <a href="thread.html#503">[ thread ]</a>
+              <a href="subject.html#503">[ subject ]</a>
+              <a href="author.html#503">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

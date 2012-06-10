@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Passing arguments to executable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139AD0A%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001394.html">
+   <LINK REL="Next"  HREF="001398.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Passing arguments to executable</H1>
+    <B>Zycor.net Development Solutions</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139AD0A%40coi11.coi.com"
+       TITLE="[izpack-users] Passing arguments to executable">airhead at webmail.co.za
+       </A><BR>
+    <I>Thu Mar 29 11:24:50 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001394.html">[izpack-users] Passing arguments to executable
+</A></li>
+        <LI>Next message: <A HREF="001398.html">[izpack-users] Passing arguments to executable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1396">[ date ]</a>
+              <a href="thread.html#1396">[ thread ]</a>
+              <a href="subject.html#1396">[ subject ]</a>
+              <a href="author.html#1396">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bartz, Klaus wrote:
+&gt;<i> Hi Riaan,
+</I>&gt;<i> in what config file do you have written the &lt;pack&gt; tag with the subtags?
+</I>&gt;<i>  
+</I>&gt;<i> Cheers
+</I>&gt;<i>  
+</I>&gt;<i> Klaus
+</I>
+Hi Klaus,
+
+I'm specifying it in my ant build script for my app:
+
+ From Ant Script:
+
+....
+&lt;taskdef name=&quot;izpack&quot;
+        classpath=&quot;${installerBasedir}/libs/standalone-compiler.jar&quot;
+        classname=&quot;com.izforge.izpack.ant.IzPackTask&quot; /&gt;
+...
+&lt;/target&gt;
+....
+      &lt;izpack output=&quot;${installerOutputdir}/Installer.jar&quot;
+            installerType=&quot;standard&quot;
+            basedir=&quot;${installerBasedir}&quot;&gt;
+            &lt;config&gt;&lt;![CDATA[
+&lt;installation version=&quot;1.0&quot;&gt;
+    &lt;variables&gt;
+...
+    &lt;/variables&gt;
+   
+    &lt;info&gt;
+   ...
+    &lt;/info&gt;
+   ...
+    &lt;packs&gt;
+        ....
+        &lt;pack name=&quot;MSDE 2005&quot; id=&quot;sqlExpress.package&quot; required=&quot;no&quot;
+                installGroups=&quot;Stand Alone (Vista),Network Server (Vista)&quot;
+                loose=&quot;true&quot;&gt;
+            &lt;description&gt;The MS SQL Server Express&lt;/description&gt;
+                &lt;file src=&quot;serverExpress&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+                &lt;executable
+                    targetfile=&quot;$INSTALL_PATH/serverExpress/setup.exe&quot;
+                            stage=&quot;postinstall&quot; keep=&quot;false&quot; failure=&quot;warn&quot;&gt;
+                  &lt;args&gt;
+                    &lt;arg value=&quot;/qb&quot; /&gt;
+                    &lt;arg value=&quot;INSTANCENAME=CORETALK&quot; /&gt;
+                    &lt;arg value=&quot;ADDLOCAL=ALL&quot; /&gt;
+                    &lt;arg value=&quot;SQLAUTOSTART=1&quot; /&gt;
+                    &lt;arg value=&quot;AGTAUTOSTART=1&quot; /&gt;
+                    &lt;arg value=&quot;SECURITYMODE=SQL&quot; /&gt;
+                    &lt;arg value=&quot;SAPWD=root&quot; /&gt;
+                    &lt;arg value=&quot;DISABLENETWORKPROTOCOLS=0&quot; /&gt;
+                  &lt;/args&gt;
+                &lt;/executable&gt;
+    &lt;/pack&gt;       
+    &lt;/packs&gt;
+    ...
+&lt;/installation&gt;
+            ]]&gt;&lt;/config&gt;
+        &lt;/izpack&gt;
+...
+&lt;/target&gt;
+
+Cheers
+Riaan
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/72e51497/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/72e51497/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001394.html">[izpack-users] Passing arguments to executable
+</A></li>
+	<LI>Next message: <A HREF="001398.html">[izpack-users] Passing arguments to executable
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1396">[ date ]</a>
+              <a href="thread.html#1396">[ thread ]</a>
+              <a href="subject.html#1396">[ subject ]</a>
+              <a href="author.html#1396">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] IzPack XML variable substitution...
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20IzPack%20XML%20variable%20substitution...&In-Reply-To=opt2ta8ngsv7jgb8%40java-02">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001765.html">
+   <LINK REL="Next"  HREF="001767.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] IzPack XML variable substitution...</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20IzPack%20XML%20variable%20substitution...&In-Reply-To=opt2ta8ngsv7jgb8%40java-02"
+       TITLE="[izpack-users] IzPack XML variable substitution...">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Tue Dec  4 15:07:27 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001765.html">[izpack-users] IzPack XML variable substitution...
+</A></li>
+        <LI>Next message: <A HREF="001767.html">[izpack-users] IzPack XML variable substitution...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1766">[ date ]</a>
+              <a href="thread.html#1766">[ thread ]</a>
+              <a href="subject.html#1766">[ subject ]</a>
+              <a href="author.html#1766">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>It should be:
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+&lt;properties&gt;
+	&lt;category name=&quot;general&quot;&gt;
+		&lt;property name=&quot;${PORT}&quot; value=&quot;&quot;/&gt;
+	&lt;/category&gt;
+&lt;/properties&gt;
+
+Regards,
+  Dennis
+
+-----Urspr&#252;ngliche Nachricht-----
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von Ajay Kumar Gour
+Gesendet: Dienstag, 4. Dezember 2007 14:18
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: [izpack-users] IzPack XML variable substitution...
+
+Hello All,
+
+I am fairly new to the IZpack and just now i have started using it. I want  
+to use it as an installer for one of my application, which requires to set  
+the XML configuration properties for the application. To be more  
+technical, I want to UserInput panel to take input from user and set these  
+values in the XML file (which contains the configuration properties).
+
+Problem is - User input is not reflected back in XML configuration file.
+
+Please somebody help me sorting it out.
+
+Any help would be highly appreciated.
+
+Here is my configuration file where i need to set values -
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+&lt;properties&gt;
+	&lt;category name=&quot;general&quot;&gt;
+		&lt;property name=&quot;PORT&quot; value=&quot;&quot;/&gt;
+	&lt;/category&gt;
+&lt;/properties&gt;
+
+UserInputSpec.xml file -
+
+&lt;userInput&gt;
+&lt;panel order=&quot;0&quot;&gt;
+	&lt;!--field type=&quot;staticText&quot; align=&quot;left&quot; txt=&quot;My comment is here.&quot;  
+id=&quot;input.comment&quot;/--&gt;
+	&lt;field type=&quot;text&quot; variable=&quot;PORT&quot;&gt;
+		&lt;spec txt=&quot;Proxy Port:&quot; id=&quot;PORT&quot; size=&quot;6&quot; set=&quot;&quot;/&gt;
+	&lt;/field&gt;
+&lt;/panel&gt;
+&lt;/userInput&gt;
+
+And finally, install.xml
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+
+&lt;installation version=&quot;1.0&quot;&gt;
+     &lt;info&gt;
+         &lt;appname&gt;Blueoptima Connector Server&lt;/appname&gt;
+         &lt;appversion&gt;1.0&lt;/appversion&gt;
+         &lt;authors&gt;
+             &lt;author name=&quot;Jason Rolles&quot;  
+email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Jason.Rolles at blueoptima.com</A>&quot;/&gt;
+         &lt;/authors&gt;
+         &lt;url&gt;<A HREF="http://www.blueoptima.com&lt;/url">http://www.blueoptima.com&lt;/url</A>&gt;
+     &lt;/info&gt;
+
+	&lt;variables&gt;
+		&lt;variable name=&quot;PORT&quot; value=&quot;9999&quot;/&gt;
+	&lt;/variables&gt;
+
+     &lt;guiprefs width=&quot;640&quot; height=&quot;480&quot; resizable=&quot;no&quot;/&gt;
+
+     &lt;locale&gt;
+         &lt;langpack iso3=&quot;eng&quot;/&gt;
+     &lt;/locale&gt;
+
+     &lt;resources&gt;
+         &lt;res id=&quot;LicencePanel.licence&quot; src=&quot;Licence.txt&quot;/&gt;
+         &lt;res id=&quot;InfoPanel.info&quot; src=&quot;Readme.txt&quot;/&gt;
+         &lt;res id=&quot;userInputSpec.xml&quot; src=&quot;userInputSpec.xml&quot;/&gt;
+     &lt;/resources&gt;
+
+     &lt;panels&gt;
+         &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+         &lt;panel classname=&quot;InfoPanel&quot;/&gt;
+         &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+         &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+         &lt;panel classname=&quot;UserInputPanel&quot;/&gt;
+         &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+         &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+         &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+     &lt;/panels&gt;
+
+     &lt;packs&gt;
+         &lt;pack name=&quot;Base&quot; required=&quot;yes&quot;&gt;
+             &lt;description&gt;The base files&lt;/description&gt;
+             &lt;file src=&quot;Readme.txt&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+             &lt;file src=&quot;Licence.txt&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+             &lt;file src=&quot;script.bat&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+             &lt;file src=&quot;myconfiguration.xml&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+             &lt;parsable targetfile=&quot;$INSTALL_PATH/myconfiguration.xml&quot;  
+type=&quot;xml&quot;/&gt; &lt;!-- The file will be parsed --&gt;
+             &lt;parsable targetfile=&quot;$INSTALL_PATH/script.bat&quot;/&gt; &lt;!-- The  
+file will be parsed --&gt;
+         &lt;/pack&gt;
+         &lt;pack name=&quot;Docs&quot; required=&quot;no&quot;&gt;
+             &lt;description&gt;The documentation&lt;/description&gt;
+             &lt;file src=&quot;doc&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt; &lt;!-- Reccursive  
+adding --&gt;
+         &lt;/pack&gt;
+         &lt;pack name=&quot;Sources&quot; required=&quot;no&quot;&gt;
+             &lt;description&gt;The sources&lt;/description&gt;
+             &lt;file src=&quot;src&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+         &lt;/pack&gt;
+     &lt;/packs&gt;
+&lt;/installation&gt;
+
+
+Thanks,
+-Ajay
+_______________________________________________
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001765.html">[izpack-users] IzPack XML variable substitution...
+</A></li>
+	<LI>Next message: <A HREF="001767.html">[izpack-users] IzPack XML variable substitution...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1766">[ date ]</a>
+              <a href="thread.html#1766">[ thread ]</a>
+              <a href="subject.html#1766">[ subject ]</a>
+              <a href="author.html#1766">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

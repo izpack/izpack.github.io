@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Parsing xml file with NanoXML,	getting MalformedURLException.
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Parsing%20xml%20file%20with%20NanoXML%2C%0A%09getting%20MalformedURLException.&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000642.html">
+   <LINK REL="Next"  HREF="000641.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Parsing xml file with NanoXML,	getting MalformedURLException.</H1>
+    <B>Miraodb</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Parsing%20xml%20file%20with%20NanoXML%2C%0A%09getting%20MalformedURLException.&In-Reply-To="
+       TITLE="[izpack-users] Parsing xml file with NanoXML,	getting MalformedURLException.">miraodb at hotmail.com
+       </A><BR>
+    <I>Tue Jul 18 13:53:24 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000642.html">[izpack-users] Parsing xml file with NanoXML,	getting MalformedURLException.
+</A></li>
+        <LI>Next message: <A HREF="000641.html">[izpack-users] the file version is different from the compiler	version
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#650">[ date ]</a>
+              <a href="thread.html#650">[ thread ]</a>
+              <a href="subject.html#650">[ subject ]</a>
+              <a href="author.html#650">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Jungu,
+
+This means you have used a filename beginning c: in a context where a URL is
+expected. (A filename is not a URL, despite the fact that much Microsoft
+software accepts filenames whereever a URL is required).To solve this
+problem try this:String dSQLFile
+=&quot;<A HREF="file://c:\\IBOSS_NetNumen\\inet\\ums-svr\\deploy\\inet-isl-dscript-sql-fil">file://c:\\IBOSS_NetNumen\\inet\\ums-svr\\deploy\\inet-isl-dscript-sql-fil</A>
+e.xml&quot;;try {parser = XMLParserFactory.createDefaultXMLParser();IXMLReader
+reader =
+StdXMLReader.fileReader(dSQLFile);parser.setReader(reader);XMLElement xml =
+(XMLElement) parser.parse();} catch Hope it helps,Cheers,Fabrice----- 
+Original Message ----- 
+From: &quot;jungu zhan&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">zhanjungu at yahoo.com</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+Sent: Thursday, July 13, 2006 11:47 AM
+Subject: [izpack-users] Parsing xml file with NanoXML,getting
+MalformedURLException.
+
+
+&gt;<i> Hi,
+</I>&gt;<i> I want to use NanoXML to parse some xml file in my
+</I>&gt;<i> installation.
+</I>&gt;<i>
+</I>&gt;<i> The code using Nano is as follows:
+</I>&gt;<i> /************************************************/
+</I>&gt;<i>
+</I>&gt;<i> String dSQLFile =
+</I>&gt;<i>
+</I>&quot;C:\\IBOSS_NetNumen\\inet\\ums-svr\\deploy\\inet-isl-dscript-sql-file.xml&quot;;
+&gt;<i> try {
+</I>&gt;<i> parser = XMLParserFactory.createDefaultXMLParser();
+</I>&gt;<i> IXMLReader reader = StdXMLReader.fileReader(dSQLFile);
+</I>&gt;<i> parser.setReader(reader);
+</I>&gt;<i> XMLElement xml = (XMLElement) parser.parse();
+</I>&gt;<i> } catch
+</I>&gt;<i> ............
+</I>&gt;<i>
+</I>&gt;<i> /************************************************/
+</I>&gt;<i>
+</I>&gt;<i> When it goes to
+</I>&gt;<i> &quot;IXMLReader reader =
+</I>&gt;<i> StdXMLReader.fileReader(dSQLFile);&quot;, I get a
+</I>&gt;<i> &quot;java.net.MalformedURLException: unknown protocol: c&quot;.
+</I>&gt;<i>
+</I>&gt;<i> if &quot;dSQLFile&quot; is defined as
+</I>&gt;<i> [String dSQLFile =
+</I>&gt;<i>
+</I>&quot;D:\\IBOSS_NetNumen\\inet\\ums-svr\\deploy\\inet-isl-dscript-sql-file.xml&quot;;]
+,
+&gt;<i> then the Exception is &quot;java.net.MalformedURLException:
+</I>&gt;<i> unknown protocol: d&quot;.
+</I>&gt;<i>
+</I>&gt;<i> It seems StdXMLReader.setSystemID(String systemID)
+</I>&gt;<i> didn't behave as expected.
+</I>&gt;<i>
+</I>&gt;<i> I have searched the mailinglist, but didn't find
+</I>&gt;<i> related content.
+</I>&gt;<i>
+</I>&gt;<i> Did I miss sth.?
+</I>&gt;<i>
+</I>&gt;<i> __________________________________________________
+</I>&gt;<i> &#184;&#207;&#191;&#236;&#215;&#162;&#178;&#225;&#209;&#197;&#187;&#162;&#179;&#172;&#180;&#243;&#200;&#221;&#193;&#191;&#195;&#226;&#183;&#209;&#211;&#202;&#207;&#228;?
+</I>&gt;<i> <A HREF="http://cn.mail.yahoo.com">http://cn.mail.yahoo.com</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at bat.berlios.de</A>
+</I>&gt;<i> <A HREF="http://bat.berlios.de/mailman/listinfo/izpack-users">http://bat.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000642.html">[izpack-users] Parsing xml file with NanoXML,	getting MalformedURLException.
+</A></li>
+	<LI>Next message: <A HREF="000641.html">[izpack-users] the file version is different from the compiler	version
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#650">[ date ]</a>
+              <a href="thread.html#650">[ thread ]</a>
+              <a href="subject.html#650">[ subject ]</a>
+              <a href="author.html#650">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

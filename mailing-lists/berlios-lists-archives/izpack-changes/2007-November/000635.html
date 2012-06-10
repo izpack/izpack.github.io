@@ -1,0 +1,884 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1889 - izpack-src/trunk/src/doc-reST
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1889%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000634.html">
+   <LINK REL="Next"  HREF="000636.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1889 - izpack-src/trunk/src/doc-reST</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1889%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To="
+       TITLE="[izpack-changes] r1889 - izpack-src/trunk/src/doc-reST">noreply at berlios.de
+       </A><BR>
+    <I>Wed Nov  7 07:54:24 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000634.html">[izpack-changes] r1888 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000636.html">[izpack-changes] r1890 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#635">[ date ]</a>
+              <a href="thread.html#635">[ thread ]</a>
+              <a href="subject.html#635">[ subject ]</a>
+              <a href="author.html#635">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-11-07 07:54:18 +0100 (Wed, 07 Nov 2007)
+New Revision: 1889
+
+Removed:
+   izpack-src/trunk/src/doc-reST/advanced-features.txt
+   izpack-src/trunk/src/doc-reST/getting-started.txt
+   izpack-src/trunk/src/doc-reST/introduction.txt
+Log:
+Removal of manually-extracted content (now redundant)
+
+
+Deleted: izpack-src/trunk/src/doc-reST/advanced-features.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/advanced-features.txt	2007-11-07 02:38:30 UTC (rev 1888)
++++ izpack-src/trunk/src/doc-reST/advanced-features.txt	2007-11-07 06:54:18 UTC (rev 1889)
+@@ -1,374 +0,0 @@
+-Advanced features
+-==================
+-
+-Apache Ant integration
+------------------------
+-
+-IzPack can be easily integrated inside an Ant build process. To do so you first need to tell Ant that you would like to use IzPack: ::
+-
+-  &lt;!-- Allows us to use the IzPack Ant task --&gt;
+-  &lt;taskdef name=&quot;IzPack&quot; classpath=&quot;${basedir}/lib/compiler.jar&quot;
+-           classname=&quot;com.izforge.IzPack.ant.IzPackTask&quot;/&gt;
+-
+-If you want to use the standalone compiler (and therefore don't need an IzPack installation for building), the task needs to be defined as follows: ::
+-
+-  &lt;!-- Allows us to use the IzPack Ant task --&gt;
+-  &lt;taskdef name=&quot;IzPack&quot; classpath=&quot;${basedir}/lib/standalone-compiler.jar&quot;
+-           classname=&quot;com.izforge.IzPack.ant.IzPackTask&quot;/&gt;
+-  Don't forget to add compiler.jar or standalone-compiler.jar to the classpath of the Ant process.
+-
+-Then you can invoke IzPack with the IzPack task which takes the following parameters:
+-
+-* 'input': the XML installation file. The installation can be specified as an external file, or embedded using a config child element (see section  3.2).
+-* 'output': the output jar installer file
+-* 'installerType': optional. standard or web. If web, the &lt;webdir&gt; attribute must be specified in the input file (see section 3.7). Used to force creation of a standard installer when the &lt;webdir&gt; attribute has been used.
+-* 'baseDir': the base directory to resolve the relative paths
+-* 'IzPackDir': the IzPack home directory. Only necessary if you do not use the standalone compiler.
+-
+-Here is a sample of the task invocation: ::
+-
+-  &lt;!-- We call IzPack --&gt;
+-  &lt;echo message=&quot;Makes the installer using IzPack&quot;/&gt;
+-  &lt;IzPack input=&quot;${dist.dir}/IzPack-install.xml&quot;
+-          output=&quot;${dist.dir}/IzPack-install.jar&quot;
+-          installerType=&quot;standard&quot;
+-          basedir=&quot;${dist.dir}&quot;
+-          IzPackDir=&quot;${dist.dir}/&quot;/&gt;
+-          
+-Embedding the installation file using a config element
+---------------------------------------------------------
+-
+-Instead of using the 'install' attribute to specify an external installation document, you can embed the installation config as a child of the IzPack task using a config child element with a CDATA section. For example: ::
+-
+-  &lt;property name=&quot;jboss.home.url&quot; value=&quot;<A HREF="http://www.jboss.com/&quot;">http://www.jboss.com/&quot;</A> /&gt;
+-  ...
+-
+-  &lt;!-- Call IzPack with an embedded install using the config element --&gt;
+-  &lt;IzPack output=&quot;${dist.dir}/IzPack-install.jar&quot;
+-          installerType=&quot;standard&quot;
+-          basedir=&quot;${dist.dir}&quot;
+-          IzPackDir=&quot;${dist.dir}/&quot;&gt;
+-          &lt;config&gt;&lt;![CDATA[
+-  &lt;installation version=&quot;1.0&quot;&gt;
+-     &lt;info&gt;
+-        &lt;appname&gt;JBossAS&lt;/appname&gt;
+-        &lt;appversion&gt;4.0.2&lt;/appversion&gt;
+-        &lt;appsubpath&gt;jboss-4.0.2&lt;/appsubpath&gt;
+-        &lt;authors&gt;
+-           &lt;author name=&quot;JBoss Inc.&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">sales at jboss.com</A>&quot;/&gt;
+-        &lt;/authors&gt;
+-        &lt;url&gt;@{jboss.home.url}&lt;/url&gt;
+-        &lt;javaversion&gt;1.4&lt;/javaversion&gt;
+-     &lt;/info&gt;
+-  ...
+-          ]]&gt;&lt;/config&gt;
+-  &lt;/IzPack&gt;
+-
+-Property references of the form '@{x}' are replaced by the associated x ant property if it is defined.
+-
+-System properties as variables
+--------------------------------
+-
+-All system properties are available as '$SYSTEM_&lt;variable&gt;' where '&lt;variable&gt;' is the actual name but with all separators replaced by '_'. Properties with null values are never stored.
+-
+-Examples:
+-
+-'$SYSTEM_java_version' or '$SYSTEM_os_name'
+-
+-Automated Installers
+----------------------
+-
+-When you conclude your installation with a FinishPanel, the user can save the data for an automatic installation. With this data, he will be able to run the same installation on another similar machine. In an environment where many computers need to be supported this can save a lot of time.
+-
+-So run once the installation on a machine and save your automatic installation data in auto-install.xml (that's just a sample). Then put this file in the same directory as the installer on another machine. Run it with: ::
+-
+-  java -jar installer.jar auto-install.xml
+-
+-It has reproduced the same installation :-)
+-
+-Picture on the Language Selection Dialog
+------------------------------------------
+-
+-You can add a picture on the language selection dialog by adding the following resource : 'installer.langsel.img'. GIF, JPEG and PNG pictures are supported starting from J2SE 1.3.
+-
+-Picture in the installer
+--------------------------
+-
+-It is possible to specify an optional picture to display on the left side of the installer. To do this, you just have to define a resource whose id is 'Installer.image'. For instance ::
+-
+-  &lt;res id=&quot;Installer.image&quot; src=&quot;nice-image.png&quot; /&gt;
+-
+-will do that. If the resource isn't specified, no picture will be displayed at all. GIF, JPEG and PNG pictures are supported starting from J2SE 1.3.
+-
+-You can also give a specific picture for a specific panel by using the 'Installer.image.n' resource names where  is the panel index. For instance if you want a specific picture for the third panel, use 'Installer.image.2' since the indexes start from 0.
+-
+-Modifying the GUI
+-------------------
+-
+-There are some options to modify the graphic user interface. Most of them are managed with key/value pairs of the element '&lt;modifier&gt;' which will be located in the element '&lt;guiprefs&gt;' in the installation description file.
+-
+-Modifying Language Selection Dialog
+-''''''''''''''''''''''''''''''''''''
+-
+-Additional to the picture in the language selection dialog it is possible to modify flags and the type of showing the language name. Following different views (without an images to reduce space).
+-
+-.. figure:: stdLangSel.png
+-
+-   Standard language selection dialog
+-
+-.. figure:: modLangSel.png
+-
+-   Alternative language selection dialog
+-
+-* 'useFlags': possible are &quot;yes&quot; or &quot;no&quot;. Default is &quot;yes&quot;. If it is set to &quot;no&quot;, no flag will be displayed in the language selection dialog. For &quot;no&quot; it is recommended to define also 'langDisplayType' other then &quot;iso3&quot;.
+-* 'langDisplayType': possible are &quot;iso3&quot;, &quot;native&quot; and &quot;default&quot;. Default is &quot;iso3&quot;. With &quot;iso3&quot; the text for a language will be displayed as ISO 639-2:1998 code. With &quot;native&quot; the notation of the language will be used if possible, else the notation of the default locale. Using &quot;default&quot; will be presented the language in the notation of the default locale of the VM.
+-
+-Modifying IzPack Panels
+-''''''''''''''''''''''''
+-
+-There are some graphic elements and behavior which are prefered by some people and deprecate by other. The following keys are related to the hole installation (all panels).
+-
+-* 'useButtonIcons': possible are &quot;yes&quot; or &quot;no&quot;. Default is &quot;yes&quot;. If it is set to &quot;no&quot;, all buttons which are created via the ButtonFactory contains no icon also a icon id was submitted. Directly created buttons are not affected.
+-
+-* 'useLabelIcons': possible are &quot;yes&quot; or &quot;no&quot;. Default is &quot;yes&quot;. If it is set to &quot;no&quot;, all labels which are created via the LabelFactory contains no icon also a icon id was submitted. Directly created labels are not affected.
+-
+-* 'layoutAnchor':layout anchor for IzPanels. Valid are &quot;NORTH&quot;, &quot;NORTHWEST&quot;, &quot;SOUTHWEST&quot;, &quot;SOUTH&quot; and &quot;CENTER&quot;. Only panels which are using the layout helper of IzPanels are supported. These are not all standard panels. At developing custom panels it is recommended to use the layout helper with an IzPanelLayout. Note: The anchor definition will be used for all panels!
+-  
+-* Gaps: there are defined different gaps between different components of a IzPanel if using IzPanelLayout. The gaps can be set also via the element '&lt;modifier&gt;' of '&lt;guiprefs&gt;'. It is possible to declare different values for X and Y axis. This will be determined in the key word name. X Gaps are insert after Y gaps under the control for which the gap was declared. Following key words are defined:
+-
+-  * 'labelXGap | labelYGap': gap in pixel between two labels in X or Y direction.
+-  * 'textXGap | textYGap':  gap in pixel between two text fields.
+-  * 'controlXGap | controlYGap': gap in pixel between two controls other than label or textfield.
+-  * 'paragraphYGap': gap in pixel for a pragraph. A paragraph will be created in the panel source for controls which should be separated. paragraphXGap is declared, but not used.
+-  * 'labelToTextXGap | labelToTextYGap': gap in pixel between a label (left or top) and a text field (right or bottom).
+-  * 'labelToControlXGap | labelToControlYGap':  gap in pixel between a label (left or top) and a control other than a label or a textfield.
+-  * 'textToLabelXGap | textToLabelYGap':  gap in pixel between a text field (left or top) and a label.
+-  * 'controlToLabelXGap | controlToLabelYGap': gap in pixel between a control other than a label or a text field and a label.
+-  * 'controlToTextXGap | controlToTextYGap':  gap in pixel between a control other than a label or a text field and a text field.
+-  * 'textToControlXGap | textToControlYGap':  gap in pixel between a text field and a control other than a label or a text field .
+-  * 'firstYGap':  gap in pixel between the top border and the first control.
+-  * 'filler[N]XGap | filler[N]YGap':  gap in pixel created by the layout manager. Filler are used by some panels. [N] is a number between 1 and 5 to allow to use different filler e.g. filler3XGap or filler1YGap.
+-  * 'allXGap | allYGap':  gap in pixel between all controls in X or Y direction. If this is declared all gaps for which no own declaration exists gets this value. If a gap has an own declaration this will be used instead.
+-
+-* 'layoutYStretchType | layoutXStretchType': the IzPanelLayout manager allows to declare stretch factors for controls. This means, that a control will be stratched if there is place in the line. The amount of stretching will be determined by the stretch factor. But what to do if the hole stretch factor for a line or column is not 1.0? To determine this these settings are exist. Valid values are &quot;RELATIVE&quot;, &quot;ABSOLUTE&quot; and &quot;NO&quot;. With &quot;NO&quot; no stretch will be performed. with &quot;RELATIVE&quot; the values are normalized, with &quot;ABSOLUTE&quot; the values will be used as they are (may be a part will be clipped if the sum is greater than 1.0).
+-
+-* 'layoutFullLineStretch | layoutFullColumnStretch': as described there are controls which should be stretched. Beside fixed values there are the symbolic values FULL_LINE_STRETCH and FULL_COLUMN_STRETCH which are computed at layouting. E.g. MultiLineLabels has this stretch factor for x direction. But what todo if a centered layout is chosen? With a control like this the lines will be stretch to the hole size. With this settings it can be changed. E.g. a factor of 0.7 creates a nice centered layout. The default is 1.0, valid are 0.0 upto 1.0.
+-
+-It is possible to use an alternatively frame title. Normaly the title has the aspect &quot;IzPack - Installation of &quot; + '$APP_NAME'. If the langpack key 'installer.reversetitle' is defined, the value of that key will be used instead of the key 'installer.title'. There is no string added, but it is possible to use IzPack variables. The third heading example contains such a alternatively frame title. It is only possible to use predefined variables like '$APP_NAME' because the title will be created before the frame will be shown. It is common to use the name of the installation toolkit in the frame title.
+-
+-Using a Separated Heading Panel
+-''''''''''''''''''''''''''''''''
+-
+-Some standard panels have headings (e.g. ShortcutPanel). These headings are integrated in the IzPanel. In oposite to this following heading will be displayed in a separated panel potential for all panels with the same design. There is no need to modify existent java classes else declaration of some key/value pairs are enough.
+-
+-There can be one real head and zero or more info lines. The headline will be written bold, the fontsize can be changed. Info lines will be indented and written with the normal used font. The heading message has to be written into the langpack (or custom langpack) file with the key '&lt;panel class name&gt;.headline'. Examples can be seen in eng.xml. May be the entries for standard panels are not present in other languages. Messages for info lines have the key '&lt;panel class name&gt;.headinfo&lt;info line number&gt;'. First info line has number zero. If no or empty headline messages will be declared in the chosen language no heading panel will be shown. This behavior can be used to suppress heading for special panels.
+-
+-It is also possible to declare head and info lines additonal dependent on the 'panelid'. The result is, that it is possible to declare different messages for panels which are shown more than one time (e.g. the UserInputPanel. In this case the key for heading is ::
+-
+-  &lt;panel class name&gt;.headline.&lt;panelid&gt;
+-
+-and for info lines ::
+-
+-  &lt;panel class name&gt;.headinfo&lt;info line number&gt;.&lt;panelid&gt;
+-
+-Panelids are declared in 'ELEMENT %lt;panel&gt;'. See The Panels Element '&lt;panels&gt;' . The standard strings are declared in the standard langpack file. For customized panels it is common to write the string into the custom langpack (see The Internationalization of custom panels. If (as example) in install.xml was following written: ::
+-
+-  &lt;panels&gt;
+-      ...
+-      &lt;panel classname=&quot;UserInputPanel&quot; id=&quot;one&quot;/&gt;
+-      &lt;panel classname=&quot;UserInputPanel&quot;id=&quot;two&quot;/&gt;
+-      ...
+-  &lt;/panels&gt;
+-
+-Then the messages can be declared in 'CustomLangpack.xml_eng' like ::
+-
+-  &lt;langpack&gt;
+-      ...
+-      &lt;str id=&quot;UserInputPanel.headline.one&quot; txt=&quot;User Data one&quot;/&gt;
+-      &lt;str id=&quot;UserInputPanel.headline.two&quot; txt=&quot;User Data two&quot;/&gt;
+-      &lt;str id=&quot;UserInputPanel.headinfo0.one&quot; txt=&quot;Info 1 one&quot;/&gt;
+-      &lt;str id=&quot;UserInputPanel.headinfo1.one&quot; txt=&quot;Info 2 one&quot;/&gt;
+-      &lt;str id=&quot;UserInputPanel.headinfo0.two&quot; txt=&quot;Info 1 two&quot;/&gt;
+-      &lt;str id=&quot;UserInputPanel.headinfo1.two&quot; txt=&quot;Info 2 two&quot;/&gt;
+-      ...
+-  &lt;langpack&gt;
+-  
+-It is possible to place an icon on the right side of the heading. To do this a simple resource entry will be needed: ::
+-
+-  &lt;resources&gt;
+-    ...
+-    &lt;res id=&quot;Heading.image&quot; src=&quot;[my path in the source tree]&quot;/&gt;
+-    ...
+-  &lt;/resources&gt;
+-
+-There are some guiprefs modifier keys to use and modify heading (see above). Additonal it is possible to count the general not hidden panels in the heading or navigation panel.
+-
+-* 'useHeadingPanel':  general switch for heading. If this key does not exist or does not have the value &quot;yes&quot; no heading panel will be shown.
+-* 'useHeadingForSummary': in the language files there are entries for the heading text ('[Panel name].headline') and the summary caption ('[Panel name].summaryCaption'). If this modifier is set to &quot;yes&quot;, the text of the heading will be also used for the summary caption.
+-* 'headingLineCount': number of heading lines. If no info lines should be shown the value should be one (not zero).
+-* 'headingFontSize': a float value used as multiplier for the standard font size.
+-* 'headingBackgroundColor':  background color of the heading panel as integer. Often used is 0x00ffffff (white).
+-* 'headingPanelCounter':  draw a panel counting. Possible values are &quot;text&quot; or &quot;progressbar&quot;. inHeading the progressbar will be not the best choice.
+-* 'headingPanelCounterPos': declares where the counter will be shown. Possible are &quot;inHeading&quot; or &quot;inNavigationPanel&quot;. If &quot;inNavigationPanel&quot; is chosen, the panel counter can be used also no heading was selected.
+-
+-.. figure:: stdTargetPanel.jpg
+-
+-   Normal look of an IzPack frame (TargetPanel)
+-
+-Key/value pairs to create IzPack installation with heading, no button and label icons and a panel text counter in the heading panel. ::
+-
+-   &lt;guiprefs width=&quot;600&quot; height=&quot;480&quot; resizable=&quot;no&quot;&gt;
+-     &lt;modifier key=&quot;useButtonIcons&quot; value=&quot;no&quot;/&gt;
+-     &lt;modifier key=&quot;useLabelIcons&quot; value=&quot;no&quot;/&gt;
+-     &lt;modifier key=&quot;labelGap&quot; value=&quot;2&quot;/&gt;    
+-     &lt;modifier key=&quot;layoutAnchor&quot; value=&quot;NORTHWEST&quot;/&gt;    
+-     &lt;modifier key=&quot;useHeadingPanel&quot; value=&quot;yes&quot;/&gt;
+-     &lt;modifier key=&quot;headingLineCount&quot; value=&quot;1&quot;/&gt;
+-     &lt;modifier key=&quot;headingFontSize&quot; value=&quot;1.5&quot;/&gt;
+-     &lt;modifier key=&quot;headingBackgroundColor&quot; value=&quot;0x00ffffff&quot;/&gt;
+-     &lt;modifier key=&quot;headingPanelCounter&quot; value=&quot;text&quot;/&gt;
+-     &lt;modifier key=&quot;headingPanelCounterPos&quot; value=&quot;inHeading&quot;/&gt;
+-   &lt;/guiprefs&gt;
+-
+-.. figure:: modTargetPanel3.png
+-
+-   IzPack frame (TargetPanel) with heading panel and a text counter in the heading panel with panel image.
+-   
+-Changed resources and langpack keys to create IzPack installation with alternatively frame title, heading, no button and label icons and a text counter in the heading panel.
+-
+-In install.xml  ::
+-
+-   &lt;installation version=&quot;1.0&quot;&gt;
+-     ...
+-     &lt;resources&gt;
+-       ...
+-       &lt;res src=&quot;border4.png&quot; id=&quot;Installer.image.3&quot;/&gt; REMOVED
+-       ...
+-     &lt;/resources&gt;
+-   &lt;/installation&gt;
+-
+-Add in '&lt;ISO3&gt;.xml' or 'CustomLangpack.xml_&lt;ISO3&gt;' ::
+-
+-   &lt;langpack&gt;
+-     ...
+-     &lt;str id=&quot;installer.reversetitle&quot; txt=&quot;$APP_NAME $APP_VER - IzPack Wizard &quot;/&gt;
+-     ...
+-   &lt;/langpack&gt;
+-
+-.. figure:: modTargetPanel.png
+-
+-   IzPack frame (TargetPanel) with heading panel and a text counter in the heading panel with alternative frame title, no panel image.
+-
+-Changed key/value pairs to create IzPack installation with heading, no button and label icons and a panel progressbar counter in the navigation panel.
+-
+-Key/value pairs for modifying IzPack GUI (references for panel images removed): ::
+-
+-   &lt;guiprefs width=&quot;640&quot; height=&quot;480&quot; resizable=&quot;no&quot;&gt;
+-     &lt;modifier key=&quot;useButtonIcons&quot; value=&quot;no&quot;/&gt;
+-     &lt;modifier key=&quot;useLabelIcons&quot; value=&quot;no&quot;/&gt;
+-     &lt;modifier key=&quot;layoutAnchor&quot; value=&quot;NORTHWEST&quot;/&gt;    
+-     &lt;modifier key=&quot;labelGap&quot; value=&quot;2&quot;/&gt;    
+-     &lt;modifier key=&quot;useHeadingPanel&quot; value=&quot;yes&quot;/&gt;
+-     &lt;modifier key=&quot;headingLineCount&quot; value=&quot;1&quot;/&gt;
+-     &lt;modifier key=&quot;headingFontSize&quot; value=&quot;1.5&quot;/&gt;
+-     &lt;modifier key=&quot;headingBackgroundColor&quot; value=&quot;0x00ffffff&quot;/&gt;
+-     &lt;modifier key=&quot;headingPanelCounter&quot; value=&quot;progressbar&quot;/&gt;
+-     &lt;modifier key=&quot;headingPanelCounterPos&quot; value=&quot;inNavigationPanel&quot;/&gt;
+-   &lt;/guiprefs&gt;
+-   
+-.. figure:: modTargetPanel2.png
+-
+-   IzPack frame (TargetPanel) with heading panel and a progressbar counter in the  navigation panel without panel image.
+-
+-Alternative Cancel Dialog
+-''''''''''''''''''''''''''
+-
+-The cancel dialog will be shown if the cancel button or the close button of the frame was pushed. In the standard dialog the title contains the question and the message an affirmation. In other dialogs often the title is a common heading and the question will be called in the dialog as message. The standard behavior will be modified if the messages 'installer.quit.reversemessage' and 'installer.quit.reversetitleare' declared.
+-
+-Add in '&lt;ISO3&gt;.xml' or 'CustomLangpack.xml_&lt;ISO3&gt;' ::
+-
+-   &lt;langpack&gt;
+-     ...
+-     &lt;str id=&quot;installer.quit.reversemessage&quot; txt=&quot;Are you sure you want to cancel installation?&quot;/&gt;
+-     &lt;str id=&quot;installer.quit.reversetitle&quot; txt=&quot;$APP_NAME $APP_VER&quot;/&gt;
+-     ...
+-   &lt;/langpack&gt;
+-
+-.. figure:: normQuitDialog.png
+-
+-   Standard cancel dialog.
+-
+-.. figure:: revQuitDialog.png
+-
+-   Alternative cancel dialog.
+-
+-Logging the Installation
+--------------------------
+-
+- Logging was made as coproduct at implementing other features. There was no common design for it. Therefor there is no one way to made logging of any kind else for each group a different logging stuff exist. Not nice, but reality.
+-
+-1. Debug Informations
+-
+-   There is a rudimental debug stuff in IzPack. The class 'com.izforge.IzPack.util.Debug' is used by some other classes to write debug informations on 'stdout'. The class can be used by custom panels or actions or other custom classes. To activate it, add '-DTRACE=TRUE' in front of '-jar' of the installer call.
+-   
+-2. Summary of Panels
+-   
+-   There is a summary panel which shows some informations of previous shown panels. The same contents can be written to a summary log file.
+-   
+-3. Logging of Installed File Set
+-
+-   The files which are installed are logged into the uninstaller jar file to be used at uninstallation. The contents can be also duplicated into a logfile.
+-   
+-4. Logging of the Process Panel
+-
+-   The process panel logs informations of each performed process in a scrollable text area. The contents can be duplicated into a logfile where the used directory can be selected (but not the logfile name).
+-   
+-5. Logging of Ant Actions
+-
+-   It is possible to perform ant actions with the 'AntActionInstallerListener'. The grade of logging and the path of a logfile can by determined.
+-
+-Web Installers
+----------------
+-
+-The web installers allow your users to download a small installer that does not contain the files to install. These files will be downloaded from an HttP server such as Apache HTTPD. If you have many optional packs, this can save people's resources. Its very easy: people download a small Jar file containing the installer, they launch it and choose their packages. Then the installer will get the required packages from individual Jar files located on a server, only downloading those required. It's that simple.
+-
+-To create a web installer, add the '&lt;webdir&gt;' element to the &lt;info&gt; element. The text must be a valid, fully qualified URL for a directory on the web server. ::
+-
+-   &lt;info&gt;
+-     &lt;appname&gt;Super extractor&lt;/appname&gt;
+-     &lt;appversion&gt;2.1 beta 6&lt;/appversion&gt;
+-     &lt;url&gt;<A HREF="http://www.superextractor.com/&lt;/url">http://www.superextractor.com/&lt;/url</A>&gt;
+-     &lt;webdir&gt;<A HREF="http://www.superextractor.com/download&lt;/url">http://www.superextractor.com/download&lt;/url</A>&gt;
+-   &lt;/info&gt;
+-  
+-You can force creation of a standard installer even if 'webdir' is specified, by specifically creating a standard installer from the command line invocation or ant task.
+-
+-When installing, if the user is behind a firewall, attempting download the jar files may fail. If this happens, the user will be prompted to enter the name host name and port of their firewall.
+-
+-You may password protect the files using mechanisms provided by your web server, IzPack will prompt for a password at install time, when required.
+-
+-More Internationalization
+---------------------------
+-
+-Special resources
+-''''''''''''''''''
+-
+-IzPack is available in several languages. However you might want to internationalize some additional parts of your installer. In particular you might want this for the 'InfoPanel' and 'LicencePanel'. This is actually pretty easy to do. You just have to add one resource per localization, suffixed with the ISO3 language code. At runtime these panels will try to load a localized version.
+-
+-For instance let's suppose that we use a 'HtmlInfoPanel'. Suppose that we have it in English, French and German. We want to have a French text for french users. Here we add a resource pointing to the French text whose name is 'HtmlInfoPanel.info_fra'. And that's it! English and German users (or anywhere other than in France) will get the default text (denoted by 'HtmlInfoPanel.info') and the French users will get the French version. Same thing for the other Licence and Info panels.
+-
+-To sum up: add '_&lt;iso3 code&gt;' to the resource name for 'InfoPanel', 'HtmlInfoPanel', 'LicencePanel' and 'HtmlLicencePanel'.
+-
+-Packs
+-''''''
+-
+-Thanks to Thorsten Kamann, it is possible to translate the packs names and descriptions. To do that, you have to define a special identifier in the elements of the XML installation file and add the related entries in the suitable langpacks. For instance if you have the following XML snippet: ::
+-
+-  &lt;pack name=&quot;core&quot; id=&quot;core.package&quot; ...&gt;
+-    &lt;description/&gt;
+-  &lt;/pack&gt;
+-  
+-then the related entries of the langpacks will look like this: ::
+-
+-  &lt;str id=&quot;core.package&quot; txt=&quot;Core Package&quot;/&gt;
+-  &lt;str id=&quot;core.package.description&quot; txt=&quot;The core package provides
+
+Deleted: izpack-src/trunk/src/doc-reST/getting-started.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/getting-started.txt	2007-11-07 02:38:30 UTC (rev 1888)
++++ izpack-src/trunk/src/doc-reST/getting-started.txt	2007-11-07 06:54:18 UTC (rev 1889)
+@@ -1,360 +0,0 @@
+-Getting started
+-================
+-
+-Overview
+----------
+-
+-To begin with, you should know what IzPack is organized if you want to use it. let's go into the directory where you have installed IzPack on your machine. There are 3 text files and a set of directories. The most important for the moment are bin/ doc/ sample/. If you are reading this, you already know that doc contains this documentation :-) 
+-
+-So let's go into bin/. The icons/ directory contains some directories for your system, in case you would like an icon to launch a component of IzPack . But the most important things you can see in bin are the compile scripts (in both unix* and windows formats). Compile is used to compile a ready-to-go xml installation file from a command-line context or from an external tool.
+-
+-Note : these scripts can be launched from anywhere on your system as the installer has customized these scripts so that they can inform IzPack of where it is located.
+-
+-Installation of IzPack
+------------------------
+-
+-First go get the latest stable version of IzPack from: <A HREF="http://izpack.org/downloads">http://izpack.org/downloads</A>
+-
+-If needed download the Latest Java Run Time from Sun's website <A HREF="http://java.sun.com/.">http://java.sun.com/.</A> You should get the JRE if you intend to ONLY run the installer and get the SDK if you're willing to compile as well.
+-
+-On Windows
+-'''''''''''
+-
+-Don't forget to set up the environment variables:
+-
+-If using the SDK: ::
+-
+-  set JAVA_HOME=&quot;C:\j2sdk1.4.2_04&quot;
+-  set JRE_HOME=%JAVA_HOME%/jre
+-  set CLASSPATH=%JAVA_HOME%/bin;%CLASSPATH%
+-  set PATH=%JAVA_HOME%/bin;%JRE_HOME%/bin;%PATH%
+-
+-This is obvioulsy assuming that SDK has been installed to &quot;C:\j2sdk1.4.2_04&quot;
+-
+-If using the JRE: ::
+-
+-  set JAVA_HOME=&quot;C:\Program Files\Java\j2re1.4.2_05&quot;
+-  set CLASSPATH=%JAVA_HOME%/bin;%CLASSPATH%
+-  set PATH=%JAVA_HOME%/bin;%PATH%
+-
+-This is obviously assuming that SDK has been installed to &quot;C:\Program Files\Java\j2re1.4.2_05&quot;
+-Once this is done, you can install IzPack using the following command: ::
+-
+-  java -jar izpack.jar
+-
+-Where izpack.jar is the latest release you downloaded from IzPack website.
+-
+-On UNIX/Linux
+-''''''''''''''
+-
+-If needed download the Latest Java Run Time from Sun's website <A HREF="http://java.sun.com/.">http://java.sun.com/.</A> You should get the JRE if you intend to ONLY run the installer, but you should get the SDK if you're willing to compile as well.
+-
+-If using the SDK: ::
+-
+-  export JAVA_HOME=/usr/java/j2sdk1.4.2_06
+-  export JAVA_JAR=/usr/java/java_jar
+-  export JRE_HOME=/usr/java/j2sdk1.4.2_06/jre
+-  export CLASSPATH=/usr/java/j2sdk1.4.2_06/bin
+-  export PATH=/usr/java/j2sdk1.4.2_06/bin:/usr/java/j2sdk1.4.2_06/jre/bin:$PATH
+-
+-This is obviously assuming that java has been installed to /usr/java/j2sdk1.4.2_06
+-
+-If using the JRE: ::
+-
+-  export JAVA_HOME=/usr/java/j2re1.4.2_05
+-  export CLASSPATH=$JAVA_HOME/bin:$CLASSPATH
+-  export PATH=$JAVA_HOME/bin:$PATH
+-
+-This is obviously assuming that SDK has been installed to &quot;/usr/java/j2re1.4.2_05&quot;
+-You can put them into any script launched at startup if you don't want to have to do it everytime.
+-For example, .bashrc of your user, so that whenever you'll start a bash console the variables will be set.
+-
+-To verify that the environment is correct, type SET in the command prompt and check if those variables are set before running any compilation.
+-
+-Then you install IzPack using the following command: ::
+-
+-  java -jar izpack.jar
+-
+-By default it will be installed in /usr/local/IzPack.
+-Therefore you can create two scripts, one for compiling your code and the second to execute the installer.
+-
+-Compile.sh: ::
+-
+-  #!/bin/sh
+-  /usr/local/IzPack/bin/compile /yourpath/Install.xml -b /yourpath -o /yourpath/yourjaroutput.jar -k standard
+-
+-Install.sh: ::
+-
+-  #!/bin/sh
+-  java -jar yourjaroutput.jar
+-
+-**BUGS and TROUBLESHOOTING**
+-
+-1. This is assuming that you're current Unix/Linux allows the use of the server X. In cas it doesn't here is a way to install IzPack using cygwin (thanks to Shrish Buradkar and Bartz Klaus for this trick):
+-
+-   Install cygwin on a remote machine. Cygwin can be downloaded from <A HREF="http://www.cygwin.com/">http://www.cygwin.com/</A>
+-   Firstly, start the XWindows server on your PC. This could be done by using the startxwin-multiwindow batch file or running /usr/X11R6/bin/startxwin.sh
+-   From the cygwin Xterm, type xhost +
+-   Then telnet to the remote UNIX/Linux machine and set the DISPLAY to your PC. So after you have logged into the remote machine, do export DISPLAY=pc-ip-adress:0.0 xterm &amp; java -jar installer.jar
+-   This should do the job by displaying an xterm from the remote machine onto yor PC.
+-
+-2. Normally launching packages created by IzPack under Gnome, KDE or XFCE works fine. If when trying to launch a pack you receive this error message: ::
+-
+-    Exception in thread &quot;main&quot; java.lang.InternalError: Can't connect to X11 
+-    window server using ':0.0' as the value of the DISPLAY variable.
+-            at sun.awt.X11GraphicsEnvironment.initDisplay(Native Method)
+-            at 
+-    sun.awt.X11GraphicsEnvironment.&lt;clinit&gt;(X11GraphicsEnvironment.java:134)
+-            at java.lang.Class.forName0(Native Method)
+-            at java.lang.Class.forName(Class.java:141)
+-            at 
+-    java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment(GraphicsEnvironment.java:62)
+-            at java.awt.Font.initializeFont(Font.java:308)
+-            at java.awt.Font.&lt;init&gt;(Font.java:344)
+-            at 
+-    com.izforge.izpack.gui.IzPackMetalTheme.createFont(IzPackMetalTheme.java:62)
+-            at 
+-    com.izforge.izpack.gui.IzPackMetalTheme.&lt;init&gt;(IzPackMetalTheme.java:52)
+-            at 
+-    com.izforge.izpack.gui.IzPackKMetalTheme.&lt;init&gt;(IzPackKMetalTheme.java:59)
+-            at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native 
+-    Method)
+-            at 
+-    sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+-            at 
+-    sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+-            at java.lang.reflect.Constructor.newInstance(Constructor.java:274)
+-            at java.lang.Class.newInstance0(Class.java:308)
+-            at java.lang.Class.newInstance(Class.java:261)
+-            at 
+-    com.izforge.izpack.installer.GUIInstaller.loadLookAndFeel(GUIInstaller.java:297)
+-            at 
+-    com.izforge.izpack.installer.GUIInstaller.&lt;init&gt;(GUIInstaller.java:100)
+-            at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native 
+-    Method)
+-            at 
+-    sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+-            at 
+-    sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+-            at java.lang.reflect.Constructor.newInstance(Constructor.java:274)
+-            at java.lang.Class.newInstance0(Class.java:308)
+-            at java.lang.Class.newInstance(Class.java:261)
+-            at com.izforge.izpack.installer.Installer.main(Installer.java:47)
+-
+-Then, it's most probably the fact that in some distribution the console and environment variables are &quot;erased&quot; when switching between users. So, you can type 'su -' in order to obtain all commands. With 'su -' $DISPLAY variables is erased and all X11 connections is refused. So, a best and fast practice in this way is:
+-
+-   1. Log in your system by user
+-   2. In shell type: '$ echo $DISPLAY'
+-   3. the result seems to be ':0.0'. If the response isn't there you can type:
+-   4. '$ export $DISPLAY=&quot;:0.0&quot;'
+-   5. Now type $su for a &quot;normal&quot; alias by root.
+-   6. Run: $ java -jar &quot;package.jar&quot;
+-
+-First Compilation
+-------------------
+-
+-Now you probably can't wait to build your first installer. So go on open a command-line shell and navigate to sample/. The following should work on both unix* and windows systems. for the latter, just change the path separator (slash '/') to a backslash. So type ($ is your shell prompt !) : ::
+-
+-  $ ../bin/compile install.xml -b . -o install.jar -k standard
+-   (installer generation text output here)
+-  $ java -jar install.jar
+-
+-There you are! The first command has produced the installer and the second one did launch it.
+-
+-How to develop and debug IzPack using Eclipse
+-----------------------------------------------
+-
+-(thanks to Bartz Klaus)
+-
+-Here are the steps needed to develop adn debug IzPack with Eclipse:
+-
+-1. IzPack Installation
+-
+-   Install the latest stable release of IzPack with the sources !
+-   For more details see the section &quot;IzPack Installation&quot;.
+-
+-2. Custom class sources and build.xml
+-
+-   Put your custom class sources under
+-   %IZPACK_HOME%\src\lib
+-   may be
+-   %IZPACK_HOME%\src\lib\com\izforge\izpack\panels\MyPanel.java
+-   Add a create rule into %IZPACK_HOME%\src\build.xml
+-   under target &quot;build.panels&quot;
+-
+-3. Eclipse
+-
+-   You can get Eclipse from <A HREF="http://www.eclipse.org/downloads/index.php">http://www.eclipse.org/downloads/index.php</A>
+-
+-4. Create IzPack project
+-
+-   Select
+-   File &gt; New &gt; Project...
+-   Java &gt; Java Project &gt; next &gt;
+-   give a project name like &quot;IzPack&quot;
+-   deselect &quot;Use default&quot; ( 2.x) or
+-   select &quot;Create project at external location&quot; (3.x)
+-   Browse to %IZPACK_HOME%\src\lib select it
+-   Next &gt;
+-   In &quot;Libraries&quot; select &quot;Add External JARs...&quot;
+-   select ant.jar and jakarta-regexp-1.3.jar from %IZPACK_HOME%\lib
+-   Finish
+-
+-5. Debug compile (create installation)
+-
+-   Select
+-   Run &gt; Debug...
+-   Java Application
+-   New
+-   give a name e.g. &quot;CompileMyInstall&quot;
+-   select in &quot;Main&quot; the project &quot;IzPack&quot;
+-   select as &quot;main class&quot; &quot;Compile&quot; (from package com.izforge.izpack.compiler)
+-   As &quot;Program arguments&quot; put in (for %SOME_THING% use your local value)
+-   %SRC_ROOT%\%CONFIG_SUBPATH%\install.xml -b %SRC_ROOT% -o %INSTALLER_DEST%\install.jar
+-   As &quot;VM arguments&quot; put in
+-   &quot;-DIZPACK_HOME=n:\home\bartzkau\work\xt150_forIzPack\izpack-src&quot;
+-
+-   No you can debug the compiling of your installation.
+-
+-5. Debug installation
+-
+-   Compile your installation; now you have
+-   %INSTALLER_DEST%\install.jar
+-   Run &gt; Debug...
+-   Java Application
+-   New
+-   give a name e.g. &quot;InstallMyInstall&quot;
+-   select in &quot;Main&quot; the project &quot;IzPack&quot;
+-   select as &quot;main class&quot; &quot;Installer&quot; (from package com.izforge.izpack.installer)
+-   as &quot;VM arguments&quot; use 
+-   -DTRACE=true
+-   select the tab &quot;Classpath&quot;
+-   select &quot;User classes&quot; (2.x) or &quot;User Entries&quot; (3.x)
+-   select &quot;Add External JARs...&quot;
+-   select %INSTALLER_DEST%\install.jar (may be, that's the trick...)
+-   install.jar must be under the project entry
+-
+-   **BUGS and TROUBLESHOOTING**
+-
+-   If you get this error when running the application 
+-   could not create shortcut instance ::
+-
+-      java.lang.Exception: error loading library
+-      at com.izforge.izpack.util.Librarian.loadLibrary(Librarian.java:249)
+-      at com.izforge.izpack.util.os.ShellLink.initialize(ShellLink.java:461)
+-      at com.izforge.izpack.util.os.ShellLink.&lt;init&gt;(ShellLink.java:349)
+-      at com.izforge.izpack.util.os.Win_Shortcut.initialize(Win_Shortcut.java:79)
+-      at com.izforge.izpack.panels.ShortcutPanel.&lt;init&gt;(ShortcutPanel.java:473)
+-      at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+-      at sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
+-      at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
+-      at java.lang.reflect.Constructor.newInstance(Unknown Source)
+-      at com.izforge.izpack.installer.InstallerFrame.loadPanels(InstallerFrame.java:203)
+-      at com.izforge.izpack.installer.InstallerFrame.&lt;init&gt;(InstallerFrame.java:160)
+-      at com.izforge.izpack.installer.GUIInstaller.loadGUI(GUIInstaller.java:391)
+-      at com.izforge.izpack.installer.GUIInstaller.&lt;init&gt;(GUIInstaller.java:128)
+-      at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+-      at sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
+-      at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
+-      at java.lang.reflect.Constructor.newInstance(Unknown Source)
+-      at java.lang.Class.newInstance0(Unknown Source)
+-      at java.lang.Class.newInstance(Unknown Source)
+-      at com.izforge.izpack.installer.Installer.main(Installer.java:62)
+-
+-   then it means you forgot to put the shelllink.dll into the correct source folder in that case, copy      %IZPACK_HOME%\bin\native\izpack\ShellLink.dll to
+-   %IZPACK_HOME%\src\lib\com\izforge\izpack\util\os\ShellLink.dll
+-
+-   Now you can debug the installation. With 2.x you can edit on demand,
+-   if %INSTALLER_DEST%\install.jar is shown in &quot;Classpath&quot; under the
+-   project.
+-   With 3.x it seems so, that always the JAR will be loaded; therefore
+-   the contents of install.jar and the sources should be synchron.
+-
+-6. Debug uninstallation
+-
+-   Install your installation to
+-   %INSTALL_PATH%
+-   Run &gt; Debug...
+-   Java Application
+-   New
+-   give a name e.g. &quot;UninstallMyInstall&quot;
+-   select in &quot;Main&quot; the project &quot;IzPack&quot;
+-   select as &quot;main class&quot; &quot;Uninstaller&quot; (from package com.izforge.izpack.installer)
+-   as &quot;VM arguments&quot; use 
+-   -DTRACE=true
+-   select the tab &quot;Classpath&quot;
+-   select &quot;User classes&quot; (2.x) or &quot;User Entries&quot; (3.x)
+-   select &quot;Add External JARs...&quot;
+-   select %INSTALL_PATH%\Uninstaller\uninstall.jar
+-   uninstall.jar must be under the project entry
+-
+-   Now, you can debug your uninstallation. Don't worry if you get first a NullPointerException in   SelfModifier. This should be; it is a hint, that the class files of your eclipse session are used. 
+-   If debugging not working, look whether:
+-   there is a fresh installation
+-   the uninstall.jar is in the &quot;Classpath&quot; tab under the project entry
+-
+-The IzPack architecture
+-------------------------
+-
+-Now that you have packaged your first installer, it's time for you to understand how the whole thing works. 
+-
+-The compilation system
+-'''''''''''''''''''''''
+-
+-The compilation system is quite modular. Indeed, you can use the compiler in 2 ways :
+-
+-* from a command-line
+-* from jakarta ant
+-
+-.. figure:: compilation-overview.png
+-
+-   The compilation architecture.
+-
+-The compiler takes as its input an xml installation file that describes (at a relatively high-level) the installation. this file contains detailed information such as the application name, the authors, the files to install, the panels to use, which resources to load and much more.
+-
+-The compiler can generate different kinds of installers, but this information is not located inside the xml file as it is not were it should be. On the contrary, this is a compiler parameter. 
+-
+-The compilation options for a command-line installer are the following:
+-
+--?    Gives a list of the available options.
+--b    Specifies the base path, ie the one that will be used to resolve the relative paths. if your xml file contains absolute paths, specify it to an empty string (-b &quot;&quot;).
+--k    Specifies the installer kind, for instance most users will want standard here.
+--o    Specifies the resulting installer jar file name.
+-
+-How an installer works
+-'''''''''''''''''''''''
+-
+-An installer presents its panels to the end-user. for instance, there is one to select the packages, one to prompt for the license agreement, one to select the installation path and so on. You have a choice from a variety of panels to place in the installer. For example, you can choose between a plain text and a html text panel for the license agreement. also, if you don't want of the hellopanel, you just don't include it.
+-
+-.. figure:: installer-content.png
+-
+-   The content of an installer.
+-
+-It is very important to understand that some of the panels may need extra data. for instance, the license agreement panel needs the license text. A simple approach to specify such data would have been to add as many xml tags as needed for each panel. However, this makes the xml file too specific and not easy to maintain. The approach that has been chosen is to put the data in files and we call these files resource files. They are specified with a unique xml tag. this is a much cleaner approach. 
+-
+-You might wonder how your files are packaged. They can be grouped in packs. For instance, you can have one pack for the core files, one for the documentation, one for the source code and so on. In this way, your end-users will have the choice to install a pack or not (provided that the pack they don't want to install is not mandatory). Inside the jar file (which is a zip file), a sub directory contains the pack files. Each pack file contains the files that are part of it. Could we do it simpler ? :-) 
+-
+-The different kinds of installers
+-''''''''''''''''''''''''''''''''''
+-
+-There are 2 kinds of installers available :
+-
+-* Standard : a single-file ready-to-run installer
+-* Web : a web based installer (pack data is located on an http server, and the installer retrieves it at install time (see section 3.6))
+-
+-Installers for older vm versions
+-'''''''''''''''''''''''''''''''''
+-
+-By default the installer will be made for the current most used version of the java runtime environment. It is possible to create an installation that is runable with an older vm version. 
+-
+-What version is used can be detected in the ant properties file that is used to build izpack. It is [izpackroot]/src/ant.properties. The value of the property &quot;source&quot; determines the vm version. 
+-
+-If compatibility to older versions is needed, a recompilation of the jar files of the izpack system should be done. For this the sources of izpack and an ant installation are needed. the sources of izpack are selectable at installation time of izpack. Before a recompilation of all can be triggered, the version of byte code should be changed. This can be done simple by changing the &quot;source&quot; entry in [izpackroot]/src/ant.properties to the needed value. The recompilation should be performed with the current most used vm version because there are classes of it referenced in the izpack code. Usage of an older vm version at installation time will be possible because the classes of the newer vm version are only used after a vm version check. Of course, some features of izpack will be missing at using an old vm version. To recompile izpack go into [izpackroot]/src. Use a current jdk (not jre) for this. call ::
+-
+-   ant clean
+-   
+-followed by ::
+-
+-   ant all
+-
+-then all jar files in [izpackroot]/lib, [izpackroot]/bin/panels and [izpackroot]/bin/customactions should be recompiled with the selected source version.
+
+Deleted: izpack-src/trunk/src/doc-reST/introduction.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/introduction.txt	2007-11-07 02:38:30 UTC (rev 1888)
++++ izpack-src/trunk/src/doc-reST/introduction.txt	2007-11-07 06:54:18 UTC (rev 1889)
+@@ -1,64 +0,0 @@
+-Introduction
+-=============
+-
+-Welcome to IzPack!
+--------------------
+-
+-IZPACK is a tool that will help you to solve your software installation problems. It is a JavaTM based software installer builder that will run on any operating system coming with a Java Virtual Machine (JVM) that is compliant with the Sun JVM 1.4 or higher. Its design is very modular and you will be able to choose how you want your installer to look and you will also be able to customize it using a very simple Application Programming Interface (API). Although IZPACK is essentially a JavaTM only application (it can run on virtually any operating system), it can interact in a clean way with the underlying operating system. Native code can interact with it on a specific platform without disturbing the operation on incompatible operating systems. For instance, you can develop Unix-specific code that will be silent if run on Windows. To put it in a nutshell, whereas most of the other JavaTM installers force you to go their way, IZPACK will let you go your way. Some respectable !
+ companies have been using it in order to produce customized installers for their very specific needs.
+-
+-&quot;So, if it's so good, how much is it ?&quot; : well, you can get it for free. BUT IZPACK is not a freeware. It's not free as in &quot;free beer&quot; but &quot;free as in free speech&quot;. So it's neither freeware nor public domain. It is software covered by the Apache Software License 2.0. You have access to the IZPACK source code and you can modify it to make it suit your needs, but if you publish such a modified version, you are forced to publish the modifications you've made.That's a fair exchange of expertise and work. To learn more about the Apache Software License 2.0, visit <A HREF="http://www.apache.org/licenses/LICENSE-2.0.html">http://www.apache.org/licenses/LICENSE-2.0.html</A>
+-
+-The features
+--------------
+-
+-IZPACK uses XML files to describe installations. When you make an installer, you have a choice of panels. You can see panels as a kind of plugin that composes the installer. For instance, a panel can choose the installation path, the packs to install, prompt the user for a license agreement and so on. This approach is very modular. You can also create your own panels if you have specific needs. In some cases you even have a choice from multiple panel versions for the same task. You can also choose the order in which panels appear during the installation process. IZPACK can be used in a number of different ways:
+-
+-* by writing the XML installation file &quot;by hand&quot; and compiling it with the command line compiler
+-* by invoking the compiler from the great APACHE JAKARTA ANT tool (see <A HREF="http://jakarta.apache.org/">http://jakarta.apache.org/</A>) as IZPACK can be used as a task for ANT
+-
+-Here is a brief (and certainly incomplete !) list of the main IZPACK features :
+-
+-* XML based installation files
+-* easy internationalization using XML files (10 translations are already available)
+-* Ant integration, command-line compiler
+-* easy customization with the panels and a rich API (even an XML parser is included !)
+-* powerful variable substitution system that you can use to customize scripts and more generally any text-based file
+-* different kinds of installers (standard, web-based, ...)
+-* launching of external executables during the installation process and Unix executable flag support (useful for the scripts for instance)
+-* layout of the installation files in packs (some can be optional)
+-* native code integration facilities
+-* jar files nesting support
+-* ... more things to discover and create !.
+-
+-The development
+-----------------
+-
+-I started writing IZPACK in April 2001 and many people have helped me improving it since then. I prefer not to mention them here as i would for sure forget some of them, so please check the file named Thanks.txt which i try to get as up-to-date as possible in order to mention everyone who helped me. As far as i'm concerned, i'm a french student and i rather see this as a fun activity in my free time where i can learn a lot of great things. The contributors to the project are both individuals and companies. Help can take any form :
+-
+-* translations
+-* new features and various fixes
+-* bug fixes
+-* writing manuals
+-* ... anything else you like :-)
+-
+-The official IZPACK homepage is located at <A HREF="http://izpack.org/.">http://izpack.org/.</A> The IzPack developer services (mailing-lists, CVS, patches manager, bugs tracker, ...) are generously hosted by BerliOS. The IzPack BerliOS section is located at <A HREF="http://developer.berlios.de/projects/izpack/.">http://developer.berlios.de/projects/izpack/.</A> Feel free to use these services. In particular, there are two mailing-lists:
+-
+-* izpack-devel: used for the IzPack development
+-* izpack-users: general users lounge, great to get some help with IzPack.
+-
+-3rd-party code used in IzPack
+-------------------------------
+-
+-IZPACK uses several 3rd party libraries and i would like to mention them in respect for their respective authors work :
+-
+-* NanoXML by Marc DE SCHEEMAECKER : the XML parser used inside IZPACK and released under a zlib/png-style license - see <A HREF="http://nanoxml.sourceforge.net/">http://nanoxml.sourceforge.net/</A> -
+-* Kunststoff Look and Feel by Incors Gmbh : a Swing Look and Feel that can be used for installers. It really looks good and is released under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) - see <A HREF="http://www.incors.org/">http://www.incors.org/</A> -
+-* Crystal-SVG Icons : the icons used in IZPACK come from the great work of Everaldo (<A HREF="http://www.everaldo.com/">http://www.everaldo.com/</A>) that makes KDE 3.2 look so sweet
+-* Some Apache Jakarta classes and libraries : released under the Apache License
+-* Metouia Look and Feel by Taoufik Romdhane : released under the LGPL license - see <A HREF="http://mlf.sf.net/">http://mlf.sf.net/</A>
+-* Liquid Look and Feel by Miroslav Lazarevic : released under the LGPL license - see liquidlnf.sf.net/
+-* JGoodies Looks by Karsten Lentzsch : released under a BSD-style license - see <A HREF="http://looks.dev.java.net/.">http://looks.dev.java.net/.</A>
+-
+-**Add Substance and other stuff**
+-
+-So, now let's dive into understanding how IZPACK works. You'll be surprised to see how powerful and simple it can be :-)
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000634.html">[izpack-changes] r1888 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000636.html">[izpack-changes] r1890 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#635">[ date ]</a>
+              <a href="thread.html#635">[ thread ]</a>
+              <a href="subject.html#635">[ subject ]</a>
+              <a href="author.html#635">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

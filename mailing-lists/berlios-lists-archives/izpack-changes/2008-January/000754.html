@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2008 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2008%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000753.html">
+   <LINK REL="Next"  HREF="000755.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2008 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2008%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r2008 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 24 20:29:52 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000753.html">[izpack-changes] r2007 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000755.html">[izpack-changes] r2009 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#754">[ date ]</a>
+              <a href="thread.html#754">[ thread ]</a>
+              <a href="subject.html#754">[ subject ]</a>
+              <a href="author.html#754">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-24 20:29:48 +0100 (Thu, 24 Jan 2008)
+New Revision: 2008
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PasswordGroup.java
+Log:
+Added usage of ValidatorContainer to support multiple validators.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PasswordGroup.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PasswordGroup.java	2008-01-24 19:27:57 UTC (rev 2007)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PasswordGroup.java	2008-01-24 19:29:48 UTC (rev 2008)
+@@ -18,9 +18,10 @@
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-
+ package com.izforge.izpack.panels;
+ 
++import com.izforge.izpack.installer.InstallData;
++import java.util.List;
+ import java.util.Map;
+ import java.util.Vector;
+ 
+@@ -46,13 +47,19 @@
+     // ------------------------------------------------------------------------
+     private Vector fields = new Vector();
+ 
+-    private Validator validator = null;
+-
++    private List validatorContainers = null;
++//  private Validator validator = null;
++//  private boolean hasParams = false;
++//  private Map validatorParams = null;
+     private Processor processor = null;
+ 
++    private int currentValidator = 0;
++
++    private InstallData idata;
++
+     /*--------------------------------------------------------------------------*/
+     /**
+-     * Creates a passowrd group to manage one or more password fields.
++     * Creates a password group to manage one or more password fields.
+      * 
+      * @param validator A string that specifies a class that provides a password validation service.
+      * The class must implement the &lt;code&gt;Validator&lt;/code&gt; interface. If an attempt to instantiate
+@@ -63,18 +70,25 @@
+      * contents of the first field will be returned.
+      */
+     /*--------------------------------------------------------------------------*/
+-    public PasswordGroup(String validator, String processor)
++    public PasswordGroup(InstallData idata, List validatorContainers, String processor)
+     {
+         // ----------------------------------------------------
+         // attempt to create an instance of the Validator
+         // ----------------------------------------------------
+         try
+         {
+-            this.validator = (Validator) Class.forName(validator).newInstance();
+-        }
+-        catch (Throwable exception)
++            this.idata = idata;
++//      this.validator = (Validator) Class.forName(validator).newInstance();
++            this.validatorContainers = validatorContainers;
++//      this.validatorParams = validatorParams;
++//      if (validatorParams != null) {
++//        if (validatorParams.size() &gt; 0) {
++//          hasParams = true;
++//        }
++//      }
++        } catch (Throwable exception)
+         {
+-            this.validator = null;
++            this.validatorContainers = null;
+         }
+ 
+         // ----------------------------------------------------
+@@ -83,13 +97,17 @@
+         try
+         {
+             this.processor = (Processor) Class.forName(processor).newInstance();
+-        }
+-        catch (Throwable exception)
++        } catch (Throwable exception)
+         {
+             this.processor = null;
+         }
+     }
+ 
++    public InstallData getIdata()
++    {
++        return idata;
++    }
++
+     /*--------------------------------------------------------------------------*/
+     /**
+      * Returns the number of sub-fields.
+@@ -115,7 +133,10 @@
+     /*--------------------------------------------------------------------------*/
+     public String getFieldContents(int index) throws IndexOutOfBoundsException
+     {
+-        if ((index &lt; 0) || (index &gt;= fields.size())) { throw (new IndexOutOfBoundsException()); }
++        if ((index &lt; 0) || (index &gt;= fields.size()))
++        {
++            throw (new IndexOutOfBoundsException());
++        }
+ 
+         String contents = new String(((JPasswordField) fields.elementAt(index)).getPassword());
+         return (contents);
+@@ -145,18 +166,125 @@
+      * rule exists. Otherwise &lt;code&gt;false&lt;/code&gt; is returned.
+      */
+     /*--------------------------------------------------------------------------*/
+-    public boolean validateContents()
++    public boolean validateContents(int i)
+     {
+-        if (validator != null)
++        boolean returnValue = true;
++        try
+         {
+-            return (validator.validate(this));
++            currentValidator = i;
++            ValidatorContainer container = getValidatorContainer(i);
++            Validator validator = container.getValidator();
++            if (validator != null)
++            {
++                returnValue = validator.validate(this);
++            }
++        } catch (Exception e)
++        {
++            System.out.println(&quot;validateContents(&quot; + i + &quot;) failed: &quot; + e);
++        // just return true
+         }
+-        else
++        return returnValue;
++    }
++
++    public String getValidatorMessage(int i)
++    {
++        String returnValue = null;
++        try
+         {
+-            return (true);
++            ValidatorContainer container = getValidatorContainer(i);
++            if (container != null)
++            {
++                returnValue = container.getMessage();
++            }
++        } catch (Exception e)
++        {
++            System.out.println(&quot;getValidatorMessage(&quot; + i + &quot;) failed: &quot; + e);
++        // just return true
+         }
++        return returnValue;
+     }
+ 
++    public int validatorSize()
++    {
++        int size = 0;
++        if (validatorContainers != null)
++        {
++            size = validatorContainers.size();
++        }
++        return size;
++    }
++
++    public ValidatorContainer getValidatorContainer()
++    {
++        return getValidatorContainer(currentValidator);
++    }
++
++    public ValidatorContainer getValidatorContainer(int i)
++    {
++        ValidatorContainer container = null;
++        try
++        {
++            container = (ValidatorContainer) validatorContainers.get(i);
++        } catch (Exception e)
++        {
++            container = null;
++        }
++        return container;
++    }
++
++    public boolean hasParams()
++    {
++        return hasParams(currentValidator);
++    }
++
++    public boolean hasParams(int i)
++    {
++        boolean returnValue = false;
++        try
++        {
++            ValidatorContainer container = getValidatorContainer(i);
++            if (container != null)
++            {
++                returnValue = container.hasParams();
++            }
++        } catch (Exception e)
++        {
++            System.out.println(&quot;hasParams(&quot; + i + &quot;) failed: &quot; + e);
++        // just return true
++        }
++        return returnValue;
++    }
++
++    public Map getValidatorParams()
++    {
++        return getValidatorParams(currentValidator);
++    }
++
++    public Map getValidatorParams(int i)
++    {
++        Map returnValue = null;
++        try
++        {
++            ValidatorContainer container = getValidatorContainer(i);
++            if (container != null)
++            {
++                returnValue = container.getValidatorParams();
++            }
++        } catch (Exception e)
++        {
++            System.out.println(&quot;getValidatorParams(&quot; + i + &quot;) failed: &quot; + e);
++        // just return true
++        }
++        return returnValue;
++    }
++
++    // This method was added to support changes to ProcessingClient interface
++    // it's use is non-deterministic in the newly implemented text validators.
++    public String getText()
++    {
++        return getValidatorMessage(currentValidator);
++    }
++
+     /*--------------------------------------------------------------------------*/
+     /**
+      * Returns the password. If a processing service class was supplied it will be used to process
+@@ -171,36 +299,18 @@
+         if (processor != null)
+         {
+             return (processor.process(this));
+-        }
+-        else
++        } else
+         {
+             String contents = &quot;&quot;;
+ 
+             if (fields.size() &gt; 0)
+             {
+-                contents = getText();
++                contents = new String(((JPasswordField) fields.elementAt(0)).getPassword());
+             }
+ 
+             return (contents);
+         }
+     }
+ 
+-    // javadoc inherited
+-    public String getText()
+-    {
+-        return new String(((JPasswordField) fields.elementAt(0)).getPassword());
+-    }
+-
+-    // javadoc inherited
+-    public Map getValidatorParams()
+-    {
+-        return null;
+-    }
+-
+-    // javadoc inherited
+-    public boolean hasParams()
+-    {
+-        return false;
+-    }
+ }
+ /*---------------------------------------------------------------------------*/
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000753.html">[izpack-changes] r2007 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000755.html">[izpack-changes] r2009 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#754">[ date ]</a>
+              <a href="thread.html#754">[ thread ]</a>
+              <a href="subject.html#754">[ subject ]</a>
+              <a href="author.html#754">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

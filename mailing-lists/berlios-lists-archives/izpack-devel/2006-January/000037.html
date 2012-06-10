@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Need a bit of info on the Mac
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Need%20a%20bit%20of%20info%20on%20the%20Mac&In-Reply-To=200601101755.35335.hal%40thresholddigital.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000036.html">
+   <LINK REL="Next"  HREF="000030.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Need a bit of info on the Mac</H1>
+    <B>Pierre Frisch</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Need%20a%20bit%20of%20info%20on%20the%20Mac&In-Reply-To=200601101755.35335.hal%40thresholddigital.com"
+       TITLE="[izpack-devel] Need a bit of info on the Mac">pierre.frisch at spearway.com
+       </A><BR>
+    <I>Wed Jan 11 00:57:07 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000036.html">[izpack-devel] Need a bit of info on the Mac
+</A></li>
+        <LI>Next message: <A HREF="000030.html">[izpack-devel] Need a bit of info on the Mac
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#37">[ date ]</a>
+              <a href="thread.html#37">[ thread ]</a>
+              <a href="subject.html#37">[ subject ]</a>
+              <a href="author.html#37">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I have looked at it this will not do.
+
+This panel has quite a few short comings:
+
+It relies on a common but not universal behavior of sudo. When you  
+execute a sudo command the &quot;user&quot; will stay authenticated for a  
+period of time. So the way it works is by executing a dummy sudo  
+command in an external shell and relying on the fact that this will  
+keep the installer authenticated. This works on most stand alone  
+installation but that security policy can be changed and is  
+frequently changed when you are installing on a system that is part  
+or a larger organization.
+
+I am also a bit troubled by the fact that all localization features  
+of that panel are commented out? Does anyone uses it?
+
+I do not have a ready made solution to this problem but I think we  
+should come up with a better approach. The alternative is to ask the  
+user to execute the installer with a sudo:
+sudo java -jar xxx.jar. That way the actual installation process is  
+authenticated. The drawback is that we loose the graphical user  
+experience. On a Mac you can double click the installer and it will  
+run but with user privileges, if we can find away of escalating the  
+privileges that would be nice. What I have seen done, is a two stage  
+system; a first process launches, request admin privileges and then  
+launches the real installer with the admin privileges  
+(InstallAnywhere works that way). This can be fairly transparent to  
+the user.
+
+I would be very interested in working on that problem but we need to  
+find a consistent way that would work on all platforms.
+
+Pierre
+
+On 10-Jan-06, at 2:55 PM, Hal Vaughan wrote:
+
+&gt;<i> On Tuesday 10 January 2006 05:33 pm, Pierre Frisch wrote:
+</I>&gt;&gt;<i> Where is the contributed panel? How does it work? Can it mimic the
+</I>&gt;&gt;<i> way the Apple installer works? i.e. start the install as regular user
+</I>&gt;&gt;<i> and authenticate when the install scripts requires it? I suspect that
+</I>&gt;&gt;<i> sudo is a bit narrow as the authentication depends on the security
+</I>&gt;&gt;<i> policy of the machine you are using.
+</I>&gt;<i>
+</I>&gt;<i> I can't give you all the details, but I found SudoPanel in the panels
+</I>&gt;<i> directory with all the other panels and it's in the JavaDocs,  
+</I>&gt;<i> although there
+</I>&gt;<i> is not much in he way of comments to help figure it out.
+</I>&gt;<i>
+</I>&gt;<i> Hal
+</I>&gt;<i>
+</I>&gt;&gt;<i> Pierre
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> On 10-Jan-06, at 1:59 PM, Julien Ponge wrote:
+</I>&gt;&gt;&gt;&gt;<i> So are there cases of installs where IzPack has to be done through
+</I>&gt;&gt;&gt;&gt;<i> sudo or as
+</I>&gt;&gt;&gt;&gt;<i> an admin user?
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> /Applications is users-writable, so typical installations run fine
+</I>&gt;&gt;&gt;<i> as a regular user and you don't need to sudo the JVM. However for
+</I>&gt;&gt;&gt;<i> special cases you can need this. There was also a contributed
+</I>&gt;&gt;&gt;<i> SudoPanel.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> --
+</I>&gt;&gt;&gt;<i> Julien Ponge
+</I>&gt;&gt;&gt;<i> <A HREF="http://www.izforge.com/">http://www.izforge.com/</A>
+</I>&gt;&gt;&gt;<i> GnuPG ID: 0xCD9DE030
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000036.html">[izpack-devel] Need a bit of info on the Mac
+</A></li>
+	<LI>Next message: <A HREF="000030.html">[izpack-devel] Need a bit of info on the Mac
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#37">[ date ]</a>
+              <a href="thread.html#37">[ thread ]</a>
+              <a href="subject.html#37">[ subject ]</a>
+              <a href="author.html#37">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

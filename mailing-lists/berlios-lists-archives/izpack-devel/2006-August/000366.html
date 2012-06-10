@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Issues while reading data from packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Issues%20while%20reading%20data%20from%20packs&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000365.html">
+   <LINK REL="Next"  HREF="000367.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Issues while reading data from packs</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Issues%20while%20reading%20data%20from%20packs&In-Reply-To="
+       TITLE="[izpack-devel] Issues while reading data from packs">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Fri Aug  4 11:54:18 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000365.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+        <LI>Next message: <A HREF="000367.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#366">[ date ]</a>
+              <a href="thread.html#366">[ thread ]</a>
+              <a href="subject.html#366">[ subject ]</a>
+              <a href="author.html#366">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Michael,
+see context related.
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Michael
+</I>&gt;<i>Scherer
+</I>&gt;<i>Sent: Friday, August 04, 2006 11:07 AM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i>Subject: [izpack-devel] Issues while reading data from packs
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi.
+</I>&gt;<i>
+</I>&gt;<i>I'm currently trying to implement a BackupPanel which saves all
+</I>&gt;<i>files that will be overwritten by the InstallPanel into a jar.File.
+</I>&gt;<i>
+</I>&gt;<i>While doing this I'm trying to find all filenames by reading them
+</I>&gt;<i>from the packs like the InstallPanel does ...
+</I>&gt;<i>
+</I>
+?? The Unpacker reads the pack &quot;files&quot; (entries in the jar file).
+
+&gt;<i>Now when doing &quot;PackFile packFile = 
+</I>&gt;<i>(PackFile)packStream.readObject();&quot; I get
+</I>&gt;<i>java.io.OptionalDataException
+</I>&gt;<i>         at java.io.ObjectInputStream.readObject0(Unknown Source)
+</I>&gt;<i>         at java.io.ObjectInputStream.readObject(Unknown Source)
+</I>&gt;<i>         at 
+</I>
+The structure of a pack is really specific. There are ints, packs
+and the data in a well (not documented) order. If you would read the
+hole pack file you have to skip the &quot;to be installed part&quot;. 
+That's what you NOT DO. 
+Seems so, you think that the pack file only
+contains the information of a pack. No, it contains the hole pack.
+
+And so on...
+
+Debug your class. In the docu there is a description how to debug
+IzPack with eclipse.
+Be aware that you are working very deep in IzPack. I assume, that
+you get performance problems during skipping all the pack contents.
+
+If I have to implement something like this, I think I will implement
+an InstallListener which implements isFileListener and
+beforeFile.
+isFileListener returns true,
+beforeFile makes the backup.
+See as example 
+%IZ_HOME%\sample\src\myCompany\tools\install\listener\ChmodInstallerListener.java
+
+You conserve about the real hard job to find the files which are
+selected for installation. That's with &quot;selected&quot; is not to much simple,
+the Unpacker needs over 150 lines of code to handle it.
+beforeFile will be called from the Unpacker before a file will be installed. 
+
+
+&gt;<i>com.izforge.izpack.panels.OpenBackupPanelAutomationHelper.doBac
+</I>&gt;<i>kup(OpenBackupPanelAutomat
+</I>&gt;<i>ionHelper.java:61)
+</I>&gt;<i>
+</I>&gt;<i>What am I doing wrong here, copied must of the stuff from InstallPanel.
+</I>&gt;<i>Mmmh, thanks for your help.
+</I>&gt;<i>
+</I>&gt;<i>Greetings,
+</I>&gt;<i>  Michael
+</I>&gt;<i>
+</I>&gt;<i>PS: see my panel attached to this email
+</I>&gt;<i>
+</I>
+Cheers
+
+Klaus
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000365.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+	<LI>Next message: <A HREF="000367.html">[izpack-devel] Issues while reading data from packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#366">[ date ]</a>
+              <a href="thread.html#366">[ thread ]</a>
+              <a href="subject.html#366">[ subject ]</a>
+              <a href="author.html#366">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

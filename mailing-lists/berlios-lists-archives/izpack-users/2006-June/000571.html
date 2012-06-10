@@ -1,0 +1,837 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Messages for AntActions are not displayed
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Messages%20for%20AntActions%20are%20not%20displayed&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000570.html">
+   <LINK REL="Next"  HREF="000573.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Messages for AntActions are not displayed</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Messages%20for%20AntActions%20are%20not%20displayed&In-Reply-To="
+       TITLE="[izpack-users] Messages for AntActions are not displayed">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Jun 21 08:39:01 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000570.html">[izpack-users] Gnome shortcut support feature request
+</A></li>
+        <LI>Next message: <A HREF="000573.html">[izpack-users] RE: Getting Custom panel visible
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#571">[ date ]</a>
+              <a href="thread.html#571">[ thread ]</a>
+              <a href="subject.html#571">[ subject ]</a>
+              <a href="author.html#571">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Stefan,
+see context related.
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Stefan Wachter
+</I>&gt;<i>Sent: Tuesday, June 20, 2006 7:05 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-users] Messages for AntActions are not displayed
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi Klaus,
+</I>&gt;<i>
+</I>&gt;<i>now it works! Thank you! The only remaining caveat I had to step over 
+</I>&gt;<i>was to generate a ProgressBarInstallerListener.jar
+</I>&gt;<i>
+</I>&gt;<i>There is only a minor anomality (that is of minor importance):
+</I>&gt;<i>
+</I>&gt;<i>There are two progress bars displayed. The first progress bar records 
+</I>&gt;<i>all Ant actions while they are executed. This progress bar clearly 
+</I>&gt;<i>records the &quot;overall&quot; progress while executing the actions. The second 
+</I>&gt;<i>progress bar (&quot;Konfigurationsfortschritt gesamt&quot;) stays at 
+</I>&gt;<i>&quot;1/4&quot; during 
+</I>&gt;<i>the execution of all actions and jumps straight to &quot;4/4&quot; after 
+</I>&gt;<i>the last 
+</I>&gt;<i>action was executed (there are 4 packs in the setup).
+</I>&gt;<i>
+</I>The values of this progress bar are related to the count of custom actions,
+not the packs. Not only AntActionInstallerListener can produce messages
+in the ExtendedInstallPanels also other custom actions. If you would add
+it, see the methods afterPacks (line 177) and performAllActions (line 235) of
+com.izforge.izpack.event.AntActionInstallerListener.
+
+
+&gt;<i>(It seems that there is only one loop over all actions while 
+</I>&gt;<i>two nested 
+</I>&gt;<i>loops over packs and their corresponding actions would be necessary.)
+</I>&gt;<i>
+</I>&gt;<i>Thanks again,
+</I>&gt;<i>--Stefan
+</I>&gt;<i>
+</I>&gt;<i>Bartz, Klaus wrote:
+</I>&gt;&gt;<i> Hi Stefan,
+</I>&gt;&gt;<i> now I remember...
+</I>&gt;&gt;<i> It's some month ago (or years??) I implemented it. I was not very 
+</I>&gt;&gt;<i> happy about the message stuff of custom actions, therefore it is more
+</I>&gt;&gt;<i> an undocumented feature. 
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> You need (some of it you have also):
+</I>&gt;&gt;<i> in install.xml:
+</I>&gt;&gt;<i>    &lt;resources&gt;
+</I>&gt;&gt;<i>       &lt;res id=&quot;AntActionsSpec.xml&quot;
+</I>&gt;&gt;<i>            src=&quot;&lt;your local path under src root&gt;&quot;/&gt;
+</I>&gt;&gt;<i>       &lt;res id=&quot;CustomActionsLang.xml_deu&quot;
+</I>&gt;&gt;<i>            src=&quot;&lt;your local path under src root&gt;&quot;/&gt;
+</I>&gt;&gt;<i>    &lt;/resources&gt;
+</I>&gt;&gt;<i>    &lt;panels&gt;
+</I>&gt;&gt;<i>       ...
+</I>&gt;&gt;<i> 	&lt;panel classname=&quot;ExtendedInstallPanel&quot;/&gt;
+</I>&gt;&gt;<i>       ...
+</I>&gt;&gt;<i>    &lt;/panels&gt;
+</I>&gt;&gt;<i>    &lt;listeners&gt;
+</I>&gt;&gt;<i> 		&lt;listener installer=&quot;ProgressBarInstallerListener&quot;/&gt;
+</I>&gt;&gt;<i>       &lt;listener installer=&quot;AntActionInstallerListener&quot;
+</I>&gt;&gt;<i>                 uninstaller=&quot;AntActionUninstallerListener&quot;/&gt;
+</I>&gt;&gt;<i>    &lt;/listeners&gt;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> You see, the ProgressBarInstallerListener is also needed. But there
+</I>&gt;&gt;<i> is more...
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> in CustomActionsLang.xml_&lt;ISO3&gt;:
+</I>&gt;&gt;<i> &lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+</I>&gt;&gt;<i> &lt;langpack&gt;
+</I>&gt;&gt;<i>     &lt;str id=&quot;CustomActions.tip&quot; 
+</I>&gt;<i>txt=&quot;Konfigurationsfortschritt der Aktion:&quot;/&gt;
+</I>&gt;&gt;<i>     &lt;str id=&quot;CustomActions.progress&quot; 
+</I>&gt;<i>txt=&quot;Konfigurationsfortschritt gesamt:&quot;/&gt;
+</I>&gt;&gt;<i>     &lt;str id=&quot;AntAction.pack&quot; txt=&quot;Ausf&#252;hrung von ANT-Aktionen&quot;/&gt;
+</I>&gt;&gt;<i>    &lt;str id=&quot;&lt;your custom ids&gt;&quot; txt=&quot;entpacke Daten (kann 
+</I>&gt;<i>einige Minuten dauern)&quot;/&gt;
+</I>&gt;&gt;<i> &lt;/langpack&gt;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> The two first ids have to be in the langpack else nothing 
+</I>&gt;<i>will be displayed.
+</I>&gt;&gt;<i> The AntAction.pack message will be set in 
+</I>&gt;<i>AntActionInstallerListener.AfterPacks.
+</I>&gt;&gt;<i> The ProgressBarInstallerListener is needed to reset the 
+</I>&gt;<i>progress bar and
+</I>&gt;&gt;<i> initialize this message system.
+</I>&gt;&gt;<i> Messages are only displayed if order=&quot;afterpacks&quot;. 
+</I>&gt;&gt;<i> If you would know more about messages of listener (also own 
+</I>&gt;<i>listener) please see
+</I>&gt;&gt;<i> the methods 
+</I>&gt;&gt;<i> afterPacks (line 177) and performAllActions (line 235) of
+</I>&gt;&gt;<i> com.izforge.izpack.event.AntActionInstallerListener.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 	
+</I>&gt;&gt;<i> Cheers
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>   
+</I>&gt;&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Stefan Wachter
+</I>&gt;&gt;&gt;<i> Sent: Tuesday, June 20, 2006 2:23 PM
+</I>&gt;&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;&gt;&gt;<i> Subject: Re: [izpack-users] Messages for AntActions are not 
+</I>&gt;<i>displayed
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Hi Klaus,
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> the ant actions are executed. Only the messages are not displayed.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> --Stefan
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Bartz, Klaus wrote:
+</I>&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;<i> Hi Stefan,
+</I>&gt;&gt;&gt;&gt;<i> are you only missing the text, or also the ant actions self?
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Cheers
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Klaus
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>   
+</I>&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;&gt;&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Stefan Wachter
+</I>&gt;&gt;&gt;&gt;&gt;<i> Sent: Tuesday, June 20, 2006 1:46 PM
+</I>&gt;&gt;&gt;&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Subject: Re: [izpack-users] Messages for AntActions are not 
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;<i> displayed
+</I>&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i> Hi Klaus,
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> setting quiet=&quot;yes&quot; in each Ant call did not help either.
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> --Stefan
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i> Stefan Wachter wrote:
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Hi Klaus,
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> I changed the panel to
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;panel classname=&quot;ExtendedInstallPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> but there are still no messages displayed. I attach the 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;<i> interesting 
+</I>&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> files. Maybe you can have a short look on them.
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Thanks for your help,
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> --Stefan
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> Bartz, Klaus wrote:
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Hi Stefan,
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> try with quiet=&quot;yes&quot; Use
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;panel classname=&quot;ExtendedInstallPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> instead of
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Do not forget to write the &lt;resources&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>   ...
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>   &lt;res id=&quot;CustomActionsLang.xml_deu&quot; src=&quot;&lt;your source path&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>   ...
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;/resources&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> The messages are placed in the ExtendedInstallPanel, not in
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> a separate message box.
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Hope it helps.
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Cheers
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Klaus
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>  
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>             
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of 
+</I>&gt;<i>Stefan Wachter
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Sent: Tuesday, June 20, 2006 12:19 PM
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Subject: [izpack-users] Messages for AntActions are 
+</I>&gt;<i>not displayed
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Hi all,
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> I have a setup with AntActions for various packs. There 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>               
+</I>&gt;&gt;&gt;&gt;&gt;<i> are messages 
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> defined for the AntActions but they are not displayed. 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>               
+</I>&gt;&gt;&gt;&gt;&gt;<i> This is what 
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> I have done (following the hints given in 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="http://article.gmane.org/gmane.comp.java.izpack.user/269/match=">http://article.gmane.org/gmane.comp.java.izpack.user/269/match=</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> antaction+messageid):
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> 1. Define a the resource:
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;res id=&quot;CustomActionsLang.xml_deu&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> src=&quot;&lt;somepath&gt;/customActionsLang-deu.xml&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> with the content:
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;langpack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>      &lt;str id=&quot;AntAction.unpacking&quot; txt=&quot;entpacke Daten 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>               
+</I>&gt;&gt;&gt;&gt;&gt;<i> (kann einige 
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Minuten dauern)&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/langpack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> 2. Refer to that message in the AntAction:
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>            &lt;antcall
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>              order=&quot;afterpack&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>              verbose=&quot;no&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>              buildfile=&quot;$INSTALL_PATH/izpack-buildfile.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>              logfile=&quot;$INSTALL_PATH/setup/ant-log.txt&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>              messageid=&quot;AntAction.unpacking&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>              &gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>              ...
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>            &lt;/antcall&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Can someone help me?
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> Regards,
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> --Stefan
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>               
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>   
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;&gt;<i>             
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> ---------------------------------------------------------------
+</I>&gt;&gt;&gt;&gt;&gt;<i> ---------
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;installation version=&quot;1.0&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;info&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;appname&gt;PolFHa&lt;/appname&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;appversion&gt;1.0&lt;/appversion&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;url&gt;<A HREF="http://www.vdpolizei.de&lt;/url">http://www.vdpolizei.de&lt;/url</A>&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;javaversion&gt;1.4&lt;/javaversion&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/info&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;variables&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;mischungen&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;mischung_bund&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;mischung_jumbo&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;mischung_land_bb&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;mischung_land_be&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;copy_stamm_bb&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;copy_stamm_be&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;copy_stamm_bpol&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;variable name=&quot;copy_stamm_bu&quot; value=&quot;&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/variables&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;guiprefs height=&quot;480&quot; width=&quot;600&quot; resizable=&quot;yes&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;locale&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;langpack iso3=&quot;deu&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/locale&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;resources&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;res id=&quot;LicencePanel.licence&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>            
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/lizenz.txt&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;res id=&quot;userInputSpec.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>            
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/userInputSpec.xml&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;res id=&quot;shortcutSpec.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>            
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/shortcutSpec.xml&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;res id=&quot;Unix_shortcutSpec.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>            
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/unix_shortcutSpec.xml&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;res id=&quot;AntActionsSpec.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>            
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/antActionsSpec.xml&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;res id=&quot;Installer.image&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>            
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;<i> 
+</I>&gt;<i>src=&quot;/home/swachter/projekte/infotakt/vdp/src/server/img/buecher.png&quot;/&gt;
+</I>&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;res id=&quot;packsLang.xml_deu&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>            
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/packsLang-deu.xml&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;res id=&quot;CustomActionsLang.xml_deu&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>            
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/customActionsLang-deu.xml&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/resources&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;panels&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;UserInputPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;UserInputPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;SummaryPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;ExtendedInstallPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;panel classname=&quot;SimpleFinishPanel&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/panels&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;listeners&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;listener installer=&quot;IzPackSetMischungen&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;listener installer=&quot;AntActionInstallerListener&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                 uninstaller=&quot;AntActionUninstallerListener&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/listeners&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;packs&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;pack name=&quot;core&quot; id=&quot;core&quot; required=&quot;yes&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;description&gt;Enth&#228;lt die 
+</I>&gt;<i>PolFHa-Applikation.&lt;/description&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> dir=&quot;/home/swachter/projekte/infotakt/vdp/offlineApp/tomcat&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;file 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/izpack-buildfile.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;file 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/vdp/src/server/img/vdp.ico&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;parsable 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetfile=&quot;$INSTALL_PATH/conf/server.xml&quot; type=&quot;xml&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;executable 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetfile=&quot;$INSTALL_PATH/bin/startup.sh&quot; stage=&quot;never&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;executable 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetfile=&quot;$INSTALL_PATH/bin/shutdown.sh&quot; stage=&quot;never&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;executable 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetfile=&quot;$INSTALL_PATH/bin/catalina.sh&quot; stage=&quot;never&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;executable 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetfile=&quot;$INSTALL_PATH/bin/setclasspath.sh&quot; stage=&quot;never&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> 
+</I>&gt;<i>dir=&quot;/home/swachter/projekte/infotakt/vdp/offlineApp/tomcat-compat&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> dir=&quot;/home/swachter/projekte/infotakt/vdp/offlineApp&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   includes=&quot;lizenz.txt, readme.txt&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset dir=&quot;mainApp&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetdir=&quot;$INSTALL_PATH/webapps/polfha&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   includes=&quot;META-INF/**, WEB-INF/*, 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> WEB-INF/classes/**, WEB-INF/lib/**, WEB-INF/suche/*.txt, 
+</I>&gt;&gt;&gt;&gt;&gt;<i> css/**, hilfe/**, img/**, js/**&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset dir=&quot;setup&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetdir=&quot;$INSTALL_PATH/setup&quot; includes=&quot;**/*&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/pack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;pack name=&quot;bundesstamm_bu+bpol&quot; id=&quot;bubpol&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> preselected=&quot;yes&quot; required=&quot;no&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;description&gt;Enth&#228;lt die Leitziffern, die f&#252;r alle 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> Bundesl&#228;ndern G&#252;ltigkeit haben (inkl. 
+</I>&gt;<i>Bundespolizei).&lt;/description&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset dir=&quot;mainApp/WEB-INF/suche&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> includes=&quot;bu/**, bpol/**&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetdir=&quot;$INSTALL_PATH/webapps/polfha/WEB-INF/suche&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> dir=&quot;/home/swachter/projekte/infotakt/build/inhalt/server/bb-be
+</I>&gt;&gt;&gt;&gt;&gt;<i> -bpol-bu/stamm&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   includes=&quot;bu.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   targetdir=&quot;$INSTALL_PATH/setup/inhalt&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> dir=&quot;/home/swachter/projekte/infotakt/build/inhalt/server/bb-be
+</I>&gt;&gt;&gt;&gt;&gt;<i> -bpol-bu/stamm&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   includes=&quot;bpol.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   targetdir=&quot;$INSTALL_PATH/setup/inhalt&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/pack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;pack name=&quot;landesstamm_be&quot; id=&quot;be&quot; preselected=&quot;no&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> required=&quot;no&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;description&gt;Enth&#228;lt die Leitziffern, die f&#252;r 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> Berlin G&#252;ltigkeit haben.&lt;/description&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset dir=&quot;mainApp/WEB-INF/suche&quot; includes=&quot;be/**&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetdir=&quot;$INSTALL_PATH/webapps/polfha/WEB-INF/suche&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> dir=&quot;/home/swachter/projekte/infotakt/build/inhalt/server/bb-be
+</I>&gt;&gt;&gt;&gt;&gt;<i> -bpol-bu/stamm&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   includes=&quot;be.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   targetdir=&quot;$INSTALL_PATH/setup/inhalt&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/pack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;pack name=&quot;landesstamm_bb&quot; id=&quot;bb&quot; preselected=&quot;no&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> required=&quot;no&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;description&gt;Enth&#228;lt die Leitziffern, die f&#252;r 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> Brandenburg G&#252;ltigkeit haben.&lt;/description&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset dir=&quot;mainApp/WEB-INF/suche&quot; includes=&quot;bb/**&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> targetdir=&quot;$INSTALL_PATH/webapps/polfha/WEB-INF/suche&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;fileset 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> dir=&quot;/home/swachter/projekte/infotakt/build/inhalt/server/bb-be
+</I>&gt;&gt;&gt;&gt;&gt;<i> -bpol-bu/stamm&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   includes=&quot;bb.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                   targetdir=&quot;$INSTALL_PATH/setup/inhalt&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/pack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/packs&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;jar 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/vdp/lib/setup/ant.jar&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;<i> stage=&quot;both&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;jar 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;<i> 
+</I>&gt;<i>src=&quot;/home/swachter/projekte/infotakt/vdp/lib/setup/ant-launcher.jar&quot;
+</I>&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>         stage=&quot;both&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;jar 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/vdp/lib/setup/orangevolt-
+</I>&gt;&gt;&gt;&gt;&gt;<i> ant-tasks-1.3.3.jar&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>         stage=&quot;both&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;jar 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/vdp/lib/setup/roxes-win32
+</I>&gt;&gt;&gt;&gt;&gt;<i> forjava-1.0.3.jar&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>         stage=&quot;both&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;jar 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> src=&quot;/home/swachter/projekte/infotakt/build/setup/server/navbar
+</I>&gt;&gt;&gt;&gt;&gt;<i> -top/bb-be-bpol-bu/izPack/tmp/izpack-util.jar&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;jar 
+</I>&gt;<i>src=&quot;/home/swachter/projekte/infotakt/vdp/lib/saxon8.jar&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;/installation&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> ---------------------------------------------------------------
+</I>&gt;&gt;&gt;&gt;&gt;<i> ---------
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;antactions&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;pack name=&quot;bundesstamm_bu+bpol&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;antcall order=&quot;afterpack&quot; verbose=&quot;no&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> buildfile=&quot;$INSTALL_PATH/izpack-buildfile.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                logfile=&quot;$INSTALL_PATH/setup/ant-log.txt&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                messageid=&quot;AntAction.unpacking&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;targetDir&quot; value=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;copy_stamm_&quot; value=&quot;$copy_stamm_bu&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;target name=&quot;copy_bu&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/antcall&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;antcall order=&quot;afterpack&quot; verbose=&quot;no&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> buildfile=&quot;$INSTALL_PATH/izpack-buildfile.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                logfile=&quot;$INSTALL_PATH/setup/ant-log.txt&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                messageid=&quot;AntAction.unpacking&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;targetDir&quot; value=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;copy_stamm_&quot; value=&quot;$copy_stamm_bpol&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;target name=&quot;copy_bpol&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/antcall&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/pack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;pack name=&quot;landesstamm_bb&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;antcall order=&quot;afterpack&quot; verbose=&quot;no&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> buildfile=&quot;$INSTALL_PATH/izpack-buildfile.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                logfile=&quot;$INSTALL_PATH/setup/ant-log.txt&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                messageid=&quot;AntAction.unpacking&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;targetDir&quot; value=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;copy_stamm_bb&quot; value=&quot;$copy_stamm_bb&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;target name=&quot;copy_bb&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/antcall&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/pack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;pack name=&quot;landesstamm_be&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;antcall order=&quot;afterpack&quot; verbose=&quot;no&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> buildfile=&quot;$INSTALL_PATH/izpack-buildfile.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                logfile=&quot;$INSTALL_PATH/setup/ant-log.txt&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                messageid=&quot;AntAction.unpacking&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;targetDir&quot; value=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;copy_stamm_be&quot; value=&quot;$copy_stamm_be&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;target name=&quot;copy_be&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/antcall&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/pack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;pack name=&quot;core&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;antcall order=&quot;afterpacks&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> uninstall_order=&quot;afterdeletion&quot; verbose=&quot;no&quot;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                buildfile=&quot;$INSTALL_PATH/izpack-buildfile.xml&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                logfile=&quot;$INSTALL_PATH/setup/ant-log.txt&quot;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>                messageid=&quot;vdpAntActionMessage&quot;&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;targetDir&quot; value=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;port&quot; value=&quot;$PORT&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;imStartmenue&quot; value=&quot;$imStartmenue&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;aufDesktop&quot; value=&quot;$aufDesktop&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;imAutostart&quot; value=&quot;$imAutostart&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;mischungen&quot; value=&quot;$mischungen&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;mischung_bund&quot; value=&quot;$mischung_bund&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;mischung_jumbo&quot; 
+</I>&gt;<i>value=&quot;$mischung_jumbo&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;mischung_land_bb&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> value=&quot;$mischung_land_bb&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;mischung_land_be&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> value=&quot;$mischung_land_be&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;copy_stamm_bb&quot; value=&quot;$copy_stamm_bb&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;copy_stamm_be&quot; value=&quot;$copy_stamm_be&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;copy_stamm_bpol&quot; 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;<i> value=&quot;$copy_stamm_bpol&quot;/&gt;
+</I>&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;property name=&quot;copy_stamm_bu&quot; value=&quot;$copy_stamm_bu&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;target name=&quot;install&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>          &lt;uninstall_target name=&quot;uninstall&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       &lt;/antcall&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;/pack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;/antactions&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> ---------------------------------------------------------------
+</I>&gt;&gt;&gt;&gt;&gt;<i> ---------
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;?xml version=&quot;1.0&quot; encoding=&quot;ISO-8859-1&quot;?&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;langpack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>    &lt;str id=&quot;AntAction.unpacking&quot; txt=&quot;entpacke Daten (kann 
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> einige Minuten dauern)&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i> &lt;/langpack&gt;
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;&gt;&gt;&gt;<i>           
+</I>&gt;&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;&gt;<i>     
+</I>&gt;&gt;&gt;&gt;&gt;<i>         
+</I>&gt;&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>   
+</I>&gt;&gt;&gt;&gt;<i>       
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>     
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>   
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000570.html">[izpack-users] Gnome shortcut support feature request
+</A></li>
+	<LI>Next message: <A HREF="000573.html">[izpack-users] RE: Getting Custom panel visible
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#571">[ date ]</a>
+              <a href="thread.html#571">[ thread ]</a>
+              <a href="subject.html#571">[ subject ]</a>
+              <a href="author.html#571">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

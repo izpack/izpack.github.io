@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Multiple ProcessPanels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Multiple%20ProcessPanels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001037.html">
+   <LINK REL="Next"  HREF="001042.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Multiple ProcessPanels</H1>
+    <B>jschnitter</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Multiple%20ProcessPanels&In-Reply-To="
+       TITLE="[izpack-users] Multiple ProcessPanels">jeff.schnitter at workday.com
+       </A><BR>
+    <I>Wed Oct 25 22:09:21 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001037.html">[izpack-users] java.lang.NullPointerException	inInstallerFrame.java:1265
+</A></li>
+        <LI>Next message: <A HREF="001042.html">[izpack-users] Multiple ProcessPanels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1039">[ date ]</a>
+              <a href="thread.html#1039">[ thread ]</a>
+              <a href="subject.html#1039">[ subject ]</a>
+              <a href="author.html#1039">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Is it possible to have multiple ProcessPanels in an install?  Based on my
+informal testing, I believe the answer is no.  Can anyone confirm?
+
+Here's what I'm trying to achieve. We have a frequent build process of our
+product.  To run our product, you launch 3 java processes.  When we run the
+install, I want to first shutdown the Java processes if they are running,
+install the product and then restart the processes.
+
+I'd like to have something that looks like this:
+
+  &lt;resources&gt;
+	&lt;res id=&quot;start_servers&quot;   src=&quot;ProcessPanel.StartServers.xml&quot;/&gt;
+	&lt;res id=&quot;stop_servers&quot;   src=&quot;ProcessPanel.StopServers.xml&quot;/&gt;
+    &lt;/resources&gt;
+    
+    &lt;panels&gt;
+        &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+        &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+        &lt;panel classname=&quot;ProcessPanel&quot; id=&quot;stop_serversl&quot;/&gt;
+        &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+        &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+        &lt;panel classname=&quot;ProcessPanel&quot; id=&quot;start_serversl&quot;/&gt;
+        &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+    &lt;/panels&gt;
+
+Here's what I've found:
+
+1) You can have multiple ProcessPanels defined in your &lt;panels&gt; tag.
+2) The ProcessPanels only use definitions in a file named
+ProcessPanel.Spec.xml.
+3) The existence of an id attribute for the panel is ignored.
+
+I can probably get this to work by defining some files as &lt;executable&gt; in my
+&lt;pack&gt;
+sections, but I like the visibility to the user that ProcessPanel provides,
+showing
+what's being run and the output in the window.
+
+If the answer is that IzPack does not currently support this behavior, would
+it be a
+resonable feature for a future release?
+
+BTW . . . kudos and thanks to the development team.  I've been working with
+the product for
+just a few weeks and really like it.  I love the simiplicity of the XML
+development structure.  
+Great job!
+
+Thanks,
+
+Jeff Schnitter
+
+-- 
+View this message in context: <A HREF="http://www.nabble.com/Multiple-ProcessPanels-tf2509838.html#a6999338">http://www.nabble.com/Multiple-ProcessPanels-tf2509838.html#a6999338</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001037.html">[izpack-users] java.lang.NullPointerException	inInstallerFrame.java:1265
+</A></li>
+	<LI>Next message: <A HREF="001042.html">[izpack-users] Multiple ProcessPanels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1039">[ date ]</a>
+              <a href="thread.html#1039">[ thread ]</a>
+              <a href="subject.html#1039">[ subject ]</a>
+              <a href="author.html#1039">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1599 - izpack-src/branches/branch-3.9/src
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1599%20-%20izpack-src/branches/branch-3.9/src&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000343.html">
+   <LINK REL="Next"  HREF="000345.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1599 - izpack-src/branches/branch-3.9/src</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1599%20-%20izpack-src/branches/branch-3.9/src&In-Reply-To="
+       TITLE="[izpack-changes] r1599 - izpack-src/branches/branch-3.9/src">noreply at berlios.de
+       </A><BR>
+    <I>Thu Sep 14 20:58:29 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000343.html">[izpack-changes] r1598 - izpack-src/branches/branch-3.9
+</A></li>
+        <LI>Next message: <A HREF="000345.html">[izpack-changes] r1600 - in izpack-src/branches/branch-3.9: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#344">[ date ]</a>
+              <a href="thread.html#344">[ thread ]</a>
+              <a href="subject.html#344">[ subject ]</a>
+              <a href="author.html#344">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-14 20:58:28 +0200 (Thu, 14 Sep 2006)
+New Revision: 1599
+
+Modified:
+   izpack-src/branches/branch-3.9/src/ant.properties
+   izpack-src/branches/branch-3.9/src/build.xml
+Log:
+Request for source release:
+Created an ant target, that tars&amp;gzips a fresh checkout src-tree.
+This will be put in _src_dist/IzPack.src.3.9.0-M1.tar.gz.
+If a &quot;dist&quot; was made prior, it will be be better to call ant clean.src.tar.gz
+Otherwise the new Target src.tar.gz is prepended as first target while run of &quot;ant dist&quot;.
+
+
+Modified: izpack-src/branches/branch-3.9/src/ant.properties
+===================================================================
+--- izpack-src/branches/branch-3.9/src/ant.properties	2006-09-13 20:15:36 UTC (rev 1598)
++++ izpack-src/branches/branch-3.9/src/ant.properties	2006-09-14 18:58:28 UTC (rev 1599)
+@@ -2,3 +2,4 @@
+ dist.dir=${basedir}/${dist.subdir}
+ build.subdir=_build
+ build.dir=${basedir}/${build.subdir}
++product=IzPack
+\ No newline at end of file
+
+Modified: izpack-src/branches/branch-3.9/src/build.xml
+===================================================================
+--- izpack-src/branches/branch-3.9/src/build.xml	2006-09-13 20:15:36 UTC (rev 1598)
++++ izpack-src/branches/branch-3.9/src/build.xml	2006-09-14 18:58:28 UTC (rev 1599)
+@@ -835,11 +835,12 @@
+     	    &lt;delete file=&quot;bin/native/3rdparty/COIOSHelper.dll&quot; /&gt;
+         &lt;delete dir=&quot;${basedir}/bin/native/izpack&quot; /&gt;
+         &lt;delete includeEmptyDirs=&quot;true&quot; dir=&quot;${basedir}/doc/izpack&quot; /&gt;
++        &lt;delete dir=&quot;${basedir}/_src${dist.subdir}&quot;/&gt;
+     &lt;/target&gt;
+ 
+     &lt;!-- Builds all compilation targets --&gt;
+     &lt;target name=&quot;all&quot;
+-            depends=&quot;splashscreen, build.compiler, build.installer, build.uninstaller, build.uninstaller-ext, build.panels, build.listeners, build.standalone-compiler&quot; description=&quot;base: compiles a developer version&quot;/&gt;
++            depends=&quot;splashscreen, src.tar.gz, build.compiler, build.installer, build.uninstaller, build.uninstaller-ext, build.panels, build.listeners, build.standalone-compiler&quot; description=&quot;base: compiles a developer version&quot;/&gt;
+ 
+     &lt;!-- Builds the Javadoc --&gt;
+     &lt;target name=&quot;build.javadoc&quot; depends=&quot;prepare&quot; description=&quot;Builds the javadoc&quot;&gt;
+@@ -1005,7 +1006,7 @@
+     &lt;target name=&quot;generate.installer&quot; depends=&quot;prepare.install.dist&quot;&gt;
+         &lt;antcall target=&quot;exec.izpack.compiler&quot;&gt;
+             &lt;param name=&quot;installer.xmlfile&quot; value=&quot;IzPack-install.xml&quot; /&gt;
+-            &lt;param name=&quot;installer.name&quot; value=&quot;IzPack-install-&quot; /&gt;
++            &lt;param name=&quot;installer.name&quot; value=&quot;${product}-install-&quot; /&gt;
+         &lt;/antcall&gt;
+     &lt;/target&gt;
+ 
+@@ -1056,7 +1057,26 @@
+     &lt;target name=&quot;cleandistreg&quot;
+             depends=&quot;clean, splashscreen, dist, generate.installer&quot;
+             description=&quot;creates a full dist with Win32 uninstall registry support&quot; /&gt;
++  
++    &lt;!-- ================================= 
++          target: clean.src.tar.gz              
++         ================================= --&gt;
++    &lt;target name=&quot;clean.src.tar.gz&quot; depends=&quot;clean, src.tar.gz&quot; description=&quot;--&gt; creates a src.tar.gz after clean up&quot;&gt;
++    &lt;/target&gt;
+ 
++  
++    &lt;!-- ================================= 
++          target: src.tar.gz              
++         ================================= --&gt;
++    &lt;target name=&quot;src.tar.gz&quot;  description=&quot;--&gt; creates a src.tar.gz &quot;&gt;
++      &lt;mkdir dir=&quot;${basedir}/_src${dist.subdir}&quot;/&gt;
++      &lt;property name=&quot;src.tar&quot; value=&quot;${basedir}/_src${dist.subdir}/${product}.src.${ver}.${rel}.tar&quot;/&gt;
++      &lt;property name=&quot;src.tar.gz&quot; value=&quot;${src.tar}.gz&quot;/&gt;
++      &lt;tar destfile=&quot;${src.tar}&quot; basedir=&quot;${basedir}&quot; excludes=&quot;_src${dist.subdir}/**, _dist/**, _build/**, bin/panels/**, bin/customActions/**, doc/izpack/**, eclipse-bin/**, lib/standalone-compiler.jar, lib/izevent.jar, lib/uninstaller*, lib/installer.jar, lib/compiler.jar&quot;/&gt; 
++      &lt;gzip src=&quot;${src.tar}&quot; destfile=&quot;${src.tar.gz}&quot;/&gt;        
++    &lt;/target&gt;
++
++
+     &lt;!-- convenient :) makes a quick dist (w/o docu), an installer and run them. --&gt;
+     &lt;target name=&quot;quickdist+run&quot;
+             depends=&quot;quickdist, run.installer&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000343.html">[izpack-changes] r1598 - izpack-src/branches/branch-3.9
+</A></li>
+	<LI>Next message: <A HREF="000345.html">[izpack-changes] r1600 - in izpack-src/branches/branch-3.9: . src
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#344">[ date ]</a>
+              <a href="thread.html#344">[ thread ]</a>
+              <a href="subject.html#344">[ subject ]</a>
+              <a href="author.html#344">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

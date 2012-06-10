@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Fix for Automatic Installation ProcessPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Fix%20for%20Automatic%20Installation%20ProcessPanel&In-Reply-To=008001c68eb7%249bcf95f0%240000fea9%40OKTA">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000550.html">
+   <LINK REL="Next"  HREF="000552.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Fix for Automatic Installation ProcessPanel</H1>
+    <B>Pander</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Fix%20for%20Automatic%20Installation%20ProcessPanel&In-Reply-To=008001c68eb7%249bcf95f0%240000fea9%40OKTA"
+       TITLE="[izpack-users] Fix for Automatic Installation ProcessPanel">pander at users.sourceforge.net
+       </A><BR>
+    <I>Tue Jun 13 10:58:06 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000550.html">[izpack-users] Fix for Automatic Installation ProcessPanel
+</A></li>
+        <LI>Next message: <A HREF="000552.html">[izpack-users] Fix for Automatic Installation ProcessPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#551">[ date ]</a>
+              <a href="thread.html#551">[ thread ]</a>
+              <a href="subject.html#551">[ subject ]</a>
+              <a href="author.html#551">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+
+What is the best place to get the latest stable release, is that the
+link on the site or better to use the CVS version where things get fixed
+as the issue below? Are there any releases planned anyway? does IzPack
+have a roadmap for this?
+
+Thanks,
+
+Pander
+
+
+On Tue, 2006-06-13 at 09:03 +0200, Miraodb wrote:
+&gt;<i> Hi David,
+</I>&gt;<i> 
+</I>&gt;<i> You're completely right about the fact that it's wrong to have
+</I>&gt;<i> ProcessPanelAutomationPanel.
+</I>&gt;<i> It should indeed be ProcessPanelAutomationHelper.
+</I>&gt;<i> We merged to svn repo a few days ago and i checked the build.xml which is
+</I>&gt;<i> fine. You can just do an update from it or change it locally on your system.
+</I>&gt;<i> 
+</I>&gt;<i> If you could do a brand new checkout from svn it would give you the latest
+</I>&gt;<i> version of everything (beside what you might have added obviously !).
+</I>&gt;<i> 
+</I>&gt;<i> I also noticed a while back but never had time to fiw it, that during an
+</I>&gt;<i> automated installation (which i DO use :-) ), the shortcuts aren't created !
+</I>&gt;<i> I never really understood why. Any idea ????
+</I>&gt;<i> 
+</I>&gt;<i> Cheers,
+</I>&gt;<i> Fabrice
+</I>&gt;<i> ----- Original Message ----- 
+</I>&gt;<i> From: &quot;David Ferrero&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">david.ferrero at zion.com</A>&gt;
+</I>&gt;<i> To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-developers at lists.berlios.de</A>&gt;
+</I>&gt;<i> Cc: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>&gt;
+</I>&gt;<i> Sent: Monday, June 12, 2006 11:08 PM
+</I>&gt;<i> Subject: [izpack-users] Fix for Automatic Installation ProcessPanel
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> &gt; FYI:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; in the 3.8.0 build.xml I pulled from CVS last week I found this:
+</I>&gt;<i> &gt;          &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+</I>&gt;<i> &gt;              &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanel.java&quot; /&gt;
+</I>&gt;<i> &gt;              &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanelAutomationPanel.java&quot; /&gt;
+</I>&gt;<i> &gt;          &lt;/build-panel&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; ProcessPanelAutomationPanel.java doesn't exist...
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I think it should be:
+</I>&gt;<i> &gt;          &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+</I>&gt;<i> &gt;              &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanel.java&quot; /&gt;
+</I>&gt;<i> &gt;              &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanelAutomationHelper.java&quot; /&gt;
+</I>&gt;<i> &gt;          &lt;/build-panel&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Using CVS log and diff, I pinpointed the error was introduced in
+</I>&gt;<i> &gt; build.xml commit 1.94 back in May 2005.
+</I>&gt;<i> &gt; cvs diff -u -r 1.93 -r 1.94 build.xml
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; -  $Id: build.xml,v 1.93 2005/05/01 21:37:53 mchenryc Exp $
+</I>&gt;<i> &gt; +  $Id: build.xml,v 1.94 2005/05/02 06:17:16 mchenryc Exp $
+</I>&gt;<i> &gt; ..
+</I>&gt;<i> &gt;           &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+</I>&gt;<i> &gt;               &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanel.java&quot;/&gt;
+</I>&gt;<i> &gt; +            &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanelAutomationPanel.java&quot;/&gt;
+</I>&gt;<i> &gt;           &lt;/build-panel&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; This was preventing the Automated installer from running my Process
+</I>&gt;<i> &gt; jobs...
+</I>&gt;<i> &gt; Am I the only one doing ProcessPanel in the Automated installer?
+</I>&gt;<i> &gt; Seems like it's been broke over a year now...
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Any comments are welcome...
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Regards,
+</I>&gt;<i> &gt; David
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; PS:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Here's my local change as shown below:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; cvs diff -u build.xml
+</I>&gt;<i> &gt; Index: build.xml
+</I>&gt;<i> &gt; ===================================================================
+</I>&gt;<i> &gt; RCS file: /cvsroot/izpack/izpack-src/src/build.xml,v
+</I>&gt;<i> &gt; retrieving revision 1.129
+</I>&gt;<i> &gt; diff -u -u -r1.129 build.xml
+</I>&gt;<i> &gt; --- build.xml   8 Apr 2006 10:34:13 -0000       1.129
+</I>&gt;<i> &gt; +++ build.xml   12 Jun 2006 20:46:00 -0000
+</I>&gt;<i> &gt; @@ -607,7 +607,7 @@
+</I>&gt;<i> &gt;           &lt;/build-panel&gt;
+</I>&gt;<i> &gt;           &lt;build-panel name=&quot;ProcessPanel&quot;&gt;
+</I>&gt;<i> &gt;               &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanel.java&quot; /&gt;
+</I>&gt;<i> &gt; -            &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanelAutomationPanel.java&quot; /&gt;
+</I>&gt;<i> &gt; +            &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; ProcessPanelAutomationHelper.java&quot; /&gt;
+</I>&gt;<i> &gt;           &lt;/build-panel&gt;
+</I>&gt;<i> &gt;           &lt;build-panel name=&quot;SudoPanel&quot;&gt;
+</I>&gt;<i> &gt;               &lt;include name=&quot;com/izforge/izpack/panels/
+</I>&gt;<i> &gt; SudoPanel.java&quot; /&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; On Jun 9, 2006, at 3:06 AM, Miraodb wrote:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &gt; Hi David,
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; I have the process panel in an automated install and it works fine.
+</I>&gt;<i> &gt; &gt; Could you post your config files please. We'll check it out.
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; Cheers,
+</I>&gt;<i> &gt; &gt; Fabrice
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt; ----- Original Message -----
+</I>&gt;<i> &gt; &gt; From: &quot;David Ferrero&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">david.ferrero at zion.com</A>&gt;
+</I>&gt;<i> &gt; &gt; To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>&gt;
+</I>&gt;<i> &gt; &gt; Sent: Thursday, June 08, 2006 10:07 PM
+</I>&gt;<i> &gt; &gt; Subject: Re: [izpack-users] automatic installation doesn't run
+</I>&gt;<i> &gt; &gt; process panel
+</I>&gt;<i> &gt; &gt; ?
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt;
+</I>&gt;<i> &gt; &gt;&gt; Hi Folks:
+</I>&gt;<i> &gt; &gt;&gt;
+</I>&gt;<i> &gt; &gt;&gt; I never saw an answer to this problem from January 2005. Does this
+</I>&gt;<i> &gt; &gt;&gt; mean that process panel doesn't run for automated installations? How
+</I>&gt;<i> &gt; &gt;&gt; can this be solved?
+</I>&gt;<i> &gt; &gt;&gt;
+</I>&gt;<i> &gt; &gt;&gt; - David
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000550.html">[izpack-users] Fix for Automatic Installation ProcessPanel
+</A></li>
+	<LI>Next message: <A HREF="000552.html">[izpack-users] Fix for Automatic Installation ProcessPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#551">[ date ]</a>
+              <a href="thread.html#551">[ thread ]</a>
+              <a href="subject.html#551">[ subject ]</a>
+              <a href="author.html#551">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

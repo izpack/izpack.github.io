@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1864 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1864%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000609.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1864 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1864%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1864 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Wed Jul  4 19:09:24 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000609.html">[izpack-changes] r1863 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#610">[ date ]</a>
+              <a href="thread.html#610">[ thread ]</a>
+              <a href="subject.html#610">[ subject ]</a>
+              <a href="author.html#610">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-07-04 19:09:07 +0200 (Wed, 04 Jul 2007)
+New Revision: 1864
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java
+Log:
+A few click logic and PacksModel dependency fixes
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java	2007-07-03 17:40:46 UTC (rev 1863)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java	2007-07-04 17:09:07 UTC (rev 1864)
+@@ -136,6 +136,8 @@
+    
+    private HashMap idToCheckBoxNode = new HashMap();
+    private boolean created = false;
++   
++   private CheckTreeController checkTreeController;
+ 
+    /**
+     * The constructor.
+@@ -447,7 +449,8 @@
+       tree.setEditable(false);
+       tree.setShowsRootHandles(true);
+       tree.setRootVisible(false);
+-      tree.addMouseListener(new CheckTreeController(this));
++      checkTreeController = new CheckTreeController(this);
++      tree.addMouseListener(checkTreeController);
+       tree.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
+       tree.setBackground(Color.white);
+       tree.setToggleClickCount(0);
+@@ -778,8 +781,9 @@
+          fromModel();
+          
+          // Init the pack sizes (individual and cumulative)
+-         CheckBoxNode cbn = (CheckBoxNode) packsTree.getModel().getRoot();
+-         CheckTreeController.initTotalSize(cbn, false);
++         CheckBoxNode root = (CheckBoxNode) packsTree.getModel().getRoot();
++         checkTreeController.updateAllParents(root);
++         CheckTreeController.initTotalSize(root, false);
+          
+          // Ugly repaint because of a bug in tree.treeDidChange
+          packsTree.revalidate();
+@@ -1193,6 +1197,10 @@
+       }
+       CheckBoxNode root = (CheckBoxNode)current.getRoot();
+       treePacksPanel.fromModel();
++      
++      updateAllParents(root);
++      
++      /*
+       updateParents(current);
+       List deps = current.getPack().revDependencies;
+       if(deps != null) for(int q=0; q&lt;deps.size(); q++)
+@@ -1202,6 +1210,8 @@
+          CheckBoxNode cbn = (CheckBoxNode) treePacksPanel.getCbnById(id);
+          updateParents(cbn);
+       }
++      */
++      
+       initTotalSize(root, true);
+       
+       // must override the bytes being computed at packsModel
+@@ -1209,7 +1219,29 @@
+       treePacksPanel.showSpaceRequired();
+       tree.treeDidChange();
+    } 
++   /**
++    * Updates partial/deselected/selected state of all parent nodes.
++    * This is needed and is a patch to allow unrelated nodes (in terms of the tree)
++    * to fire updates for each other.
++    * 
++    * @param root
++    */
++   public void updateAllParents(CheckBoxNode root)
++   {
++      Enumeration rootEnum = root.depthFirstEnumeration();
++      while(rootEnum.hasMoreElements())
++      {
++         CheckBoxNode child = (CheckBoxNode) rootEnum.nextElement();
++         if(child.getParent()!=null &amp;&amp; !child.getParent().equals(root))
++             updateParents(child);
++      }
++   }
+    
++   /**
++    * Updates the parents of this particular node
++    * 
++    * @param node
++    */
+    private void updateParents(CheckBoxNode node)
+    {
+       CheckBoxNode parent = (CheckBoxNode) node.getParent();
+@@ -1221,8 +1253,12 @@
+          while(ne.hasMoreElements())
+          {
+             CheckBoxNode child = (CheckBoxNode) ne.nextElement();
+-            if(child.isSelected()) allDeselected = false;
+-            else allSelected = false;
++            if(child.isSelected())
++               allDeselected = false;
++            else
++               allSelected = false;
++            if(child.isPartial()) allSelected = allDeselected = false;
++            if(!allSelected &amp;&amp; !allDeselected) break;
+          }
+          if(parent.getChildCount()&gt;0)
+          {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000609.html">[izpack-changes] r1863 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#610">[ date ]</a>
+              <a href="thread.html#610">[ thread ]</a>
+              <a href="subject.html#610">[ subject ]</a>
+              <a href="author.html#610">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1822 - in izpack-src/branches/3.10: .	src/doc-ng/XHTML
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1822%20-%20in%20izpack-src/branches/3.10%3A%20.%0A%09src/doc-ng/XHTML&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000567.html">
+   <LINK REL="Next"  HREF="000569.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1822 - in izpack-src/branches/3.10: .	src/doc-ng/XHTML</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1822%20-%20in%20izpack-src/branches/3.10%3A%20.%0A%09src/doc-ng/XHTML&In-Reply-To="
+       TITLE="[izpack-changes] r1822 - in izpack-src/branches/3.10: .	src/doc-ng/XHTML">noreply at berlios.de
+       </A><BR>
+    <I>Sat Apr 28 11:11:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000567.html">[izpack-changes] r1821 - in izpack-src/branches/3.10: .	bin/langpacks/installer
+</A></li>
+        <LI>Next message: <A HREF="000569.html">[izpack-changes] r1823 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#568">[ date ]</a>
+              <a href="thread.html#568">[ thread ]</a>
+              <a href="subject.html#568">[ subject ]</a>
+              <a href="author.html#568">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-04-28 11:11:13 +0200 (Sat, 28 Apr 2007)
+New Revision: 1822
+
+Modified:
+   izpack-src/branches/3.10/Versions.txt
+   izpack-src/branches/3.10/src/doc-ng/XHTML/node9.html
+Log:
+Documentation update (Scott Plante via Julien Ponge)
+
+Modified: izpack-src/branches/3.10/Versions.txt
+===================================================================
+--- izpack-src/branches/3.10/Versions.txt	2007-04-28 09:07:22 UTC (rev 1821)
++++ izpack-src/branches/3.10/Versions.txt	2007-04-28 09:11:13 UTC (rev 1822)
+@@ -9,6 +9,7 @@
+ - UserInputPanel and InstallerFrame: enable the next button for search dialogs (Michael Hagedorn via Julien Ponge)
+ - VariableSubstitutor: new Java source files support (Max Fedorov via Julien Ponge)
+ - French langpack updates (Loic, via Julien Ponge)
++- Documentation update (Scott Plante via Julien Ponge)
+ 
+   &gt; 3.10.1 (build 2007.03.29)
+ 
+
+Modified: izpack-src/branches/3.10/src/doc-ng/XHTML/node9.html
+===================================================================
+--- izpack-src/branches/3.10/src/doc-ng/XHTML/node9.html	2007-04-28 09:07:22 UTC (rev 1821)
++++ izpack-src/branches/3.10/src/doc-ng/XHTML/node9.html	2007-04-28 09:11:13 UTC (rev 1822)
+@@ -450,20 +450,26 @@
+         [IzPackRoot]/src/lib/[MyPackagePath]/MyCompilerListener.java&lt;/tt&gt;.
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Add a &quot;compile.simple&quot; antcall in to &lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;. 
++        Add a &quot;&lt;tt&gt;build-compiler-listener&lt;/tt&gt;&quot; macro call in to the 
++        &lt;tt&gt;build.listeners&lt;/tt&gt; target in &lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
++        Note that the name attribute value in the build-instealler-listener 
++        must match &lt;tt&gt;CompilerListener&lt;/tt&gt; implementation class name (not 
++        including the package). You should include the actual Listener
++        implementation, as well as any other classes required by the listener.
+ &lt;pre&gt;
+-&amp;lt;antcall target=&quot;compile.listener.simple&quot;&amp;gt;
+-  &amp;lt;param name=&quot;listener&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+-  &amp;lt;param name=&quot;listener-dir&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+-  &amp;lt;param name=&quot;listener-include&quot; value=&quot;[MyPackagePath]&quot;/&amp;gt;
+-&amp;lt;/antcall&amp;gt;
++        &amp;lt;build-compiler-listener name=&quot;MyCompilerListener&quot;&amp;gt;
++            &amp;lt;include name=&quot;[MyPackagePath]/MyCompilerListener.java&quot;/&amp;gt;
++            &amp;lt;include name=&quot;[MyPackagePath]/SomeOtherHelperClass.java&quot;/&amp;gt;
++        &amp;lt;/build-compiler-listener&amp;gt;
+ &lt;/pre&gt;
+       &lt;/li&gt;
+       &lt;li&gt;
+         Run &lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
++        An &lt;tt&gt;ant&lt;/tt&gt; alone will execute the required targets.
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Add a &quot;listeners&quot; ELEMENT with a &quot;listener&quot; ELEMENT with a &quot;compiler&quot; attribute in to [MyProjectPath]/install.xml 
++        Add a &quot;listeners&quot; ELEMENT with a &quot;listener&quot; ELEMENT with a &quot;compiler&quot;
++        attribute in to [MyProjectPath]/install.xml 
+ &lt;pre&gt;
+   &amp;lt;listeners&amp;gt;
+     &amp;lt;listener compiler=&quot;MyCompilerListener&quot; /&amp;gt;
+@@ -471,7 +477,7 @@
+ &lt;/pre&gt;
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Compile with 
++        Compile with the following command, or an ant task you have set up.
+ &lt;pre&gt;
+ java -jar [IzPackRoot]/lib/compiler.jar -HOME [IzPackRoot]
+   [MyProjectPath]/install.xml -b [MyProductPath] -o
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000567.html">[izpack-changes] r1821 - in izpack-src/branches/3.10: .	bin/langpacks/installer
+</A></li>
+	<LI>Next message: <A HREF="000569.html">[izpack-changes] r1823 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#568">[ date ]</a>
+              <a href="thread.html#568">[ thread ]</a>
+              <a href="subject.html#568">[ subject ]</a>
+              <a href="author.html#568">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

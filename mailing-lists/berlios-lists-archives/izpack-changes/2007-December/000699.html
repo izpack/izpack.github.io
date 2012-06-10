@@ -1,0 +1,521 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1953 - in izpack-src/trunk: . src/dist-files	src/doc-reST src/dtd src/lib/com/izforge/izpack	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1953%20-%20in%20izpack-src/trunk%3A%20.%20src/dist-files%0A%09src/doc-reST%20src/dtd%20src/lib/com/izforge/izpack%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000698.html">
+   <LINK REL="Next"  HREF="000700.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1953 - in izpack-src/trunk: . src/dist-files	src/doc-reST src/dtd src/lib/com/izforge/izpack	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1953%20-%20in%20izpack-src/trunk%3A%20.%20src/dist-files%0A%09src/doc-reST%20src/dtd%20src/lib/com/izforge/izpack%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1953 - in izpack-src/trunk: . src/dist-files	src/doc-reST src/dtd src/lib/com/izforge/izpack	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Thu Dec 13 16:50:06 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000698.html">[izpack-changes] r1952 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000700.html">[izpack-changes] r1954 - izpack-utils/trunk/izpack2exe
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#699">[ date ]</a>
+              <a href="thread.html#699">[ thread ]</a>
+              <a href="subject.html#699">[ subject ]</a>
+              <a href="author.html#699">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-12-13 16:49:56 +0100 (Thu, 13 Dec 2007)
+New Revision: 1953
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/dist-files/IzPack-install.xml
+   izpack-src/trunk/src/doc-reST/installation-files.txt
+   izpack-src/trunk/src/dtd/installation.dtd
+   izpack-src/trunk/src/lib/com/izforge/izpack/Info.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+Log:
+Installer files: support of a 'requiresjdk' element to specify wether a JDK is required for the software to install (instead of just a JRE). This is a light test performed like 'javaversion' before the installer frame appears. (Julien Ponge)
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-12-13 12:16:47 UTC (rev 1952)
++++ izpack-src/trunk/Versions.txt	2007-12-13 15:49:56 UTC (rev 1953)
+@@ -68,6 +68,9 @@
+   (Julien Ponge)
+ - JDKPathPanel: Mac OS X fix (Julien Ponge)
+ - PathInputPanel: add some space between the text and the input field (Julien Ponge)
++- Installer files: support of a 'requiresjdk' element to specify wether a JDK is required for the
++  software to install (instead of just a JRE). This is a light test performed like 'javaversion'
++  before the installer frame appears. (Julien Ponge)
+ 
+   
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/src/dist-files/IzPack-install.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install.xml	2007-12-13 12:16:47 UTC (rev 1952)
++++ izpack-src/trunk/src/dist-files/IzPack-install.xml	2007-12-13 15:49:56 UTC (rev 1953)
+@@ -53,6 +53,7 @@
+         &lt;/authors&gt;
+         &lt;url&gt;<A HREF="http://izpack.org/&lt;/url">http://izpack.org/&lt;/url</A>&gt;
+         &lt;javaversion&gt;1.4&lt;/javaversion&gt;
++        &lt;requiresjdk&gt;no&lt;/requiresjdk&gt;
+         &lt;summarylogfilepath&gt;$INSTALL_PATH/installinfo/Summary.htm&lt;/summarylogfilepath&gt;
+     &lt;/info&gt;
+ 
+
+Modified: izpack-src/trunk/src/doc-reST/installation-files.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/installation-files.txt	2007-12-13 12:16:47 UTC (rev 1952)
++++ izpack-src/trunk/src/doc-reST/installation-files.txt	2007-12-13 15:49:56 UTC (rev 1953)
+@@ -241,6 +241,9 @@
+     install your program. Values can be ``1.2``, ``1.2.2``, ``1.4``, etc. The
+     test is a lexical comparison against the ``java.version`` System property
+     on the install machine.
++-   ``&lt;requiresjdk&gt;``: (yes or no) specifies wether a JDK is required for the software
++    to be installed and executed. If not, then the user will be informed and given the
++    option to still proceed with the installation process or not.
+ -   ``&lt;webdir&gt;`` : Causes a ''web installer'' to be created, and
+     specifies the URL packages are retrieved from at install time. The
+     content of the tag must be a properly formed URL.
+@@ -406,8 +409,8 @@
+ has a name and value child element to specify, which variable should have a certain value to fullfil this condition.
+ 
+ This is an example which defines four conditions, two VariableConditions, a JavaCondition and a AndCondition which will
+-refer to two of the first conditions.
+-
++refer to two of the first conditions.
++
+ ::
+     
+    &lt;conditions&gt;
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2007-12-13 12:16:47 UTC (rev 1952)
++++ izpack-src/trunk/src/dtd/installation.dtd	2007-12-13 15:49:56 UTC (rev 1953)
+@@ -10,9 +10,9 @@
+ --&gt;
+ 
+ &lt;!-- The root element --&gt;
+-&lt;!ELEMENT installation (preinstall?, info, packaging?, properties?, variables?,dynamicvariables?,conditions?, 
++&lt;!ELEMENT installation (info, packaging?, properties?, variables?,dynamicvariables?,conditions?,
+                         guiprefs?, locale, resources?, panels,
+-                        listeners?, packs, jar*, native*, postinstall?)&gt;
++                        listeners?, packs, jar*, native*)&gt;
+     &lt;!ATTLIST installation version CDATA #REQUIRED&gt;
+ 
+ &lt;!-- The info section (general information on an installation) --&gt;
+@@ -26,6 +26,7 @@
+         &lt;!ATTLIST author email CDATA #REQUIRED&gt;
+     &lt;!ELEMENT url (#PCDATA)&gt;
+     &lt;!ELEMENT javaversion (#PCDATA)&gt;
++    &lt;!ELEMENT requiresjdk (#PCDATA)&gt;
+     &lt;!ELEMENT uninstaller EMPTY&gt;
+         &lt;!ATTLIST uninstaller write (yes|no) &quot;yes&quot;&gt;
+         &lt;!ATTLIST uninstaller name CDATA &quot;uninstaller.jar&quot;&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/Info.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/Info.java	2007-12-13 12:16:47 UTC (rev 1952)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/Info.java	2007-12-13 15:49:56 UTC (rev 1953)
+@@ -25,7 +25,7 @@
+ 
+ /**
+  * Contains some informations for an installer, as defined in the &lt;info&gt; section of the XML files.
+- * 
++ *
+  * @author Julien Ponge
+  */
+ public class Info implements Serializable
+@@ -47,8 +47,11 @@
+     private String appURL = null;
+ 
+     /** The required Java version (min) */
+-    private String javaVersion = &quot;1.2&quot;;
++    private String javaVersion = &quot;1.4&quot;;
+ 
++    /** Is a JDK required? */
++    private boolean jdkRequired = false;
++
+     /** The name of the installer file (name without jar suffix) */
+     private String installerBase = null;
+ 
+@@ -65,9 +68,9 @@
+      *  used for decoding the packs.
+      */
+     private String packDecoderClassName = null;
+-    
++
+     private String unpackerClassName = null;
+-    
++
+     /** The constructor, deliberatly void. */
+     public Info()
+     {
+@@ -75,7 +78,7 @@
+ 
+     /**
+      * Sets the application name.
+-     * 
++     *
+      * @param appName The new application name.
+      */
+     public void setAppName(String appName)
+@@ -85,7 +88,7 @@
+ 
+     /**
+      * Gets the application name.
+-     * 
++     *
+      * @return The application name.
+      */
+     public String getAppName()
+@@ -95,7 +98,7 @@
+ 
+     /**
+      * Sets the version.
+-     * 
++     *
+      * @param appVersion The application version.
+      */
+     public void setAppVersion(String appVersion)
+@@ -105,7 +108,7 @@
+ 
+     /**
+      * Gets the version.
+-     * 
++     *
+      * @return The application version.
+      */
+     public String getAppVersion()
+@@ -115,7 +118,7 @@
+ 
+     /**
+      * Adds an author to the authors list.
+-     * 
++     *
+      * @param author The author to add.
+      */
+     public void addAuthor(Author author)
+@@ -125,7 +128,7 @@
+ 
+     /**
+      * Gets the authors list.
+-     * 
++     *
+      * @return The authors list.
+      */
+     public ArrayList getAuthors()
+@@ -135,7 +138,7 @@
+ 
+     /**
+      * Sets the application URL.
+-     * 
++     *
+      * @param appURL The application URL.
+      */
+     public void setAppURL(String appURL)
+@@ -145,7 +148,7 @@
+ 
+     /**
+      * Gets the application URL.
+-     * 
++     *
+      * @return The application URL.
+      */
+     public String getAppURL()
+@@ -155,7 +158,7 @@
+ 
+     /**
+      * Sets the minimum Java version required.
+-     * 
++     *
+      * @param javaVersion The Java version.
+      */
+     public void setJavaVersion(String javaVersion)
+@@ -165,7 +168,7 @@
+ 
+     /**
+      * Gets the Java version required.
+-     * 
++     *
+      * @return The Java version.
+      */
+     public String getJavaVersion()
+@@ -175,7 +178,7 @@
+ 
+     /**
+      * Sets the installer name.
+-     * 
++     *
+      * @param installerBase The new installer name.
+      */
+     public void setInstallerBase(String installerBase)
+@@ -185,7 +188,7 @@
+ 
+     /**
+      * Gets the installer name.
+-     * 
++     *
+      * @return The name of the installer file, without the jar suffix.
+      */
+     public String getInstallerBase()
+@@ -195,7 +198,7 @@
+ 
+     /**
+      * Sets the webDir URL.
+-     * 
++     *
+      * @param url The application URL.
+      */
+     public void setWebDirURL(String url)
+@@ -205,7 +208,7 @@
+ 
+     /**
+      * Gets the webDir URL if it has been specified
+-     * 
++     *
+      * @return The webDir URL from which the installer is retrieved, or &lt;tt&gt;null&lt;/tt&gt; if non has
+      * been set.
+      */
+@@ -216,7 +219,7 @@
+ 
+     /**
+      * Sets the name of the uninstaller.
+-     * 
++     *
+      * @param name the name of the uninstaller.
+      */
+     public void setUninstallerName(String name)
+@@ -226,7 +229,7 @@
+ 
+     /**
+      * Returns the name of the uninstaller.
+-     * 
++     *
+      * @return the name of the uninstaller.
+      */
+     public String getUninstallerName()
+@@ -234,9 +237,19 @@
+         return this.uninstallerName;
+     }
+ 
++    public boolean isJdkRequired()
++    {
++        return jdkRequired;
++    }
++
++    public void setJdkRequired(boolean jdkRequired)
++    {
++        this.jdkRequired = jdkRequired;
++    }
++
+     /**
+      * This class represents an author.
+-     * 
++     *
+      * @author Julien Ponge
+      */
+     public static class Author implements Serializable
+@@ -252,7 +265,7 @@
+ 
+         /**
+          * Gets the author name.
+-         * 
++         *
+          * @return The author name.
+          */
+         public String getName()
+@@ -262,7 +275,7 @@
+ 
+         /**
+          * Gets the author email.
+-         * 
++         *
+          * @return The author email.
+          */
+         public String getEmail()
+@@ -272,7 +285,7 @@
+ 
+         /**
+          * The constructor.
+-         * 
++         *
+          * @param name The author name.
+          * @param email The author email.
+          */
+@@ -284,7 +297,7 @@
+ 
+         /**
+          * Gets a String representation of the author.
+-         * 
++         *
+          * @return The String representation of the author, in the form : name &lt;email&gt; .
+          */
+         public String toString()
+@@ -296,7 +309,7 @@
+ 
+     /**
+      * Gets the installation subpath.
+-     * 
++     *
+      * @return the installation subpath
+      */
+     public String getInstallationSubPath()
+@@ -306,7 +319,7 @@
+ 
+     /**
+      * Sets the installation subpath.
+-     * 
++     *
+      * @param string subpath to be set
+      */
+     public void setInstallationSubPath(String string)
+@@ -316,7 +329,7 @@
+ 
+     /**
+      * Returns the summary log file path.
+-     * 
++     *
+      * @return the summary log file path
+      */
+     public String getSummaryLogFilePath()
+@@ -326,7 +339,7 @@
+ 
+     /**
+      * Sets the summary log file path.
+-     * 
++     *
+      * @param summaryLogFilePath the summary log file path to set
+      */
+     public void setSummaryLogFilePath(String summaryLogFilePath)
+@@ -352,13 +365,13 @@
+         this.packDecoderClassName = packDecoderClassName;
+     }
+ 
+-    
++
+     public String getUnpackerClassName()
+     {
+         return unpackerClassName;
+     }
+ 
+-    
++
+     public void setUnpackerClassName(String unpackerClassName)
+     {
+         this.unpackerClassName = unpackerClassName;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-12-13 12:16:47 UTC (rev 1952)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-12-13 15:49:56 UTC (rev 1953)
+@@ -1425,6 +1425,10 @@
+         XMLElement javaVersion = root.getFirstChildNamed(&quot;javaversion&quot;);
+         if (javaVersion != null) info.setJavaVersion(requireContent(javaVersion));
+ 
++        // Is a JDK required?
++        XMLElement jdkRequired = root.getFirstChildNamed(&quot;requiresjdk&quot;);
++        if (jdkRequired != null) info.setJdkRequired(&quot;yes&quot;.equals(jdkRequired.getContent()));
++
+         // validate and insert (and require if -web kind) web dir
+         XMLElement webDirURL = root.getFirstChildNamed(&quot;webdir&quot;);
+         if (webDirURL != null) info.setWebDirURL(requireURLContent(webDirURL).toString());
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-12-13 12:16:47 UTC (rev 1952)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-12-13 15:49:56 UTC (rev 1953)
+@@ -64,12 +64,14 @@
+ 
+ import com.izforge.izpack.GUIPrefs;
+ import com.izforge.izpack.LocaleDatabase;
++import com.izforge.izpack.ExecutableFile;
+ import com.izforge.izpack.gui.ButtonFactory;
+ import com.izforge.izpack.gui.IzPackMetalTheme;
+ import com.izforge.izpack.gui.LabelFactory;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.OsVersion;
+ import com.izforge.izpack.util.VariableSubstitutor;
++import com.izforge.izpack.util.FileExecutor;
+ 
+ /**
+  * The IzPack graphical installer class.
+@@ -117,6 +119,7 @@
+ 
+         // Checks the Java version
+         checkJavaVersion();
++        checkJDKAvailable();
+ 
+         // Loads the suitable langpack
+         SwingUtilities.invokeAndWait(new Runnable() {
+@@ -197,6 +200,35 @@
+     }
+ 
+     /**
++     * Checks if a JDK is available.
++     */
++    private void checkJDKAvailable()
++    {
++        if (!this.installdata.info.isJdkRequired())
++        {
++            return;
++        }
++
++        FileExecutor exec = new FileExecutor();
++        String[] output = new String[2];
++        String[] params = { &quot;javac&quot;, &quot;-help&quot; };
++        if (exec.executeCommand(params, output) != 0)
++        {
++            String[] message = {
++                &quot;It looks like your system does not have a Java Development Kit (JDK) available.&quot;,
++                &quot;The software that you plan to install requires a JDK for both its installation and execution.&quot;,
++                &quot;\n&quot;,
++                &quot;Do you still want to proceed with the installation process?&quot;
++            };
++            int status = JOptionPane.showConfirmDialog(null, message, &quot;Warning&quot;, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
++            if (status == JOptionPane.NO_OPTION)
++            {
++                System.exit(1);
++            }
++        }
++    }
++
++    /**
+      * Loads the suitable langpack.
+      * 
+      * @exception Exception Description of the Exception
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000698.html">[izpack-changes] r1952 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000700.html">[izpack-changes] r1954 - izpack-utils/trunk/izpack2exe
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#699">[ date ]</a>
+              <a href="thread.html#699">[ thread ]</a>
+              <a href="subject.html#699">[ subject ]</a>
+              <a href="author.html#699">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

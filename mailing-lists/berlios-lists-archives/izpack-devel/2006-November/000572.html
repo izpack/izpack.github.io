@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Downloading big packs with progress information
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Downloading%20big%20packs%20with%20progress%20information&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000571.html">
+   <LINK REL="Next"  HREF="000573.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Downloading big packs with progress information</H1>
+    <B>Diego Conde P&#233;rez</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Downloading%20big%20packs%20with%20progress%20information&In-Reply-To="
+       TITLE="[izpack-devel] Downloading big packs with progress information">dcondevigo at gmail.com
+       </A><BR>
+    <I>Thu Nov  9 19:44:55 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000571.html">[izpack-devel] Implementation for conditions in izpack
+</A></li>
+        <LI>Next message: <A HREF="000573.html">[izpack-devel] mutually exclusive packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#572">[ date ]</a>
+              <a href="thread.html#572">[ thread ]</a>
+              <a href="subject.html#572">[ subject ]</a>
+              <a href="author.html#572">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+When I use the web installer with large packs, I have the problem that the
+user doesn`t receive information about the download process. Some users said
+that waiting for one minute without information about the downloading
+progress is too much time. The problem is that the java jar url handler
+doesn't give this kind of information.
+
+I changed a couple of methods of the class WebAccessor to show the download
+progress and the total size of each pack. The new class is
+EnhancedWebAccessor (sorry for the name) which needs some code-cleaning and
+more testing. To use it you only need to change these lines in the class
+Unpacker:
+
+            URL url = *new* URL(*&quot;jar:&quot;* + packURL + *&quot;!/packs/pack&quot;* + n);
+            in = *new* WebAccessor(*null*).openInputStream(url);
+
+
+with this one:
+
+in = *new* EnhancedWebAccessor(*null*).openInputStream(*new* URL(packURL),
+&quot;!/packs/pack&quot; + n);
+You also need to add a couple of new strings to the language files. I don't
+know if there is any other way to download a file faster (any
+suggestion?). Another problem that I find is that the temporal file is not
+deleted when the installer exits. Apart from this the class seems to work
+well.
+
+Thank you very much for this Installer, it works very well. (Sorry for my
+poor English)
+
+package com.izforge.izpack.installer;
+
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Authenticator;
+import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.PasswordAuthentication;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Locale;
+
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.JProgressBar;
+
+/**
+ * Dialogs for password authentication and firewall specification,
+when needed, during web
+ * installation.
+ *
+ */
+public class EnhancedWebAccessor
+{
+
+    private Thread openerThread = null;
+
+    private InputStream iStream = null;
+
+    private Exception exception = null;
+
+    private Object soloCancelOption = null;
+
+    private Component parent = null;
+
+    private JDialog dialog = null;
+
+    private boolean tryProxy = false;
+
+    private JPanel passwordPanel = null;
+
+    private JLabel promptLabel;
+
+    private JTextField nameField;
+
+    private JPasswordField passField;
+
+    private JPanel proxyPanel = null;
+
+    private JLabel errorLabel;
+
+    private JTextField hostField;
+
+    private JTextField portField;
+
+ private JProgressBar progressBar;
+
+    /**
+     * Not yet Implemented: placeholder for headless installs.
+     *
+     * @throws UnsupportedOperationException
+     */
+    public EnhancedWebAccessor()
+    {
+        // the class should probably be rearranged to do this.
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Create a WebAccessor that prompts for proxies and passwords
+using a JDialog.
+     *
+     * @param parent determines the frame in which the dialog is
+displayed; if the parentComponent
+     * has no Frame, a default Frame is used
+     */
+    public EnhancedWebAccessor(Component parent)
+    {
+        this.parent = parent;
+        Locale l = null;
+        if (parent != null) parent.getLocale();
+        soloCancelOption =
+UIManager.get(&quot;OptionPane.cancelButtonText&quot;, l);// TODO:
+        // i18n?
+        Authenticator.setDefault(new MyDialogAuthenticator());
+    }
+
+    /**
+     * Opens a URL connection and returns it's InputStream for the
+specified URL.
+     *
+     * @param url the url to open the stream to.
+     * @return an input stream ready to read, or null on failure
+     */
+    public InputStream openInputStream(URL jarurl,String packpath)
+    {
+        // TODO: i18n everything
+        Object[] options = { soloCancelOption};
+
+        progressBar = new JProgressBar(1, 100);
+  //progressBar.setIndeterminate(true);
+
+        Object[] contents =
+{AutomatedInstallData.getInstance().langpack.getString(&quot;WebAccessor.connecting&quot;),
+progressBar };
+        JOptionPane pane = new JOptionPane(contents,
+            JOptionPane.INFORMATION_MESSAGE,
+            JOptionPane.DEFAULT_OPTION, null, options,
+                options[0]);
+
+        dialog = pane.createDialog(parent, &quot;Accessing Install Files&quot;);
+        pane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        Object value = null;
+        OPEN_URL: while (true)
+        {
+            startOpening(jarurl,packpath); // this starts a thread
+that may dismiss the
+            // dialog before user
+            dialog.setVisible(true);
+            value = pane.getValue();
+
+            // dialog closed or canceled (by widget)
+            if (value == null || value == soloCancelOption)
+            {
+                try
+                {
+                    openerThread.interrupt();// stop the connection
+                }
+                catch (Exception e)
+                {}
+                iStream = null; // even if connection was made just after cancel
+                break;
+            }
+
+            // dialog closed by thread so either a connection error or success!
+            else if (value == JOptionPane.UNINITIALIZED_VALUE)
+            {
+                // success!
+                if (iStream != null) break;
+
+                // System.err.println(exception);
+
+                // an exception we don't expect setting a proxy to fix
+                if (!tryProxy) break;
+
+                // else (exception != null)
+                // show proxy dialog until valid values or cancel
+                JPanel panel = getProxyPanel();
+                errorLabel.setText(&quot;Unable to connect: &quot; +
+exception.getMessage());
+                while (true)
+                {
+                    int result = JOptionPane.showConfirmDialog(parent, panel,
+                            &quot;Proxy Configuration&quot;, JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
+                    if (result != JOptionPane.OK_OPTION) // canceled
+                        break OPEN_URL;
+
+                    String host = null;
+                    String port = null;
+
+                    try
+                    {
+                        InetAddress addr =
+InetAddress.getByName(hostField.getText());
+                        host = addr.getHostName();
+                    }
+                    catch (Exception x)
+                    {
+                        errorLabel.setText(&quot;Unable to resolve Host&quot;);
+                        Toolkit.getDefaultToolkit().beep();
+                    }
+
+                    try
+                    {
+                        if (host != null) port =
+Integer.valueOf(portField.getText()).toString();
+                    }
+                    catch (NumberFormatException x)
+                    {
+                        errorLabel.setText(&quot;Invalid Port&quot;);
+                        Toolkit.getDefaultToolkit().beep();
+                    }
+
+                    if (host != null &amp;&amp; port != null)
+                    {
+                        // System.err.println (&quot;Setting http proxy: &quot;+ host
+                        // +&quot;:&quot;+ port);
+                        System.getProperties().put(&quot;proxySet&quot;, &quot;true&quot;);
+                        System.getProperties().put(&quot;proxyHost&quot;, host);
+                        System.getProperties().put(&quot;proxyPort&quot;, port);
+                        break;
+                    }
+                }
+            }
+        }
+        return iStream;
+    }
+
+    private void startOpening(final URL jarurl,final String pathpack)
+    {
+        openerThread = new Thread() {
+
+            public void run()
+            {
+       String tmpdir = System.getProperty(&quot;java.io.tmpdir&quot;);
+                iStream = null;
+                try
+                {
+                    tryProxy = false;
+                    URLConnection connection = jarurl.openConnection();
+                    connection.setUseCaches(false);
+           final int size = connection.getContentLength();
+
+           SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+             progressBar.setVisible(true);
+             progressBar.setMaximum(size);
+             progressBar.setValue(0);
+             progressBar.setString(&quot;Iniciando descarga ...&quot;);
+             progressBar.setStringPainted(true);
+             progressBar.setVisible(true);
+            }
+           }
+           );
+
+           InputStream in = new
+BufferedInputStream(connection.getInputStream());
+
+                 new File(tmpdir+File.separator+&quot;ficherotmp.jar&quot;).delete();
+           OutputStream fos = new BufferedOutputStream(new
+FileOutputStream(tmpdir+File.separator+&quot;ficherotmp.jar&quot;));
+           byte[] buf = new byte[1024*100];
+           int len;
+           int lenacumulada=0;
+           while ((len = in.read(buf)) &gt; 0) {
+            fos.write(buf,0,len);
+            lenacumulada+=len;
+            class UpdateProgressBar implements Runnable{
+             private int len=0;
+             public UpdateProgressBar(int len){this.len=len;}
+             public void run(){
+              progressBar.setValue(len);
+              progressBar.setString(new Integer(len/1024).toString()+&quot; KB&quot;);
+             }
+            }
+            SwingUtilities.invokeLater(new UpdateProgressBar(lenacumulada));
+           }
+           //close the stream
+           in.close();
+           fos.close();
+
+           connection = new URL(&quot;jar:&quot;+new
+File(tmpdir+File.separator+&quot;ficherotmp.jar&quot;).toURL()+pathpack).openConnection();
+           connection.setUseCaches(false);
+           iStream = connection.getInputStream();
+
+                }
+                catch (ConnectException x)
+                { // could be an incorrect proxy
+                    tryProxy = true;
+                    exception = x;
+                    //System.err.println(x);
+                }
+                catch (Exception x)
+                {
+                    // Exceptions that get here are considered cancels or
+                    // missing
+                    // pages, eg 401 if user finally cancels auth
+                    exception = x;
+                    //System.err.println(x);
+                }
+                finally
+                {
+                    // if dialog is in use, allow it to become visible /before/
+                    // closing
+                    // it, else on /fast/ connectinos, it may open later and
+                    // hang!
+                    if (dialog != null)
+                    {
+                        Thread.yield();
+                        dialog.setVisible(false);
+                    }
+                }
+            }
+        };
+        openerThread.start();
+    }
+
+    /**
+     * Only to be called after an initial error has indicated a
+connection problem
+     */
+    private JPanel getProxyPanel()
+    {
+        if (proxyPanel == null)
+        {
+            proxyPanel = new JPanel(new BorderLayout(5, 5));
+
+            errorLabel = new JLabel();
+
+            JPanel fields = new JPanel(new GridLayout(2, 2));
+            String h = (String) System.getProperties().get(&quot;proxyHost&quot;);
+            String p = (String) System.getProperties().get(&quot;proxyPort&quot;);
+            hostField = new JTextField(h != null ? h : &quot;&quot;);
+            portField = new JTextField(p != null ? p : &quot;&quot;);
+            JLabel host = new JLabel(&quot;Host: &quot;); // TODO: i18n
+            JLabel port = new JLabel(&quot;Port: &quot;); // TODO: i18n
+            fields.add(host);
+            fields.add(hostField);
+            fields.add(port);
+            fields.add(portField);
+
+            JLabel exampleLabel = new JLabel(&quot;e.g.
+host=\&quot;gatekeeper.example.com\&quot; port=\&quot;80\&quot;&quot;);
+
+            proxyPanel.add(errorLabel, BorderLayout.NORTH);
+            proxyPanel.add(fields, BorderLayout.CENTER);
+            proxyPanel.add(exampleLabel, BorderLayout.SOUTH);
+        }
+        proxyPanel.validate();
+
+        return proxyPanel;
+    }
+
+    private JPanel getPasswordPanel()
+    {
+        if (passwordPanel == null)
+        {
+            passwordPanel = new JPanel(new BorderLayout(5, 5));
+
+            promptLabel = new JLabel();
+
+            JPanel fields = new JPanel(new GridLayout(2, 2));
+            nameField = new JTextField();
+            passField = new JPasswordField();
+            JLabel name = new JLabel(&quot;Name: &quot;); // TODO: i18n
+            JLabel pass = new JLabel(&quot;Password: &quot;); // TODO: i18n
+            fields.add(name);
+            fields.add(nameField);
+            fields.add(pass);
+            fields.add(passField);
+
+            passwordPanel.add(promptLabel, BorderLayout.NORTH);
+            passwordPanel.add(fields, BorderLayout.CENTER);
+        }
+        passField.setText(&quot;&quot;);
+
+        return passwordPanel;
+    }
+
+    /**
+     * Authenticates via dialog when needed.
+     */
+    private class MyDialogAuthenticator extends Authenticator
+    {
+
+        public PasswordAuthentication getPasswordAuthentication()
+        {
+            // TODO: i18n
+            JPanel p = getPasswordPanel();
+            String prompt = getRequestingPrompt();
+            InetAddress addr = getRequestingSite();
+            if (addr != null) prompt += &quot; (&quot; + addr.getHostName() + &quot;)&quot;;
+            promptLabel.setText(prompt);
+            int result = JOptionPane.showConfirmDialog(parent, p,
+&quot;Enter Password&quot;,
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (result != JOptionPane.OK_OPTION) return null;
+
+            return new PasswordAuthentication(nameField.getText(),
+passField.getPassword());
+        }
+    };
+}
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061109/60ba1910/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061109/60ba1910/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000571.html">[izpack-devel] Implementation for conditions in izpack
+</A></li>
+	<LI>Next message: <A HREF="000573.html">[izpack-devel] mutually exclusive packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#572">[ date ]</a>
+              <a href="thread.html#572">[ thread ]</a>
+              <a href="subject.html#572">[ subject ]</a>
+              <a href="author.html#572">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

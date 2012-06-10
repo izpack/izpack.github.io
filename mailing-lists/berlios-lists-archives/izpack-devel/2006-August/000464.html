@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Patch for suppressing null pointer in	RuleInputField
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20for%20suppressing%20null%20pointer%20in%0A%09RuleInputField&In-Reply-To=1156926439.15096.5.camel%40wkspc-dre.ol.reddot.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000458.html">
+   <LINK REL="Next"  HREF="000459.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Patch for suppressing null pointer in	RuleInputField</H1>
+    <B>Marc Eppelmann</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20for%20suppressing%20null%20pointer%20in%0A%09RuleInputField&In-Reply-To=1156926439.15096.5.camel%40wkspc-dre.ol.reddot.de"
+       TITLE="[izpack-devel] Patch for suppressing null pointer in	RuleInputField">marc.eppelmann at gmx.de
+       </A><BR>
+    <I>Thu Aug 31 20:56:06 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000458.html">[izpack-devel] Patch for suppressing null pointer in RuleInputField
+</A></li>
+        <LI>Next message: <A HREF="000459.html">[izpack-devel] Toronto baby ....
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#464">[ date ]</a>
+              <a href="thread.html#464">[ thread ]</a>
+              <a href="subject.html#464">[ subject ]</a>
+              <a href="author.html#464">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Dennis, 
+
+This Patch is currently not immediately applicable. Please can you send us 
+patches in the unified patch format, which will be used (created and applied) 
+by eclipse as seperate attachment?
+
+Thn I will check it again.
+
+Cheers
+Marc
+
+Am Mittwoch, 30. August 2006 10:27 schrieb Dennis Reil:
+&gt;<i> Hi,
+</I>&gt;<i>
+</I>&gt;<i> When I use a rule input field in UserInputPanel, I always get a null
+</I>&gt;<i> pointer exception from caretUpdate() in RuleInputField. This is caused
+</I>&gt;<i> by an activeField set to null somewhere else. So just test if
+</I>&gt;<i> activeField equals null before calling any method on it.
+</I>&gt;<i>
+</I>&gt;<i> Below you'll find a patch for this problem.
+</I>&gt;<i>
+</I>&gt;<i> kind regards,
+</I>&gt;<i>      Dennis
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Index:
+</I>&gt;<i> /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.j
+</I>&gt;<i>ava =================================================================== ---
+</I>&gt;<i> /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.j
+</I>&gt;<i>ava	(revision 1554) +++
+</I>&gt;<i> /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.j
+</I>&gt;<i>ava	(working copy)
+</I>&gt;<i>
+</I>&gt;<i> @@ -748,17 +748,20 @@
+</I>&gt;<i>     
+</I>&gt;<i> /*-------------------------------------------------------------------------
+</I>&gt;<i>-*/ public void caretUpdate(CaretEvent event)
+</I>&gt;<i>      {
+</I>&gt;<i> -        String text = activeField.getText();
+</I>&gt;<i> -        int fieldSize = activeField.getEditLength();
+</I>&gt;<i> -        int caretPosition = activeField.getCaretPosition();
+</I>&gt;<i> -        int selection = activeField.getSelectionEnd() -
+</I>&gt;<i> activeField.getSelectionStart();
+</I>&gt;<i> -
+</I>&gt;<i> -        if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!
+</I>&gt;<i> activeField.unlimitedEdit()))
+</I>&gt;<i> +        if (activeField != null)
+</I>&gt;<i>          {
+</I>&gt;<i> -            if ((text.length() == fieldSize) &amp;&amp; (selection == 0) &amp;&amp;
+</I>&gt;<i> (caretPosition == fieldSize)
+</I>&gt;<i> -                    &amp;&amp; !backstep)
+</I>&gt;<i> +            String text = activeField.getText();
+</I>&gt;<i> +            int fieldSize = activeField.getEditLength();
+</I>&gt;<i> +            int caretPosition = activeField.getCaretPosition();
+</I>&gt;<i> +            int selection = activeField.getSelectionEnd() -
+</I>&gt;<i> activeField.getSelectionStart();
+</I>&gt;<i> +
+</I>&gt;<i> +            if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!
+</I>&gt;<i> activeField.unlimitedEdit()))
+</I>&gt;<i>              {
+</I>&gt;<i> -                activeField.transferFocus();
+</I>&gt;<i> +                if ((text.length() == fieldSize) &amp;&amp; (selection == 0)
+</I>&gt;<i> +                        &amp;&amp; (caretPosition == fieldSize) &amp;&amp; !backstep)
+</I>&gt;<i> +                {
+</I>&gt;<i> +                    activeField.transferFocus();
+</I>&gt;<i> +                }
+</I>&gt;<i>              }
+</I>&gt;<i>          }
+</I>&gt;<i>      }
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000458.html">[izpack-devel] Patch for suppressing null pointer in RuleInputField
+</A></li>
+	<LI>Next message: <A HREF="000459.html">[izpack-devel] Toronto baby ....
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#464">[ date ]</a>
+              <a href="thread.html#464">[ thread ]</a>
+              <a href="subject.html#464">[ subject ]</a>
+              <a href="author.html#464">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

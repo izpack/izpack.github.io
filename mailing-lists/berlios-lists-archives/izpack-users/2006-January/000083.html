@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Reading Attributes from install.xml
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Reading%20Attributes%20from%20install.xml&In-Reply-To=200601090157.20508.hal%40thresholddigital.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000078.html">
+   <LINK REL="Next"  HREF="000084.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Reading Attributes from install.xml</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Reading%20Attributes%20from%20install.xml&In-Reply-To=200601090157.20508.hal%40thresholddigital.com"
+       TITLE="[izpack-users] Reading Attributes from install.xml">bartzkau at gmx.net
+       </A><BR>
+    <I>Mon Jan  9 17:30:16 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000078.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+        <LI>Next message: <A HREF="000084.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#83">[ date ]</a>
+              <a href="thread.html#83">[ thread ]</a>
+              <a href="subject.html#83">[ subject ]</a>
+              <a href="author.html#83">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Hal,
+seems so you have started playing with IzPack. Nice tool, isn't it?
+
+
+Am 09.01.2006, 07:57 Uhr, schrieb Hal Vaughan &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">hal at thresholddigital.com</A>&gt;:
+
+&gt;<i> Remember I mentioned writing a class to read attributes given to panels  
+</I>&gt;<i> in
+</I>&gt;<i> install.xml?
+</I>&gt;<i>
+</I>&gt;<i> It's done.  It requires there to be a file /res/install.xml, which means  
+</I>&gt;<i> it
+</I>&gt;<i> has to be declared as a resource in the original install.xml file  
+</I>&gt;<i> (whatever
+</I>&gt;<i> it is named).  It could easily be changed to read from any XML file  
+</I>&gt;<i> anywhere
+</I>&gt;<i> in the install jar.
+</I>
+You have seen, that you cannot read install.xml because this file will be
+not present at install time else only at packaging (compiling).
+install.xml self is not a good place to add data for custom panels because
+all people has to handle it and the dtd is large enough  
+(src/dtd/installation.dtd)
+and the file was not made to exist in the installation else only at  
+packaging time.
+
+Also other panels or custom actions uses an own xml file. It is common to  
+give them a
+name which has an association to the used class which use it; see
+shortcutSpec.xml or RegistrySpec.xml. I think it will be an good idea to
+write a dtd for it like src/dtd/event/registry.dtd for RegistrySpec.xml.
+Problems with IzPack are often related with wrong written xml files. If we
+change from the current xml parser (nanoxml) to one of the VM. Then
+we would validate the xml files. I know, not all xml files (like the one
+for the UserInputPanel) has a corresponding dtd, this is not good.
+
+&gt;<i>
+</I>&gt;<i> I also edited PasswordPanel to get the panel attributes from this class
+</I>&gt;<i> instead of reading install.xml directly.
+</I>&gt;<i>
+</I>&gt;<i> It's time for sleep, but I thought I'd mention I had this working.  I  
+</I>&gt;<i> can send
+</I>&gt;<i> you the class once I've had time to clean up the code (way to many  
+</I>&gt;<i> debugging
+</I>&gt;<i> comments and printouts in there now!).
+</I>&gt;<i>
+</I>&gt;<i> I think I read somewhere that there was an intent to not let install.xml  
+</I>&gt;<i> get
+</I>&gt;<i> too cluttered.  Unless I missed a method somewhere (and I looked  
+</I>&gt;<i> carefully),
+</I>
+Yes, install.xml defines the hole installation, not additional data for a
+custom panel or custom action (if we use the way for panels, the next  
+question
+will be why not for custom actions). Look into src/dtd/event/antaction.dtd.
+How to put all the attributes and elements into the &lt;listener&gt; element of
+install.xml
+
+&gt;<i> the class I wrote (PanelAttributes) is the only allowance for reading the
+</I>&gt;<i> panel attributes.  If more panels are going to use this method of having
+</I>&gt;<i> attributes in the install.xml file, it seems to me it might be a good  
+</I>&gt;<i> idea if
+</I>&gt;<i> either the install.xml file is automatically included OR just the  
+</I>&gt;<i> &lt;panels&gt;
+</I>&gt;<i> section could be extracted and put in /res.
+</I>&gt;<i>
+</I>
+There are panels which needs a spec file, most not. It will be good if a  
+spec
+has a dtd. Therefore we need for each spec one file. I have had until jet
+no problems to add the one or five  resource line(s) in install.xml for my
+spec files.
+There exist a helper class for specs, see  
+com.izforge.izpack.util.SpecHelper.
+Primary made for custom actions, but also useable from custom panels.
+
+&gt;<i> Just some late night musings.  Let me know what you think and what I've  
+</I>&gt;<i> missed
+</I>&gt;<i> on this.
+</I>&gt;<i>
+</I>&gt;<i> Keep well,
+</I>&gt;<i>
+</I>&gt;<i> Hal
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+Cheers
+
+Klaus
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000078.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+	<LI>Next message: <A HREF="000084.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#83">[ date ]</a>
+              <a href="thread.html#83">[ thread ]</a>
+              <a href="subject.html#83">[ subject ]</a>
+              <a href="author.html#83">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

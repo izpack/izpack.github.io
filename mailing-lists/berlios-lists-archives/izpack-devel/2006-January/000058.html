@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Suggestion for Modification On Another Class
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Suggestion%20for%20Modification%20On%20Another%20Class&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000056.html">
+   <LINK REL="Next"  HREF="000059.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Suggestion for Modification On Another Class</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Suggestion%20for%20Modification%20On%20Another%20Class&In-Reply-To="
+       TITLE="[izpack-devel] Suggestion for Modification On Another Class">hal at thresholddigital.com
+       </A><BR>
+    <I>Sun Jan 15 05:20:11 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000056.html">[izpack-devel] 3.8.1 fixed is out
+</A></li>
+        <LI>Next message: <A HREF="000059.html">[izpack-devel] Suggestion for Modification On Another Class
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi, Fabrice!
+
+How's the weekend going?  I hope you're having fun and doing lots of the 
+things I'm dreaming of doing once I get all this stuff done!  (What's the 
+weather like there now?  We're having almost a heat wave and temperatures are 
+more like we expect in April than January, but a weather front moved through 
+last night, bringing thunder storms and it's suddenly getting cold!)
+
+I'm working on a Path panel.  I wanted to use Klaus' PathInputPanel, but there 
+are enough parts of it custom tailored to TargetPanel that it won't work, at 
+least not easily.  I tried using Klaus' other panel, PathSelectionPanel, but 
+I find one small problem, here it is:
+
+There are two components in PathSelectionPanel, a JTextField and a JButton.  
+You can access the JTextField, which lets you get or set the text and add a 
+listener, but there is no way to access the JButton, which brings up a 
+JFileChooser.  I'm suggesting making a small modification to this class so 
+the button can be accessed.  In my case, I'd like to add an ActionListener 
+that is slightly different than the one Klaus uses.  Here's an example of 
+what I *think* is a problem with the current ActionListener: If you the 
+current path in the JTextField is /usr/lib/openoffice, which is the directory 
+you plan on installing to, and the JFileChooser realizes the entire path does 
+not exist, it defaults to /home/username.  Without going into details, I want 
+a different behavior.
+
+I am suggestion to add one method at the end of PathSelectionPanel:
+
+public JButton getBrowseButton()
+{
+	return browseButton;
+}
+
+That's it!  Just allow another class using PathSelectionPanel to access the 
+browseButton to change the text or change the ActionListener.  The only 
+downside I can see is that this allows people to change the behavior of the 
+browseButton so it won't always be the same.
+
+At this point, I'm creating a class, AlteredPathSelectionPanel, so I can use 
+it with this change.  If it's acceptable to add this one method to 
+PathSelectionPanel, I can change my code to use the regular class.  As I've 
+said, I am trying to make sure that I do not change existing code or add 
+things like this to existing classes, but this seems to make sense, so I 
+thought I'd bring it up and see what you thought.
+
+Keep well,
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000056.html">[izpack-devel] 3.8.1 fixed is out
+</A></li>
+	<LI>Next message: <A HREF="000059.html">[izpack-devel] Suggestion for Modification On Another Class
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#58">[ date ]</a>
+              <a href="thread.html#58">[ thread ]</a>
+              <a href="subject.html#58">[ subject ]</a>
+              <a href="author.html#58">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

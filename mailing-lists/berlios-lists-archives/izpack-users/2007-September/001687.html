@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] variable dependent on os
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20variable%20dependent%20on%20os&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C899102213AD4%40svrexol1.ol.reddot.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001685.html">
+   <LINK REL="Next"  HREF="001686.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] variable dependent on os</H1>
+    <B>nbc</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20variable%20dependent%20on%20os&In-Reply-To=9F55E59D43CE1E4ABA49AA9AEA7C899102213AD4%40svrexol1.ol.reddot.de"
+       TITLE="[izpack-users] variable dependent on os">nathan.chun at ngc.com
+       </A><BR>
+    <I>Sat Sep 29 01:21:52 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001685.html">[izpack-users] variable dependent on os
+</A></li>
+        <LI>Next message: <A HREF="001686.html">[izpack-users] Log4j Integration in IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1687">[ date ]</a>
+              <a href="thread.html#1687">[ thread ]</a>
+              <a href="subject.html#1687">[ subject ]</a>
+              <a href="author.html#1687">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Dennis:
+
+I attempted to implement what you had posted.  It works fine on a windows
+install, but on a unix install, I get:
+
+java.lang.NullPointerException 
+        at
+com.izforge.izpack.rules.RulesEngine.analyzeCondition(RulesEngine.java:97) 
+        at
+com.izforge.izpack.rules.RulesEngine.readConditions(RulesEngine.java:119) 
+        at com.izforge.izpack.rules.RulesEngine.&lt;init&gt;(RulesEngine.java:55) 
+        at
+com.izforge.izpack.installer.InstallerFrame.loadConditions(InstallerFrame.java:286) 
+        at
+com.izforge.izpack.installer.InstallerFrame.&lt;init&gt;(InstallerFrame.java:251) 
+        at
+com.izforge.izpack.installer.GUIInstaller.loadGUI(GUIInstaller.java:433) 
+        at
+com.izforge.izpack.installer.GUIInstaller.access$100(GUIInstaller.java:79) 
+        at
+com.izforge.izpack.installer.GUIInstaller$2.run(GUIInstaller.java:148) 
+        at java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:209) 
+        at java.awt.EventQueue.dispatchEvent(EventQueue.java:461) 
+        at
+java.awt.EventDispatchThread.pumpOneEventForHierarchy(EventDispatchThread.java:242) 
+        at
+java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDispatchThread.java:163) 
+        at
+java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:157) 
+        at
+java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:149) 
+        at java.awt.EventDispatchThread.run(EventDispatchThread.java:110) 
+
+
+
+I also tried qualifying the condition with com.izpack...rules.  Same
+exception on unix.
+(I placed my condition in the rules package.)
+
+
+Thanks again
+
+
+
+
+
+
+
+Dennis Reil wrote:
+&gt;<i> 
+</I>&gt;<i> Currently this can only be done in UserInputPanel by using the variable
+</I>&gt;<i> element and custom conditions on OS, e.g.
+</I>&gt;<i> 
+</I>&gt;<i> In your userinputpanel.xml:
+</I>&gt;<i> 
+</I>&gt;<i> &lt;panel ...&gt;
+</I>&gt;<i> ...
+</I>&gt;<i>    &lt;variable name=&quot;MY_VAR&quot; value=&quot;Blue&quot; conditionid=&quot;unixos&quot; /&gt;
+</I>&gt;<i>    &lt;variable name=&quot;MY_VAR&quot; value=&quot;Yellow&quot; conditionid=&quot;windowsos&quot; /&gt;
+</I>&gt;<i> ...
+</I>&gt;<i> &lt;/panel&gt;
+</I>&gt;<i> 
+</I>&gt;<i> And you'll have to implement a condition based on
+</I>&gt;<i> com.izforge.izpack.rules.Condition, assuming a name of
+</I>&gt;<i> com.mycompany.OsCondition, 
+</I>&gt;<i> your conditions.xml has to look like:
+</I>&gt;<i> 
+</I>&gt;<i> conditions.xml:
+</I>&gt;<i> &lt;conditions&gt;
+</I>&gt;<i>   &lt;condition type=&quot;com.mycompany.OsCondition&quot; id=&quot;unixos&quot;&gt;
+</I>&gt;<i>      &lt;os family=&quot;unix&quot; /&gt;
+</I>&gt;<i>   &lt;/condition&gt;
+</I>&gt;<i>   &lt;condition type=&quot;com.mycompany.OsCondition&quot; id=&quot;windowsos&quot;&gt;
+</I>&gt;<i>      &lt;os family=&quot;windows&quot; /&gt;
+</I>&gt;<i>   &lt;/condition&gt;
+</I>&gt;<i> &lt;/conditions&gt;
+</I>&gt;<i> 
+</I>&gt;<i> Regards,
+</I>&gt;<i>    Dennis
+</I>&gt;<i> 
+</I>&gt;<i> -----Urspr&#252;ngliche Nachricht-----
+</I>&gt;<i> Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von nbc
+</I>&gt;<i> Gesendet: Mittwoch, 26. September 2007 17:59
+</I>&gt;<i> An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Betreff: [izpack-users] variable dependent on os
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Hi everyone:
+</I>&gt;<i> 
+</I>&gt;<i> I wanted to define a variable depneding upon a particular os.  Example: If
+</I>&gt;<i> the os is unix, then I want $MY_VAR = Blue, if the os is windows, I want
+</I>&gt;<i> $MY_VAR = Yellow.  The variable will then be used in substituion within a
+</I>&gt;<i> file.
+</I>&gt;<i> 
+</I>&gt;<i> Any help welcomed.
+</I>&gt;<i> 
+</I>&gt;<i> Thanks
+</I>&gt;<i> -- 
+</I>&gt;<i> View this message in context:
+</I>&gt;<i> <A HREF="http://www.nabble.com/variable-dependent-on-os-tf4523224.html#a12903923">http://www.nabble.com/variable-dependent-on-os-tf4523224.html#a12903923</A>
+</I>&gt;<i> Sent from the izpack users mailing list archive at Nabble.com.
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+-- 
+View this message in context: <A HREF="http://www.nabble.com/variable-dependent-on-os-tf4523224.html#a12950143">http://www.nabble.com/variable-dependent-on-os-tf4523224.html#a12950143</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001685.html">[izpack-users] variable dependent on os
+</A></li>
+	<LI>Next message: <A HREF="001686.html">[izpack-users] Log4j Integration in IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1687">[ date ]</a>
+              <a href="thread.html#1687">[ thread ]</a>
+              <a href="subject.html#1687">[ subject ]</a>
+              <a href="author.html#1687">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1683 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1683%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000427.html">
+   <LINK REL="Next"  HREF="000429.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1683 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1683%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1683 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Sat Jan  6 15:02:17 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000427.html">[izpack-changes] r1682 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000429.html">[izpack-changes] r1684 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#428">[ date ]</a>
+              <a href="thread.html#428">[ thread ]</a>
+              <a href="subject.html#428">[ subject ]</a>
+              <a href="author.html#428">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-01-06 15:02:15 +0100 (Sat, 06 Jan 2007)
+New Revision: 1683
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+Log:
+Reversed the patch
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-01-06 12:02:15 UTC (rev 1682)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-01-06 14:02:15 UTC (rev 1683)
+@@ -26,7 +26,6 @@
+ import java.awt.Color;
+ import java.awt.Component;
+ import java.awt.Dimension;
+-import java.awt.Graphics;
+ import java.awt.GridBagConstraints;
+ import java.awt.GridBagLayout;
+ import java.awt.event.ActionEvent;
+@@ -42,8 +41,6 @@
+ import javax.swing.BorderFactory;
+ import javax.swing.Box;
+ import javax.swing.BoxLayout;
+-import javax.swing.ButtonModel;
+-import javax.swing.Icon;
+ import javax.swing.JCheckBox;
+ import javax.swing.JLabel;
+ import javax.swing.JOptionPane;
+@@ -55,7 +52,6 @@
+ import javax.swing.border.Border;
+ import javax.swing.event.ListSelectionEvent;
+ import javax.swing.event.ListSelectionListener;
+-import javax.swing.plaf.metal.MetalLookAndFeel;
+ import javax.swing.table.DefaultTableCellRenderer;
+ import javax.swing.table.TableCellEditor;
+ import javax.swing.table.TableCellRenderer;
+@@ -635,10 +631,6 @@
+         public CheckBoxEditorRenderer(boolean useAsEditor)
+         {
+             display = new JCheckBox();
+-            display.setIcon(new LFIndependentIcon());
+-            display.setDisabledIcon(new LFIndependentIcon());
+-            display.setSelectedIcon(new LFIndependentIcon());
+-            display.setDisabledSelectedIcon(new LFIndependentIcon());
+             display.setHorizontalAlignment(CENTER);
+             if (useAsEditor) display.addActionListener(this);
+ 
+@@ -683,81 +675,5 @@
+             stopCellEditing();
+         }
+     }
+-    public static class LFIndependentIcon implements Icon
+-    {
+-       ButtonModel buttonModel = null;
+-       protected int getControlSize() { return 13; }
+-       public void paintIcon(Component c, Graphics g, int x, int y)
+-       {
+-          ButtonModel model = ((JCheckBox)c).getModel();
+-          buttonModel = model;
+-          int controlSize = getControlSize();
+-          if (model.isPressed() &amp;&amp; model.isArmed())
+-          {
+-             g.setColor( MetalLookAndFeel.getControlShadow() );
+-             if(model.isEnabled()) g.setColor(Color.green); else g.setColor(Color.gray);
+-             g.fillRect( x, y, controlSize-1, controlSize-1);
+-             drawPressedBorder(g, x, y, controlSize, controlSize, model);
+-          }
+-          else
+-          {
+-             drawBorder(g, x, y, controlSize, controlSize, model);
+-          }
+-          g.setColor( Color.green );
+-          if (model.isSelected())
+-          {
+-             drawCheck(c,g,x,y);
+-          }
+-       }
+-       private void drawBorder(Graphics g, int x, int y, int w, int h, ButtonModel model)
+-       {
+-          g.translate(x, y);
+ 
+-          // outer frame rectangle
+-          g.setColor(MetalLookAndFeel.getControlDarkShadow());
+-          if(!model.isEnabled()) g.setColor(new Color(0.4f, 0.4f, 0.4f));
+-          g.drawRect(0, 0, w-2, h-2);
+-
+-          // middle frame
+-          g.setColor(MetalLookAndFeel.getControlHighlight());
+-          if(!model.isEnabled()) g.setColor(new Color(0.6f, 0.6f, 0.6f));
+-          g.drawRect(1, 1, w-2, h-2);
+-
+-          // background
+-          if(model.isEnabled()) g.setColor(Color.white); else g.setColor(new Color(0.8f, 0.8f, 0.8f));
+-          g.fillRect(2, 2, w-3, h-3);
+-
+-          //some extra lines for FX
+-          g.setColor(MetalLookAndFeel.getControl());
+-          g.drawLine(0, h-1, 1, h-2);
+-          g.drawLine(w-1, 0, w-2, 1);
+-          g.translate(-x, -y);
+-       }
+-       private void drawPressedBorder(Graphics g, int x, int y, int w, int h, ButtonModel model)
+-       {
+-          g.translate(x, y);
+-          drawBorder(g, 0, 0, w, h, model);
+-          g.setColor(MetalLookAndFeel.getControlShadow());
+-          g.drawLine(1, 1, 1, h-2);
+-          g.drawLine(1, 1, w-2, 1);
+-          g.drawLine(2, 2, 2, h-3);
+-          g.drawLine(2, 2, w-3, 2);
+-          g.translate(-x, -y);
+-       }
+-       protected void drawCheck(Component c, Graphics g, int x, int y)
+-       {
+-          int controlSize = getControlSize();
+-          if(buttonModel!=null)
+-             if(buttonModel.isEnabled())
+-                g.setColor(new Color(0.0f,0.6f,0.0f));
+-             else g.setColor(new Color(0.1f,0.1f,0.1f));
+-
+-          g.fillRect( x+3, y+5, 2, controlSize-8 );
+-          g.drawLine( x+(controlSize-4), y+3, x+5, y+(controlSize-6) );
+-          g.drawLine( x+(controlSize-4), y+4, x+5, y+(controlSize-5) );
+-       }
+-       public int getIconWidth() {return getControlSize();}
+-       public int getIconHeight() {return getControlSize();}
+-    }
+-
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000427.html">[izpack-changes] r1682 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000429.html">[izpack-changes] r1684 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#428">[ date ]</a>
+              <a href="thread.html#428">[ thread ]</a>
+              <a href="subject.html#428">[ subject ]</a>
+              <a href="author.html#428">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

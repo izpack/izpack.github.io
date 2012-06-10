@@ -1,0 +1,504 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1948 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1948%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20installer%20rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000693.html">
+   <LINK REL="Next"  HREF="000695.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1948 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1948%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20installer%20rules&In-Reply-To="
+       TITLE="[izpack-changes] r1948 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer rules">noreply at berlios.de
+       </A><BR>
+    <I>Wed Dec 12 09:04:48 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000693.html">[izpack-changes] r1947 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler installer
+</A></li>
+        <LI>Next message: <A HREF="000695.html">[izpack-changes] r1949 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#694">[ date ]</a>
+              <a href="thread.html#694">[ thread ]</a>
+              <a href="subject.html#694">[ subject ]</a>
+              <a href="author.html#694">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-12-12 09:04:42 +0100 (Wed, 12 Dec 2007)
+New Revision: 1948
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistory.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/PackselectionCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java
+Log:
+added condition dependency details
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistory.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistory.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/ConditionHistory.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -118,6 +118,8 @@
+             details.append(condcomment[1]);
+             details.append(&quot;)&lt;br&gt;&quot;);            
+         }
++        details.append(&quot;&lt;h4&gt;Dependencies&lt;/h4&gt;&quot;);
++        details.append(this.condition.getDependenciesDetails());
+         details.append(&quot;&lt;/body&gt;&lt;/html&gt;&quot;);
+         return details.toString();
+     }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Debugger.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -83,11 +83,8 @@
+         this.conditionhistory = new HashMap();
+         this.init();
+     }
++        
+     
+-    private void getCurrentConditionState(boolean updateconditionhistory, String comment) {       
+-                     
+-    }
+-    
+     private void init() {
+         String[] variablekeys = (String[]) lasttimevariables.keySet().toArray(new String[lasttimevariables.size()]);
+         for (int i = 0; i &lt; variablekeys.length; i++)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -33,6 +33,11 @@
+ public class AndCondition extends Condition
+ {
+ 
++    /**
++     * 
++     */
++    private static final long serialVersionUID = -5854944262991488370L;
++
+     protected Condition leftoperand;
+ 
+     protected Condition rightoperand;
+@@ -53,22 +58,11 @@
+         this.leftoperand = operand1;
+         this.rightoperand = operand2;
+     }
++  
+ 
+     /*
+      * (non-Javadoc)
+      * 
+-     * @see de.reddot.installer.util.Condition#isTrue()
+-     */
+-    /*
+-    public boolean isTrue(Properties variables)
+-    {
+-        return leftoperand.isTrue(variables) &amp;&amp; rightoperand.isTrue(variables);
+-    }
+-    */
+-
+-    /*
+-     * (non-Javadoc)
+-     * 
+      * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+      */
+     public void readFromXML(XMLElement xmlcondition)
+@@ -89,15 +83,24 @@
+         }
+     }
+ 
+-    /*
+-    public boolean isTrue(Properties variables, List selectedpacks)
+-    {
+-        return leftoperand.isTrue(variables, selectedpacks)
+-                &amp;&amp; rightoperand.isTrue(variables, selectedpacks);
+-    }
+-    */
++  
+     public boolean isTrue()
+     {        
+         return leftoperand.isTrue() &amp;&amp; rightoperand.isTrue();
+     }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.rules.Condition#getDependenciesDetails()
++     */
++    public String getDependenciesDetails()
++    {
++        StringBuffer details = new StringBuffer();
++        details.append(this.id);
++        details.append(&quot; depends on:&lt;ul&gt;&lt;li&gt;&quot;);        
++        details.append(leftoperand.getDependenciesDetails());
++        details.append(&quot;&lt;/li&gt; AND &lt;li&gt;&quot;);
++        details.append(rightoperand.getDependenciesDetails());
++        details.append(&quot;&lt;/li&gt;&lt;/ul&gt;&quot;);
++        return details.toString();
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -74,4 +74,8 @@
+     {
+         this.installdata = installdata;
+     }
++    
++    public String getDependenciesDetails() {
++        return &quot;No dependencies for this condition.&quot;;
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/JavaCondition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -33,6 +33,10 @@
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  */
+ public class JavaCondition extends Condition {
++    /**
++     * 
++     */
++    private static final long serialVersionUID = -7649870719815066537L;
+     protected String classname;
+     protected String methodname;
+     protected String fieldname;
+@@ -140,4 +144,30 @@
+        return this.isTrue(this.installdata.getVariables());
+     }
+ 
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.rules.Condition#getDependenciesDetails()
++     */
++    public String getDependenciesDetails()
++    {
++        StringBuffer details = new StringBuffer();
++        details.append(this.id);
++        details.append(&quot; depends on the &quot;);
++        if (this.fieldname != null) {
++            details.append(&quot;value of field &lt;b&gt;&quot;);
++            details.append(this.fieldname);
++            details.append(&quot;&lt;/b&gt;&quot;);
++        }
++        else {
++            details.append(&quot;return value of method &lt;b&gt;&quot;);
++            details.append(this.methodname);
++            details.append(&quot;&lt;/b&gt;&quot;);
++        }
++        details.append(&quot; on an instance of class &lt;b&gt;&quot;);
++        details.append(this.classname);
++        details.append(&quot;&lt;/b&gt; which should be &lt;b&gt;&quot;);
++        details.append(this.returnvalue);        
++        details.append(&quot;&lt;/b&gt;&lt;br/&gt;&quot;);        
++        return details.toString();
++    }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -30,6 +30,10 @@
+ public class NotCondition extends Condition
+ {
+ 
++    /**
++     * 
++     */
++    private static final long serialVersionUID = 3194843222487006309L;
+     protected Condition operand;
+ 
+     /**
+@@ -93,4 +97,17 @@
+     {        
+         return !operand.isTrue();
+     }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.rules.Condition#getDependenciesDetails()
++     */
++    public String getDependenciesDetails()
++    {
++        StringBuffer details = new StringBuffer();
++        details.append(this.id);
++        details.append(&quot; depends on:&lt;ul&gt;&lt;li&gt;NOT &quot;);        
++        details.append(operand.getDependenciesDetails());
++        details.append(&quot;&lt;/li&gt;&lt;/ul&gt;&quot;);
++        return details.toString();
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -30,11 +30,12 @@
+  */
+ public class OrCondition extends Condition
+ {
++   
++    /**
++     * 
++     */
++    private static final long serialVersionUID = 8341350377205144199L;
+ 
+-    public static final String RDE_VCS_REVISION = &quot;$Revision: 1.1 $&quot;;
+-
+-    public static final String RDE_VCS_NAME = &quot;$Name:  $&quot;;
+-
+     protected Condition leftoperand;
+ 
+     protected Condition rightoperand;
+@@ -98,4 +99,19 @@
+     {
+         return this.leftoperand.isTrue() || this.rightoperand.isTrue();
+     }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.rules.Condition#getDependenciesDetails()
++     */
++    public String getDependenciesDetails()
++    {
++        StringBuffer details = new StringBuffer();
++        details.append(this.id);
++        details.append(&quot; depends on:&lt;ul&gt;&lt;li&gt;&quot;);        
++        details.append(leftoperand.getDependenciesDetails());
++        details.append(&quot;&lt;/li&gt; OR &lt;li&gt;&quot;);
++        details.append(rightoperand.getDependenciesDetails());
++        details.append(&quot;&lt;/li&gt;&lt;/ul&gt;&quot;);
++        return details.toString();
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/PackselectionCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/PackselectionCondition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/PackselectionCondition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -36,6 +36,10 @@
+ public class PackselectionCondition extends Condition
+ {
+ 
++    /**
++     * 
++     */
++    private static final long serialVersionUID = 9193011814966195963L;
+     protected String packid;
+ 
+     /**
+@@ -97,4 +101,17 @@
+         return this.isTrue(this.installdata.getVariables(), this.installdata.selectedPacks);
+     }
+ 
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.rules.Condition#getDependenciesDetails()
++     */
++    public String getDependenciesDetails()
++    {
++        StringBuffer details = new StringBuffer();
++        details.append(this.id);
++        details.append(&quot;depends on the selection of pack &lt;b&gt;&quot;);
++        details.append(this.packid);        
++        details.append(&quot;&lt;/b&gt;&lt;br/&gt;&quot;);
++        return details.toString();
++    }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -30,6 +30,10 @@
+ public class RefCondition extends Condition
+ {
+ 
++    /**
++     * 
++     */
++    private static final long serialVersionUID = -2880915036530702269L;
+     Condition referencedcondition;
+ 
+     public RefCondition()
+@@ -59,8 +63,16 @@
+         }
+     }
+ 
+-    /*
+-     * public boolean isTrue(Properties variables, List selectedpacks) { return
+-     * referencedcondition.isTrue(variables, selectedpacks); }
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.rules.Condition#getDependenciesDetails()
+      */
++    public String getDependenciesDetails()
++    {
++        StringBuffer details = new StringBuffer();
++        details.append(this.id);
++        details.append(&quot; depends on:&lt;ul&gt;&lt;li&gt;&quot;);        
++        details.append(referencedcondition.getDependenciesDetails());
++        details.append(&quot;&lt;/li&gt;&lt;/ul&gt;&quot;);
++        return details.toString();
++    }    
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/VariableCondition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -32,6 +32,11 @@
+ public class VariableCondition extends Condition
+ {
+ 
++    /**
++     * 
++     */
++    private static final long serialVersionUID = 2881336115632480575L;
++
+     protected String variablename;
+ 
+     protected String value;
+@@ -111,4 +116,19 @@
+             return false;
+         }
+     }
++
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.rules.Condition#getDependenciesDetails()
++     */
++    public String getDependenciesDetails()
++    {
++        StringBuffer details = new StringBuffer();
++        details.append(this.id);
++        details.append(&quot; depends on a value of &lt;b&gt;&quot;);        
++        details.append(this.value);
++        details.append(&quot;&lt;/b&gt; on variable &lt;b&gt;&quot;);
++        details.append(this.variablename);
++        details.append(&quot;&lt;/b&gt;&lt;br/&gt;&quot;);
++        return details.toString();
++    }
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java	2007-12-11 22:32:44 UTC (rev 1947)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java	2007-12-12 08:04:42 UTC (rev 1948)
+@@ -34,10 +34,14 @@
+     /**
+      * 
+      */
++    private static final long serialVersionUID = 3148555083095194992L;
++
++    /**
++     * 
++     */
+     public XOrCondition()
+     {
+-        super();
+-        // TODO Auto-generated constructor stub
++        super();       
+     }
+ 
+     /**
+@@ -52,25 +56,6 @@
+     /*
+      * (non-Javadoc)
+      * 
+-     * @see de.reddot.installer.util.OrCondition#isTrue()
+-     */
+-    /*
+-    public boolean isTrue(Properties variables)
+-    {
+-        boolean op1true = leftoperand.isTrue(variables);
+-        boolean op2true = rightoperand.isTrue(variables);
+-
+-        if (op1true &amp;&amp; op2true)
+-        {
+-            // in case where both are true
+-            return false;
+-        }
+-        return op1true || op2true;
+-    }
+-    */
+-    /*
+-     * (non-Javadoc)
+-     * 
+      * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+      */
+     public void readFromXML(XMLElement xmlcondition)
+@@ -104,18 +89,18 @@
+         return op1true || op2true;
+     }
+ 
+-    /*
+-    public boolean isTrue(Properties variables, List selectedpacks)
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.rules.OrCondition#getDependenciesDetails()
++     */
++    public String getDependenciesDetails()
+     {
+-        boolean op1true = leftoperand.isTrue(variables, selectedpacks);
+-        boolean op2true = rightoperand.isTrue(variables, selectedpacks);
+-
+-        if (op1true &amp;&amp; op2true)
+-        {
+-            // in case where both are true
+-            return false;
+-        }
+-        return op1true || op2true;
+-    }
+-    */
++        StringBuffer details = new StringBuffer();
++        details.append(this.id);
++        details.append(&quot; depends on:&lt;ul&gt;&lt;li&gt;&quot;);        
++        details.append(leftoperand.getDependenciesDetails());
++        details.append(&quot;&lt;/li&gt; XOR &lt;li&gt;&quot;);
++        details.append(rightoperand.getDependenciesDetails());
++        details.append(&quot;&lt;/li&gt;&lt;/ul&gt;&quot;);
++        return details.toString();
++    }   
+ }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000693.html">[izpack-changes] r1947 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler installer
+</A></li>
+	<LI>Next message: <A HREF="000695.html">[izpack-changes] r1949 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#694">[ date ]</a>
+              <a href="thread.html#694">[ thread ]</a>
+              <a href="subject.html#694">[ subject ]</a>
+              <a href="author.html#694">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

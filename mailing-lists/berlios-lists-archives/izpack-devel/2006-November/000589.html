@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] mutually exclusive packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20mutually%20exclusive%20packs&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889177C%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000585.html">
+   <LINK REL="Next"  HREF="000586.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] mutually exclusive packs</H1>
+    <B>Vladimir Ralev</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20mutually%20exclusive%20packs&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889177C%40coi11.coi.com"
+       TITLE="[izpack-devel] mutually exclusive packs">vralev at redhat.com
+       </A><BR>
+    <I>Thu Nov 16 19:28:44 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000585.html">[izpack-devel] mutually exclusive packs
+</A></li>
+        <LI>Next message: <A HREF="000586.html">[izpack-devel] patch for accessing packs in the setup directory in case of a web installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#589">[ date ]</a>
+              <a href="thread.html#589">[ thread ]</a>
+              <a href="subject.html#589">[ subject ]</a>
+              <a href="author.html#589">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I think it's done. The patch should be applied against the current 
+trunk, not over the previous patch. The only deviation from the plan was 
+that I made the packs with a specified excludeGroup to be 
+preselected=&quot;no&quot; by default (it's annoying to write it manually for each 
+of the member packs, because most of them need to be preselected=&quot;no&quot; 
+anyway). So the feature description becomes:
+
+1. &quot;excludeGroup&quot; is an attribute (ATTLIST) of element &quot;pack&quot;
+
+2. &quot;excludeGroup&quot; can only contain one group.
+
+3. This group is a String which is unique for one group of all
+&quot;excludeGroup&quot;s, but has no relation to other groups like the
+&quot;installGroups&quot; or the pack name or id.
+
+4. A functional  &quot;excludeGroup&quot; can contain at least two members. A 
+member is
+a pack which has the attribute &quot;excludeGroup&quot; with the given name.
+If only one member is declared, nothing will be done.
+
+5. A member in the &quot;excludeGroup&quot; cannot have the attribute 
+&quot;required=&quot;yes&quot;&quot;.
+
+6. Only one member in the &quot;excludeGroup&quot; can have the attribute 
+&quot;preselected=&quot;yes&quot;&quot;.
+Packs, which have an excludeGroup attribute are not preselected by 
+default (Unlike
+the packs with no specified excludeGroup).
+
+7. From all members of an &quot;excludeGroup&quot; only one member can be
+selected. One member of the group is mutually exclusive to each other 
+member.
+If a second pack is selected, the previous will be deselected. If no 
+previous pack
+from the same excludeGroup is selected, the pack will be selected without
+excluding any other packs.
+
+Let me know.
+
+Bartz, Klaus wrote:
+&gt;<i> Hi Vladimir,
+</I>&gt;<i> of course &quot;pack&quot;...
+</I>&gt;<i> Using the require text area for both is OK, I think. Code
+</I>&gt;<i> have to be addapted.
+</I>&gt;<i> Will be good if you can expand the docu with points related
+</I>&gt;<i> to the added rules.
+</I>&gt;<i> In the moment I am very busy, therefore staccato style :-)
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>   
+</I>-- 
+Vladimir Ralev, JBoss/RedHat
+
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: excludeGroup.patch
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061116/4c902998/attachment.ksh">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061116/4c902998/attachment.ksh</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000585.html">[izpack-devel] mutually exclusive packs
+</A></li>
+	<LI>Next message: <A HREF="000586.html">[izpack-devel] patch for accessing packs in the setup directory in case of a web installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#589">[ date ]</a>
+              <a href="thread.html#589">[ thread ]</a>
+              <a href="subject.html#589">[ subject ]</a>
+              <a href="author.html#589">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1855 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1855%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000600.html">
+   <LINK REL="Next"  HREF="000602.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1855 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1855%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1855 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Tue May 29 22:49:15 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000600.html">[izpack-changes] r1854 - in izpack-src/trunk/src: . dtd
+</A></li>
+        <LI>Next message: <A HREF="000602.html">[izpack-changes] r1856 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#601">[ date ]</a>
+              <a href="thread.html#601">[ thread ]</a>
+              <a href="subject.html#601">[ subject ]</a>
+              <a href="author.html#601">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-05-29 22:49:11 +0200 (Tue, 29 May 2007)
+New Revision: 1855
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+Log:
+TreePacksPanel (compiler and pack structure changes)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-05-29 20:35:55 UTC (rev 1854)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-05-29 20:49:11 UTC (rev 1855)
+@@ -600,6 +600,7 @@
+             String group = el.getAttribute(&quot;group&quot;);
+             String installGroups = el.getAttribute(&quot;installGroups&quot;);
+             String excludeGroup = el.getAttribute(&quot;excludeGroup&quot;);
++            String parent = el.getAttribute(&quot;parent&quot;);
+             
+             if(required &amp;&amp; excludeGroup != null)
+             {
+@@ -609,6 +610,7 @@
+             
+             PackInfo pack = new PackInfo(name, id, description, required, loose, excludeGroup);
+             pack.setOsConstraints(OsConstraint.getOsList(el)); // TODO:
++            pack.setParent(parent);
+             
+             // unverified
+             // if the pack belongs to an excludeGroup it's not preselected by default
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-05-29 20:35:55 UTC (rev 1854)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-05-29 20:49:11 UTC (rev 1855)
+@@ -289,6 +289,16 @@
+         return pack.dependencies;
+     }
+     
++	public String getParent()
++    {
++       return pack.parent;
++    }
++    
++    public void setParent(String p)
++    {
++       pack.parent = p;
++    }
++    
+     public String toString()
+     {
+         return pack.name;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000600.html">[izpack-changes] r1854 - in izpack-src/trunk/src: . dtd
+</A></li>
+	<LI>Next message: <A HREF="000602.html">[izpack-changes] r1856 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#601">[ date ]</a>
+              <a href="thread.html#601">[ thread ]</a>
+              <a href="subject.html#601">[ subject ]</a>
+              <a href="author.html#601">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

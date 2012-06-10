@@ -1,0 +1,365 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1741 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1741%20-%20in%20izpack-src/branches/3.10%3A%20.%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels%20src/lib/com/izforge/izpack/util/os&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000486.html">
+   <LINK REL="Next"  HREF="000488.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1741 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1741%20-%20in%20izpack-src/branches/3.10%3A%20.%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels%20src/lib/com/izforge/izpack/util/os&In-Reply-To="
+       TITLE="[izpack-changes] r1741 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os">noreply at berlios.de
+       </A><BR>
+    <I>Sat Feb 17 14:38:51 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000486.html">[izpack-changes] r1740 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000488.html">[izpack-changes] r1742 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#487">[ date ]</a>
+              <a href="thread.html#487">[ thread ]</a>
+              <a href="subject.html#487">[ subject ]</a>
+              <a href="author.html#487">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-02-17 14:38:23 +0100 (Sat, 17 Feb 2007)
+New Revision: 1741
+
+Modified:
+   izpack-src/branches/3.10/Versions.txt
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/UninstallData.java
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+Log:
+FreeDesktop XDG standard support for Gnome and KDE shortcuts support (Vladimir Ralev via Julien Ponge)
+
+
+Modified: izpack-src/branches/3.10/Versions.txt
+===================================================================
+--- izpack-src/branches/3.10/Versions.txt	2007-02-16 14:52:39 UTC (rev 1740)
++++ izpack-src/branches/3.10/Versions.txt	2007-02-17 13:38:23 UTC (rev 1741)
+@@ -3,9 +3,11 @@
+ 
+ 	&gt; 3.10.1 (build 2007.xx.xx)
+ 	
+--	Fixed NPE for pack.id == null (Fabrice Mirabile)
+-- Packages that are not marked as preselected must
+-	also be removed from the selectedPacks (Martina Angela Albrecht, via Fabrice Mirabile)
++- Fixed NPE for pack.id == null (Fabrice Mirabile)
++- Packages that are not marked as preselected must also be removed from the selectedPacks
++  (Martina Angela Albrecht, via Fabrice Mirabile)
++- FreeDesktop XDG standard support for Gnome and KDE shortcuts support
++  (Vladimir Ralev via Julien Ponge)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/UninstallData.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/UninstallData.java	2007-02-16 14:52:39 UTC (rev 1740)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/UninstallData.java	2007-02-17 13:38:23 UTC (rev 1741)
+@@ -87,7 +87,8 @@
+      */
+     public synchronized void addFile(String path)
+     {
+-        filesList.add(path);
++        if(path != null)
++           filesList.add(path);
+     }
+ 
+     /**
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-02-16 14:52:39 UTC (rev 1740)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-02-17 13:38:23 UTC (rev 1741)
+@@ -1108,7 +1108,7 @@
+          */
+         return true; // If there is no Condition defined, just create the shortcut.
+     }
+-
++    
+     /*--------------------------------------------------------------------------*/
+ 
+     /**
+@@ -1121,6 +1121,28 @@
+       addToUninstaller();
+     }
+     
++    private String createGnomeMenu(Vector shortcuts, String menuName)
++    {
++       String menuConfigText = &quot;&lt;Menu&gt;\n&quot; +
++            &quot;&lt;Name&gt;Applications&lt;/Name&gt;\n&quot; +
++            &quot;&lt;Menu&gt;\n&quot; +
++            &quot;&lt;Name&gt;&quot; + menuName + &quot;&lt;/Name&gt;\n&quot; +
++            &quot;&lt;Include&gt;\n&quot;;
++       
++       ShortcutData data;
++
++       for (int i = 0; i &lt; shortcuts.size(); i++)
++       {
++           data = (ShortcutData) shortcuts.elementAt(i);
++           menuConfigText += &quot;&lt;Filename&gt;&quot; + data.name + &quot;.desktop&lt;/Filename&gt;\n&quot;;
++       }
++       menuConfigText += &quot;&lt;/Include&gt;\n&lt;/Menu&gt;\n&lt;/Menu&gt;&quot;;
++       return menuConfigText;
++           
++    }
++    
++    /*--------------------------------------------------------------------------*/
++
+     /**
+      * Creates all shortcuts based on the information in shortcuts.
+      */
+@@ -1134,7 +1156,32 @@
+         
+         //fix: don't influence other shortcuts when altering group name...
+         String gn = groupName;
++        
++        if(OsVersion.IS_UNIX)
++        {
++           String menuFile = createGnomeMenu(shortcuts, groupName);
+ 
++           String menuFolder = System.getProperty(&quot;user.home&quot;) + File.separator
++              + &quot;.config/menus/applications-merged/&quot;;
++           File menuConfigFolder = new File(menuFolder);
++           String menuFilePath = menuFolder + groupName + &quot;.menu&quot;;
++           menuConfigFolder.mkdirs();
++           FileWriter menuFileWriter;
++           boolean failed = false;
++           try{
++              
++              menuFileWriter = new FileWriter(menuFilePath);
++              menuFileWriter.write(menuFile);
++              menuFileWriter.close();
++           }
++           catch(Exception ignore)
++           {
++              failed = true;
++              Debug.log(&quot;Failed to create menu for gnome.&quot;);
++           }
++           if(!failed) UninstallData.getInstance().addFile(menuFilePath);
++
++        }
+         for (int i = 0; i &lt; shortcuts.size(); i++)
+         {
+             data = (ShortcutData) shortcuts.elementAt(i);
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2007-02-16 14:52:39 UTC (rev 1740)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2007-02-17 13:38:23 UTC (rev 1741)
+@@ -65,6 +65,7 @@
+ import java.io.FileReader;
+ import java.io.FileWriter;
+ import java.io.IOException;
++import java.io.UnsupportedEncodingException;
+ 
+ import java.util.ArrayList;
+ import java.util.Enumeration;
+@@ -109,6 +110,7 @@
+     /** QM = &quot;\&quot;&quot; : &lt;b&gt;Q&lt;/b&gt;uotation&lt;b&gt;M&lt;/b&gt;ark */
+     private final static String QM = &quot;\&quot;&quot;;
+     
++    private int ShortcutType;
+     private static ShellScript rootScript = null;
+     private static ShellScript uninstallScript = null;
+     private static ArrayList users = UnixUsers.getUsersWithValidShellsExistingHomesAndDesktops();
+@@ -168,7 +170,8 @@
+         hlp.append(&quot;Comment[&quot;).append(userLanguage).append(&quot;]=&quot; + $Comment + N);
+         hlp.append(&quot;Encoding=&quot; + $Encoding + N);
+ 
+-        hlp.append(&quot;TryExec=&quot; + $TryExec + N);
++        // this causes too many problems
++        //hlp.append(&quot;TryExec=&quot; + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
+ 
+         hlp.append(&quot;Exec=&quot; + $E_QUOT + $Exec + $E_QUOT + S + $Arguments + N);
+         hlp.append(&quot;GenericName=&quot; + $GenericName + N);
+@@ -187,6 +190,7 @@
+ 
+         hlp.append(&quot;TerminalOptions=&quot; + $Options_For_Terminal + N);
+         hlp.append(&quot;Type=&quot; + $Type + N);
++        
+         hlp.append(&quot;URL=&quot; + $URL + N);
+         hlp.append(&quot;X-KDE-SubstituteUID=&quot; + $X_KDE_SubstituteUID + N);
+         hlp.append(&quot;X-KDE-Username=&quot; + $X_KDE_Username + N);
+@@ -311,7 +315,7 @@
+ 
+         // 
+         result = getKdeShareApplnkFolder(current_user).toString();
+-
++        
+         return result;
+     }
+ 
+@@ -325,6 +329,12 @@
+      */
+     private File getKdeShareApplnkFolder(int userType)
+     {
++       /*
++        //newer XDG system
++        File xdgPath = new File(&quot;usr&quot; + File.separator + &quot;share&quot; + File.separator
++               + &quot;applications&quot;);
++        if(xdgPath.exists()) return xdgPath;*/
++       
+         File kdeBase = getKdeBase(userType);
+ 
+         File result = new File(kdeBase + File.separator + &quot;share&quot; + File.separator
+@@ -421,11 +431,12 @@
+ 
+         boolean rootUser4All = this.getUserType() == Shortcut.ALL_USERS;
+         boolean create4All = this.getCreateForAll().booleanValue();
+-
++        
+         // Create The Desktop Shortcuts
+         if (&quot;&quot;.equals(this.itsGroupName) &amp;&amp; (this.getLinkType() == Shortcut.DESKTOP))
+         {
+-            
++            //System.out.println(&quot;this.itsGroupName: &quot;+this.itsGroupName);
++            //System.out.println(&quot;this.getLinkType(): &quot;+this.getLinkType());
+             target = myHome + FS + &quot;Desktop&quot; + FS + this.itsName
+                     + DESKTOP_EXT;
+             this.itsFileName = target;
+@@ -546,15 +557,23 @@
+         // This is - or should be only a Link in the [K?]-Menu
+         else
+         {
+-            File kdeHomeShareApplnk = getKdeShareApplnkFolder(this.getUserType());
+-            target = kdeHomeShareApplnk.toString() + FS + this.itsGroupName + FS + this.itsName
++            // the following is for backwards compatibility to older versions of KDE!
++            // on newer versions of KDE the icons will appear duplicated unless you set
++            // the category=&quot;&quot;
++            Object categoryobject = props.getProperty($Categories);
++            if(categoryobject != null &amp;&amp; ((String)categoryobject).length()&gt;0)
++            {
++               File kdeHomeShareApplnk = getKdeShareApplnkFolder(this.getUserType());
++               target = kdeHomeShareApplnk.toString() + FS + this.itsGroupName + FS + this.itsName
+                     + DESKTOP_EXT;
+-            this.itsFileName = target;
+-            writeShortCut(target, shortCutDef);
+-
+-            if (rootUser4All)
++               this.itsFileName = target;
++               File kdemenufile = writeShortCut(target, shortCutDef);
++          
++               uninstaller.addFile(kdemenufile.toString());
++            }
++            
++            if (rootUser4All &amp;&amp; create4All)
+             {
+-                if (create4All)
+                 {
+                     // write the icon pixmaps into /usr/share/pixmaps
+ 
+@@ -581,12 +600,52 @@
+                     uninstaller.addFile(writtenFile.toString());
+ 
+                 }
+-                else
+-                {
+-                    // do nothing
+-                }
+             }
++            else // create local XDG shortcuts
++            {
++               //System.out.println(&quot;Creating gnome shortcut&quot;);
++               String localApps = myHome + &quot;/.local/share/applications/&quot;;
++               String localPixmaps = myHome + &quot;/.local/share/pixmaps/&quot;;
++               //System.out.println(&quot;Creating &quot;+localApps);
++               try
++               {
++                  java.io.File f = new java.io.File(localApps);
++                  f.mkdirs();
++                  
++                  f = new java.io.File(localPixmaps);
++                  f.mkdirs();
++               }
++               catch (Exception ignore)
++               {
++                  //System.out.println(&quot;Failed creating &quot;+localApps + &quot; or &quot; + localPixmaps);
++                  Debug.log(&quot;Failed creating &quot;+localApps + &quot; or &quot; + localPixmaps);
++               }
++               
++               // write the icon pixmaps into ~/share/pixmaps
+ 
++               File theIcon = new File(this.getIconLocation());
++               File commonIcon = new File(localPixmaps + theIcon.getName());
++
++               try
++               {
++                   copyTo(theIcon, commonIcon);
++                   uninstaller.addFile(commonIcon.toString());
++               }
++               catch (Exception cnc)
++               {
++                   Debug.log(&quot;Could Not Copy: &quot; + theIcon + &quot; to &quot; + commonIcon + &quot;( &quot;
++                           + cnc.getMessage() + &quot; )&quot;);
++               }
++
++               // write *.desktop.file into ~/share/applications
++
++               String commonTarget = localApps + this.itsName + DESKTOP_EXT;
++               this.itsFileName = target;
++               File writtenFile = writeShortCut(commonTarget, shortCutDef);
++
++               uninstaller.addFile(writtenFile.toString());
++            }
++
+         }
+     }
+     
+@@ -767,8 +826,9 @@
+      * 
+      * @see com.izforge.izpack.util.os.Shortcut#setLinkType(int)
+      */
+-    public void setLinkType(int aType) throws IllegalArgumentException
++    public void setLinkType(int aType) throws IllegalArgumentException, UnsupportedEncodingException
+     {
++       ShortcutType = aType;
+     }
+ 
+     /**
+@@ -1026,5 +1086,9 @@
+     {
+         props.put($TryExec, aTryExec);
+     }
+-
++    public int getLinkType()
++    {
++        return ShortcutType;
++        //return Shortcut.DESKTOP;
++    }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000486.html">[izpack-changes] r1740 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000488.html">[izpack-changes] r1742 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#487">[ date ]</a>
+              <a href="thread.html#487">[ thread ]</a>
+              <a href="subject.html#487">[ subject ]</a>
+              <a href="author.html#487">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

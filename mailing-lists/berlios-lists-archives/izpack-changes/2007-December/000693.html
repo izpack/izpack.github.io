@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1947 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1947%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20compiler%20installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000692.html">
+   <LINK REL="Next"  HREF="000694.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1947 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1947%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20compiler%20installer&In-Reply-To="
+       TITLE="[izpack-changes] r1947 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler installer">noreply at berlios.de
+       </A><BR>
+    <I>Tue Dec 11 23:32:54 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000692.html">[izpack-changes] r1946 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+        <LI>Next message: <A HREF="000694.html">[izpack-changes] r1948 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#693">[ date ]</a>
+              <a href="thread.html#693">[ thread ]</a>
+              <a href="subject.html#693">[ subject ]</a>
+              <a href="author.html#693">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-12-11 23:32:44 +0100 (Tue, 11 Dec 2007)
+New Revision: 1947
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+Log:
+Bugfixes
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-12-11 22:12:27 UTC (rev 1946)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-12-11 22:32:44 UTC (rev 1947)
+@@ -341,11 +341,14 @@
+             packNumber++;
+         }
+         
+-        // Wrtie packsinfo for web installers
+-        FileWriter writer = new FileWriter(baseFile.getParent()
++        // Write packsinfo for web installers
++		if (packJarsSeparate)
++        {
++			FileWriter writer = new FileWriter(baseFile.getParent()
+               + File.separator + &quot;packsinfo.xml&quot;);
+-        XMLWriter xmlwriter = new XMLWriter(writer);
+-        xmlwriter.write(root);
++        	XMLWriter xmlwriter = new XMLWriter(writer);
++        	xmlwriter.write(root);
++		}
+         
+         // Now that we know sizes, write pack metadata to primary jar.
+         primaryJarStream.putNextEntry(new org.apache.tools.zip.ZipEntry(&quot;packs.info&quot;));
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-12-11 22:12:27 UTC (rev 1946)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-12-11 22:32:44 UTC (rev 1947)
+@@ -146,6 +146,7 @@
+                     if (pf.hasCondition() &amp;&amp; (rules != null)) {
+                         if (!rules.isConditionTrue(pf.getCondition())) {
+                             // skip, condition is not fulfilled
++							objIn.skip(pf.length());
+                             continue;
+                         }
+                     }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000692.html">[izpack-changes] r1946 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+	<LI>Next message: <A HREF="000694.html">[izpack-changes] r1948 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#693">[ date ]</a>
+              <a href="thread.html#693">[ thread ]</a>
+              <a href="subject.html#693">[ subject ]</a>
+              <a href="author.html#693">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

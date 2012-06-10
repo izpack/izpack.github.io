@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] how to use createForUnselectedPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20how%20to%20use%20createForUnselectedPack&In-Reply-To=184944190630165%40lycos-europe.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001412.html">
+   <LINK REL="Next"  HREF="001419.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] how to use createForUnselectedPack</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20how%20to%20use%20createForUnselectedPack&In-Reply-To=184944190630165%40lycos-europe.com"
+       TITLE="[izpack-users] how to use createForUnselectedPack">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Tue Apr 10 15:21:36 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001412.html">[izpack-users] how to use createForUnselectedPack
+</A></li>
+        <LI>Next message: <A HREF="001419.html">[izpack-users] how to use createForUnselectedPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1413">[ date ]</a>
+              <a href="thread.html#1413">[ thread ]</a>
+              <a href="subject.html#1413">[ subject ]</a>
+              <a href="author.html#1413">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>You can use the panelconditions instead of the createForPack/createForUnselectedPack-Elements. You will then have to create an AndCondition which consists of a condition for the OS and a condition for the selected pack.
+
+&lt;condition type=&quot;and&quot; id=&quot;mypack&quot;&gt;
+			&lt;condition type=&quot;de.reddot.installer.rules.JavaCondition&quot;&gt;
+				&lt;java&gt;
+					&lt;class&gt;com.izforge.izpack.util.OsVersion&lt;/class&gt;
+					&lt;field&gt;IS_LINUX&lt;/field&gt;
+				&lt;/java&gt;
+				&lt;returnvalue type=&quot;boolean&quot;&gt;true&lt;/returnvalue&gt;
+			&lt;/condition&gt;
+                 &lt;condition type=&quot;packselection&quot; id=&quot;MyPackselected&quot;&gt;
+                       &lt;packid&gt;MyPack&lt;/packid&gt;
+                 &lt;/condition&gt;
+&lt;/condition&gt;
+
+You'll have to add corresponding not condition and two panel conditions for the two UserInputPanel.
+
+Regards,
+  Dennis
+
+-----Urspr&#252;ngliche Nachricht-----
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von abdessamad danguir
+Gesendet: Dienstag, 10. April 2007 13:45
+An: users izpack
+Betreff: [izpack-users] how to use createForUnselectedPack
+
+hi all,
+i have a Pack which should be installed only in linux platform : 
+&lt;pack name=&quot;MyPack&quot; preselected=&quot;yes&quot; required=&quot;no&quot;  os=&quot;unix&quot;&gt;  ..
+&lt;/pack&gt;
+
+for this pack there are two &quot;userInputPanel&quot;:
+the first contains :
+&lt;panel order=&quot;0&quot;&gt;    
+	  &lt;createForPack name=&quot;MyPack&quot;/&gt;
+          ....
+&lt;/panel&gt;
+
+and the second contains :
+&lt;panel order=&quot;1&quot;&gt;
+           &lt;createForUnselectedPack name=&quot;MyPack&quot;/&gt;
+           ....
+&lt;/panel&gt;
+
+the problem is : when i try to do an installation on windows platform , the second panel appears .  
+i dont want to see any of the 2 panels when i'am doing a windows installation , what should i do ?
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001412.html">[izpack-users] how to use createForUnselectedPack
+</A></li>
+	<LI>Next message: <A HREF="001419.html">[izpack-users] how to use createForUnselectedPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1413">[ date ]</a>
+              <a href="thread.html#1413">[ thread ]</a>
+              <a href="subject.html#1413">[ subject ]</a>
+              <a href="author.html#1413">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

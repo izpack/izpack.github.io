@@ -1,0 +1,186 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Passing arguments to executable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001399.html">
+   <LINK REL="Next"  HREF="001401.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Passing arguments to executable</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To="
+       TITLE="[izpack-users] Passing arguments to executable">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Mar 29 14:12:31 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001399.html">[izpack-users] Passing arguments to executable
+</A></li>
+        <LI>Next message: <A HREF="001401.html">[izpack-users] IzPack 3.10.1 released!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1400">[ date ]</a>
+              <a href="thread.html#1400">[ thread ]</a>
+              <a href="subject.html#1400">[ subject ]</a>
+              <a href="author.html#1400">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Riaan,
+I see three possible reasons:
+ 
+1. The exe cannot be executed on the box. IzPack is in the moment not
+released for Vista.
+ 
+2. The exe do not work.
+ 
+3. The exe is not on the box; it will not be installed because
+loose=&quot;true&quot;.
+ 
+I have tested it with a cmd instead which writes the params on stdout
+and loose=&quot;false&quot;..
+It works also with the blanked path.
+ 
+Look what the trace gives as stdout, stderr and exit status.
+ 
+------------------------------------------- contents of setup.cmd
+-----------------------------------------------
+echo %*
+------------------------------------------- output from my test is
+------------------------------------------------
+executeCommand
+ params: c:\Program Files\BackBone Technologies\Core-Talk
+2006\serverExpress\setup.cmd
+ params: \qb
+ params: INSTANCENAME=CORETALK
+ params: ADDLOCAL=ALL
+ params: SQLAUTOSTART=1
+ params: AGTAUTOSTART=1
+ params: SECURITYMODE=SQL
+ params: SAPWD=root
+ params: DISABLENETWORKPROTOCOLS=0
+ 
+stdout:
+ 
+c:\my&gt; echo \qb INSTANCENAME=CORETALK ADDLOCAL=ALL SQLAUTOSTART=1
+AGTAUTOSTART=1 SECURITYMODE=SQL SAPWD=root DISABLENETWORKPROTOCOLS=0 
+\qb INSTANCENAME=CORETALK ADDLOCAL=ALL SQLAUTOSTART=1 AGTAUTOSTART=1
+SECURITYMODE=SQL SAPWD=root DISABLENETWORKPROTOCOLS=0
+ 
+stderr:
+ 
+exit status: 0
+------------------------------------------------------------------------
+---------------------------------------
+
+If this do not help try first a call with the same commandline seen in
+the log.
+Secound debug...
+ 
+Cheers
+ 
+Klaus
+
+	-----Original Message-----
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Zycor.net
+Development Solutions
+	Sent: Thursday, March 29, 2007 12:46 PM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+	Subject: Re: [izpack-users] Passing arguments to executable
+	
+	
+	Bartz, Klaus wrote: 
+
+		Hi Riaan,
+		I do not know whether your problems can be triggert by
+using an inlined install.xml.
+		My be writte an external install.xml and refer it in
+your IzPack call in the ant script.
+		 
+		Call the installation in a cmd like
+		java -DTRACE=TRUE -jar install.jar
+		and look to the output. The call command will be written
+on stdout (and much more).
+		 
+		Cheers
+		 
+		Klaus
+
+	Hi Klaus,
+	
+	Trace gives this:
+	
+	...
+	handeling executable file path = c:\Program Files\BackBone
+Technologies\Core-Tal
+	k 2006\serverExpress\setup.exe
+	mainClass = null
+	type = 0
+	executionStage = 0
+	onFailure = 1
+	argList: [\qb, INSTANCENAME=CORETALK, ADDLOCAL=ALL,
+SQLAUTOSTART=1, AGTAUTOSTART
+	=1, SECURITYMODE=SQL, SAPWD=root, DISABLENETWORKPROTOCOLS=0]
+	        arg: \qb
+	        arg: INSTANCENAME=CORETALK
+	        arg: ADDLOCAL=ALL
+	        arg: SQLAUTOSTART=1
+	        arg: AGTAUTOSTART=1
+	        arg: SECURITYMODE=SQL
+	        arg: SAPWD=root
+	        arg: DISABLENETWORKPROTOCOLS=0
+	
+	osList = []
+	keepFile = false
+	
+	executeCommand
+	        params: c:\Program Files\BackBone Technologies\Core-Talk
+2006\serverExpr
+	ess\setup.exe
+	        params: \qb
+	        params: INSTANCENAME=CORETALK
+	        params: ADDLOCAL=ALL
+	        params: SQLAUTOSTART=1
+	        params: AGTAUTOSTART=1
+	        params: SECURITYMODE=SQL
+	        params: SAPWD=root
+	        params: DISABLENETWORKPROTOCOLS=0
+	
+	But the params aren't passed to the setup.exe...
+	
+	Any ideas?
+	
+	Cheers
+	Riaan
+	
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/a8fa0b5e/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/a8fa0b5e/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001399.html">[izpack-users] Passing arguments to executable
+</A></li>
+	<LI>Next message: <A HREF="001401.html">[izpack-users] IzPack 3.10.1 released!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1400">[ date ]</a>
+              <a href="thread.html#1400">[ thread ]</a>
+              <a href="subject.html#1400">[ subject ]</a>
+              <a href="author.html#1400">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

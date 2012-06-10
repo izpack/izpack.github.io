@@ -1,0 +1,1183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1983 - izpack-src/trunk/src/doc-reST
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1983%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000728.html">
+   <LINK REL="Next"  HREF="000730.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1983 - izpack-src/trunk/src/doc-reST</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1983%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To="
+       TITLE="[izpack-changes] r1983 - izpack-src/trunk/src/doc-reST">noreply at berlios.de
+       </A><BR>
+    <I>Sun Jan 13 14:59:19 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000728.html">[izpack-changes] r1982 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000730.html">[izpack-changes] r1984 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#729">[ date ]</a>
+              <a href="thread.html#729">[ thread ]</a>
+              <a href="subject.html#729">[ subject ]</a>
+              <a href="author.html#729">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-01-13 14:59:16 +0100 (Sun, 13 Jan 2008)
+New Revision: 1983
+
+Added:
+   izpack-src/trunk/src/doc-reST/panels.txt
+Modified:
+   izpack-src/trunk/src/doc-reST/index.txt
+   izpack-src/trunk/src/doc-reST/installation-files.txt
+   izpack-src/trunk/src/doc-reST/pdf-version.txt
+Log:
+'Split of the installer descriptor documentation and the available panels documentation'
+
+
+Modified: izpack-src/trunk/src/doc-reST/index.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/index.txt	2008-01-13 13:37:46 UTC (rev 1982)
++++ izpack-src/trunk/src/doc-reST/index.txt	2008-01-13 13:59:16 UTC (rev 1983)
+@@ -10,6 +10,7 @@
+ - introduction_
+ - getting-started_
+ - installation-files_
++- panels_
+ - advanced-features_
+ - desktop-shortcuts_
+ - creating-panels_
+@@ -23,6 +24,7 @@
+ .. _introduction: introduction.html
+ .. _getting-started: getting-started.html
+ .. _installation-files: installation-files.html
++.. _panels: panels.html
+ .. _advanced-features: advanced-features.html
+ .. _desktop-shortcuts: desktop-shortcuts.html
+ .. _creating-panels: creating-panels.html
+
+Modified: izpack-src/trunk/src/doc-reST/installation-files.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/installation-files.txt	2008-01-13 13:37:46 UTC (rev 1982)
++++ izpack-src/trunk/src/doc-reST/installation-files.txt	2008-01-13 13:59:16 UTC (rev 1983)
+@@ -1148,537 +1148,3 @@
+           &lt;iiii&gt;there&lt;/iiii&gt;
+       &lt;/hhhh&gt;
+   &lt;/xfragment&gt;
+-
+-
+-
+-The Available Panels
+----------------------
+-
+-In this section i will introduce the various panels available in IzPack. The
+-usage for most is pretty simple and described right here. The more elaborate
+-ones are explained in more detail in the *Advanced Features* chapter or in
+-their own chapter. The panels are listed by their class name. This is the
+-name that must be used with the ``classname`` attribute. Please be aware that
+-the classname is Case-Sensitive, meaning that if the case from the
+-install.xml and the founded class file differs the installation will break.
+-In this last case, the installer will Throw an IllegalArgumentException in
+-the compiler if the declared class name in the xml file differs in case from
+-the founded class file.
+-
+-
+-
+-HelloPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This panel welcomes the user by displaying the project name, the version, the
+-URL as well as the authors.
+-
+-
+-
+-CheckedHelloPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This panel welcomes the user also by displaying the project name, the
+-version, the URL as well as the authors.
+-
+-
+-Additonal on windows the registry will be scanned for an entry which
+-determines that the product is already installed. If so, a dialog will be
+-shown which ask whether to install a second version of the product or not. If
+-you use this panel do not forget to add the `registry feature` into your
+-installation.
+-
+-
+-InfoPanel and HTMLInfoPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This is a kind of 'README' panel. It presents text of any length. The text is
+-specified by the ``(HTML)InfoPanel.info`` resource. Starting from IzPack
+-3.7.0, variables substitution is allowed.
+-To add an image to the HTMLInfoPanel you simply need to add a ressource to
+-your install.xml with an ID decided by you, then you can call this image by
+-refering it by this same ID.
+-
+-In install.xml:
+-
+-::
+-
+-    &lt;resources&gt;
+-      &lt;res src=&quot;logo.jpg&quot; id=&quot;GHGHGH&quot;/&gt;
+-      .....
+-
+-and in file.html:
+-
+-::
+-
+-    &lt;img src=&quot;GHGHGH&quot; /&gt;
+-
+-
+-LicencePanel and HTMLLicencePanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-Note:* There is a mistake in the name - it should be LicensePanel. In France
+-the word is Licence ... and one of my diploma is a 'Licence' so ...:* -)
+-
+-
+-Adding images to HTMLLicencePanel works exactly the same way as with
+-HTMLInfoPanel.
+-
+-These panels can prompt the user to acknowledge a license agreement. They
+-block unless the user selects the 'agree' option. To specify the license
+-agreement text you have to use the `` (HTML)LicencePanel.licence`` resource.
+-
+-
+-
+-PacksPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-Allows the user to select the packs he wants to install.
+-
+-
+-
+-ImgPacksPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This is the same as above, but for each pack a different picture is shown to
+-the user. The pictures are specified using the packImgId attribute for each
+-pack in the installer XML. The initial image will be the image of the first
+-pack that has a packImgId. The image is updated each time the user
+-(de)selects a pack that has a packImgId. Of course it's up to you to specify
+-an image for each pack in your installation with a unique packImgId. For
+-instance if you have 2 packs ``core`` and ``documentation`` (in this order),
+-and you assign both packs a packImgId that is identical to the pack's name
+-then the resource for ``core`` will be ``core`` and the resource for
+-``documentation`` will be ``documentation``. The initially shown image will
+-be the resource ``core``. The supported image formats depend on what your
+-client's JVM supports, but starting from J2SE 1.3, *GIF*, *JPEG* and *PNG*
+-are supported.
+-
+-
+-
+-TargetPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This panel allows the user to select the installation path. It can be
+-customized with the following resources (they are text files containing the
+-path) :
+-
+--   ``TargetPanel.dir.f`` where f stands for the family (``mac, macosx,
+-    windows, unix``)
+--   ``TargetPanel.dir`` : the directory name, instead of the software to
+-    install name
+--   ``TargetPanel.dir.d`` where d is a &quot;dynamic&quot; name, as returned by the
+-    JavaTM virtual machine. You should write the name in lowercase and
+-    replace the spaces with underscores. For instance, you might want a
+-    different setting for Solaris and GNU/Linux which are both Unix-like
+-    systems. The resources would be ``TargetPanel.dir.sunos,
+-    TargetPanel.dir.linux``. You should have a Unix-resource in case it
+-    wouldn't work though.
+-
+-
+-InstallPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-You should always have this one as it launches the installation process !
+-
+-
+-
+-XInfoPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-A panel showing text parsed by the variable substitutor. The text can be
+-specified through the ``XInfoPanel.info`` resource. This panel can be useful
+-when you have to show information after the installation process is completed
+-(for instance if the text contains the target path).
+-
+-
+-
+-FinishPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-A ending panel, able to write automated installer information. For details
+-see the chapter on 'Advanced Features'.
+-
+-
+-
+-SimpleFinishPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-Same as ``FinishPanel``, but without the automated installer features. It is
+-aimed at making the life easier for end-users who will never encounter the
+-automated installer extra feature.
+-
+-
+-
+-ShortcutPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This panel is used to create desktop shortcuts. For details on using the
+-ShortcutPanel see the chapter 'Desktop Shortcuts'.
+-
+-
+-UserInputPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This panel allows you to prompt the user for data. What the user is prompted
+-for is specified using an XML file which is included as a resource to the
+-installer.
+-
+-
+-CompilePanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This panel allows you to compile just installed Java sourcecode. The details
+-for the compilation are specified using the resource
+-``CompilePanel.Spec.xml``. The XML file has the following format:
+-
+-::
+-
+-    &lt;compilation&gt;
+-      &lt;global&gt;
+-        &lt;compiler&gt;
+-          &lt;choice value=&quot;$JAVA_HOME/bin/javac&quot; /&gt;
+-          &lt;choice value=&quot;jikes&quot; /&gt;
+-        &lt;/compiler&gt;
+-        &lt;arguments&gt;
+-          &lt;choice value=&quot;-O -g:none&quot; /&gt;
+-          &lt;choice value=&quot;-O&quot; /&gt;
+-          &lt;choice value=&quot;-g&quot; /&gt;
+-          &lt;choice value=&quot;&quot; /&gt;
+-        &lt;/arguments&gt;
+-      &lt;/global&gt;
+-      &lt;jobs&gt;
+-        &lt;classpath add=&quot;$INSTALL_PATH/src/classes/&quot; /&gt;
+-        &lt;job name=&quot;optional name&quot;&gt;
+-          &lt;directory name=&quot;$INSTALL_PATH/src/classes/xyz&quot; /&gt;
+-        &lt;/job&gt;
+-        &lt;job name=&quot;another job&quot;&gt;
+-          &lt;packdepency name=&quot;some package name&quot; /&gt;
+-          &lt;classpath sub=&quot;$INSTALL_PATH/&quot; /&gt;
+-          &lt;directory name=&quot;$INSTALL_PATH/src/classes/abc&quot; /&gt;
+-          &lt;file name=&quot;$INSTALL_PATH/some/file.java&quot; /&gt;
+-        &lt;/job&gt;
+-      &lt;/jobs&gt;
+-    &lt;/compilation&gt;
+-
+-
+-In theory, jobs can be nested but this has not been tested at all. A change
+-to the classpath within a job only affects this job and nested jobs. The
+-classpath should be specified before any files or directories.
+-
+-The user can change the compiler to use and choose from some default
+-compilation options before compilation is started.
+-
+-.. image:: ./compilePanel.png
+-    :alt: CompilePanel
+-
+-
+-
+-ProcessPanel
+-''''''''''''''''''''''''''''''''''''''''''''''''''
+-
+-This panel allows you to execute arbitrary files after installation. The
+-details for the compilation are specified using the resource
+-``ProcessPanel.Spec.xml``.
+-
+-The XML file has the following format:
+-
+-::
+-
+-    &lt;processing&gt;
+-      &lt;job name=&quot;do xyz&quot;&gt;
+-        &lt;os family=&quot;windows&quot; /&gt;
+-        &lt;executefile name=&quot;$INSTALL_PATH/scripts/xyz.bat&quot;&gt;
+-          &lt;arg&gt;doit&lt;/arg&gt;&lt;arg&gt;$variable&lt;/arg&gt;
+-        &lt;/executefile&gt;
+-      &lt;/job&gt;
+-      &lt;job name=&quot;do xyz&quot;&gt;
+-        &lt;os family=&quot;unix&quot; /&gt;
+-        &lt;executefile name=&quot;$INSTALL_PATH/scripts/xyz.sh&quot;&gt;
+-          &lt;arg&gt;doit&lt;/arg&gt;&lt;arg&gt;$variable&lt;/arg&gt;
+-        &lt;/executefile&gt;
+-      &lt;/job&gt;
+-    &lt;/processing&gt;
+-
+-
+-Each job may have an ``&lt;os&gt;`` attribute.
+-
+-
+-
+-``&lt;executeclass&gt;`` - Execute Java Classes
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-
+-It is also possible to execute Java classes from this panel. Here's what this
+-feature author (Alex Bradley) says:
+-
+-&gt; i've been able to work around my requirements by extending the
+-``ProcessPanelWorker`` functionality to run user-specified classes. i've
+-extended the DTD of the `` ProcessPanel.Spec.xml`` to include a new element:
+-
+-::
+-
+-    &lt;executeclass name=&quot;classname&quot;&gt;
+-    &lt;args..../&gt;
+-    &lt;/executeclass&gt;
+-
+-
+-&gt; i've also added a new sub-class of ``Processable`` called ``executeclass``.
+-This will run a user-specified class in the context of the installer JVM with
+-a single method :
+-
+-::
+-
+-    run( AbstractUIProcessHandler handler, String[] args]);
+-
+-
+-&gt; It can do everything i need and more. In particular, it allows me to write
+-a process extension and still be able to provide feedback to the user through
+-the feedback panel, and to add new functionality to the installer, after its
+-been built.
+-
+-To use the executeclass facility, you will need to create a jar file with
+-your class and then add it to the installer with the `The Jar Merging
+-Element`.
+-
+-
+-``&lt;executeForPack&gt;`` - Only execute the job for certain packs
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-
+-This can be be used to run the job only if the pack is enabled. For example,
+-the batch file will if either the ``Sources`` or ``Executables`` packs are
+-selected at install time.
+-
+-::
+-
+-    &lt;processing&gt;
+-     &lt;job name=&quot;List files&quot;&gt;
+-      &lt;executeForPack name=&quot;Sources&quot;/&gt;
+-      &lt;executeForPack name=&quot;Executables&quot;/&gt;
+-      &lt;os family=&quot;windows&quot; /&gt;
+-      &lt;executefile name=&quot;$INSTALL_PATH\batch\ListFiles.bat&quot; /&gt;
+-     &lt;/job&gt;
+-    &lt;/processing&gt;
+-
+-``&lt;logfiledir&gt;`` - Output of the processPanel saved to a log
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-
+-New with version 3.7 is the possibility to tee output that is written to the
+-ProcessPanel's textarea into an optional logfile. Using this feature is
+-pretty much straightforward, you only have to add a line in
+-``ProcessPanel.Spec.xml`` that will tell IzPack the location, where the
+-logfile should be stored.
+-
+-Variable substitution is performed, so you can use ``$INSTALL_PATH`` as
+-example.
+-
+-The name of the logfile is not (yet) configurable but should fit in most
+-cases. It will be named
+-
+-::
+-
+-    Install_V&lt;$APP_VER&gt;_&lt;YYYY&gt;-&lt;MM&gt;-&lt;DD&gt;_&lt;hh&gt;-&lt;mm&gt;-&lt;ss&gt;_&lt;RandomId&gt;.log
+-
+-
+-Here's an example:
+-
+-::
+-
+-    &lt;processing&gt;
+-      &lt;logfiledir&gt;$INSTALL_PATH&lt;/logfiledir&gt;
+-      &lt;job name=&quot;do xyz&quot;&gt;
+-        &lt;os family=&quot;windows&quot; /&gt;
+-        &lt;executefile name=&quot;$INSTALL_PATH/scripts/xyz.bat&quot;&gt;
+-          &lt;arg&gt;doit&lt;/arg&gt;&lt;arg&gt;$variable&lt;/arg&gt;
+-        &lt;/executefile&gt;
+-    &lt;/processing&gt;
+-
+-
+-This will generate a logfile named e.g.
+-``Install_V1.3_2004-11-08_19-22-20_43423.log`` located in ``$INSTALL_PATH``.
+-
+-``ProcessPanelWorker`` will write all output that is directed to ``stdout``
+-and ``stderr`` to this file if ``ProcessPanel.Spec.xml`` contains the
+-``logfiledir`` entry.
+-
+-Please note that this one file is used for storing the complete output of all
+-jobs and not a file for each job that is run.
+-
+-
+-JDKPathPanel
+-'''''''''''''
+-
+-This panel allows the user to select a JDK path. The variable JAVA_HOME does
+-not point to a JDK, else to a JRE also the environment variable points to a
+-JDK. This is not a bug, this is the behavior of the VM. But some products
+-needs a JDK, for that this panel can be used. There is not only a selection
+-of the path else a validation. The validation will be done with the file
+-JDKPath/lib/tools.jar. If JAVA_HOME points to the VM which is placed in the
+-JDK, the directory will be used as default (JAVA_HOME/..). If there is the
+-variable
+-
+-::
+-
+-    JDKPathPanel.skipIfValid
+-
+-
+-defined with the value &quot;yes&quot;, the panel will be skiped if the path is valid.
+-Additional it is possible to make a version control. If one or both variables
+-
+-::
+-
+-    JDKPathPanel.minVersion
+-    JDKPathPanel.maxVersion
+-
+-
+-are defined, only a JDK will be accepted which has a version in the range of
+-it. The detection is a little bit pragmatically, therefor it is possible,
+-that the detection can fail at some VMs. The values in the install.xml should
+-be like
+-
+-::
+-
+-    &lt;variables&gt;
+-      &lt;variable name=&quot;JDKPathPanel.minVersion&quot; value=&quot;1.4.1&quot; /&gt;
+-      &lt;variable name=&quot;JDKPathPanel.maxVersion&quot; value=&quot;1.4.99&quot; /&gt;
+-      &lt;variable name=&quot;JDKPathPanel.skipIfValid&quot; value=&quot;yes&quot; /&gt;
+-    &lt;/variables&gt;
+-
+-
+-If all is valid, the panels isValidated method sets the variable
+-
+-::
+-
+-    JDKPath
+-
+-
+-to the chosen path. Be aware, this variable exist not until the JDKPanel was
+-quitted once. At a secound activation, the default will be the last
+-selection.
+-
+-
+-SelectPrinterPanel
+-''''''''''''''''''''''''''
+-
+-This panel will look at the local printers installed and propose a list box
+-with all of them. Once chosen, the variable $SELECTED_PRINTER is set to the
+-user choice.
+-
+-
+-DataCheckPanel
+-''''''''''''''''''''''''''
+-
+-DataCheckPanel is not for inclusion in an actuall install, but is a debugging
+-resource for developers writing custom panels or code to be included in
+-IzPack.
+-It creates a list of all the variables in InstallData, their values and a
+-list of all packs, indicating which are selected.
+-This list is printed to the console and appears in a scrollable text area on
+-the panel.
+-Put the panel in wherever you want to see any variables in InstallData or a
+-listing of the packs with a line like this in the &lt;panels&gt; section of
+-install.xml:
+-
+-&lt;panel classname=&quot;DataCheckPanel&quot; /&gt;
+-
+-It will automatically give you a full list of all the variables and packs
+-whenever the panel is made active.
+-
+-
+-SummaryPanel
+-'''''''''''''
+-
+-This panel gives a summary of all shown panels. The best place for it is just
+-infront of the InstallPanel. Normaly it contains a warning that this is the
+-last panel before installation. The panel contains a scrollable HTML text
+-area to display the summary. The informations are collected from each panel
+-by calling the methods ``getSummaryCaption`` and ``getSummaryBody``.
+-``getSummaryCaption`` is implemented in ``IzPanel`` with a panel name default
+-text. ``getSummaryBody`` has to be implemented in all panels which should be
+-presented in the summary. If the secound method is not implemented, no
+-summary of this panel will be shown.
+-
+-Additional it is possible to `log the contents` of the summary panel into a
+-HTML file.
+-
+-
+-InstallationGroupPanel
+-''''''''''''''''''''''''''
+-
+-This Panel groups the pack together. A panel which displays the available
+-*installGroups* found on the packs to allow the user to select a subset of
+-the packs based on the pack *installGroups* attribute. This panel will be
+-skipped if there are no pack elements with an *installGroups* attribute. For
+-example ::
+-
+-        &lt;installation version=&quot;1.0&quot;&gt;
+-           (...)
+-            &lt;panels&gt;
+-                (...)
+-                &lt;panel classname=&quot;InstallationGroupPanel&quot;/&gt;
+-                &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+-                (...)
+-            &lt;/panels&gt;
+-
+-            &lt;packs&gt;
+-                &lt;pack name=&quot;Base&quot;
+-                    installGroups=&quot;Group1&quot;
+-                    required=&quot;yes&quot;&gt;
+-                    (...)
+-                &lt;/pack&gt;
+-                &lt;pack name=&quot;Docs&quot;
+-                    installGroups=&quot;Group1,Group2&quot;
+-                    required=&quot;no&quot;&gt;
+-                    (...)
+-                &lt;/pack&gt;
+-                &lt;pack name=&quot;Sources&quot;
+-                    installGroups=&quot;Group3,Group2&quot;
+-                    required=&quot;no&quot;&gt;
+-                    (...)
+-                &lt;/pack&gt;
+-            &lt;/packs&gt;
+-        &lt;/installation&gt;
+-        
+-In above example when InstallationGroupPanel is displayed,
+-it contains three radios named Group1, Group2 and Group3. Depending
+-on what user selects, the respective Packs will be displayed in
+-PacksPanel. InstallationGroupPanel will look for a description
+-corresponding to the key
+-&quot;InstallationGroupPanel.description.Group1&quot;,
+-&quot;InstallationGroupPanel.description.Group2&quot; etc in installation
+-langpacks and variables and displays this description for each of
+-the Group_i.
+-
+-You may also define a sortKey in the variables section of the installer.xml
+-to define an alternative sorting. The default sorting is based on the Group
+-Name.
+-
+-Here is an example for alternative sorting of groups: ::
+-
+-        (...)
+-        &lt;variables&gt;
+-           (...)
+-            &lt;variable
+-            name=&quot;InstallationGroupPanel.sortKey.Group2&quot; value=&quot;A&quot;/&gt;
+-            &lt;variable
+-            name=&quot;InstallationGroupPanel.sortKey.Group1&quot; value=&quot;B&quot;/&gt;
+-            &lt;variable
+-            name=&quot;InstallationGroupPanel.sortKey.Group3&quot; value=&quot;C&quot;/&gt;
+-        &lt;/variables&gt;
+-        (...)
+-
+-By default, your group name (and description) are displayed as-is in the
+-installer. If you want them to be localized, add localized names to your
+-``packsLang.xml`` resources. The string ID has to be 
+-InstallationGroupPanel.group.```group_name``.
+-
+-Here is an example to localize groups into French (these lines have to be put
+-in your ``packsLang.xml_fra`` resource) :
+-::
+-
+-&lt;str id=&quot;InstallationGroupPanel.group.Core&quot; txt=&quot;Noyau de l'application&quot; /&gt;
+-&lt;str id=&quot;InstallationGroupPanel.description.Core&quot; txt=&quot;Fichiers principaux, indispensables au fonctionnement de l'application&quot; /&gt;
+-&lt;str id=&quot;InstallationGroupPanel.group.Samples&quot; txt=&quot;Fichiers d'exemple&quot; /&gt;
+-&lt;str id=&quot;InstallationGroupPanel.description.Samples&quot; txt=&quot;Fichiers d'exemples&quot; /&gt;
+-
+-If you want to add html markup to those strings, add ``.html`` at the end
+-of the string id (after the group name).
+
+Added: izpack-src/trunk/src/doc-reST/panels.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/panels.txt	2008-01-13 13:37:46 UTC (rev 1982)
++++ izpack-src/trunk/src/doc-reST/panels.txt	2008-01-13 13:59:16 UTC (rev 1983)
+@@ -0,0 +1,531 @@
++The Available Panels
++=====================
++
++In this section I will introduce the various panels available in IzPack. The
++usage for most is pretty simple and described right here. The more elaborate
++ones are explained in more detail in the *Advanced Features* chapter or in
++their own chapter. The panels are listed by their class name. This is the
++name that must be used with the ``classname`` attribute. Please be aware that
++the classname is Case-Sensitive, meaning that if the case from the
++install.xml and the founded class file differs the installation will break.
++In this last case, the installer will Throw an IllegalArgumentException in
++the compiler if the declared class name in the xml file differs in case from
++the founded class file.
++
++
++
++HelloPanel
++-----------
++
++This panel welcomes the user by displaying the project name, the version, the
++URL as well as the authors.
++
++
++
++CheckedHelloPanel
++------------------
++
++This panel welcomes the user also by displaying the project name, the
++version, the URL as well as the authors.
++
++
++Additonal on windows the registry will be scanned for an entry which
++determines that the product is already installed. If so, a dialog will be
++shown which ask whether to install a second version of the product or not. If
++you use this panel do not forget to add the `registry feature` into your
++installation.
++
++
++InfoPanel and HTMLInfoPanel
++----------------------------
++
++This is a kind of 'README' panel. It presents text of any length. The text is
++specified by the ``(HTML)InfoPanel.info`` resource. Starting from IzPack
++3.7.0, variables substitution is allowed.
++To add an image to the HTMLInfoPanel you simply need to add a ressource to
++your install.xml with an ID decided by you, then you can call this image by
++refering it by this same ID.
++
++In install.xml:
++
++::
++
++    &lt;resources&gt;
++      &lt;res src=&quot;logo.jpg&quot; id=&quot;GHGHGH&quot;/&gt;
++      .....
++
++and in file.html:
++
++::
++
++    &lt;img src=&quot;GHGHGH&quot; /&gt;
++
++
++LicencePanel and HTMLLicencePanel
++----------------------------------
++
++Note:* There is a mistake in the name - it should be LicensePanel. In France
++the word is Licence ... and one of my diploma is a 'Licence' so ...:* -)
++
++
++Adding images to HTMLLicencePanel works exactly the same way as with
++HTMLInfoPanel.
++
++These panels can prompt the user to acknowledge a license agreement. They
++block unless the user selects the 'agree' option. To specify the license
++agreement text you have to use the `` (HTML)LicencePanel.licence`` resource.
++
++
++
++PacksPanel
++----------
++
++Allows the user to select the packs he wants to install.
++
++
++
++ImgPacksPanel
++--------------
++
++This is the same as above, but for each pack a different picture is shown to
++the user. The pictures are specified using the packImgId attribute for each
++pack in the installer XML. The initial image will be the image of the first
++pack that has a packImgId. The image is updated each time the user
++(de)selects a pack that has a packImgId. Of course it's up to you to specify
++an image for each pack in your installation with a unique packImgId. For
++instance if you have 2 packs ``core`` and ``documentation`` (in this order),
++and you assign both packs a packImgId that is identical to the pack's name
++then the resource for ``core`` will be ``core`` and the resource for
++``documentation`` will be ``documentation``. The initially shown image will
++be the resource ``core``. The supported image formats depend on what your
++client's JVM supports, but starting from J2SE 1.3, *GIF*, *JPEG* and *PNG*
++are supported.
++
++
++
++TargetPanel
++------------
++
++This panel allows the user to select the installation path. It can be
++customized with the following resources (they are text files containing the
++path) :
++
++-   ``TargetPanel.dir.f`` where f stands for the family (``mac, macosx,
++    windows, unix``)
++-   ``TargetPanel.dir`` : the directory name, instead of the software to
++    install name
++-   ``TargetPanel.dir.d`` where d is a &quot;dynamic&quot; name, as returned by the
++    JavaTM virtual machine. You should write the name in lowercase and
++    replace the spaces with underscores. For instance, you might want a
++    different setting for Solaris and GNU/Linux which are both Unix-like
++    systems. The resources would be ``TargetPanel.dir.sunos,
++    TargetPanel.dir.linux``. You should have a Unix-resource in case it
++    wouldn't work though.
++
++
++InstallPanel
++------------
++
++You should always have this one as it launches the installation process !
++
++
++
++XInfoPanel
++-----------
++
++A panel showing text parsed by the variable substitutor. The text can be
++specified through the ``XInfoPanel.info`` resource. This panel can be useful
++when you have to show information after the installation process is completed
++(for instance if the text contains the target path).
++
++
++
++FinishPanel
++------------
++
++A ending panel, able to write automated installer information. For details
++see the chapter on 'Advanced Features'.
++
++
++
++SimpleFinishPanel
++------------------
++
++Same as ``FinishPanel``, but without the automated installer features. It is
++aimed at making the life easier for end-users who will never encounter the
++automated installer extra feature.
++
++
++
++ShortcutPanel
++--------------
++
++This panel is used to create desktop shortcuts. For details on using the
++ShortcutPanel see the chapter 'Desktop Shortcuts'.
++
++
++UserInputPanel
++---------------
++
++This panel allows you to prompt the user for data. What the user is prompted
++for is specified using an XML file which is included as a resource to the
++installer.
++
++
++CompilePanel
++-------------
++
++This panel allows you to compile just installed Java sourcecode. The details
++for the compilation are specified using the resource
++``CompilePanel.Spec.xml``. The XML file has the following format:
++
++::
++
++    &lt;compilation&gt;
++      &lt;global&gt;
++        &lt;compiler&gt;
++          &lt;choice value=&quot;$JAVA_HOME/bin/javac&quot; /&gt;
++          &lt;choice value=&quot;jikes&quot; /&gt;
++        &lt;/compiler&gt;
++        &lt;arguments&gt;
++          &lt;choice value=&quot;-O -g:none&quot; /&gt;
++          &lt;choice value=&quot;-O&quot; /&gt;
++          &lt;choice value=&quot;-g&quot; /&gt;
++          &lt;choice value=&quot;&quot; /&gt;
++        &lt;/arguments&gt;
++      &lt;/global&gt;
++      &lt;jobs&gt;
++        &lt;classpath add=&quot;$INSTALL_PATH/src/classes/&quot; /&gt;
++        &lt;job name=&quot;optional name&quot;&gt;
++          &lt;directory name=&quot;$INSTALL_PATH/src/classes/xyz&quot; /&gt;
++        &lt;/job&gt;
++        &lt;job name=&quot;another job&quot;&gt;
++          &lt;packdepency name=&quot;some package name&quot; /&gt;
++          &lt;classpath sub=&quot;$INSTALL_PATH/&quot; /&gt;
++          &lt;directory name=&quot;$INSTALL_PATH/src/classes/abc&quot; /&gt;
++          &lt;file name=&quot;$INSTALL_PATH/some/file.java&quot; /&gt;
++        &lt;/job&gt;
++      &lt;/jobs&gt;
++    &lt;/compilation&gt;
++
++
++In theory, jobs can be nested but this has not been tested at all. A change
++to the classpath within a job only affects this job and nested jobs. The
++classpath should be specified before any files or directories.
++
++The user can change the compiler to use and choose from some default
++compilation options before compilation is started.
++
++.. image:: ./compilePanel.png
++    :alt: CompilePanel
++
++
++
++ProcessPanel
++-------------
++
++This panel allows you to execute arbitrary files after installation. The
++details for the compilation are specified using the resource
++``ProcessPanel.Spec.xml``.
++
++The XML file has the following format:
++
++::
++
++    &lt;processing&gt;
++      &lt;job name=&quot;do xyz&quot;&gt;
++        &lt;os family=&quot;windows&quot; /&gt;
++        &lt;executefile name=&quot;$INSTALL_PATH/scripts/xyz.bat&quot;&gt;
++          &lt;arg&gt;doit&lt;/arg&gt;&lt;arg&gt;$variable&lt;/arg&gt;
++        &lt;/executefile&gt;
++      &lt;/job&gt;
++      &lt;job name=&quot;do xyz&quot;&gt;
++        &lt;os family=&quot;unix&quot; /&gt;
++        &lt;executefile name=&quot;$INSTALL_PATH/scripts/xyz.sh&quot;&gt;
++          &lt;arg&gt;doit&lt;/arg&gt;&lt;arg&gt;$variable&lt;/arg&gt;
++        &lt;/executefile&gt;
++      &lt;/job&gt;
++    &lt;/processing&gt;
++
++
++Each job may have an ``&lt;os&gt;`` attribute.
++
++
++
++``&lt;executeclass&gt;`` - Execute Java Classes
++''''''''''''''''''''''''''''''''''''''''''
++
++It is also possible to execute Java classes from this panel. Here's what this
++feature author (Alex Bradley) says:
++
++&gt; i've been able to work around my requirements by extending the
++``ProcessPanelWorker`` functionality to run user-specified classes. i've
++extended the DTD of the `` ProcessPanel.Spec.xml`` to include a new element:
++
++::
++
++    &lt;executeclass name=&quot;classname&quot;&gt;
++    &lt;args..../&gt;
++    &lt;/executeclass&gt;
++
++
++&gt; i've also added a new sub-class of ``Processable`` called ``executeclass``.
++This will run a user-specified class in the context of the installer JVM with
++a single method :
++
++::
++
++    run( AbstractUIProcessHandler handler, String[] args]);
++
++
++&gt; It can do everything i need and more. In particular, it allows me to write
++a process extension and still be able to provide feedback to the user through
++the feedback panel, and to add new functionality to the installer, after its
++been built.
++
++To use the executeclass facility, you will need to create a jar file with
++your class and then add it to the installer with the `The Jar Merging
++Element`.
++
++
++``&lt;executeForPack&gt;`` - Only execute the job for certain packs
++'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
++
++This can be be used to run the job only if the pack is enabled. For example,
++the batch file will if either the ``Sources`` or ``Executables`` packs are
++selected at install time.
++
++::
++
++    &lt;processing&gt;
++     &lt;job name=&quot;List files&quot;&gt;
++      &lt;executeForPack name=&quot;Sources&quot;/&gt;
++      &lt;executeForPack name=&quot;Executables&quot;/&gt;
++      &lt;os family=&quot;windows&quot; /&gt;
++      &lt;executefile name=&quot;$INSTALL_PATH\batch\ListFiles.bat&quot; /&gt;
++     &lt;/job&gt;
++    &lt;/processing&gt;
++
++``&lt;logfiledir&gt;`` - Output of the processPanel saved to a log
++'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
++
++New with version 3.7 is the possibility to tee output that is written to the
++ProcessPanel's textarea into an optional logfile. Using this feature is
++pretty much straightforward, you only have to add a line in
++``ProcessPanel.Spec.xml`` that will tell IzPack the location, where the
++logfile should be stored.
++
++Variable substitution is performed, so you can use ``$INSTALL_PATH`` as
++example.
++
++The name of the logfile is not (yet) configurable but should fit in most
++cases. It will be named
++
++::
++
++    Install_V&lt;$APP_VER&gt;_&lt;YYYY&gt;-&lt;MM&gt;-&lt;DD&gt;_&lt;hh&gt;-&lt;mm&gt;-&lt;ss&gt;_&lt;RandomId&gt;.log
++
++
++Here's an example:
++
++::
++
++    &lt;processing&gt;
++      &lt;logfiledir&gt;$INSTALL_PATH&lt;/logfiledir&gt;
++      &lt;job name=&quot;do xyz&quot;&gt;
++        &lt;os family=&quot;windows&quot; /&gt;
++        &lt;executefile name=&quot;$INSTALL_PATH/scripts/xyz.bat&quot;&gt;
++          &lt;arg&gt;doit&lt;/arg&gt;&lt;arg&gt;$variable&lt;/arg&gt;
++        &lt;/executefile&gt;
++    &lt;/processing&gt;
++
++
++This will generate a logfile named e.g.
++``Install_V1.3_2004-11-08_19-22-20_43423.log`` located in ``$INSTALL_PATH``.
++
++``ProcessPanelWorker`` will write all output that is directed to ``stdout``
++and ``stderr`` to this file if ``ProcessPanel.Spec.xml`` contains the
++``logfiledir`` entry.
++
++Please note that this one file is used for storing the complete output of all
++jobs and not a file for each job that is run.
++
++
++JDKPathPanel
++-------------
++
++This panel allows the user to select a JDK path. The variable JAVA_HOME does
++not point to a JDK, else to a JRE also the environment variable points to a
++JDK. This is not a bug, this is the behavior of the VM. But some products
++needs a JDK, for that this panel can be used. There is not only a selection
++of the path else a validation. The validation will be done with the file
++JDKPath/lib/tools.jar. If JAVA_HOME points to the VM which is placed in the
++JDK, the directory will be used as default (JAVA_HOME/..). If there is the
++variable
++
++::
++
++    JDKPathPanel.skipIfValid
++
++
++defined with the value &quot;yes&quot;, the panel will be skiped if the path is valid.
++Additional it is possible to make a version control. If one or both variables
++
++::
++
++    JDKPathPanel.minVersion
++    JDKPathPanel.maxVersion
++
++
++are defined, only a JDK will be accepted which has a version in the range of
++it. The detection is a little bit pragmatically, therefor it is possible,
++that the detection can fail at some VMs. The values in the install.xml should
++be like
++
++::
++
++    &lt;variables&gt;
++      &lt;variable name=&quot;JDKPathPanel.minVersion&quot; value=&quot;1.4.1&quot; /&gt;
++      &lt;variable name=&quot;JDKPathPanel.maxVersion&quot; value=&quot;1.4.99&quot; /&gt;
++      &lt;variable name=&quot;JDKPathPanel.skipIfValid&quot; value=&quot;yes&quot; /&gt;
++    &lt;/variables&gt;
++
++
++If all is valid, the panels isValidated method sets the variable
++
++::
++
++    JDKPath
++
++
++to the chosen path. Be aware, this variable exist not until the JDKPanel was
++quitted once. At a secound activation, the default will be the last
++selection.
++
++
++SelectPrinterPanel
++--------------------
++
++This panel will look at the local printers installed and propose a list box
++with all of them. Once chosen, the variable $SELECTED_PRINTER is set to the
++user choice.
++
++
++DataCheckPanel
++---------------
++
++DataCheckPanel is not for inclusion in an actuall install, but is a debugging
++resource for developers writing custom panels or code to be included in
++IzPack.
++It creates a list of all the variables in InstallData, their values and a
++list of all packs, indicating which are selected.
++This list is printed to the console and appears in a scrollable text area on
++the panel.
++Put the panel in wherever you want to see any variables in InstallData or a
++listing of the packs with a line like this in the &lt;panels&gt; section of
++install.xml:
++
++&lt;panel classname=&quot;DataCheckPanel&quot; /&gt;
++
++It will automatically give you a full list of all the variables and packs
++whenever the panel is made active.
++
++
++SummaryPanel
++-------------
++
++This panel gives a summary of all shown panels. The best place for it is just
++infront of the InstallPanel. Normaly it contains a warning that this is the
++last panel before installation. The panel contains a scrollable HTML text
++area to display the summary. The informations are collected from each panel
++by calling the methods ``getSummaryCaption`` and ``getSummaryBody``.
++``getSummaryCaption`` is implemented in ``IzPanel`` with a panel name default
++text. ``getSummaryBody`` has to be implemented in all panels which should be
++presented in the summary. If the secound method is not implemented, no
++summary of this panel will be shown.
++
++Additional it is possible to `log the contents` of the summary panel into a
++HTML file.
++
++
++InstallationGroupPanel
++-----------------------
++
++This Panel groups the pack together. A panel which displays the available
++*installGroups* found on the packs to allow the user to select a subset of
++the packs based on the pack *installGroups* attribute. This panel will be
++skipped if there are no pack elements with an *installGroups* attribute. For
++example ::
++
++        &lt;installation version=&quot;1.0&quot;&gt;
++           (...)
++            &lt;panels&gt;
++                (...)
++                &lt;panel classname=&quot;InstallationGroupPanel&quot;/&gt;
++                &lt;panel classname=&quot;PacksPanel&quot;/&gt;
++                (...)
++            &lt;/panels&gt;
++
++            &lt;packs&gt;
++                &lt;pack name=&quot;Base&quot;
++                    installGroups=&quot;Group1&quot;
++                    required=&quot;yes&quot;&gt;
++                    (...)
++                &lt;/pack&gt;
++                &lt;pack name=&quot;Docs&quot;
++                    installGroups=&quot;Group1,Group2&quot;
++                    required=&quot;no&quot;&gt;
++                    (...)
++                &lt;/pack&gt;
++                &lt;pack name=&quot;Sources&quot;
++                    installGroups=&quot;Group3,Group2&quot;
++                    required=&quot;no&quot;&gt;
++                    (...)
++                &lt;/pack&gt;
++            &lt;/packs&gt;
++        &lt;/installation&gt;
++        
++In above example when InstallationGroupPanel is displayed,
++it contains three radios named Group1, Group2 and Group3. Depending
++on what user selects, the respective Packs will be displayed in
++PacksPanel. InstallationGroupPanel will look for a description
++corresponding to the key
++&quot;InstallationGroupPanel.description.Group1&quot;,
++&quot;InstallationGroupPanel.description.Group2&quot; etc in installation
++langpacks and variables and displays this description for each of
++the Group_i.
++
++You may also define a sortKey in the variables section of the installer.xml
++to define an alternative sorting. The default sorting is based on the Group
++Name.
++
++Here is an example for alternative sorting of groups: ::
++
++        (...)
++        &lt;variables&gt;
++           (...)
++            &lt;variable
++            name=&quot;InstallationGroupPanel.sortKey.Group2&quot; value=&quot;A&quot;/&gt;
++            &lt;variable
++            name=&quot;InstallationGroupPanel.sortKey.Group1&quot; value=&quot;B&quot;/&gt;
++            &lt;variable
++            name=&quot;InstallationGroupPanel.sortKey.Group3&quot; value=&quot;C&quot;/&gt;
++        &lt;/variables&gt;
++        (...)
++
++By default, your group name (and description) are displayed as-is in the
++installer. If you want them to be localized, add localized names to your
++``packsLang.xml`` resources. The string ID has to be 
++InstallationGroupPanel.group.```group_name``.
++
++Here is an example to localize groups into French (these lines have to be put
++in your ``packsLang.xml_fra`` resource) :
++::
++
++&lt;str id=&quot;InstallationGroupPanel.group.Core&quot; txt=&quot;Noyau de l'application&quot; /&gt;
++&lt;str id=&quot;InstallationGroupPanel.description.Core&quot; txt=&quot;Fichiers principaux, indispensables au fonctionnement de l'application&quot; /&gt;
++&lt;str id=&quot;InstallationGroupPanel.group.Samples&quot; txt=&quot;Fichiers d'exemple&quot; /&gt;
++&lt;str id=&quot;InstallationGroupPanel.description.Samples&quot; txt=&quot;Fichiers d'exemples&quot; /&gt;
++
++If you want to add html markup to those strings, add ``.html`` at the end
++of the string id (after the group name).
+
+Modified: izpack-src/trunk/src/doc-reST/pdf-version.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/pdf-version.txt	2008-01-13 13:37:46 UTC (rev 1982)
++++ izpack-src/trunk/src/doc-reST/pdf-version.txt	2008-01-13 13:59:16 UTC (rev 1983)
+@@ -9,6 +9,7 @@
+ .. include:: introduction.txt
+ .. include:: getting-started.txt
+ .. include:: installation-files.txt
++.. include:: panels.txt
+ .. include:: advanced-features.txt
+ .. include:: desktop-shortcuts.txt
+ .. include:: creating-panels.txt
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000728.html">[izpack-changes] r1982 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000730.html">[izpack-changes] r1984 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#729">[ date ]</a>
+              <a href="thread.html#729">[ thread ]</a>
+              <a href="subject.html#729">[ subject ]</a>
+              <a href="author.html#729">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

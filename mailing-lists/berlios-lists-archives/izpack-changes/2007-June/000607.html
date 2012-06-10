@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1861 - in izpack-src/trunk: . lib	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1861%20-%20in%20izpack-src/trunk%3A%20.%20lib%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000606.html">
+   <LINK REL="Next"  HREF="000608.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1861 - in izpack-src/trunk: . lib	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1861%20-%20in%20izpack-src/trunk%3A%20.%20lib%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1861 - in izpack-src/trunk: . lib	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jun 14 22:56:55 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000606.html">[izpack-changes] r1860 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000608.html">[izpack-changes] r1862 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#607">[ date ]</a>
+              <a href="thread.html#607">[ thread ]</a>
+              <a href="subject.html#607">[ subject ]</a>
+              <a href="author.html#607">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-06-14 22:56:40 +0200 (Thu, 14 Jun 2007)
+New Revision: 1861
+
+Added:
+   izpack-src/trunk/lib/nimbus.jar
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+Log:
+Nimbus look and feel support (Julien Ponge)
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-06-12 07:59:26 UTC (rev 1860)
++++ izpack-src/trunk/Versions.txt	2007-06-14 20:56:40 UTC (rev 1861)
+@@ -26,6 +26,7 @@
+ - HTMLInfoPanel to launch links in external browser on any Windows and Linux (Vladimir Ralev)
+ - PacksModel fix (Markus Schlegel via Julien Ponge).
+ - Workaround for layout problems in UserInputPanel when clicking previous button (Dennis Reil)
++- Nimbus look and feel support (Julien Ponge)
+ 
+   &gt; 3.10.3 (build xxxx.xx.xx)
+ 
+
+Added: izpack-src/trunk/lib/nimbus.jar
+===================================================================
+(Binary files differ)
+
+
+Property changes on: izpack-src/trunk/lib/nimbus.jar
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-06-12 07:59:26 UTC (rev 1860)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-06-14 20:56:40 UTC (rev 1861)
+@@ -431,6 +431,7 @@
+             lafMap.put(&quot;metouia&quot;, &quot;metouia.jar&quot;);
+             lafMap.put(&quot;looks&quot;, &quot;looks.jar&quot;);
+             lafMap.put(&quot;substance&quot;, &quot;substance.jar&quot;);
++						lafMap.put(&quot;nimbus&quot;, &quot;nimbus.jar&quot;);
+ 
+             // is this really what we want? a double loop? needed, since above,
+             // it's
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-06-12 07:59:26 UTC (rev 1860)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-06-14 20:56:40 UTC (rev 1861)
+@@ -386,6 +386,13 @@
+             return;
+         }
+ 
++				// Nimbus (<A HREF="http://nimbus.dev.java.net/">http://nimbus.dev.java.net/</A>)
++				if (&quot;nimbus&quot;.equals(laf))
++				{
++						UIManager.setLookAndFeel(&quot;org.jdesktop.swingx.plaf.nimbus.NimbusLookAndFeel&quot;);
++						return;
++				}
++
+         // JGoodies Looks (<A HREF="http://looks.dev.java.net/">http://looks.dev.java.net/</A>)
+         if (&quot;looks&quot;.equals(laf))
+         {
+@@ -407,6 +414,7 @@
+             }
+ 
+             UIManager.setLookAndFeel(variant);
++						return;
+         }
+ 
+         // Substance (<A HREF="http://substance.dev.java.net/">http://substance.dev.java.net/</A>)
+@@ -434,6 +442,7 @@
+             }
+ 
+             UIManager.setLookAndFeel(variant);
++						return;
+         }
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000606.html">[izpack-changes] r1860 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000608.html">[izpack-changes] r1862 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#607">[ date ]</a>
+              <a href="thread.html#607">[ thread ]</a>
+              <a href="subject.html#607">[ subject ]</a>
+              <a href="author.html#607">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

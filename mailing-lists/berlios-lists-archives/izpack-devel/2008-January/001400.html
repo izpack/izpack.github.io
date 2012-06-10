@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Text-field validator + variable substitutor for	staticText filed
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Text-field%20validator%20%2B%20variable%20substitutor%20for%0A%09staticText%20filed&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001399.html">
+   <LINK REL="Next"  HREF="001401.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Text-field validator + variable substitutor for	staticText filed</H1>
+    <B>Piotr Skowronek</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Text-field%20validator%20%2B%20variable%20substitutor%20for%0A%09staticText%20filed&In-Reply-To="
+       TITLE="[izpack-devel] Text-field validator + variable substitutor for	staticText filed">piotr at skowro.net
+       </A><BR>
+    <I>Tue Jan 15 12:52:08 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001399.html">[izpack-devel] Mailing-lists and silently dropped emails
+</A></li>
+        <LI>Next message: <A HREF="001401.html">[izpack-devel] Text-field validator + variable substitutor for staticText filed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1400">[ date ]</a>
+              <a href="thread.html#1400">[ thread ]</a>
+              <a href="subject.html#1400">[ subject ]</a>
+              <a href="author.html#1400">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi All,
+
+In the attachment you can find following extensions:
+
+1) Text fields now can support Validators. Validation has been
+done basing on Rule-field validator.
+
+Example of use:
+&lt;field type=&quot;text&quot; variable=&quot;hostname&quot;&gt;
+	&lt;spec txt=&quot;Enter hostname:&quot;/&gt;
+	&lt;validator 	class=&quot;com.izforge.izpack.util.RegularExpressionValidator&quot; 
+txt=&quot;Must 	have at least 3 characters long&quot;&gt;
+		&lt;param name=&quot;pattern&quot; value=&quot;.{3,}&quot;/&gt;
+	&lt;/validator&gt;
+&lt;/field&gt;
+
+
+2) Added Variable substitutor to the following field types:
+- title
+- staticText
+- description
+- spec
+
+The method UserInputPanel#getText has been amended,
+to do variable substitution (getText is used by those types of fields). 
+The modification also supports langpacks.
+
+Example of use:
+&lt;field type=&quot;title&quot; txt=&quot;Settings for server name: $hostname&quot;/&gt;
+
+In above example, $hostname will be replaced by the value of $hostname 
+variable.
+
+
+3) Modification of UserInputPanel, two new mothods have been added:
+showMessageDialog, and showWarningMessageDialog (whch invokes the first 
+one). I have introduced this methods to clean up the code, now, 
+following methods use these helpers instead of calling 
+JOptionPane.showMessageDialog directly:
+- readPasswordField
+- readRuleField
+- readTextField
+- actionPerformed
+
+
+Can you tell what do you think about these enhancements?
+
+Regards
+Piotr Skowronek
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: ps_patch.diff
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20080115/b7f98414/attachment.ksh">https://lists.berlios.de/pipermail/izpack-devel/attachments/20080115/b7f98414/attachment.ksh</A> 
+</PRE>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001399.html">[izpack-devel] Mailing-lists and silently dropped emails
+</A></li>
+	<LI>Next message: <A HREF="001401.html">[izpack-devel] Text-field validator + variable substitutor for staticText filed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1400">[ date ]</a>
+              <a href="thread.html#1400">[ thread ]</a>
+              <a href="subject.html#1400">[ subject ]</a>
+              <a href="author.html#1400">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

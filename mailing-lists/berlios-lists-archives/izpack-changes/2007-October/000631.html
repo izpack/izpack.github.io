@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1885 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1885%20-%20in%20izpack-src/trunk%3A%20.%20src/dtd%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels%0A%09src/lib/com/izforge/izpack/uninstaller%0A%09src/lib/com/izforge/izpack/util/os&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000630.html">
+   <LINK REL="Next"  HREF="000632.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1885 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1885%20-%20in%20izpack-src/trunk%3A%20.%20src/dtd%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels%0A%09src/lib/com/izforge/izpack/uninstaller%0A%09src/lib/com/izforge/izpack/util/os&In-Reply-To="
+       TITLE="[izpack-changes] r1885 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os">noreply at berlios.de
+       </A><BR>
+    <I>Sat Oct 20 19:28:45 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000630.html">[izpack-changes] r1884 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000632.html">[izpack-changes] r1886 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#631">[ date ]</a>
+              <a href="thread.html#631">[ thread ]</a>
+              <a href="subject.html#631">[ subject ]</a>
+              <a href="author.html#631">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-10-20 19:28:16 +0200 (Sat, 20 Oct 2007)
+New Revision: 1885
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/dtd/installation.dtd
+   izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/UninstallData.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebRepositoryAccessor.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+Log:
+- Support of a new 'uninstall' (yes/no) attribute on pack elements to allow certains pack to be
+  kept on uninstallation (Gildas Le Louarn via Julien Ponge)
+- Uninstaller: in GUI mode, users don't see the 'force uninstallation' checkbox unless the
+  '-x' command-line flag is used (Gildas Le Louarn via Julien Ponge)
+
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/Versions.txt	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -45,6 +45,10 @@
+ - FileExecutor: allow Java classpath specification in targetfile attribute using
+   either : or ; delimiter, and support classpath loading of all jar files within a given folder,
+   e.g. targetfile=&quot;$INSTALL_PATH/lib/allMyJars (Andreas Guenther via Julien Ponge)
++- Support of a new 'uninstall' (yes/no) attribute on pack elements to allow certains pack to be
++  kept on uninstallation (Gildas Le Louarn via Julien Ponge)
++- Uninstaller: in GUI mode, users don't see the 'force uninstallation' checkbox unless the
++  '-x' command-line flag is used (Gildas Le Louarn via Julien Ponge)
+   
+   &gt; 3.10.2 (build 2007.05.11)
+ 
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/dtd/installation.dtd	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -108,6 +108,7 @@
+         &lt;!ATTLIST pack group CDATA #IMPLIED&gt;
+         &lt;!ATTLIST pack installGroups CDATA #IMPLIED&gt;
+         &lt;!ATTLIST pack excludeGroup CDATA #IMPLIED&gt;
++        &lt;!ATTLIST pack uninstall (yes|no) &quot;yes&quot;&gt;
+         &lt;!ATTLIST pack parent CDATA #IMPLIED&gt;
+         &lt;!ELEMENT description (#PCDATA)&gt;
+         &lt;!ELEMENT file (os*, additionaldata*)&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/Pack.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -40,7 +40,13 @@
+ 
+     /** Flag for store files of this pack outside the installation jar file */
+     public boolean loose;
+-
++   
++    /** If true, all files of the pack will be deleted during uninstallation, if 
++     * false they are only removed if uninstaller force delete option is
++     * activated.
++     */
++    public boolean uninstall;
++        
+     /** The pack name. */
+     public String name;
+ 
+@@ -116,10 +122,11 @@
+      * @param required Indicates wether the pack is required or not.
+      * @param preselected This pack will be selected automatically.
+      * @param loose Flag for store files of this pack outside the installation jar file
+-     * @param excludegroup associated exclude group 
++     * @param excludegroup associated exclude group
++     * @param uninstall If true, pack must be uninstalled.
+      */
+     public Pack(String name, String id, String description, List osConstraints, List dependencies,
+-            boolean required, boolean preselected, boolean loose, String excludegroup)
++            boolean required, boolean preselected, boolean loose, String excludegroup, boolean uninstall)
+     {
+         this.name = name;
+         this.id = id;
+@@ -130,6 +137,7 @@
+         this.preselected = preselected;
+         this.loose = loose;
+         this.excludeGroup = excludegroup;
++        this.uninstall = uninstall;
+         this.packImgId = null;
+         nbytes = 0;
+         color = PackInfo.WHITE;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -601,6 +601,7 @@
+             String group = el.getAttribute(&quot;group&quot;);
+             String installGroups = el.getAttribute(&quot;installGroups&quot;);
+             String excludeGroup = el.getAttribute(&quot;excludeGroup&quot;);
++            boolean uninstall = &quot;yes&quot;.equalsIgnoreCase(el.getAttribute(&quot;uninstall&quot;, &quot;yes&quot;));
+             String parent = el.getAttribute(&quot;parent&quot;);
+             
+             if(required &amp;&amp; excludeGroup != null)
+@@ -609,7 +610,7 @@
+                     new Exception(&quot;Pack, which has excludeGroup can not be required.&quot;));
+             }
+             
+-            PackInfo pack = new PackInfo(name, id, description, required, loose, excludeGroup);
++            PackInfo pack = new PackInfo(name, id, description, required, loose, excludeGroup, uninstall);
+             pack.setOsConstraints(OsConstraint.getOsList(el)); // TODO:
+             pack.setParent(parent);
+             
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackInfo.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -78,11 +78,12 @@
+      * @param required pack is required or not
+      * @param loose files of pack should be stored separatly or not
+      * @param excludegroup name of the exclude group 
++     * @param uninstall pack must be uninstalled 
+      */
+-    public PackInfo(String name, String id, String description, boolean required, boolean loose, String excludegroup)
++    public PackInfo(String name, String id, String description, boolean required, boolean loose, String excludegroup, boolean uninstall)
+     {
+         boolean ispreselected = (excludegroup == null) ? true : false;
+-        pack = new Pack(name, id, description, null, null, required, ispreselected, loose, excludegroup);
++        pack = new Pack(name, id, description, null, null, required, ispreselected, loose, excludegroup, uninstall);
+         colour = PackInfo.WHITE;
+     }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -124,7 +124,7 @@
+         {
+             // We get the data
+             UninstallData udata = UninstallData.getInstance();
+-            List files = udata.getFilesList();
++            List files = udata.getUninstalableFilesList();
+             ZipOutputStream outJar = this.idata.uninstallOutJar;
+ 
+             if (outJar == null) 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -890,7 +890,7 @@
+         {
+             // We get the data
+             UninstallData udata = UninstallData.getInstance();
+-            List files = udata.getFilesList();
++            List files = udata.getUninstalableFilesList();
+             ZipOutputStream outJar = installdata.uninstallOutJar;
+ 
+             if (outJar == null) return;
+@@ -1217,7 +1217,7 @@
+ 
+         // Wipes them all in 2 stages
+         UninstallData u = UninstallData.getInstance();
+-        it = u.getFilesList().iterator();
++        it = u.getInstalledFilesList().iterator();
+         if (!it.hasNext()) return;
+         while (it.hasNext())
+         {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -475,7 +475,7 @@
+                         informListeners(customActions, InstallerListener.BEFORE_FILE, pathFile, pf,
+                                 null);
+                         // We add the path to the log,
+-                        udata.addFile(path);
++                        udata.addFile(path, pack.uninstall);
+ 
+                         handler.progress(j, path);
+ 
+@@ -862,7 +862,7 @@
+         // use a treeset for fast access
+         TreeSet installed_files = new TreeSet();
+ 
+-        for (Iterator if_it = this.udata.getFilesList().iterator(); if_it.hasNext();)
++        for (Iterator if_it = this.udata.getInstalledFilesList().iterator(); if_it.hasNext();)
+         {
+             String fname = (String) if_it.next();
+ 
+@@ -1111,7 +1111,7 @@
+         ZipOutputStream outJar = new ZipOutputStream(bos);
+         idata.uninstallOutJar = outJar;
+         outJar.setLevel(9);
+-        udata.addFile(jar);
++        udata.addFile(jar, true);
+ 
+         // We copy the uninstallers
+         HashSet doubles = new HashSet();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/UninstallData.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/UninstallData.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/UninstallData.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -39,8 +39,11 @@
+     /** The uninstall data object. */
+     private static UninstallData instance = null;
+ 
+-    /** The files list. */
+-    private List filesList;
++    /** The installed files list. */
++    private List installedFilesList;
++    
++    /** The uninstallable files list. */
++    private List uninstallableFilesList;
+ 
+     /** The executables list. */
+     private List executablesList;
+@@ -60,7 +63,8 @@
+     /** The constructor. */
+     private UninstallData()
+     {
+-        filesList = new ArrayList();
++        installedFilesList = new ArrayList();
++        uninstallableFilesList = new ArrayList();
+         executablesList = new ArrayList();
+         additionalData = new HashMap();
+         rootScript = new String();
+@@ -84,22 +88,34 @@
+      * Adds a file to the data.
+      * 
+      * @param path The file to add.
++     * @param uninstall If true, file must be uninstalled.
+      */
+-    public synchronized void addFile(String path)
++    public synchronized void addFile(String path, boolean uninstall)
+     {
+         if(path != null)
+-           filesList.add(path);
++            installedFilesList.add(path);
++            if (uninstall) uninstallableFilesList.add(path);
+     }
+ 
+     /**
+-     * Returns the files list.
++     * Returns the installed files list.
+      * 
+-     * @return The files list.
++     * @return The installed files list.
+      */
+-    public List getFilesList()
++    public List getInstalledFilesList()
+     {
+-        return filesList;
++        return installedFilesList;
+     }
++    
++    /**
++     * Returns the uninstallable files list.
++     * 
++     * @return The uninstallable files list.
++     */
++    public List getUninstalableFilesList()
++    {
++        return uninstallableFilesList;
++    }    
+ 
+     /**
+      * Adds an executable to the data.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/Unpacker.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -311,7 +311,7 @@
+                 // Custom action listener stuff --- beforePack ----
+                 informListeners(customActions, InstallerListener.BEFORE_PACK, packs.get(i),
+                         new Integer(npacks), handler);
+-                ObjectInputStream objIn = new ObjectInputStream(getPackAsStream(p.id));
++                ObjectInputStream objIn = new ObjectInputStream(getPackAsStream(p.id, p.uninstall));
+ 
+                 // We unpack the files
+                 int nfiles = objIn.readInt();
+@@ -371,7 +371,7 @@
+                         informListeners(customActions, InstallerListener.BEFORE_FILE, pathFile, pf,
+                                 null);
+                         // We add the path to the log,
+-                        udata.addFile(path);
++                        udata.addFile(path, pack.uninstall);
+ 
+                         handler.progress(j, path);
+ 
+@@ -435,7 +435,7 @@
+                         InputStream pis = objIn;
+                         if (pf.isBackReference())
+                         {
+-                            InputStream is = getPackAsStream(pf.previousPackId);
++                            InputStream is = getPackAsStream(pf.previousPackId, pack.uninstall);
+                             pis = new ObjectInputStream(is);
+                             // must wrap for blockdata use by objectstream
+                             // (otherwise strange result)
+@@ -691,7 +691,7 @@
+         // use a treeset for fast access
+         TreeSet installed_files = new TreeSet();
+ 
+-        for (Iterator if_it = this.udata.getFilesList().iterator(); if_it.hasNext();)
++        for (Iterator if_it = this.udata.getInstalledFilesList().iterator(); if_it.hasNext();)
+         {
+             String fname = (String) if_it.next();
+ 
+@@ -940,7 +940,7 @@
+         ZipOutputStream outJar = new ZipOutputStream(bos);
+         idata.uninstallOutJar = outJar;
+         outJar.setLevel(9);
+-        udata.addFile(jar);
++        udata.addFile(jar, true);
+ 
+         // We copy the uninstallers
+         HashSet doubles = new HashSet();
+@@ -992,10 +992,11 @@
+      * Returns a stream to a pack, location depending on if it's web based.
+      * 
+      * @param n The pack number.
++     * @param uninstall true if pack must be uninstalled
+      * @return The stream or null if it could not be found.
+      * @exception Exception Description of the Exception
+      */
+-    private InputStream getPackAsStream(String packid) throws Exception
++    private InputStream getPackAsStream(String packid, boolean uninstall) throws Exception
+     {
+         InputStream in = null;
+ 
+@@ -1022,7 +1023,7 @@
+             try
+             {
+                tempfile = WebRepositoryAccessor.getCachedUrl(packURL, tf);
+-               udata.addFile(tempfile);
++               udata.addFile(tempfile, uninstall);
+             }
+             catch(Exception e)
+             {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebRepositoryAccessor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebRepositoryAccessor.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/WebRepositoryAccessor.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -265,6 +265,7 @@
+          String group = el.getAttribute(&quot;group&quot;);
+          String installGroups = el.getAttribute(&quot;installGroups&quot;);
+          String excludeGroup = el.getAttribute(&quot;excludeGroup&quot;);
++				 boolean uninstall = &quot;yes&quot;.equalsIgnoreCase(el.getAttribute(&quot;uninstall&quot;, &quot;yes&quot;));
+          String parent = el.getAttribute(&quot;parent&quot;);
+ 
+          if (required &amp;&amp; excludeGroup != null)
+@@ -273,7 +274,7 @@
+                   &quot;Pack, which has excludeGroup can not be required.&quot;));
+          }
+ 
+-         PackInfo pack = new PackInfo(name, id, description, required, loose, excludeGroup);
++				 PackInfo pack = new PackInfo(name, id, description, required, loose, excludeGroup, uninstall);
+          pack.setOsConstraints(OsConstraint.getOsList(el)); // TODO:
+          pack.setParent(parent);
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -1221,7 +1221,7 @@
+           failed = true;
+           Debug.log(&quot;Failed to create menu for gnome.&quot;);
+        }
+-       if(!failed) UninstallData.getInstance().addFile(file);
++       if(!failed) UninstallData.getInstance().addFile(file, true);
+     }
+     /*--------------------------------------------------------------------------*/
+ 
+@@ -2031,7 +2031,7 @@
+ 
+         for (int i = 0; i &lt; files.size(); i++)
+         {
+-            uninstallData.addFile((String) files.elementAt(i));
++            uninstallData.addFile((String) files.elementAt(i), true);
+         }
+     }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanelAutomationHelper.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -354,7 +354,7 @@
+ 
+         for (int i = 0; i &lt; files.size(); i++)
+         {
+-            uninstallData.addFile((String) files.elementAt(i));
++            uninstallData.addFile((String) files.elementAt(i), true);
+             System.out.print(&quot;.&quot;);
+             System.out.flush();
+         }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -78,7 +78,7 @@
+         }
+     }
+ 
+-    public static void uninstall(String[] args)
++    public static void uninstall(final String[] args)
+     {
+         SwingUtilities.invokeLater(new Runnable()
+         {
+@@ -86,8 +86,16 @@
+             {
+                 try
+                 {
++                    boolean displayForceOption = true;
++                    boolean forceOptionState = false;
++                    
++                    for (int q = 0; q &lt; args.length; q++) {
++                        if (args[q].equals(&quot;-f&quot;)) forceOptionState = true;
++                        else if (args[q].equals(&quot;-x&quot;)) displayForceOption = false;
++                    }
++                    
+                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+-                    new UninstallerFrame();
++                    new UninstallerFrame(displayForceOption, forceOptionState);
+                 }
+                 catch (Exception err)
+                 {
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -96,9 +96,12 @@
+     /**
+      * The constructor.
+      * 
++     * @param displayForceOption If true, display to the user the option permitting to force
++     * all files deletion.
++     * @param forceOptionState If true, force deletion is activated.
+      * @exception Exception Description of the Exception
+      */
+-    public UninstallerFrame() throws Exception
++    public UninstallerFrame(boolean displayForceOption, boolean forceOptionState) throws Exception
+     {
+         super(&quot;IzPack - Uninstaller&quot;);
+ 
+@@ -115,7 +118,7 @@
+         setIconImage(icons.getImageIcon(&quot;JFrameIcon&quot;).getImage());
+ 
+         // We build the GUI &amp; show it
+-        buildGUI();
++        buildGUI(displayForceOption, forceOptionState);
+         addWindowListener(new WindowHandler());
+         pack();
+         centerFrame(this);
+@@ -123,8 +126,14 @@
+         setVisible(true);
+     }
+ 
+-    /** Builds the GUI. */
+-    private void buildGUI()
++    /**
++     * Builds the GUI.
++     * 
++     * @param displayForceOption If true, display to the user the option permitting to force
++     * all files deletion.
++     * @param forceOptionState If true, force deletion is activated.
++     */
++    private void buildGUI(boolean displayForceOption, boolean forceOptionState)
+     {
+         // We initialize our layout
+         JPanel contentPane = (JPanel) getContentPane();
+@@ -157,10 +166,10 @@
+         contentPane.add(warningLabel);
+ 
+         targetDestroyCheckbox = new JCheckBox(langpack.getString(&quot;uninstaller.destroytarget&quot;)
+-                + installPath, false);
++                + installPath, forceOptionState);
+         buildConstraints(gbConstraints, 0, 1, 2, 1, 1.0, 0.0);
+         layout.addLayoutComponent(targetDestroyCheckbox, gbConstraints);
+-        contentPane.add(targetDestroyCheckbox);
++        if (displayForceOption) contentPane.add(targetDestroyCheckbox);
+         gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+ 
+         progressBar = new JProgressBar();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2007-10-20 17:11:41 UTC (rev 1884)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2007-10-20 17:28:16 UTC (rev 1885)
+@@ -439,7 +439,7 @@
+ 
+             // write my own ShortCut
+             File writtenDesktopFile = writeSafeShortcut(myHome + FS + &quot;Desktop&quot; + FS, this.itsName, shortCutDef);
+-            uninstaller.addFile(writtenDesktopFile.toString());
++            uninstaller.addFile(writtenDesktopFile.toString(), true);
+             
+             // If I'm root and this Desktop.ShortCut should be for all other users
+             if (rootUser4All &amp;&amp; create4All)
+@@ -569,7 +569,7 @@
+                this.itsFileName = target;
+                File kdemenufile = writeShortCut(target, shortCutDef);
+ 
+-               uninstaller.addFile(kdemenufile.toString());
++               uninstaller.addFile(kdemenufile.toString(), true);
+             }
+             */
+            
+@@ -584,7 +584,7 @@
+                     try
+                     {
+                         copyTo(theIcon, commonIcon);
+-                        uninstaller.addFile(commonIcon.toString());
++                        uninstaller.addFile(commonIcon.toString(), true);
+                     }
+                     catch (Exception cnc)
+                     {
+@@ -597,7 +597,7 @@
+                     this.itsFileName = target;
+                     File writtenFile = writeSafeShortcut(&quot;/usr/share/applications/&quot;, this.itsName, shortCutDef);
+                     setWrittenFileName(writtenFile.getName());
+-                    uninstaller.addFile(writtenFile.toString());
++                    uninstaller.addFile(writtenFile.toString(), true);
+ 
+                 }
+             }
+@@ -629,7 +629,7 @@
+                try
+                {
+                    copyTo(theIcon, commonIcon);
+-                   uninstaller.addFile(commonIcon.toString());
++                   uninstaller.addFile(commonIcon.toString(), true);
+                }
+                catch (Exception cnc)
+                {
+@@ -642,7 +642,7 @@
+                this.itsFileName = target;
+                File writtenFile = writeSafeShortcut(localApps, this.itsName, shortCutDef);
+                setWrittenFileName(writtenFile.getName());
+-               uninstaller.addFile(writtenFile.toString());
++               uninstaller.addFile(writtenFile.toString(), true);
+             }
+ 
+         }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000630.html">[izpack-changes] r1884 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000632.html">[izpack-changes] r1886 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#631">[ date ]</a>
+              <a href="thread.html#631">[ thread ]</a>
+              <a href="subject.html#631">[ subject ]</a>
+              <a href="author.html#631">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Patch for suppressing null pointer	in	RuleInputField
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20for%20suppressing%20null%20pointer%0A%09in%09RuleInputField&In-Reply-To=200608312056.06762.marc.eppelmann%40gmx.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000466.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Patch for suppressing null pointer	in	RuleInputField</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20for%20suppressing%20null%20pointer%0A%09in%09RuleInputField&In-Reply-To=200608312056.06762.marc.eppelmann%40gmx.de"
+       TITLE="[izpack-devel] Patch for suppressing null pointer	in	RuleInputField">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Fri Sep  1 08:18:04 CEST 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000466.html">[izpack-devel] private to protected
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#465">[ date ]</a>
+              <a href="thread.html#465">[ thread ]</a>
+              <a href="subject.html#465">[ subject ]</a>
+              <a href="author.html#465">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Ok, another try with the attached patch-file.
+
+regards,
+	Dennis
+
+Am Donnerstag, den 31.08.2006, 20:56 +0200 schrieb Marc Eppelmann:
+&gt;<i> Hi Dennis, 
+</I>&gt;<i> 
+</I>&gt;<i> This Patch is currently not immediately applicable. Please can you send us 
+</I>&gt;<i> patches in the unified patch format, which will be used (created and applied) 
+</I>&gt;<i> by eclipse as seperate attachment?
+</I>&gt;<i> 
+</I>&gt;<i> Thn I will check it again.
+</I>&gt;<i> 
+</I>&gt;<i> Cheers
+</I>&gt;<i> Marc
+</I>&gt;<i> 
+</I>&gt;<i> Am Mittwoch, 30. August 2006 10:27 schrieb Dennis Reil:
+</I>&gt;<i> &gt; Hi,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; When I use a rule input field in UserInputPanel, I always get a null
+</I>&gt;<i> &gt; pointer exception from caretUpdate() in RuleInputField. This is caused
+</I>&gt;<i> &gt; by an activeField set to null somewhere else. So just test if
+</I>&gt;<i> &gt; activeField equals null before calling any method on it.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Below you'll find a patch for this problem.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; kind regards,
+</I>&gt;<i> &gt;      Dennis
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Index:
+</I>&gt;<i> &gt; /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.j
+</I>&gt;<i> &gt;ava =================================================================== ---
+</I>&gt;<i> &gt; /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.j
+</I>&gt;<i> &gt;ava	(revision 1554) +++
+</I>&gt;<i> &gt; /workspace/IzPack3-trunk/src/lib/com/izforge/izpack/panels/RuleInputField.j
+</I>&gt;<i> &gt;ava	(working copy)
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; @@ -748,17 +748,20 @@
+</I>&gt;<i> &gt;     
+</I>&gt;<i> &gt; /*-------------------------------------------------------------------------
+</I>&gt;<i> &gt;-*/ public void caretUpdate(CaretEvent event)
+</I>&gt;<i> &gt;      {
+</I>&gt;<i> &gt; -        String text = activeField.getText();
+</I>&gt;<i> &gt; -        int fieldSize = activeField.getEditLength();
+</I>&gt;<i> &gt; -        int caretPosition = activeField.getCaretPosition();
+</I>&gt;<i> &gt; -        int selection = activeField.getSelectionEnd() -
+</I>&gt;<i> &gt; activeField.getSelectionStart();
+</I>&gt;<i> &gt; -
+</I>&gt;<i> &gt; -        if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!
+</I>&gt;<i> &gt; activeField.unlimitedEdit()))
+</I>&gt;<i> &gt; +        if (activeField != null)
+</I>&gt;<i> &gt;          {
+</I>&gt;<i> &gt; -            if ((text.length() == fieldSize) &amp;&amp; (selection == 0) &amp;&amp;
+</I>&gt;<i> &gt; (caretPosition == fieldSize)
+</I>&gt;<i> &gt; -                    &amp;&amp; !backstep)
+</I>&gt;<i> &gt; +            String text = activeField.getText();
+</I>&gt;<i> &gt; +            int fieldSize = activeField.getEditLength();
+</I>&gt;<i> &gt; +            int caretPosition = activeField.getCaretPosition();
+</I>&gt;<i> &gt; +            int selection = activeField.getSelectionEnd() -
+</I>&gt;<i> &gt; activeField.getSelectionStart();
+</I>&gt;<i> &gt; +
+</I>&gt;<i> &gt; +            if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!
+</I>&gt;<i> &gt; activeField.unlimitedEdit()))
+</I>&gt;<i> &gt;              {
+</I>&gt;<i> &gt; -                activeField.transferFocus();
+</I>&gt;<i> &gt; +                if ((text.length() == fieldSize) &amp;&amp; (selection == 0)
+</I>&gt;<i> &gt; +                        &amp;&amp; (caretPosition == fieldSize) &amp;&amp; !backstep)
+</I>&gt;<i> &gt; +                {
+</I>&gt;<i> &gt; +                    activeField.transferFocus();
+</I>&gt;<i> &gt; +                }
+</I>&gt;<i> &gt;              }
+</I>&gt;<i> &gt;          }
+</I>&gt;<i> &gt;      }
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-devel mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>-- 
+Gr&#252;&#223;e
+
+        Dennis
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: RuleInputField.java.patch
+Type: text/x-patch
+Size: 2027 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20060901/b7da5dce/attachment.bin">https://lists.berlios.de/pipermail/izpack-devel/attachments/20060901/b7da5dce/attachment.bin</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000466.html">[izpack-devel] private to protected
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#465">[ date ]</a>
+              <a href="thread.html#465">[ thread ]</a>
+              <a href="subject.html#465">[ subject ]</a>
+              <a href="author.html#465">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

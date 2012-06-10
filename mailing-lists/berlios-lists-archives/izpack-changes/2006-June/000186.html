@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1440 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1440%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000185.html">
+   <LINK REL="Next"  HREF="000190.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1440 - izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1440%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1440 - izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Fri Jun  9 14:01:41 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000185.html">[izpack-changes] r1439 - izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000190.html">[izpack-changes] r1441 - izpack-src/branches
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#186">[ date ]</a>
+              <a href="thread.html#186">[ thread ]</a>
+              <a href="subject.html#186">[ subject ]</a>
+              <a href="author.html#186">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-06-09 14:01:39 +0200 (Fri, 09 Jun 2006)
+New Revision: 1440
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIListener.java
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+GUI listener stuff added; now it is possible to add
+e.g. a Button to the navigation panel of the InstallerFrame.
+
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIListener.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIListener.java	2006-06-08 16:59:23 UTC (rev 1439)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIListener.java	2006-06-09 12:01:39 UTC (rev 1440)
+@@ -0,0 +1,64 @@
++/*
++ * $Id:$
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2006 Klaus Bartz
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.installer;
++
++
++/**
++ * Interface for a gui listener. This interface can be used to modify the installer frame of IzPack.
++ * 
++ * @author Klaus Bartz
++ * 
++ */
++public interface GUIListener
++{
++
++    /**
++     * Constant to indicate that method buildGUI has called
++     */
++    static final int GUI_BUILDED = 0;
++
++    /**
++     * Constant to indicate that method blockGUI has called
++     */
++    static final int GUI_BLOCKED = 1;
++
++    /**
++     * Constant to indicate that method releaseGUI has called
++     */
++    static final int GUI_RELEASED = 2;
++
++    /**
++     * Constant to indicate that method switchPanel has called
++     */
++    static final int PANEL_SWITCHED = 3;
++
++    /**
++     * This method will be called from the installer frame at end of the methods buildGUI, blockGUI,
++     * releaseGUI and switchPanel.&lt;br&gt;
++     * 
++     * The param what indicates from what method this listener was called.&lt;br&gt;
++     * If buildGUI is the calling method, the navigation panel will be set as param. At other
++     * calling methods param will be null.
++     * 
++     * @param what identifier for the calling method
++     * @param param
++     */
++    void guiActionPerformed(int what, Object param);
++
++}
+
+
+Property changes on: izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIListener.java
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-06-08 16:59:23 UTC (rev 1439)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-06-09 12:01:39 UTC (rev 1440)
+@@ -1,4 +1,5 @@
+ /*
++ * $Id:$
+  * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+@@ -129,6 +130,9 @@
+ 
+     /** The quit button. */
+     protected JButton quitButton;
++    
++    /** Registered GUICreationListener. */
++    protected ArrayList guiListener;
+ 
+     /** Image */
+     private JLabel iconLabel;
+@@ -149,6 +153,7 @@
+     public InstallerFrame(String title, InstallData installdata) throws Exception
+     {
+         super(title);
++        guiListener = new ArrayList();
+         this.installdata = installdata;
+         this.langpack = installdata.langpack;
+ 
+@@ -349,8 +354,21 @@
+ 
+         loadImage(0);
+         getRootPane().setDefaultButton(nextButton);
++        callGUIListener(GUIListener.GUI_BUILDED, navPanel);
+     }
+ 
++    private void callGUIListener(int what)
++    {
++        callGUIListener(what, null);
++    }
++
++    private void callGUIListener(int what, Object param)
++    {
++        Iterator iter = guiListener.iterator();
++        while(iter.hasNext())
++            ((GUIListener) iter.next()).guiActionPerformed(what, param);
++    }
++
+     private void loadImage(int panelNo)
+     {
+         try
+@@ -464,6 +482,7 @@
+             panelsContainer.setVisible(true);
+             loadImage(installdata.curPanelNumber);
+             isBack = false;
++            callGUIListener(GUIListener.PANEL_SWITCHED);
+         }
+         catch (Exception err)
+         {
+@@ -849,6 +868,8 @@
+         if (blockFTP == null) blockFTP = new BlockFocusTraversalPolicy();
+         setFocusTraversalPolicy((java.awt.FocusTraversalPolicy) blockFTP);
+         getGlassPane().requestFocus();
++        callGUIListener(GUIListener.GUI_BLOCKED);
++
+     }
+ 
+     /** Releases GUI interaction. */
+@@ -860,6 +881,7 @@
+         // No traversal handling before VM version 1.4
+         if (JAVA_SPECIFICATION_VERSION &lt; 1.35) return;
+         setFocusTraversalPolicy((java.awt.FocusTraversalPolicy) usualFTP);
++        callGUIListener(GUIListener.GUI_RELEASED);
+     }
+ 
+     /** Locks the 'previous' button. */
+@@ -1019,4 +1041,24 @@
+             return aComp == getGlassPane();
+         }
+     }
++
++    
++    /**
++     * Returns the gui creation listener list.
++     * @return the gui creation listener list
++     */
++    public List getGuiListener()
++    {
++        return guiListener;
++    }
++
++    
++    /**
++     * Add a listener to the listener list.
++     * @param listener to be added as gui creation listener
++     */
++    public void addGuiListener(GUIListener listener)
++    {
++        guiListener.add(listener);
++    }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000185.html">[izpack-changes] r1439 - izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000190.html">[izpack-changes] r1441 - izpack-src/branches
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#186">[ date ]</a>
+              <a href="thread.html#186">[ thread ]</a>
+              <a href="subject.html#186">[ subject ]</a>
+              <a href="author.html#186">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

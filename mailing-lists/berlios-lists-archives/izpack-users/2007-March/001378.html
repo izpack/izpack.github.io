@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] install pack based on complex conditions	(repost)
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20install%20pack%20based%20on%20complex%20conditions%09%28repost%29&In-Reply-To=45FAB56F.8060601%40menara.ma">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001376.html">
+   <LINK REL="Next"  HREF="001356.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] install pack based on complex conditions	(repost)</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20install%20pack%20based%20on%20complex%20conditions%09%28repost%29&In-Reply-To=45FAB56F.8060601%40menara.ma"
+       TITLE="[izpack-users] install pack based on complex conditions	(repost)">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Mon Mar 19 08:25:08 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001376.html">[izpack-users] install pack based on complex conditions	(repost)
+</A></li>
+        <LI>Next message: <A HREF="001356.html">[izpack-users] panelcondition ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1378">[ date ]</a>
+              <a href="thread.html#1378">[ thread ]</a>
+              <a href="subject.html#1378">[ subject ]</a>
+              <a href="author.html#1378">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>First of all, to define a pack selection panel, you'll have to add
+something like the following to your install.xml:
+
+&lt;panel classname=&quot;PacksPanel&quot; id=&quot;packselectionpanel&quot; /&gt;	
+
+This will add a &quot;normal&quot; PacksPanel to your installer, showing the packs
+you defined in the install.xml. 
+Somewhere below this panel-line, you'll have to define your process
+panel, so that it is shown when the user already selected the packs in
+the packspanel. Between PacksPanel und ProcessPanel, you'll have to
+define the UserInputPanel which should show the path input
+conditionally. This means, something like this has to be in your
+install.xml:
+
+&lt;panel classname=&quot;PacksPanel&quot; id=&quot;packselectionpanel&quot; /&gt;	
+&lt;panel classname=&quot;UserInputPanel&quot; id=&quot;pack1pathselection&quot; /&gt;	
+&lt;panel classname=&quot;ProcessPanel&quot; id=&quot;process&quot; /&gt;	
+
+Regards,
+   Dennis
+
+
+&gt;<i> Hi Dennis and all of you guys;
+</I>&gt;<i>  i need further help to implement conditional panel with izpack
+</I>&gt;<i> Dennis proposed using a PackSelectionPanel; but i don't know how to
+</I>&gt;<i> use that : can u write me some snippet code ? i would appreciate it a
+</I>&gt;<i> lot
+</I>&gt;<i> 
+</I>&gt;<i> please guys; if someone can propose me a solution to the problem i
+</I>&gt;<i> described in my OP that would be nice.
+</I>&gt;<i> thanks.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Dennis Reil wrote: 
+</I>&gt;<i> &gt; Hi,
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;   
+</I>&gt;<i> &gt; &gt; 1.display a UserInputPanel  asking user if he /she wants to install a 
+</I>&gt;<i> &gt; &gt; pack or not (I'm thinking to use check boxes for this: yes and no)
+</I>&gt;<i> &gt; &gt; 2. if user decides not to install the pack (checks no); i should ask him 
+</I>&gt;<i> &gt; &gt; for the path where this pack is currently installed . then i should 
+</I>&gt;<i> &gt; &gt; validate this path (not empty) if path is empty the installation should 
+</I>&gt;<i> &gt; &gt; fail (be canceled).if path is correct i should save this path to a 
+</I>&gt;<i> &gt; &gt; .properties file.
+</I>&gt;<i> &gt; &gt; 3.if user checks yes (decides to install pack ) then i should display a 
+</I>&gt;<i> &gt; &gt; ProcessPanel
+</I>&gt;<i> &gt; &gt;     
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; There're two possibilities to solve this problem.
+</I>&gt;<i> &gt; 1. a) Use a PackSelectionPanel
+</I>&gt;<i> &gt;    b) define a packselectioncondition like this: 
+</I>&gt;<i> &gt;        &lt;condition type=&quot;packselection&quot; id=&quot;pack1selected&quot;&gt;
+</I>&gt;<i> &gt;             &lt;packid&gt;pack1&lt;/packid&gt;
+</I>&gt;<i> &gt;        &lt;/condition&gt;
+</I>&gt;<i> &gt;       and the negated one: (in the current trunk, this is optional)
+</I>&gt;<i> &gt;        &lt;condition type=&quot;not&quot; id=&quot;notpack1selected&quot;&gt;
+</I>&gt;<i> &gt;              &lt;condition type=&quot;ref&quot; refid=&quot;pack1selected&quot;/&gt;
+</I>&gt;<i> &gt;        &lt;/condition&gt;
+</I>&gt;<i> &gt;       Note, that there has to be a pack in install.xml with id pack1
+</I>&gt;<i> &gt;    c) Use a panelcondition like the following to show the user input
+</I>&gt;<i> &gt; panel:
+</I>&gt;<i> &gt;       &lt;panelcondition panelid=&quot;pack1pathselection&quot;
+</I>&gt;<i> &gt; conditionid=&quot;notpack1selected&quot; /&gt;
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;       with the current trunk, you can also write:
+</I>&gt;<i> &gt;       &lt;panelcondition panelid=&quot;pack1pathselection&quot; conditionid=&quot;!
+</I>&gt;<i> &gt; pack1selected&quot; /&gt;
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Regards,
+</I>&gt;<i> &gt;    Dennis
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;   
+</I>&gt;<i> &gt; &gt; I'm new to izpack and need to implement this feature urgently : it would 
+</I>&gt;<i> &gt; &gt; be nice if some one helps me write the xml configuration files to 
+</I>&gt;<i> &gt; &gt; implement this feature.
+</I>&gt;<i> &gt; &gt; 
+</I>&gt;<i> &gt; &gt; your help is greatly appreciated.
+</I>&gt;<i> &gt; &gt; 
+</I>&gt;<i> &gt; &gt; thanks.
+</I>&gt;<i> &gt; &gt; 
+</I>&gt;<i> &gt; &gt; othman
+</I>&gt;<i> &gt; &gt; 
+</I>&gt;<i> &gt; &gt; 
+</I>&gt;<i> &gt; &gt; 
+</I>&gt;<i> &gt; &gt; No virus found in this outgoing message
+</I>&gt;<i> &gt; &gt; Checked by PC Tools AntiVirus (3.1.0.10 - 9.065.007).
+</I>&gt;<i> &gt; &gt; <A HREF="http://www.pctools.com/anti-virus/">http://www.pctools.com/anti-virus/</A>
+</I>&gt;<i> &gt; &gt; _______________________________________________
+</I>&gt;<i> &gt; &gt; izpack-users mailing list
+</I>&gt;<i> &gt; &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt; &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> &gt; &gt;     
+</I>&gt;<i> 
+</I>-- 
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001376.html">[izpack-users] install pack based on complex conditions	(repost)
+</A></li>
+	<LI>Next message: <A HREF="001356.html">[izpack-users] panelcondition ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1378">[ date ]</a>
+              <a href="thread.html#1378">[ thread ]</a>
+              <a href="subject.html#1378">[ subject ]</a>
+              <a href="author.html#1378">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

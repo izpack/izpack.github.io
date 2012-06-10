@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] mutually exclusive packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20mutually%20exclusive%20packs&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891779%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000578.html">
+   <LINK REL="Next"  HREF="000581.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] mutually exclusive packs</H1>
+    <B>Vladimir Ralev</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20mutually%20exclusive%20packs&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891779%40coi11.coi.com"
+       TITLE="[izpack-devel] mutually exclusive packs">vralev at redhat.com
+       </A><BR>
+    <I>Tue Nov 14 15:32:48 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000578.html">[izpack-devel] mutually exclusive packs
+</A></li>
+        <LI>Next message: <A HREF="000581.html">[izpack-devel] change additional variables
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#579">[ date ]</a>
+              <a href="thread.html#579">[ thread ]</a>
+              <a href="subject.html#579">[ subject ]</a>
+              <a href="author.html#579">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>These &quot;chained&quot; declarations made me thinking about an alternative 
+syntax. How about instead of having &lt;excludes&gt;, add a new attribute to 
+the pack tag:
+
+   &lt;pack name=&quot;1&quot;  installGroups=&quot;1&quot; required=&quot;no&quot; excludeGroup=&quot;group1&quot;&gt;
+   &lt;/pack&gt;
+   &lt;pack name=&quot;2&quot;  installGroups=&quot;1&quot; required=&quot;no&quot; excludeGroup=&quot;group1&quot;&gt;
+   &lt;/pack&gt;
+
+
+   &lt;pack name=&quot;3&quot;  installGroups=&quot;1&quot; required=&quot;no&quot; excludeGroup=&quot;another 
+exclude group&quot;&gt;
+   &lt;/pack&gt;
+   &lt;pack name=&quot;4&quot;  installGroups=&quot;1&quot; required=&quot;no&quot; excludeGroup=&quot;another 
+exclude group&quot;&gt;
+   &lt;/pack&gt;
+
+This way, all packs in the same excludeGroup will be mutually exclusive. 
+I think there is no need to support multiple excludeGroups per pack 
+because of the tie cases, but if want I can do that too.
+
+Is this any better?
+
+Bartz, Klaus wrote:
+&gt;<i> Hi Vladimir,
+</I>&gt;<i> I think both possitions are possible. If I have no
+</I>&gt;<i> docu, I assume a behavior like I would implement it.
+</I>&gt;<i> Rest context related.
+</I>&gt;<i> You know, we have some features where the documentation is not
+</I>&gt;<i> optimal. I think we should not do it at new features.
+</I>&gt;<i>
+</I>&gt;<i> Cheers 
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Vladimir
+</I>&gt;&gt;<i> Ralev
+</I>&gt;&gt;<i> Sent: Monday, November 13, 2006 7:18 PM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: Re: [izpack-devel] mutually exclusive packs
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> The user should simply be advised to do:
+</I>&gt;&gt;<i> pack1 excludes (pack2 and pack3)
+</I>&gt;&gt;<i> pack2 excludes (pack3 and pack1)
+</I>&gt;&gt;<i> pack3 excludes (pack1 and pack2)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> That's the problem with the docu... You know it because you have
+</I>&gt;<i> implement it and I will show into the sources if I get a problem.
+</I>&gt;<i> But many user do not like the hint &quot;the sources are the best
+</I>&gt;<i> documentation&quot;.
+</I>&gt;<i> Therefore my request for a docu from the developer.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> I think the problem with your &quot;shortcut&quot;-syntax is that the graph may 
+</I>&gt;&gt;<i> contain many cycles like:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> pack1 excludes (pack2 and pack4)
+</I>&gt;&gt;<i> pack2 excludes pack3
+</I>&gt;&gt;<i> pack3 excludes pack1
+</I>&gt;&gt;<i> pack4 excludes pack3
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> or even worse...
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Of course I can implement transitive exclusion (like the 
+</I>&gt;&gt;<i> transitive dependencies) - if (pack1 excludes pack2) AND 
+</I>&gt;&gt;<i> (pack2 excludes pack3) THEN (pack1 excludes (pack2 and pack3)).
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> In this case however I will disallow *any* cycles in the exclusion 
+</I>&gt;&gt;<i> graph, because the recursion will go forever. I personally think that 
+</I>&gt;&gt;<i> the exclusions are better without transitive traversal, but if 
+</I>&gt;&gt;<i> you want 
+</I>&gt;&gt;<i> something else I will do it.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Another useful syntactical shortcut would be to implicitly create the 
+</I>&gt;&gt;<i> symmetric exclude - if (pack1 excludes pack2) THEN automatically do 
+</I>&gt;&gt;<i> (pack2 excludes pack1), but this breaks the declarative symmetry?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> I tend to support implicit symmetry.
+</I>&gt;<i> May be it breaks the declarative symmetry, but it suppress an 
+</I>&gt;<i> asymmetric execution.
+</I>&gt;<i> selection of pack2 deselects pack1 but selection of pack1 do not
+</I>&gt;<i> deselect pack2.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> PS. I found a bug in the code I sent you (packs with no 
+</I>&gt;&gt;<i> &quot;excludes&quot; tags 
+</I>&gt;&gt;<i> cause exceptions), I will be making more changes too.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i>
+</I>&gt;<i> Nice. Additional if you declare a nonexistent pack as excludes a
+</I>&gt;<i> null pointer exception raises in the installer. May be a verification
+</I>&gt;<i> at compile time will be better.
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> I am waiting for your comments and will send the final code soon.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Bartz, Klaus wrote:
+</I>&gt;&gt;<i>     
+</I>&gt;&gt;&gt;<i> Hi Vladimir,
+</I>&gt;&gt;&gt;<i> today I have tested a little bit.
+</I>&gt;&gt;&gt;<i> If the exclusion will be declared as full cross references 
+</I>&gt;&gt;&gt;<i> it works fine.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> But what should be happen with
+</I>&gt;&gt;&gt;<i> pack1 excludes pack2
+</I>&gt;&gt;&gt;<i> pack2 excludes pack3
+</I>&gt;&gt;&gt;<i> pack3 excludes pack1
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> If I select first pack1 and then pack2 both are selected.
+</I>&gt;&gt;&gt;<i> If I select first pack2 and then pack1 only pack1 is selected.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Not a real szenario? May be, but I am certain that someone
+</I>&gt;&gt;&gt;<i> does it in the future and calls why this not work as he/she assumed.
+</I>&gt;&gt;&gt;<i> Therefore we should clear this in front.
+</I>&gt;&gt;&gt;<i> I tend to say that an implicit backward exclusion should be
+</I>&gt;&gt;&gt;<i> performed; means
+</I>&gt;&gt;&gt;<i> If I selct first pack1 and then pack2 only pack2 is selected.
+</I>&gt;&gt;&gt;<i> If I selct first pack2 and then pack1 only pack1 is selected.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> What is your meaning, what say the others?
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Cheers
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Klaus
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>       
+</I>&gt;<i> &lt;snip&gt;
+</I>&gt;<i>   
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>   
+</I>
+
+-- 
+Vladimir Ralev, JBoss/RedHat
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000578.html">[izpack-devel] mutually exclusive packs
+</A></li>
+	<LI>Next message: <A HREF="000581.html">[izpack-devel] change additional variables
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#579">[ date ]</a>
+              <a href="thread.html#579">[ thread ]</a>
+              <a href="subject.html#579">[ subject ]</a>
+              <a href="author.html#579">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

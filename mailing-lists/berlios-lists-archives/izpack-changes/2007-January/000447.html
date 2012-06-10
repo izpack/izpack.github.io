@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1702 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1702%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000446.html">
+   <LINK REL="Next"  HREF="000448.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1702 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1702%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1702 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 11 14:55:08 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000446.html">[izpack-changes] r1701 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000448.html">[izpack-changes] r1703 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#447">[ date ]</a>
+              <a href="thread.html#447">[ thread ]</a>
+              <a href="subject.html#447">[ subject ]</a>
+              <a href="author.html#447">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-11 14:55:06 +0100 (Thu, 11 Jan 2007)
+New Revision: 1702
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+Log:
+fixed: required packs are not grayed out any more
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-01-11 11:50:25 UTC (rev 1701)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-01-11 13:55:06 UTC (rev 1702)
+@@ -320,8 +320,7 @@
+     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+     {
+         if (columnIndex == 0)
+-        {
+-            System.out.println(&quot;Change value: &quot; + aValue);
++        {            
+             if (aValue instanceof Integer)
+             {
+                 Pack pack = (Pack) packs.get(rowIndex);
+@@ -329,15 +328,23 @@
+                 if (((Integer) aValue).intValue() == 1)
+                 {
+                     String packid = pack.id;
+-                    if (packid != null){
+-                        System.out.println(&quot;packid=&quot;+packid);
++                    if (packid != null){                        
+                         if (this.rules.canInstallPack(packid, this.variables) || this.rules.canInstallPackOptional(packid, this.variables)){
+-                            System.out.println(&quot;can install&quot;);
+-                            checkValues[rowIndex] = 1;
++                            if (pack.required){
++                                checkValues[rowIndex] = -1;
++                            }
++                            else {
++                                checkValues[rowIndex] = 1;
++                            }
+                         }                              
+                     }
+                     else {
+-                        checkValues[rowIndex] = 1;
++                        if (pack.required){
++                            checkValues[rowIndex] = -1;
++                        }
++                        else {
++                            checkValues[rowIndex] = 1;
++                        }
+                     }                    
+                     updateExcludes(rowIndex);
+                     updateDeps();
+@@ -417,7 +424,10 @@
+                     if (!(!this.rules.canInstallPack(packid, this.variables) &amp;&amp; this.rules.canInstallPackOptional(packid, this.variables))){
+                         propRequirement(pack.name);
+                     }                    
+-                }                
++                }  
++                else {
++                    propRequirement(pack.name);
++                }
+             }
+         }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000446.html">[izpack-changes] r1701 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000448.html">[izpack-changes] r1703 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#447">[ date ]</a>
+              <a href="thread.html#447">[ thread ]</a>
+              <a href="subject.html#447">[ subject ]</a>
+              <a href="author.html#447">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

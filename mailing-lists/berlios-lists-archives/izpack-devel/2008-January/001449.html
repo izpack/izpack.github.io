@@ -1,0 +1,2350 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Production IzPack Mods
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Production%20IzPack%20Mods&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001450.html">
+   <LINK REL="Next"  HREF="001455.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Production IzPack Mods</H1>
+    <B>Jeff Gordon</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Production%20IzPack%20Mods&In-Reply-To="
+       TITLE="[izpack-devel] Production IzPack Mods">jeff.not24 at gmail.com
+       </A><BR>
+    <I>Wed Jan 23 03:38:56 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001450.html">[izpack-devel] Possible Bug in Target Panel
+</A></li>
+        <LI>Next message: <A HREF="001455.html">[izpack-devel] Production IzPack Mods
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1449">[ date ]</a>
+              <a href="thread.html#1449">[ thread ]</a>
+              <a href="subject.html#1449">[ subject ]</a>
+              <a href="author.html#1449">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+
+I've been working with the IzPack trunk for some time now and through our
+release cycle have included a number of patches based on feedback I have
+received from our company's developers, technical writers, and testers.
+This patch is basically the rest of the changes that can only be done in a
+single patch because of dependencies.  I know there are a lot of changes and
+additions, but I'd like to reassure everyone that these are all being used
+in production code going to global customers (I'm working on releasing some
+examples).
+
+I've added the patch as an attachment and inline for easy reading.
+
+- Jeff Gordon
+
+
+Some of the highlights for this patch are:
+- Adding multiple validator support to the password field
+- Adding password equality validator as out-of-the-box functionality
+- Adding a keystore validator as out-of-the-box functionality
+- Adding a standard path selection panel for the user's use
+- Many spelling, capitalization, and terminology corrections
+
+
+
+eng.xml
+-------
+Changed textual descriptions to more business-like terminology
+Corrected spelling and capitalization errors
+Added UserPathPanel headline, messages, and captions
+Added UserInputPanel.dir.* messages and captions
+Added UserInputPanel.file.* messages and captions
+(Need to test with alternative lang packs)
+
+
+build.xml
+---------
+Added nimbus.jar and substance.jar for LAF
+Added ValidatorContainer (see below)
+Added section for UserPathPanel (see below)
+
+
+CompilerConfig.java
+-------------------
+Changed uninstaller name to allow file without jar extension
+(used to control uninstall and keep windows users from double-clicking it)
+(I left 4 character size restriction, but it's not that useful)
+
+
+PasswordGroup.java
+------------------
+Added usage of ValidatorContainer
+[This may affect Piotr's use of his newly committed validator code]
+[I've been trying to get this all in, but he got some similar code ahead of
+me]
+
+
+PathSelectionPanel.java
+-----------------------
+Grammatical corrections in comments
+
+
+ProcessingClient.java
+---------------------
+Comment about newly added fields to this interface
+(affects PasswordGroup.java)
+
+
+UserInputPanel.java
+-------------------
+Added auto-install info for selected directory
+Added error messages for no directory and not a directory
+Added showMessage() method to encapsulate message dialog
+Added auto-install info for selected file
+Added error messages for no file and not a file
+Added JavaDoc comments for specifying PasswordEqualityValidator and
+PasswordKeystoreValidator
+Added use of multiple validators for password field
+
+
+------------------------------------
+- UserPathInputPanel.java
+- UserPathPanel.java
+- UserPathPanelAutomationHelper.java
+- UserPathSelectionPanel.java
+------------------------------------
+Implemented copy of PathPanel as UserPathPanel (as alternative to dir type
+in UserInputPanel)
+
+
+ValidatorContainer.java
+-----------------------
+Object representation of a validator containing the validator, error
+message, and parameter Map
+
+
+PasswordEqualityValidator.java
+------------------------------
+Implementation of sample validator for use in any installer
+Shows how to get at validator parameters as well
+
+
+PasswordKeystoreValidator.java
+------------------------------
+Validates keystore access using password field
+Validates alias (key) access with password field
+
+
+------------------------------------------------------------------------------------------------------------------------
+Patch attached, provided inline for readability
+------------------------------------------------------------------------------------------------------------------------
+Index: bin/langpacks/installer/eng.xml
+===================================================================
+--- bin/langpacks/installer/eng.xml    (revision 1998)
++++ bin/langpacks/installer/eng.xml    (working copy)
+@@ -11,10 +11,10 @@
+     &lt;str id=&quot;ExtendedInstallPanel.headline&quot; txt=&quot;Installation and
+Configuration&quot;/&gt;
+     &lt;str id=&quot;FinishPanel.headline&quot; txt=&quot;Installation Finished&quot;/&gt;
+     &lt;str id=&quot;HelloPanel.headline&quot; txt=&quot;Welcome&quot;/&gt;
+-    &lt;str id=&quot;HTMLInfoPanel.headline&quot; txt=&quot;Informations&quot;/&gt;
++    &lt;str id=&quot;HTMLInfoPanel.headline&quot; txt=&quot;Information&quot;/&gt;
+     &lt;str id=&quot;HTMLLicencePanel.headline&quot; txt=&quot;Licensing Agreements&quot;/&gt;
+     &lt;str id=&quot;ImgPacksPanel.headline&quot; txt=&quot;Select Installation Packages&quot;/&gt;
+-    &lt;str id=&quot;InfoPanel.headline&quot; txt=&quot;Informations&quot;/&gt;
++    &lt;str id=&quot;InfoPanel.headline&quot; txt=&quot;Information&quot;/&gt;
+     &lt;str id=&quot;InstallPanel.headline&quot; txt=&quot;Installation&quot;/&gt;
+     &lt;str id=&quot;JDKPathPanel.headline&quot; txt=&quot;JDK Path&quot;/&gt;
+     &lt;str id=&quot;LicencePanel.headline&quot; txt=&quot;Licensing Agreements&quot;/&gt;
+@@ -25,6 +25,7 @@
+     &lt;str id=&quot;SummaryPanel.headline&quot; txt=&quot;Summary Configuration Data&quot;/&gt;
+     &lt;str id=&quot;TargetPanel.headline&quot; txt=&quot;Target Path&quot;/&gt;
+     &lt;str id=&quot;UserInputPanel.headline&quot; txt=&quot;User Data&quot;/&gt;
++    &lt;str id=&quot;UserPathPanel.headline&quot; txt=&quot;Select Path&quot;/&gt;
+     &lt;str id=&quot;InstallationTypePanel.headline&quot; txt=&quot;Installation Type&quot; /&gt;
+
+     &lt;!-- General installer strings --&gt;
+@@ -46,7 +47,7 @@
+     &lt;str id=&quot;installer.Message&quot; txt=&quot;Message&quot;/&gt;
+
+     &lt;!-- Uninstaller specific strings --&gt;
+-    &lt;str id=&quot;uninstaller.warning&quot; txt=&quot;This will remove the installed
+application(s)!&quot;/&gt;
++    &lt;str id=&quot;uninstaller.warning&quot; txt=&quot;This will remove the installed
+application!&quot;/&gt;
+     &lt;str id=&quot;uninstaller.destroytarget&quot; txt=&quot; Force the deletion of &quot;/&gt;
+     &lt;str id=&quot;uninstaller.uninstall&quot; txt=&quot;Uninstall&quot;/&gt;
+
+@@ -99,7 +100,7 @@
+     &lt;str id=&quot;JDKPathPanel.nonValidPathInReg&quot; txt=&quot;The Windows registry
+contains a non-valid path for this JDK. Should this JDK be used anyway?&quot;/&gt;
+
+     &lt;str id=&quot;PacksPanel.info&quot; txt=&quot;Select the packs you want to install:&quot;/&gt;
+-    &lt;str id=&quot;PacksPanel.tip&quot; txt=&quot;Note: greyed out packs are required.&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.tip&quot; txt=&quot;Note: Grayed packs are required.&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.space&quot; txt=&quot;Total space Required: &quot;/&gt;
+     &lt;str id=&quot;PacksPanel.freespace&quot; txt=&quot;Available space: &quot;/&gt;
+     &lt;str id=&quot;PacksPanel.description&quot; txt=&quot;Description&quot;/&gt;
+@@ -115,7 +116,7 @@
+     &lt;str id=&quot;InstallPanel.info&quot; txt=&quot;Click 'Install!' to begin the
+installation process&quot;/&gt;
+     &lt;str id=&quot;InstallPanel.install&quot; txt=&quot;Install!&quot;/&gt;
+     &lt;str id=&quot;InstallPanel.tip&quot; txt=&quot;Pack installation progress:&quot;/&gt;
+-    &lt;str id=&quot;InstallPanel.begin&quot; txt=&quot;[Nothing]&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.begin&quot; txt=&quot; &quot;/&gt;
+     &lt;str id=&quot;InstallPanel.finished&quot; txt=&quot;[Finished]&quot;/&gt;
+     &lt;str id=&quot;InstallPanel.progress&quot; txt=&quot;Overall installation progress:&quot;/&gt;
+     &lt;str id=&quot;InstallPanel.overwrite.title&quot; txt=&quot;File already exists&quot;/&gt;
+@@ -165,19 +166,38 @@
+     &lt;str id=&quot;ShortcutPanel.location.startMenu&quot;    txt=&quot;Start Menu&quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.location.startup&quot;      txt=&quot;Startup Group&quot;/&gt;
+
+-    &lt;str id=&quot;UserInputPanel.error.caption&quot;        txt=&quot;Input Problem&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.error.caption&quot;        txt=&quot;Error&quot;/&gt;
+     &lt;str id=&quot;UserInputPanel.search.autodetect&quot;    txt=&quot;Autodetect&quot;/&gt;
+
++    &lt;str id=&quot;UserInputPanel.dir.nodirectory.message&quot;   txt=&quot;You must select
+a valid directory.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.dir.nodirectory.caption&quot;   txt=&quot;No Directory
+Selected&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.dir.notdirectory.message&quot;   txt=&quot;The directory
+you have chosen either does not exist or is not valid.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.dir.notdirectory.caption&quot;   txt=&quot;Invalid
+Directory&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.file.nofile.message&quot;   txt=&quot;You must select a
+valid file.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.file.nofile.caption&quot;   txt=&quot;No File Selected&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.file.notfile.message&quot;   txt=&quot;The file you have
+chosen either does not exist or is not valid.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.file.notfile.caption&quot;   txt=&quot;Invalid File&quot;/&gt;
++
++
+     &lt;!-- more descriptive error message would be cool, like specifying what
+file we looked for --&gt;
+-    &lt;str id=&quot;UserInputPanel.search.autodetect.failed.message&quot;
+txt=&quot;Autodetection failed.&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.autodetect.failed.caption&quot;
+txt=&quot;Autodetection failed.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.autodetect.failed.message&quot;
+txt=&quot;Auto-detection failed.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.autodetect.failed.caption&quot;
+txt=&quot;Auto-Detection Failed&quot;/&gt;
+     &lt;str id=&quot;UserInputPanel.search.autodetect.tooltip&quot;           txt=&quot;Check
+for the file or directory in the paths given above.&quot;/&gt;
+     &lt;str id=&quot;UserInputPanel.search.location&quot;           txt=&quot;Enter location
+of {0}.&quot;/&gt;
+     &lt;str id=&quot;UserInputPanel.search.location.checkedfile&quot; txt=&quot;The existence
+of {0} is checked.&quot;/&gt;
+     &lt;str id=&quot;UserInputPanel.search.browse&quot;           txt=&quot;Browse...&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.wrongselection.message&quot;   txt=&quot;The file
+or directory you choose either does not exist or is not appropiate.&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.wrongselection.caption&quot;   txt=&quot;Invalid
+selection.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.wrongselection.message&quot;   txt=&quot;The file
+or directory you have chosen either does not exist or is not appropriate.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.wrongselection.caption&quot;   txt=&quot;Invalid
+Selection&quot;/&gt;
+
++    &lt;str id=&quot;UserPathPanel.required&quot; txt=&quot;The chosen directory should
+exist.&quot;/&gt;
++    &lt;str id=&quot;UserPathPanel.info&quot; txt=&quot;Select the path: &quot;/&gt;
++    &lt;str id=&quot;UserPathPanel.browse&quot; txt=&quot;Browse&quot;/&gt;
++    &lt;str id=&quot;UserPathPanel.exists_warn&quot; txt=&quot;The directory already exists!
+Are you sure you want to install here and possibly overwrite existing
+files?&quot;/&gt;
++    &lt;str id=&quot;UserPathPanel.empty_target&quot; txt=&quot;You have not specified a
+target location! Is this correct?&quot;/&gt;
++    &lt;str id=&quot;UserPathPanel.createdir&quot; txt=&quot;The target directory will be
+created: &quot; /&gt;
++    &lt;str id=&quot;UserPathPanel.nodir&quot;  txt=&quot;This file is not a directory!
+Please choose a directory!&quot;/&gt;
++    &lt;str id=&quot;UserPathPanel.notwritable&quot; txt=&quot;This directory can not be
+written! Please choose another directory!&quot;/&gt;
++
+     &lt;str id=&quot;CompilePanel.heading&quot; txt=&quot;Compilation&quot; /&gt;
+     &lt;str id=&quot;CompilePanel.tip&quot; txt=&quot;Job compilation progress:&quot; /&gt;
+     &lt;str id=&quot;CompilePanel.browse&quot; txt=&quot;Browse...&quot; /&gt;
+@@ -201,18 +221,19 @@
+     &lt;str id=&quot;ProcessPanel.heading&quot; txt=&quot;Processing&quot; /&gt;
+
+     &lt;!-- Strings for the summary of panels - START --&gt;
+-    &lt;str id=&quot;SummaryPanel.info&quot; txt=&quot;Ready to install. Important data are
+listed below. Press &amp;quot;Next&amp;quot; to start installation, &quot;/&gt;
+-    &lt;str id=&quot;TargetPanel.summaryCaption&quot; txt=&quot;Installation path&quot;/&gt;
+-    &lt;str id=&quot;JDKPathPanel.summaryCaption&quot; txt=&quot;JDK path&quot;/&gt;
+-    &lt;str id=&quot;PacksPanel.summaryCaption&quot; txt=&quot;Chosen installation packs&quot;/&gt;
+-    &lt;str id=&quot;ImgPacksPanel.summaryCaption&quot; txt=&quot;Chosen installation
+packs&quot;/&gt;
++    &lt;str id=&quot;SummaryPanel.info&quot; txt=&quot;Installation will proceed with the
+following settings. Press Next to continue.&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.summaryCaption&quot; txt=&quot;Installation Path&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.summaryCaption&quot; txt=&quot;JDK Path&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.summaryCaption&quot; txt=&quot;Chosen Installation Packs&quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.summaryCaption&quot; txt=&quot;Chosen Installation
+Packs&quot;/&gt;
++    &lt;str id=&quot;UserPathPanel.summaryCaption&quot; txt=&quot;Selected Path&quot;/&gt;
+     &lt;!-- Strings for the summary of panels - END --&gt;
+
+     &lt;!-- Strings for the Registry --&gt;
+     &lt;str id=&quot;functionFailed.RegOpenKeyEx&quot; txt=&quot;Cannot open registry key
+{0}\\{1}.&quot;/&gt;
+
+     &lt;!-- Add your own panels specific strings here if you need or use a
+custom
+-         langpack with the same syntax referred as resoure
+CustomLangpack.xml_[ISO3]&quot;
++         langpack with the same syntax referred as resource
+CustomLangpack.xml_[ISO3]&quot;
+     --&gt;
+
+     &lt;str id=&quot;nextmedia.title&quot; txt=&quot;Next install media&quot;/&gt;
+@@ -223,7 +244,7 @@
+     &lt;str id=&quot;nextmedia.choosertitle&quot; txt=&quot;Choose install media&quot; /&gt;
+     &lt;str id=&quot;nextmedia.filedesc&quot; rdid=&quot;install packs (.pak*)&quot; /&gt;
+
+-    &lt;!-- Strings for the loggin/reporting system (Messenger) --&gt;
++    &lt;!-- Strings for the logging/reporting system (Messenger) --&gt;
+
+     &lt;!-- This string defines the time stamp format in the installation
+report.
+          The format details are documented in java.text.SimpleDateFormat--&gt;
+Index: src/build.xml
+===================================================================
+--- src/build.xml    (revision 1998)
++++ src/build.xml    (working copy)
+@@ -361,6 +361,8 @@
+                 &lt;include name=&quot;lib/liquidlnf.jar&quot; /&gt;
+                 &lt;include name=&quot;lib/metouia.jar&quot; /&gt;
+                 &lt;include name=&quot;lib/looks.jar&quot; /&gt;
++                &lt;include name=&quot;lib/nimbus.jar&quot; /&gt;
++                &lt;include name=&quot;lib/substance.jar&quot; /&gt;
+                 &lt;include name=&quot;lib/ant.jar&quot; /&gt;
+                 &lt;include name=&quot;lib/nimbus.jar&quot; /&gt;
+                 &lt;include name=&quot;lib/substance.jar&quot; /&gt;
+@@ -648,7 +650,14 @@
+             &lt;include name=&quot;com/izforge/izpack/panels/UserInputPanel.java&quot;
+/&gt;
+             &lt;include
+name=&quot;com/izforge/izpack/panels/UserInputPanelAutomationHelper.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/Validator.java&quot; /&gt;
++            &lt;include
+name=&quot;com/izforge/izpack/panels/ValidatorContainer.java&quot; /&gt;
+         &lt;/build-panel&gt;
++        &lt;build-panel name=&quot;UserPathPanel&quot;&gt;
++            &lt;include
+name=&quot;com/izforge/izpack/panels/UserPathInputPanel.java&quot; /&gt;
++            &lt;include
+name=&quot;com/izforge/izpack/panels/UserPathSelectionPanel.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/panels/UserPathPanel.java&quot; /&gt;
++            &lt;include
+name=&quot;com/izforge/izpack/panels/UserPathPanelAutomationHelper.java&quot; /&gt;
++        &lt;/build-panel&gt;
+         &lt;build-panel name=&quot;ConditionalUserInputPanel&quot;&gt;
+             &lt;include
+name=&quot;com/izforge/izpack/panels/ConditionalUserInputPanel.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/PasswordGroup.java&quot; /&gt;
+@@ -660,6 +669,7 @@
+             &lt;include name=&quot;com/izforge/izpack/panels/UserInputPanel.java&quot;
+/&gt;
+             &lt;include
+name=&quot;com/izforge/izpack/panels/UserInputPanelAutomationHelper.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/Validator.java&quot; /&gt;
++            &lt;include
+name=&quot;com/izforge/izpack/panels/ValidatorContainer.java&quot; /&gt;
+         &lt;/build-panel&gt;
+         &lt;build-panel name=&quot;CompilePanel&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/panels/CompilePanel.java&quot; /&gt;
+Index: src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- src/lib/com/izforge/izpack/compiler/CompilerConfig.java    (revision
+1998)
++++ src/lib/com/izforge/izpack/compiler/CompilerConfig.java    (working
+copy)
+@@ -1511,8 +1511,7 @@
+             if (uninstallInfo != null)
+             {
+                 String uninstallerName = uninstallInfo.getAttribute
+(&quot;name&quot;);
+-                if (uninstallerName != null &amp;&amp; uninstallerName.endsWith
+(&quot;.jar&quot;)
+-                        &amp;&amp; uninstallerName.length() &gt; &quot;.jar&quot;.length())
++                if (uninstallerName != null &amp;&amp; uninstallerName.length() &gt;
+&quot;.jar&quot;.length())
+                     info.setUninstallerName(uninstallerName);
+             }
+         }
+Index: src/lib/com/izforge/izpack/panels/PasswordGroup.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/PasswordGroup.java    (revision 1998)
++++ src/lib/com/izforge/izpack/panels/PasswordGroup.java    (working copy)
+@@ -18,9 +18,10 @@
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
+-
+ package com.izforge.izpack.panels;
+
++import com.izforge.izpack.installer.InstallData;
++import java.util.List;
+ import java.util.Map;
+ import java.util.Vector;
+
+@@ -46,13 +47,19 @@
+     //
+------------------------------------------------------------------------
+     private Vector fields = new Vector();
+
+-    private Validator validator = null;
+-
++    private List validatorContainers = null;
++//  private Validator validator = null;
++//  private boolean hasParams = false;
++//  private Map validatorParams = null;
+     private Processor processor = null;
+
++    private int currentValidator = 0;
++
++    private InstallData idata;
++
+
+/*--------------------------------------------------------------------------*/
+     /**
+-     * Creates a passowrd group to manage one or more password fields.
++     * Creates a password group to manage one or more password fields.
+      *
+      * @param validator A string that specifies a class that provides a
+password validation service.
+      * The class must implement the &lt;code&gt;Validator&lt;/code&gt; interface. If an
+attempt to instantiate
+@@ -63,18 +70,25 @@
+      * contents of the first field will be returned.
+      */
+
+/*--------------------------------------------------------------------------*/
+-    public PasswordGroup(String validator, String processor)
++    public PasswordGroup(InstallData idata, List validatorContainers,
+String processor)
+     {
+         // ----------------------------------------------------
+         // attempt to create an instance of the Validator
+         // ----------------------------------------------------
+         try
+         {
+-            this.validator = (Validator) Class.forName
+(validator).newInstance();
+-        }
+-        catch (Throwable exception)
++            this.idata = idata;
++//      this.validator = (Validator) Class.forName
+(validator).newInstance();
++            this.validatorContainers = validatorContainers;
++//      this.validatorParams = validatorParams;
++//      if (validatorParams != null) {
++//        if (validatorParams.size() &gt; 0) {
++//          hasParams = true;
++//        }
++//      }
++        } catch (Throwable exception)
+         {
+-            this.validator = null;
++            this.validatorContainers = null;
+         }
+
+         // ----------------------------------------------------
+@@ -83,13 +97,17 @@
+         try
+         {
+             this.processor = (Processor) Class.forName
+(processor).newInstance();
+-        }
+-        catch (Throwable exception)
++        } catch (Throwable exception)
+         {
+             this.processor = null;
+         }
+     }
+
++    public InstallData getIdata()
++    {
++        return idata;
++    }
++
+
+/*--------------------------------------------------------------------------*/
+     /**
+      * Returns the number of sub-fields.
+@@ -115,7 +133,10 @@
+
+/*--------------------------------------------------------------------------*/
+     public String getFieldContents(int index) throws
+IndexOutOfBoundsException
+     {
+-        if ((index &lt; 0) || (index &gt;= fields.size())) { throw (new
+IndexOutOfBoundsException()); }
++        if ((index &lt; 0) || (index &gt;= fields.size()))
++        {
++            throw (new IndexOutOfBoundsException());
++        }
+
+         String contents = new String(((JPasswordField) fields.elementAt
+(index)).getPassword());
+         return (contents);
+@@ -145,18 +166,125 @@
+      * rule exists. Otherwise &lt;code&gt;false&lt;/code&gt; is returned.
+      */
+
+/*--------------------------------------------------------------------------*/
+-    public boolean validateContents()
++    public boolean validateContents(int i)
+     {
+-        if (validator != null)
++        boolean returnValue = true;
++        try
+         {
+-            return (validator.validate(this));
++            currentValidator = i;
++            ValidatorContainer container = getValidatorContainer(i);
++            Validator validator = container.getValidator();
++            if (validator != null)
++            {
++                returnValue = validator.validate(this);
++            }
++        } catch (Exception e)
++        {
++            System.out.println(&quot;validateContents(&quot; + i + &quot;) failed: &quot; + e);
++        // just return true
+         }
+-        else
++        return returnValue;
++    }
++
++    public String getValidatorMessage(int i)
++    {
++        String returnValue = null;
++        try
+         {
+-            return (true);
++            ValidatorContainer container = getValidatorContainer(i);
++            if (container != null)
++            {
++                returnValue = container.getMessage();
++            }
++        } catch (Exception e)
++        {
++            System.out.println(&quot;getValidatorMessage(&quot; + i + &quot;) failed: &quot; +
+e);
++        // just return true
+         }
++        return returnValue;
+     }
+
++    public int validatorSize()
++    {
++        int size = 0;
++        if (validatorContainers != null)
++        {
++            size = validatorContainers.size();
++        }
++        return size;
++    }
++
++    public ValidatorContainer getValidatorContainer()
++    {
++        return getValidatorContainer(currentValidator);
++    }
++
++    public ValidatorContainer getValidatorContainer(int i)
++    {
++        ValidatorContainer container = null;
++        try
++        {
++            container = (ValidatorContainer) validatorContainers.get(i);
++        } catch (Exception e)
++        {
++            container = null;
++        }
++        return container;
++    }
++
++    public boolean hasParams()
++    {
++        return hasParams(currentValidator);
++    }
++
++    public boolean hasParams(int i)
++    {
++        boolean returnValue = false;
++        try
++        {
++            ValidatorContainer container = getValidatorContainer(i);
++            if (container != null)
++            {
++                returnValue = container.hasParams();
++            }
++        } catch (Exception e)
++        {
++            System.out.println(&quot;hasParams(&quot; + i + &quot;) failed: &quot; + e);
++        // just return true
++        }
++        return returnValue;
++    }
++
++    public Map getValidatorParams()
++    {
++        return getValidatorParams(currentValidator);
++    }
++
++    public Map getValidatorParams(int i)
++    {
++        Map returnValue = null;
++        try
++        {
++            ValidatorContainer container = getValidatorContainer(i);
++            if (container != null)
++            {
++                returnValue = container.getValidatorParams();
++            }
++        } catch (Exception e)
++        {
++            System.out.println(&quot;getValidatorParams(&quot; + i + &quot;) failed: &quot; +
+e);
++        // just return true
++        }
++        return returnValue;
++    }
++
++    // This method was added to support changes to ProcessingClient
+interface
++    // it's use is non-deterministic in the newly implemented text
+validators.
++    public String getText()
++    {
++        return getValidatorMessage(currentValidator);
++    }
++
+
+/*--------------------------------------------------------------------------*/
+     /**
+      * Returns the password. If a processing service class was supplied it
+will be used to process
+@@ -171,36 +299,18 @@
+         if (processor != null)
+         {
+             return (processor.process(this));
+-        }
+-        else
++        } else
+         {
+             String contents = &quot;&quot;;
+
+             if (fields.size() &gt; 0)
+             {
+-                contents = getText();
++                contents = new String(((JPasswordField) fields.elementAt
+(0)).getPassword());
+             }
+
+             return (contents);
+         }
+     }
+
+-    // javadoc inherited
+-    public String getText()
+-    {
+-        return new String(((JPasswordField) fields.elementAt
+(0)).getPassword());
+-    }
+-
+-    // javadoc inherited
+-    public Map getValidatorParams()
+-    {
+-        return null;
+-    }
+-
+-    // javadoc inherited
+-    public boolean hasParams()
+-    {
+-        return false;
+-    }
+ }
+ /*---------------------------------------------------------------------------*/
+Index: src/lib/com/izforge/izpack/panels/PathSelectionPanel.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/PathSelectionPanel.java    (revision
+1998)
++++ src/lib/com/izforge/izpack/panels/PathSelectionPanel.java    (working
+copy)
+@@ -91,9 +91,9 @@
+      */
+     protected void createLayout()
+     {
+-        // We woulduse the IzPanelLayout also in this &quot;sub&quot;panel.
+-        // In an IzPanel there are support of this layout manager at
+-        // more than one places. In this panel not, therefore we have
++        // We would use the IzPanelLayout also in this &quot;sub&quot; panel.
++        // In an IzPanel there is support for this layout manager in
++        // more than one place, but not in this panel so we have
+         // to make all things needed.
+         // First create a layout helper.
+         LayoutHelper layoutHelper = new LayoutHelper(this);
+Index: src/lib/com/izforge/izpack/panels/ProcessingClient.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/ProcessingClient.java    (revision
+1998)
++++ src/lib/com/izforge/izpack/panels/ProcessingClient.java    (working
+copy)
+@@ -58,7 +58,10 @@
+      */
+
+/*--------------------------------------------------------------------------*/
+     public String getFieldContents(int index);
+-
++
++// These newly added fields are similar to the functionality provided
++// by the multiple validator support using the validator container.
++
+
+/*---------------------------------------------------------------------------*/
+     /**
+      * Returns the field contents.
+Index: src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/UserInputPanel.java    (revision 1998)
++++ src/lib/com/izforge/izpack/panels/UserInputPanel.java    (working copy)
+@@ -76,6 +76,8 @@
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.OsVersion;
+ import com.izforge.izpack.util.VariableSubstitutor;
++import java.util.ArrayList;
++import java.util.List;
+
+ /*---------------------------------------------------------------------------*/
+ /**
+@@ -1060,13 +1062,16 @@
+                 File ffile = new File(file);
+                 if (ffile.isDirectory()){
+                     idata.setVariable((String) field[POS_VARIABLE],file);
++                    entries.add(new TextValuePair((String)
+field[POS_VARIABLE],file));
+                     return true;
+                 }
+                 else {
++                    showMessage(&quot;dir.notdirectory&quot;);
+                     return false;
+                 }
+             }
+             else {
++                showMessage(&quot;dir.nodirectory&quot;);
+                 return false;
+             }
+         }
+@@ -1078,6 +1083,13 @@
+         }
+     }
+
++    private void showMessage(String messageType)
++    {
++        JOptionPane.showMessageDialog(parent,
+parent.langpack.getString(&quot;UserInputPanel.&quot;
++ messageType + &quot;.message&quot;),
++                parent.langpack.getString(&quot;UserInputPanel.&quot; + messageType +
+&quot;.caption&quot;),
++                JOptionPane.WARNING_MESSAGE);
++    }
++
+     private boolean readFileField(Object[] field)
+     {
+         try {
+@@ -1088,13 +1100,16 @@
+                 File ffile = new File(file);
+                 if (ffile.isFile()){
+                     idata.setVariable((String) field[POS_VARIABLE],file);
++                    entries.add(new TextValuePair((String)
+field[POS_VARIABLE],file));
+                     return true;
+                 }
+                 else {
++                    showMessage(&quot;file.notfile&quot;);
+                     return false;
+                 }
+             }
+             else {
++                showMessage(&quot;file.nofile&quot;);
+                 return false;
+             }
+         }
+@@ -1973,8 +1988,24 @@
+      *        &amp;lt;processor
+class=&amp;quot;com.izforge.sample.PWDEncryptor&amp;quot;/&amp;gt;
+      *      &amp;lt;/field&amp;gt;
+      *
++     * &lt;/pre&gt;
++     * Additionally, parameters and multiple validators can be used to
+provide
++     * separate validation and error messages for each case.
++     * &lt;pre&gt;
+      *
+-     *
++     *    &amp;lt;field type=&amp;quot;password&amp;quot; align=&amp;quot;left&amp;quot;
+variable=&amp;quot;keystore.password&amp;quot;&amp;gt;
++     *      &amp;lt;spec&amp;gt;
++     *        &amp;lt;pwd txt=&amp;quot;Keystore Password:&amp;quot;
+size=&amp;quot;25&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
++     *        &amp;lt;pwd txt=&amp;quot;Retype Password:&amp;quot; size=&amp;quot;25&amp;quot;
+set=&amp;quot;&amp;quot;/&amp;gt;
++     *      &amp;lt;/spec&amp;gt;
++     *      &amp;lt;validator
+class=&amp;quot;com.izforge.izpack.util.PasswordEqualityValidator&amp;quot;
+txt=&amp;quot;Both keystore passwords must match.&amp;quot; id=&amp;quot;key for the
+error text&amp;quot;/&amp;gt;
++     *      &amp;lt;validator
+class=&amp;quot;com.izforge.izpack.util.PasswordKeystoreValidator&amp;quot;
+txt=&amp;quot;Could not validate keystore with password and alias
+provided.&amp;quot; id=&amp;quot;key for the error text&amp;quot;&amp;gt;
++     *        &amp;lt;param name=&amp;quot;keystoreFile&amp;quot; value=&amp;quot;${
+existing.ssl.keystore}&amp;quot;/&amp;gt;
++     *        &amp;lt;param name=&amp;quot;keystoreType&amp;quot;
+value=&amp;quot;JKS&amp;quot;/&amp;gt;
++     *        &amp;lt;param name=&amp;quot;keystoreAlias&amp;quot; value=&amp;quot;${
+keystore.key.alias}&amp;quot;/&amp;gt;
++     *      &amp;lt;/validator&amp;gt;
++     *    &amp;lt;/field&amp;gt;
++     *
+      * &lt;/pre&gt;
+      *
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification
+for the set of password
+@@ -1986,12 +2017,15 @@
+         Vector forPacks = spec.getChildrenNamed(SELECTEDPACKS);
+         Vector forOs = spec.getChildrenNamed(OS);
+         String variable = spec.getAttribute(VARIABLE);
+-        String validator = null;
+         String message = null;
+         String processor = null;
+         XMLElement element = null;
+         PasswordGroup group = null;
+         int size = 0;
++        // For multiple validator support
++        Vector validatorsElem = null;
++        List validatorsList = new ArrayList();
++        int vsize = 0;
+
+         // ----------------------------------------------------
+         // get the description and add it to the list of UI
+@@ -2003,11 +2037,36 @@
+         // ----------------------------------------------------
+         // get the validator and processor if they are defined
+         // ----------------------------------------------------
+-        element = spec.getFirstChildNamed(VALIDATOR);
+-        if (element != null)
++
++        validatorsElem = spec.getChildrenNamed(VALIDATOR);
++        if (validatorsElem != null &amp;&amp; validatorsElem.size() &gt; 0)
+         {
+-            validator = element.getAttribute(CLASS);
+-            message = getText(element);
++            vsize = validatorsElem.size();
++            for (int i = 0; i &lt; vsize; i++)
++            {
++                element = (XMLElement) validatorsElem.get(i);
++                String validator = element.getAttribute(CLASS);
++                message = getText(element);
++                HashMap validateParamMap = new HashMap();
++                //
+----------------------------------------------------------
++                // check and see if we have any parameters for this
+validator.
++                // If so, then add them to validateParamMap.
++                //
+----------------------------------------------------------
++                Vector validateParams = element.getChildrenNamed
+(RULE_PARAM);
++                if (validateParams != null &amp;&amp; validateParams.size() &gt; 0)
++                {
++                    Iterator iter = validateParams.iterator();
++                    while (iter.hasNext())
++                    {
++                        element = (XMLElement) iter.next();
++                        String paramName = element.getAttribute
+(RULE_PARAM_NAME);
++                        String paramValue = element.getAttribute
+(RULE_PARAM_VALUE);
++                        // System.out.println(&quot;Adding parameter:
+&quot;+paramName+&quot;=&quot;+paramValue);
++                        validateParamMap.put(paramName, paramValue);
++                    }
++                }
++                validatorsList.add(new ValidatorContainer(validator,
+message, validateParamMap));
++            }
+         }
+
+         element = spec.getFirstChildNamed(PROCESSOR);
+@@ -2016,7 +2075,7 @@
+             processor = element.getAttribute(CLASS);
+         }
+
+-        group = new PasswordGroup(validator, processor);
++        group = new PasswordGroup(idata, validatorsList, processor);
+
+         // ----------------------------------------------------
+         // extract the specification details
+@@ -2067,8 +2126,14 @@
+                 TwoColumnConstraints constraints2 = new
+TwoColumnConstraints();
+                 constraints2.position = TwoColumnConstraints.EAST;
+
+-                uiElements.add(new Object[] { null, PWD_FIELD, variable,
+constraints2, field,
+-                        forPacks, forOs, null, null, message, group});
++                // Removed message to support pulling from multiple
+validators
++                uiElements.add(new Object[]{null, PWD_FIELD, variable,
+constraints2, field,
++                    forPacks, forOs, null, null, null, group
++                });
++                // Original
++//        uiElements.add(new Object[]{null, PWD_FIELD, variable,
+constraints2, field,
++//          forPacks, forOs, null, null, message, group
++//        });
+                 group.addField(field);
+             }
+         }
+@@ -2097,7 +2162,8 @@
+         {
+             group = (PasswordGroup) field[POS_GROUP];
+             variable = (String) field[POS_VARIABLE];
+-            message = (String) field[POS_MESSAGE];
++        // Removed to support grabbing the message from multiple validators
++        // message = (String) field[POS_MESSAGE];
+         }
+         catch (Throwable exception)
+         {
+@@ -2106,16 +2172,40 @@
+         if ((variable == null) || (passwordGroupsRead.contains(group))) {
+return (true); }
+         passwordGroups.add(group);
+
+-        boolean success = !validating || group.validateContents();
++
++        //boolean success = !validating || group.validateContents();
++        boolean success = !validating;
++
++        // Use each validator to validate contents
+         if (!success)
+         {
+-            showWarningMessageDialog(parentFrame, message);
+-            return (false);
++            int size = group.validatorSize();
++            // System.out.println(&quot;Found &quot;+(size)+&quot; validators&quot;);
++            for (int i = 0; i &lt; size; i++)
++            {
++                success = group.validateContents(i);
++                if (!success)
++                {
++                    JOptionPane.showMessageDialog(parentFrame,
+group.getValidatorMessage(i),
++                            parentFrame.langpack.getString(&quot;
+UserInputPanel.error.caption&quot;),
++                            JOptionPane.WARNING_MESSAGE);
++                    break;
++                }
++            }
+         }
+
+-        idata.setVariable(variable, group.getPassword());
+-        entries.add(new TextValuePair(variable, group.getPassword()));
+-        return (true);
++//    // Changed to show messages for each validator
++//    if (!success) {
++//      JOptionPane.showMessageDialog(parentFrame, message,
+parentFrame.langpack.getString(&quot;UserInputPanel.error.caption&quot;),
+JOptionPane.WARNING_MESSAGE);
++//      return (false);
++//    }
++
++        if (success)
++        {
++            idata.setVariable(variable, group.getPassword());
++            entries.add(new TextValuePair(variable, group.getPassword()));
++        }
++        return success;
+     }
+
+
+/*--------------------------------------------------------------------------*/
+Index: src/lib/com/izforge/izpack/panels/UserPathInputPanel.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/UserPathInputPanel.java    (revision
+0)
++++ src/lib/com/izforge/izpack/panels/UserPathInputPanel.java    (revision
+0)
+@@ -0,0 +1,422 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2004 Klaus Bartz
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.InputStreamReader;
++
++import com.izforge.izpack.gui.IzPanelLayout;
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.installer.ResourceNotFoundException;
++import com.izforge.izpack.util.AbstractUIHandler;
++import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.IoHelper;
++import com.izforge.izpack.util.OsVersion;
++import com.izforge.izpack.util.VariableSubstitutor;
++
++/**
++ * Base class for panels which asks for paths.
++ *
++ * @author Klaus Bartz
++ * @author Jeff Gordon
++ *
++ */
++public class UserPathInputPanel extends IzPanel implements ActionListener {
++
++  /**
++   *
++   */
++  private InstallerFrame _parent;
++  private InstallData _idata;
++  private static final long serialVersionUID = 3257566217698292531L;
++  /** Flag whether the choosen path must exist or not */
++  protected boolean _mustExist = false;
++  protected boolean _loadedDefaultDir = false;
++  /** Files which should be exist */
++  protected String[] _existFiles = null;
++  /** The path which was chosen */
++  // protected String chosenPath;
++  /** The path selection sub panel */
++  protected UserPathSelectionPanel _pathSelectionPanel;
++  protected String _error;
++  protected String _warn;
++  protected String _emptyTargetMsg;
++  protected String _warnMsg;
++  protected String _reqMsg;
++  protected String _notValidMsg;
++  protected String _notWritableMsg;
++  protected String _createDirMsg;
++  protected String _defaultDir = null;
++  protected String _thisPanel = &quot;UserPathInputPanel&quot;;
++  protected String _defaultPanelName = &quot;TargetPanel&quot;;
++  protected String _targetPanel = &quot;UserPathPanel&quot;;
++  protected String _variableName = &quot;pathVariable&quot;;
++
++  /**
++   * The constructor.
++   *
++   * @param parent The parent window.
++   * @param idata The installation data.
++   */
++  public UserPathInputPanel(InstallerFrame parent, InstallData idata,
+String targetPanel, String variableName) {
++    super(parent, idata, new IzPanelLayout());
++    _parent = parent;
++    _idata = idata;
++    _targetPanel = targetPanel;
++    _variableName = variableName;
++    // Set default values
++    loadMessages();
++    String introText = getI18nStringForClass(&quot;extendedIntro&quot;, _thisPanel);
++    if (introText == null || introText.endsWith(&quot;extendedIntro&quot;) ||
+introText.indexOf('$') &gt; -1) {
++      introText = getI18nStringForClass(&quot;intro&quot;, _thisPanel);
++      if (introText == null || introText.endsWith(&quot;intro&quot;)) {
++        introText = &quot;&quot;;
++      }
++    }
++    // Intro
++    // row 0 column 0
++    add(createMultiLineLabel(introText));
++    add(IzPanelLayout.createParagraphGap());
++    // Label for input
++    // row 1 column 0.
++    add(createLabel(&quot;info&quot;, _targetPanel, &quot;open&quot;, LEFT, true), NEXT_LINE);
++    // Create path selection components and add they to this panel.
++    _pathSelectionPanel = new UserPathSelectionPanel(this, idata,
+_targetPanel, _variableName);
++    add(_pathSelectionPanel, NEXT_LINE);
++    createLayoutBottom();
++    getLayoutHelper().completeLayout();
++  }
++
++  /**
++   * This method does nothing. It is called from ctor of
+UserPathInputPanel, to give in a derived
++   * class the possibility to add more components under the path input
+components.
++   */
++  public void createLayoutBottom() {
++  // Derived classes implements additional elements.
++  }
++
++  /**
++   * Actions-handling method.
++   *
++   * @param e The event.
++   */
++  public void actionPerformed(ActionEvent e) {
++    Object source = e.getSource();
++    if (source == _pathSelectionPanel.getPathInputField()) {
++      parent.navigateNext();
++    }
++
++  }
++
++  private void loadMessages() {
++    _error = parent.langpack.getString(&quot;installer.error&quot;);
++    _warn = parent.langpack.getString(&quot;installer.warning&quot;);
++    _reqMsg = getMessage(&quot;required&quot;);
++    _emptyTargetMsg = getMessage(&quot;empty_target&quot;);
++    _warnMsg = getMessage(&quot;exists_warn&quot;);
++    _notValidMsg = getMessage(&quot;notValid&quot;);
++    _notWritableMsg = getMessage(&quot;notwritable&quot;);
++    _createDirMsg = getMessage(&quot;createdir&quot;);
++  }
++
++  private String getMessage(String type) {
++    String msg = null;
++    msg = getI18nStringForClass(type, _targetPanel);
++    if (msg == null) {
++      msg = getI18nStringForClass(type, _defaultPanelName);
++    }
++    return msg;
++  }
++
++  /**
++   * Indicates whether the panel has been validated or not.
++   *
++   * @return Whether the panel has been validated or not.
++   */
++  public boolean isValidated() {
++    String chosenPath = _pathSelectionPanel.getPath();
++    boolean ok = true;
++    // We put a warning if the specified target is nameless
++    if (chosenPath.length() == 0) {
++      if (isMustExist()) {
++        emitError(_error, _reqMsg);
++        return false;
++      }
++      ok = emitWarning(_warn, _emptyTargetMsg);
++    }
++    if (!ok) {
++      return ok;
++    }
++    // Normalize the path
++    File path = new File(chosenPath).getAbsoluteFile();
++    chosenPath = path.toString();
++    _pathSelectionPanel.setPath(chosenPath);
++    if (isMustExist()) {
++      if (!path.exists()) {
++        emitError(_error, _reqMsg);
++        return false;
++      }
++      if (!pathIsValid()) {
++        emitError(_error, _notValidMsg);
++        return false;
++      }
++    } else {
++      // We assume, that we would install something into this dir
++      if (!isWriteable()) {
++        emitError(_error, _notWritableMsg);
++        return false;
++      }
++      // We put a warning if the directory exists else we warn
++      // that it will be created
++      if (path.exists()) {
++        int res = askQuestion(_warn, _warnMsg,
++                AbstractUIHandler.CHOICES_YES_NO,
+AbstractUIHandler.ANSWER_YES);
++        ok = res == AbstractUIHandler.ANSWER_YES;
++      } else {
++        ok = this.emitNotificationFeedback(_createDirMsg + &quot;\n&quot; +
+chosenPath);
++      }
++    }
++    return ok;
++  }
++
++  /**
++   * Returns whether the chosen path is true or not. If existFiles are not
+null, the existence of
++   * it under the choosen path are detected. This method can be also
+implemented in derived
++   * classes to handle special verification of the path.
++   *
++   * @return true if existFiles are exist or not defined, else false
++   */
++  protected boolean pathIsValid() {
++    if (_existFiles == null) {
++      return true;
++    }
++    for (int i = 0; i &lt; _existFiles.length; ++i) {
++      File path = new File(_pathSelectionPanel.getPath(),
+_existFiles[i]).getAbsoluteFile();
++      if (!path.exists()) {
++        return false;
++      }
++    }
++    return true;
++  }
++
++  /**
++   * Returns the must exist state.
++   *
++   * @return the must exist state
++   */
++  public boolean isMustExist() {
++    return _mustExist;
++  }
++
++  /**
++   * Sets the must exist state. If it is true, the path must exist.
++   *
++   * @param b must exist state
++   */
++  public void setMustExist(boolean b) {
++    _mustExist = b;
++  }
++
++  /**
++   * Returns the array of strings which are described the files which must
+exist.
++   *
++   * @return paths of files which must exist
++   */
++  public String[] getExistFiles() {
++    return _existFiles;
++  }
++
++  /**
++   * Sets the paths of files which must exist under the chosen path.
++   *
++   * @param strings paths of files which must exist under the chosen path
++   */
++  public void setExistFiles(String[] strings) {
++    _existFiles = strings;
++  }
++
++  /**
++   * &quot;targetPanel&quot; is typically the class name of the implementing panel,
+such as
++   * &quot;UserPathPanel&quot; or &quot;TargetPanel&quot; set when the class is created, but
+can be set
++   * with setDefaultDir().
++   * Loads up the &quot;dir&quot; resource associated with targetPanel. Acceptable
+dir resource names:
++   * &lt;code&gt;
++   *   targetPanel.dir.macosx
++   *   targetPanel.dir.mac
++   *   targetPanel.dir.windows
++   *   targetPanel.dir.unix
++   *   targetPanel.dir.xxx,
++   *     where xxx is the lower case version of System.getProperty(&quot;os.name
+&quot;),
++   *     with any spaces replace with underscores
++   *   targetPanel.dir (generic that will be applied if none of above is
+found)
++   *   &lt;/code&gt;
++   * As with all IzPack resources, each the above ids should be associated
+with a separate
++   * filename, which is set in the install.xml file at compile time.
++   */
++  private void loadDefaultDir() {
++    // Load only once ...
++    if (!(_loadedDefaultDir)) {
++      BufferedReader br = null;
++      try {
++        InputStream in = null;
++        if (OsVersion.IS_WINDOWS) {
++          try {
++            in = _parent.getResource(_targetPanel + &quot;.dir.windows&quot;);
++          } catch (ResourceNotFoundException rnfe) {
++          }//it's usual, that the resource does not exist
++        } else if (OsVersion.IS_OSX) {
++          try {
++            in = _parent.getResource(_targetPanel + &quot;.dir.macosx&quot;);
++          } catch (ResourceNotFoundException rnfe) {
++          }//it's usual, that the resource does not exist
++        } else {
++          String os = System.getProperty(&quot;os.name&quot;);
++          // first try to look up by specific os name
++          os = os.replace(' ', '_'); // avoid spaces in file names
++          os = os.toLowerCase(); // for consistency among targetPanel res
+files
++          try {
++            in = _parent.getResource(_targetPanel + &quot;.dir.&quot;.concat(os));
++          } catch (ResourceNotFoundException rnfe) {
++          }
++          // if not specific os, try getting generic 'unix' resource file
++          if (in == null) {
++            try {
++              in = _parent.getResource(_targetPanel + &quot;.dir.unix&quot;);
++            } catch (ResourceNotFoundException eee) {
++            }
++          }
++        }
++        // if all above tests failed, there is no resource file,
++        // so use system default
++        if (in == null) {
++          try {
++            in = _parent.getResource(_targetPanel + &quot;.dir&quot;);
++          } catch (ResourceNotFoundException eee) {
++          }
++        }
++        if (in != null) {
++          // now read the file, once we've identified which one to read
++          InputStreamReader isr = new InputStreamReader(in);
++          br = new BufferedReader(isr);
++          String line;
++          while ((line = br.readLine()) != null) {
++            line = line.trim();
++            // use the first non-blank line
++            if (!&quot;&quot;.equals(line)) {
++              break;
++            }
++          }
++          _defaultDir = line;
++          VariableSubstitutor vs = new VariableSubstitutor(
+idata.getVariables());
++          _defaultDir = vs.substitute(_defaultDir, null);
++        }
++      } catch (Exception e) {
++        //mar: what's the common way to log an exception ?
++        e.printStackTrace();
++        _defaultDir = null;
++      // leave unset to take the system default set by Installer class
++      } finally {
++        try {
++          if (br != null) {
++            br.close();
++          }
++        } catch (IOException ignored) {
++        }
++      }
++    }
++    _loadedDefaultDir = true;
++  }
++
++  /**
++   * This method determines whether the chosen dir is writeable or not.
++   *
++   * @return whether the chosen dir is writeable or not
++   */
++  public boolean isWriteable() {
++    File existParent = IoHelper.existingParent(new
+File(_pathSelectionPanel.getPath()));
++    if (existParent == null) {
++      return false;
++    }
++    // On windows we cannot use canWrite because
++    // it looks to the dos flags which are not valid
++    // on NT or 2k XP or ...
++    if (OsVersion.IS_WINDOWS) {
++      File tmpFile;
++      try {
++        tmpFile = File.createTempFile(&quot;izWrTe&quot;, &quot;.tmp&quot;, existParent);
++        tmpFile.deleteOnExit();
++      } catch (IOException e) {
++        Debug.trace(e.toString());
++        return false;
++      }
++      return true;
++    }
++    return existParent.canWrite();
++  }
++
++  /**
++   * Returns the default for the directory.
++   *
++   * @return the default for the directory
++   */
++  public String getDefaultDir() {
++    if (_defaultDir == null &amp;&amp; (!(_loadedDefaultDir))) {
++      loadDefaultDir();
++    }
++    return _defaultDir;
++  }
++
++  /**
++   * Sets the default for the directory to the given string.
++   *
++   * @param string path for default directory
++   */
++  public void setDefaultDir(String string) {
++    _defaultDir = string;
++  }
++
++  /**
++   * Returns the panel name extending this class.
++   * Used for looking up localized text and resources.
++   *
++   * @return the default for the directory
++   */
++  public String getTargetPanel() {
++    return _targetPanel;
++  }
++
++  /**
++   * Sets the panel name extending this class.
++   * Used for looking up localized text and resources.
++   *
++   * @param string path for default directory
++   */
++  public void setTargetPanel(String string) {
++    _targetPanel = string;
++  }
++}
+Index: src/lib/com/izforge/izpack/panels/UserPathPanel.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/UserPathPanel.java    (revision 0)
++++ src/lib/com/izforge/izpack/panels/UserPathPanel.java    (revision 0)
+@@ -0,0 +1,138 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2004 Klaus Bartz
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import com.izforge.izpack.Pack;
++import net.n3.nanoxml.XMLElement;
++
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++import com.izforge.izpack.util.AbstractUIHandler;
++import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.OsConstraint;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.Iterator;
++
++/**
++ * The taget directory selection panel.
++ *
++ * @author Julien Ponge
++ * @author Jeff Gordon
++ */
++public class UserPathPanel extends UserPathInputPanel {
++
++  /**
++   *
++   */
++  private static final long serialVersionUID = 3256443616359429170L;
++  private static String thisName = &quot;UserPathPanel&quot;;
++  private boolean _skip = false;
++  public static String pathVariableName = &quot;UserPathPanelVariable&quot;;
++  public static String pathPackDependsName = &quot;UserPathPanelDependsName&quot;;
++  public static String pathElementName = &quot;UserPathPanelElement&quot;;
++  private XMLElement panelElement;
++
++  /**
++   * The constructor.
++   *
++   * @param parent The parent window.
++   * @param idata The installation data.
++   */
++  public UserPathPanel(InstallerFrame parent, InstallData idata) {
++    super(parent, idata, thisName, parent.langpack.getString
+(thisName+&quot;.variableName&quot;));
++    // load the default directory info (if present)
++    if (getDefaultDir() != null) {
++      idata.setVariable(pathVariableName, getDefaultDir());
++    }
++  }
++
++  /** Called when the panel becomes active. */
++  public void panelActivate() {
++    boolean found = false;
++    System.out.println(thisName+&quot; looking for activation condition&quot;);
++    // Need to have a way to supress panel if not in selected packs.
++    String dependsName = idata.getVariable(pathPackDependsName);
++    if (dependsName!=null &amp;&amp; !(dependsName.equalsIgnoreCase(&quot;&quot;))) {
++      System.out.println(&quot;Checking for pack dependency of &quot;+dependsName);
++      Iterator iter = idata.selectedPacks.iterator();
++      while (iter.hasNext()) {
++        Pack pack = (Pack)iter.next();
++        System.out.println(&quot;- Checking if &quot;+pack.name+&quot; equals
+&quot;+dependsName);
++        if (pack.name.equalsIgnoreCase(dependsName)) {
++          found = true;
++          System.out.println(&quot;-- Found &quot;+dependsName+&quot;, panel will be
+shown&quot;);
++          break;
++        }
++      }
++      _skip = !(found);
++    } else {
++      System.out.println(&quot;Not Checking for a pack dependency, panel will be
+shown&quot;);
++      _skip = false;
++    }
++    if (_skip) {
++      System.out.println(thisName+&quot; will not be shown&quot;);
++      parent.skipPanel();
++      return;
++    }
++    super.panelActivate();
++    // Set the default or old value to the path selection panel.
++    _pathSelectionPanel.setPath(idata.getVariable(pathVariableName));
++  }
++
++  /**
++   * Indicates whether the panel has been validated or not.
++   *
++   * @return Whether the panel has been validated or not.
++   */
++  public boolean isValidated() {
++    // Standard behavior of PathInputPanel.
++    if (!super.isValidated()) {
++      return (false);
++    }
++    idata.setVariable(pathVariableName, _pathSelectionPanel.getPath());
++    return (true);
++  }
++
++  /**
++   * Asks to make the XML panel data.
++   *
++   * @param panelRoot The tree to put the data in.
++   */
++  public void makeXMLData(XMLElement panelRoot) {
++    if (!(_skip)) {
++      new UserPathPanelAutomationHelper().makeXMLData(idata, panelRoot);
++    }
++  }
++
++  /*
++   * (non-Javadoc)
++   *
++   * @see com.izforge.izpack.installer.IzPanel#getSummaryBody()
++   */
++  public String getSummaryBody() {
++    if (_skip) {
++      return null;
++    } else {
++      return (idata.getVariable(pathVariableName));
++    }
++  }
++}
+Index: src/lib/com/izforge/izpack/panels/UserPathPanelAutomationHelper.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/UserPathPanelAutomationHelper.java
+(revision 0)
++++ src/lib/com/izforge/izpack/panels/UserPathPanelAutomationHelper.java
+(revision 0)
+@@ -0,0 +1,77 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2003 Jonathan Halliday
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import net.n3.nanoxml.XMLElement;
++import com.izforge.izpack.installer.AutomatedInstallData;
++import com.izforge.izpack.installer.PanelAutomation;
++import com.izforge.izpack.util.VariableSubstitutor;
++
++/**
++ * Functions to support automated usage of the UserPathPanel
++ *
++ * @author Jonathan Halliday
++ * @author Julien Ponge
++ * @author Jeff Gordon
++ */
++public class UserPathPanelAutomationHelper implements PanelAutomation {
++
++  /**
++   * Asks to make the XML panel data.
++   *
++   * @param idata The installation data.
++   * @param panelRoot The tree to put the data in.
++   */
++  public void makeXMLData(AutomatedInstallData idata, XMLElement panelRoot)
+{
++    // Installation path markup
++    XMLElement ipath = new XMLElement(UserPathPanel.pathElementName);
++    // check this writes even if value is the default,
++    // because without the constructor, default does not get set.
++    ipath.setContent(idata.getVariable(UserPathPanel.pathVariableName));
++
++    // Checkings to fix bug #1864
++    XMLElement prev = panelRoot.getFirstChildNamed(
+UserPathPanel.pathElementName);
++    if (prev != null) {
++      panelRoot.removeChild(prev);
++    }
++    panelRoot.addChild(ipath);
++  }
++
++  /**
++   * Asks to run in the automated mode.
++   *
++   * @param idata The installation data.
++   * @param panelRoot The XML tree to read the data from.
++   *
++   * @return always true.
++   */
++  public boolean runAutomated(AutomatedInstallData idata, XMLElement
+panelRoot) {
++    // We set the installation path
++    XMLElement ipath = panelRoot.getFirstChildNamed(
+UserPathPanel.pathElementName);
++
++    // Allow for variable substitution of the installpath value
++    VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
++    String path = ipath.getContent();
++    path = vs.substitute(path, null);
++    idata.setVariable(UserPathPanel.pathVariableName, path);
++    return true;
++  }
++}
+Index: src/lib/com/izforge/izpack/panels/UserPathSelectionPanel.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/UserPathSelectionPanel.java
+(revision 0)
++++ src/lib/com/izforge/izpack/panels/UserPathSelectionPanel.java
+(revision 0)
+@@ -0,0 +1,197 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2004 Klaus Bartz
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.panels;
++
++import java.awt.Dimension;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++import java.io.File;
++
++import javax.swing.JButton;
++import javax.swing.JFileChooser;
++import javax.swing.JPanel;
++import javax.swing.JTextField;
++
++import com.izforge.izpack.gui.ButtonFactory;
++import com.izforge.izpack.gui.IzPanelConstraints;
++import com.izforge.izpack.gui.IzPanelLayout;
++import com.izforge.izpack.gui.LayoutConstants;
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.installer.LayoutHelper;
++
++/**
++ * This is a sub panel which contains a text field and a browse button for
+path selection. This is
++ * NOT an IzPanel, else it is made to use in an IzPanel for any path
+selection. If the IzPanel
++ * parent implements ActionListener, the ActionPerformed method will be
+called, if
++ * PathSelectionPanel.ActionPerformed was called with a source other than
+the browse button. This
++ * can be used to perform parentFrame.navigateNext in the IzPanel parent.
+An example implementation
++ * is done in com.izforge.izpack.panels.PathInputPanel.
++ *
++ * @author Klaus Bartz
++ * @author Jeff Gordon
++ *
++ */
++public class UserPathSelectionPanel extends JPanel implements
+ActionListener, LayoutConstants {
++
++  /**
++   *
++   */
++  private static final long serialVersionUID = 3618700794577105718L;
++  /** The text field for the path. */
++  private JTextField textField;
++  /** The 'browse' button. */
++  private JButton browseButton;
++  /** IzPanel parent (not the InstallerFrame). */
++  private IzPanel parent;
++  /**
++   * The installer internal data.
++   */
++  private InstallData idata;
++  private String targetPanel;
++  private String variableName;
++  private String defaultPanelName = &quot;TargetPanel&quot;;
++
++  /**
++   * The constructor. Be aware, parent is the parent IzPanel, not the
+installer frame.
++   *
++   * @param parent The parent IzPanel.
++   * @param idata The installer internal data.
++   */
++  public UserPathSelectionPanel(IzPanel parent, InstallData idata, String
+targetPanel, String variableName) {
++    super();
++    this.parent = parent;
++    this.idata = idata;
++    this.variableName = variableName;
++    this.targetPanel = targetPanel;
++    createLayout();
++  }
++
++  /**
++   * Creates the layout for this sub panel.
++   */
++  protected void createLayout() {
++    // We woulduse the IzPanelLayout also in this &quot;sub&quot;panel.
++    // In an IzPanel there are support of this layout manager at
++    // more than one places. In this panel not, therefore we have
++    // to make all things needed.
++    // First create a layout helper.
++    LayoutHelper layoutHelper = new LayoutHelper(this);
++    // Start the layout.
++    layoutHelper.startLayout(new IzPanelLayout());
++    // One of the rare points we need explicit a constraints.
++    IzPanelConstraints ipc = IzPanelLayout.getDefaultConstraint
+(TEXT_CONSTRAINT);
++    // The text field should be stretched.
++    ipc.setXStretch(1.0);
++    textField = new JTextField(idata.getVariable(variableName), 35);
++    textField.addActionListener(this);
++    parent.setInitialFocus(textField);
++    add(textField, ipc);
++    // We would have place between text field and button.
++    add(IzPanelLayout.createHorizontalFiller(3));
++    // No explicit constraints for the button (else implicit) because
++    // defaults are OK.
++    String buttonText = parent.getInstallerFrame
+().langpack.getString(targetPanel+&quot;.browse&quot;);
++    if (buttonText==null) {
++      buttonText = parent.getInstallerFrame
+().langpack.getString(defaultPanelName+&quot;.browse&quot;);
++    }
++    browseButton = ButtonFactory.createButton(buttonText,
+parent.getInstallerFrame().icons.getImageIcon(&quot;open&quot;), idata.buttonsHColor);
++    browseButton.addActionListener(this);
++    add(browseButton);
++  }
++
++  // There are problems with the size if no other component needs the
++  // full size. Sometimes directly, somtimes only after a back step.
++  public Dimension getMinimumSize() {
++    Dimension ss = super.getPreferredSize();
++    Dimension retval = parent.getSize();
++    retval.height = ss.height;
++    return (retval);
++  }
++
++  /**
++   * Actions-handling method.
++   *
++   * @param e The event.
++   */
++  public void actionPerformed(ActionEvent e) {
++    Object source = e.getSource();
++
++    if (source == browseButton) {
++      // The user wants to browse its filesystem
++
++      // Prepares the file chooser
++      JFileChooser fc = new JFileChooser();
++      fc.setCurrentDirectory(new File(textField.getText()));
++      fc.setMultiSelectionEnabled(false);
++      fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
++      fc.addChoosableFileFilter(fc.getAcceptAllFileFilter());
++
++      // Shows it
++      if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
++        String path = fc.getSelectedFile().getAbsolutePath();
++        textField.setText(path);
++      }
++
++    } else {
++      if (parent instanceof ActionListener) {
++        ((ActionListener) parent).actionPerformed(e);
++      }
++    }
++  }
++
++  /**
++   * Returns the chosen path.
++   *
++   * @return the chosen path
++   */
++  public String getPath() {
++    return (textField.getText());
++  }
++
++  /**
++   * Sets the contents of the text field to the given path.
++   *
++   * @param path the path to be set
++   */
++  public void setPath(String path) {
++    textField.setText(path);
++  }
++
++  /**
++   * Returns the text input field for the path. This methode can be used to
+differ in a
++   * ActionPerformed method of the parent between the browse button and the
+text field.
++   *
++   * @return the text input field for the path
++   */
++  public JTextField getPathInputField() {
++    return textField;
++  }
++
++  /**
++   * Returns the browse button object for modification or for use with a
+different ActionListener.
++   *
++   * @return the browse button to open the JFileChooser
++   */
++  public JButton getBrowseButton() {
++    return browseButton;
++  }
++}
+Index: src/lib/com/izforge/izpack/panels/ValidatorContainer.java
+===================================================================
+--- src/lib/com/izforge/izpack/panels/ValidatorContainer.java    (revision
+0)
++++ src/lib/com/izforge/izpack/panels/ValidatorContainer.java    (revision
+0)
+@@ -0,0 +1,60 @@
++package com.izforge.izpack.panels;
++
++import java.util.Map;
++
++/**
++ *
++ * @author Jeff Gordon
++ */
++public class ValidatorContainer {
++  private Validator validator = null;
++  private String message;
++  private boolean hasParams = false;
++  private Map validatorParams = null;
++
++  public ValidatorContainer(String validator, String message, Map
+validatorParams) {
++    try {
++      this.validator = (Validator) Class.forName(validator).newInstance();
++      this.message = message;
++      this.validatorParams = validatorParams;
++      if (validatorParams != null) {
++        if (validatorParams.size() &gt; 0) {
++          hasParams = true;
++        }
++      }
++    } catch (Throwable e) {
++      System.out.println(&quot;ValidatorContainer Constructor Failed: &quot;+e);
++      this.validator = null;
++      this.message = null;
++      hasParams = false;
++      validatorParams = null;
++    }
++  }
++
++  /**
++   * @return true if this instance has any parameters to pass to the
+Validator instance.
++   */
++  public boolean hasParams() {
++    return hasParams;
++  }
++
++  /**
++   * Returns the validator parameters, if any. The caller should check for
+the existence of
++   * validator parameters via the &lt;code&gt;hasParams()&lt;/code&gt; method prior to
+invoking this method.
++   *
++   * @return a java.util.Map containing the validator parameters.
++   */
++  public Map getValidatorParams() {
++    return validatorParams;
++  }
++
++  public Validator getValidator() {
++    return validator;
++  }
++
++  public String getMessage() {
++    return message;
++  }
++
++
++}
+Index: src/lib/com/izforge/izpack/util/PasswordEqualityValidator.java
+===================================================================
+--- src/lib/com/izforge/izpack/util/PasswordEqualityValidator.java
+(revision 0)
++++ src/lib/com/izforge/izpack/util/PasswordEqualityValidator.java
+(revision 0)
+@@ -0,0 +1,98 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2003 Elmar Grom
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.util;
++
++import com.izforge.izpack.panels.PasswordGroup;
++import com.izforge.izpack.panels.ProcessingClient;
++import com.izforge.izpack.panels.Validator;
++import java.util.Map;
++
++
++/**
++ * This class represents a simple validator for passwords to test
+equality.  It is
++ * based on the example implementation of a password validator that
+cooperates with the
++ * password field in the &lt;code&gt;UserInputPanel&lt;/code&gt;. Additional validation
+may
++ * be done by utilizing the params added to the password field.
++ *
++ * @author   Elmar Grom
++ * @author   Jeff Gordon
++ */
++public class PasswordEqualityValidator implements Validator {
++
++  /**PasswordEqualityValidator
++   * Validates the contend of multiple password fields. The test
++   *
++   * @param     client   the client object using the services of this
+validator.
++   *
++   * @return    &lt;code&gt;true&lt;/code&gt; if the validation passes, otherwise
+&lt;code&gt;false&lt;/code&gt;.
++   */
++  public boolean validate(ProcessingClient client) {
++    boolean returnValue = false;
++    Map params = getParams(client);
++    try {
++      returnValue = fieldsMatch(client);
++      if (returnValue) {
++        // Additional checking if params passed...
++        if (params!=null) {
++          System.out.println(&quot;Additional &quot;+params.size()+&quot; params not
+evaluated&quot;);
++        }
++      }
++    } catch (Exception e) {
++      System.out.println(&quot;validate() Failed: &quot;+e);
++    }
++    return (returnValue);
++  }
++
++  private Map getParams(ProcessingClient client) {
++    PasswordGroup group = null;
++    Map params = null;
++    try {
++      group = (PasswordGroup)client;
++      if (group.hasParams()) {
++        params = group.getValidatorParams();
++      }
++    } catch (Exception e) {
++      System.out.println(&quot;getParams() Failed: &quot;+e);
++    }
++    return (params);
++  }
++
++  private boolean fieldsMatch(ProcessingClient client) {
++    boolean returnValue = true;
++    int numFields = client.getNumFields();
++    // ----------------------------------------------------
++    // verify that there is more than one field. If there
++    // is only one field we have to return true.
++    // ----------------------------------------------------
++    if (numFields &lt; 2) {
++      returnValue = true;
++    } else {
++      String content = client.getFieldContents(0);
++      for (int i = 1; i &lt; numFields; i++) {
++        if (!content.equals(client.getFieldContents(i))) {
++          returnValue = false;
++        }
++      }
++    }
++    return returnValue;
++  }
++
++}
+Index: src/lib/com/izforge/izpack/util/PasswordKeystoreValidator.java
+===================================================================
+--- src/lib/com/izforge/izpack/util/PasswordKeystoreValidator.java
+(revision 0)
++++ src/lib/com/izforge/izpack/util/PasswordKeystoreValidator.java
+(revision 0)
+@@ -0,0 +1,201 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ *
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ *
++ * Copyright 2003 Elmar Grom
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.util;
++
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.panels.PasswordGroup;
++import com.izforge.izpack.panels.ProcessingClient;
++import com.izforge.izpack.panels.Validator;
++import java.io.FileInputStream;
++import java.security.KeyStore;
++import java.util.HashMap;
++import java.util.Iterator;
++import java.util.Map;
++
++
++/**
++ * This class based on a simple validator for passwords to demonstrate
++ * the implementation of a password validator that cooperates with the
++ * password field in the &lt;code&gt;UserInputPanel&lt;/code&gt;. Additional validation
+may
++ * be done by utilizing the params added to the password field.
++ *
++ * @author   Elmar Grom
++ * @author   Jeff Gordon
++ */
++public class PasswordKeystoreValidator implements Validator {
++
++  /**PasswordKeystoreValidator
++   * Validates the ability to open a keystore based on the password and
++   * parameters provided. Must specify parameter 'keystoreFile', and
+optionally
++   * 'keystoreType' (defaults to JKS), 'keystoreAlias' (to check for
+existence of a key),
++   * and 'aliasPassword' (for trying to retrieve the key).
++   * An additional parameter 'skipValidation' can be set to 'true' in a
+checkbox and
++   * allow the validator framework to run, but not actually do the
+validation.
++   *
++   * Optionally checking the key password of multiple keys within a
+keystore
++   * requires the keystore password (if different from the key password) be
+set
++   * in the keystorePassword parameter.
++   *
++   * @param     client   the client object using the services of this
+validator.
++   *
++   * @return    &lt;code&gt;true&lt;/code&gt; if the validation passes, otherwise
+&lt;code&gt;false&lt;/code&gt;.
++   */
++  public boolean validate(ProcessingClient client) {
++    boolean returnValue = false;
++    String keystorePassword = null;
++    String keystoreFile = null;
++    String keystoreType = &quot;JKS&quot;;
++    String skipValidation = null;
++    String alias = null;
++    String aliasPassword = null;
++    Map params = getParams(client);
++    try {
++      if (params!=null) {
++        // Don't try and open the keystore if skipValidation is true
++        skipValidation = (String)params.get(&quot;skipValidation&quot;);
++        System.out.println(&quot;skipValidation = &quot;+skipValidation);
++        if (skipValidation!=null &amp;&amp; skipValidation.equalsIgnoreCase(&quot;true&quot;))
+{
++          System.out.println(&quot;Not validating keystore&quot;);
++          return true;
++        }
++        // See if keystore password is passed in or is passed through the
+validator
++        keystorePassword = (String)params.get(&quot;keystorePassword&quot;);
++        if (keystorePassword==null) {
++          keystorePassword = getPassword(client);
++          System.out.println(&quot;keystorePassword parameter null, using
+validator password for keystore&quot;);
++        } else if (keystorePassword.equalsIgnoreCase(&quot;&quot;)) {
++          keystorePassword = getPassword(client);
++          System.out.println(&quot;keystorePassword parameter empty, using
+validator password for keystore&quot;);
++        }
++        // See if alias (key) password is passed in or is passed through
+the validator
++        aliasPassword = (String)params.get(&quot;aliasPassword&quot;);
++        if (aliasPassword==null) {
++          aliasPassword = getPassword(client);
++          System.out.println(&quot;aliasPassword parameter null, using validator
+password for key&quot;);
++        } else if (aliasPassword.equalsIgnoreCase(&quot;&quot;)) {
++          aliasPassword = getPassword(client);
++          System.out.println(&quot;aliasPassword parameter empty, using
+validator password for key&quot;);
++        }
++        // Get keystore type from parameters or use default
++        keystoreType = (String)params.get(&quot;keystoreType&quot;);
++        if (keystoreFile==null) {
++          keystoreType = &quot;JKS&quot;;
++          System.out.println(&quot;keystoreType parameter null, using default of
+JKS&quot;);
++        } else if (keystorePassword.equalsIgnoreCase(&quot;&quot;)) {
++          keystoreType = &quot;JKS&quot;;
++          System.out.println(&quot;keystoreType parameter empty, using default
+of JKS&quot;);
++        }
++        // Get keystore location from params
++        keystoreFile = (String)params.get(&quot;keystoreFile&quot;);
++        if (keystoreFile!=null) {
++          System.out.println(&quot;Attempting to open keystore: &quot;+keystoreFile);
++          KeyStore ks = getKeyStore(keystoreFile, keystoreType,
+keystorePassword.toCharArray());
++          if (ks!=null) {
++            returnValue = true;
++            System.out.println(&quot;keystore password validated&quot;);
++            // check alias if provided
++            alias = (String)params.get(&quot;keystoreAlias&quot;);
++            if (alias!=null) {
++              returnValue = ks.containsAlias(alias);
++              if (returnValue) {
++                System.out.println(&quot;keystore alias '&quot;+alias+&quot;' found,
+trying to retrieve&quot;);
++                try {
++                  ks.getKey(alias, aliasPassword.toCharArray());
++                  System.out.println(&quot;keystore alias '&quot;+alias+&quot;'
+validated&quot;);
++                } catch (Exception e) {
++                  System.out.println(&quot;keystore alias validation failed:
+&quot;+e);
++                  returnValue = false;
++                }
++              } else {
++                System.out.println(&quot;keystore alias '&quot;+alias+&quot;' not found&quot;);
++              }
++            }
++          }
++        } else {
++          System.out.println(&quot;keystoreFile param not provided&quot;);
++        }
++      } else {
++        System.out.println(&quot;params not provided&quot;);
++      }
++    } catch (Exception e) {
++      System.out.println(&quot;validate() Failed: &quot;+e);
++    }
++    return (returnValue);
++  }
++
++  private Map getParams(ProcessingClient client) {
++    Map returnValue = null;
++    PasswordGroup group = null;
++    InstallData idata = getIdata(client);
++    VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
++    try {
++      group = (PasswordGroup)client;
++      if (group.hasParams()) {
++        Map params = group.getValidatorParams();
++        returnValue = new HashMap();
++        Iterator keys = params.keySet().iterator();
++        while (keys.hasNext()) {
++          String key = (String)keys.next();
++          // Feed parameter values through vs
++          String value = vs.substitute((String)params.get(key), null);
++          // System.out.println(&quot;Adding local parameter: &quot;+key+&quot;=&quot;+value);
++          returnValue.put(key, value);
++        }
++      }
++    } catch (Exception e) {
++      System.out.println(&quot;getParams() Failed: &quot;+e);
++    }
++    return returnValue;
++  }
++
++  private InstallData getIdata(ProcessingClient client) {
++    PasswordGroup group = null;
++    InstallData idata = null;
++    try {
++      group = (PasswordGroup)client;
++      idata = group.getIdata();
++    } catch (Exception e) {
++      System.out.println(&quot;getIdata() Failed: &quot;+e);
++    }
++    return idata;
++  }
++
++  private String getPassword(ProcessingClient client) {
++    // ----------------------------------------------------
++    // We assume that if there is more than one field an equality
+validation
++    // was already performed.
++    // ----------------------------------------------------
++    return client.getFieldContents(0);
++  }
++
++  public static KeyStore getKeyStore(String fileName, String type, char[]
+password) {
++    KeyStore ks = null;
++    try {
++      ks = KeyStore.getInstance(type);
++      ks.load(new FileInputStream(fileName), password);
++    } catch (Exception e) {
++      System.out.println(&quot;getKeyStore() Failed: &quot;+e);
++      ks = null;
++    }
++    return ks;
++  }
++
++}
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20080122/2b177819/attachment-0001.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20080122/2b177819/attachment-0001.html</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: Production-IzPack-Mods.patch
+Type: application/octet-stream
+Size: 74300 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20080122/2b177819/attachment-0001.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20080122/2b177819/attachment-0001.obj</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: userInputSpec.xml
+Type: text/xml
+Size: 9140 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20080122/2b177819/attachment-0002.xml">https://lists.berlios.de/pipermail/izpack-devel/attachments/20080122/2b177819/attachment-0002.xml</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: install-definition.xml
+Type: text/xml
+Size: 5593 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20080122/2b177819/attachment-0003.xml">https://lists.berlios.de/pipermail/izpack-devel/attachments/20080122/2b177819/attachment-0003.xml</A> 
+</PRE>
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001450.html">[izpack-devel] Possible Bug in Target Panel
+</A></li>
+	<LI>Next message: <A HREF="001455.html">[izpack-devel] Production IzPack Mods
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1449">[ date ]</a>
+              <a href="thread.html#1449">[ thread ]</a>
+              <a href="subject.html#1449">[ subject ]</a>
+              <a href="author.html#1449">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

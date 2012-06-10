@@ -1,0 +1,151 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Reading Attributes from install.xml
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Reading%20Attributes%20from%20install.xml&In-Reply-To=op.s24kuhq7nznptk%40hase2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000085.html">
+   <LINK REL="Next"  HREF="000091.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Reading Attributes from install.xml</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Reading%20Attributes%20from%20install.xml&In-Reply-To=op.s24kuhq7nznptk%40hase2"
+       TITLE="[izpack-users] Reading Attributes from install.xml">hal at thresholddigital.com
+       </A><BR>
+    <I>Mon Jan  9 21:23:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000085.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+        <LI>Next message: <A HREF="000091.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#86">[ date ]</a>
+              <a href="thread.html#86">[ thread ]</a>
+              <a href="subject.html#86">[ subject ]</a>
+              <a href="author.html#86">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Monday 09 January 2006 02:09 pm, Klaus Bartz wrote:
+&gt;<i> Hi Hal,
+</I>&gt;<i> it is often a play between make it &quot;as simple as possible&quot; and
+</I>&gt;<i> as free as possible&quot;. I agree, that a separate file with dtd and docu
+</I>&gt;<i> and so on is a little bit oversized for two or three lines.
+</I>&gt;<i> But I am really not &quot;assumed&quot; about the config files
+</I>&gt;<i> without a dtd because it is more difficult to validate. Many calls on
+</I>&gt;<i> this list are related to bad written config files. I will nag if IzPack
+</I>&gt;<i> gets a new spec file without a dtd.
+</I>
+I understand.  Please don't think I'm complaining.  I'm trying to understand 
+how to implement my ideas within the current IzPack framework.  That way they 
+benefit you and everyone else and not just me.  I have no problem with being 
+told that isn't the way it is done and given information on why or shown how 
+to do it better or in a way that is more fitting.
+
+&gt;<i> Therefore a SimplePanelsSpec.xml ( or CommonPanelsSpec.xml ??) should
+</I>&gt;<i> have a dtd. But in what manner we can define the syntax in a common way
+</I>&gt;<i> useable from different panels where we do not know what they are needed.
+</I>&gt;<i> In the moment I think with key value pairs. Uups, we have key value pairs
+</I>&gt;<i> allready with element &lt;variable&gt; of installation.dtd.
+</I>&gt;<i> Is it the right way to use an IzPack variable for configure a panel?
+</I>&gt;<i> Good question, I do it in JDKPathPanel with the range values (line 66f).
+</I>&gt;<i> Therefore I prefer to use an IzPack variable if only one or three values
+</I>&gt;<i> are needed.
+</I>
+I don't know how to express it technically, so here's an example of 
+SimplePanelsSpec.xml:
+
+&lt;simplespecs&gt;
+	&lt;simplestuff1panel&gt;
+		&lt;panel txt=&quot;Select a background color&quot; variableName=&quot;bgcolor&quot;&gt;
+		&lt;panel order=&quot;1&quot; txt=&quot;Select a foreground color&quot; variableName=&quot;fgcolor&quot;&gt;
+		&lt;panel order=&quot;2&quot; txt=&quot;Select a font color&quot; variableName=&quot;fontcolor&quot;&gt;
+	&lt;simplestuff1panel/&gt;
+	&lt;simplestuff2panel&gt;
+		&lt;panel txt=&quot;Select mirror site for updates&quot; variableName=&quot;updMirrir&quot;&gt;
+		&lt;panel order=&quot;1&quot; txt=&quot;Pick a download protocol&quot; variableName=&quot;dlproto&quot;&gt;
+		&lt;panel order=&quot;2&quot; txt=&quot;How often should we update?&quot; variableName=&quot;updfreq&quot;&gt;
+	&lt;simplestuff2panel/&gt;
+&lt;simplespecs/&gt;
+
+The &lt;panel&gt; elements would NOT have children.  (If they did, they would not be 
+simple.  You may notice this also allows the same panel to be used multiple 
+times.  I looked at UserInput and found all that was needed for multiple 
+instances of a panel was 2 integers, a static one that keeps count of the 
+number of instances of a panel and a protected one that is the instance 
+number.  (Note that if no order attribute is given, it defaults to 0, for the 
+first or only instance of that panel.)
+
+A side note: I've noticed some comments about how it would be nice to have 
+multiple InfoPanels or HTMLInfoPanels.  This would make it a snap with 
+something like this added to SimplePanelsSpec.xml for a panel named 
+MultiInfoPanel:
+
+	&lt;multiinfopanel&gt;
+		&lt;panel order=&quot;0&quot; resource=&quot;generalInfo.xml&quot;/&gt;
+		&lt;panel order=&quot;1&quot; resource=&quot;upgradeInfo.xml&quot;/&gt;
+	&lt;multiinfopanel/&gt;
+
+I don't know if there is any reluctance to use multiple instances of panels, 
+but I think this would provide an easy way for a simple panel to be used as 
+many times as needed.
+
+&gt;<i> But if you would, why not a SimplePanelsSpec.xml. If so, I prefer if
+</I>&gt;<i> there will be a (static ?) method in SpecHelper like
+</I>&gt;<i> XMLElement getCommonPanelsSpec()
+</I>&gt;<i> which loads once the spec and returns every call the root of the spec.
+</I>
+If you use that with my idea and the file format I just specified, then 
+SpecHelper could load SimplePanelsSpec.xml at the start, and whenever it is 
+called from a panel, it can determine the panel name automatically, so all it 
+would need as a parameter is the instance number and it could return a 
+Properties object with all the properties (or just the instance number and 
+Attribute name and it would return the attribute value for that instance of 
+the panel -- this method would be overloaded to not need an instance number 
+and default to the first or only instance).
+
+&gt;<i> Or - if elements are fixed -
+</I>&gt;<i> String getCommonPanelsValue(String panelName, String valueKey)
+</I>&gt;<i> One point for a generic solution is the docu. It is not relevant
+</I>&gt;<i> whether we love it or not (I hate it) but it has do be written.
+</I>&gt;<i>
+</I>&gt;<i> I can do for it nothing next time because tomorrow is the last day I can
+</I>&gt;<i> write during the next six or ten weeks (at 12.01.06 I have an OP at
+</I>&gt;<i> my right wrist).
+</I>
+Is OP operation?  If so, good luck!
+
+I don't mind doing it.  I have to parse some XML for my panels, and I might as 
+well do the routines only once, in another class, than doing them over and 
+over.  I just don't want to start hacking things in IzPack, come up with a 
+huge and, to me, amazing idea, and find out it messes up other plans or 
+ideas.
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000085.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+	<LI>Next message: <A HREF="000091.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#86">[ date ]</a>
+              <a href="thread.html#86">[ thread ]</a>
+              <a href="subject.html#86">[ subject ]</a>
+              <a href="author.html#86">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

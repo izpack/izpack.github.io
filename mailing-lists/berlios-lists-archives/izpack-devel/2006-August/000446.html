@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Starting a discussion about logging
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Starting%20a%20discussion%20about%20logging&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000457.html">
+   <LINK REL="Next"  HREF="000452.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Starting a discussion about logging</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Starting%20a%20discussion%20about%20logging&In-Reply-To="
+       TITLE="[izpack-devel] Starting a discussion about logging">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Mon Aug 28 09:56:35 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000457.html">[izpack-devel] Starting a discussion about logging
+</A></li>
+        <LI>Next message: <A HREF="000452.html">[izpack-devel] Addition of one	moreattribute'createForField'tomake installer more dynamic
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#446">[ date ]</a>
+              <a href="thread.html#446">[ thread ]</a>
+              <a href="subject.html#446">[ subject ]</a>
+              <a href="author.html#446">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+I vote first for java.util.logging, second an in-house solution 
+and last log4j.
+Comments context related.
+
+Cheers 
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Eric Rose
+</I>&gt;<i>Sent: Monday, August 28, 2006 12:24 AM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-devel] Starting a discussion about logging
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>On Monday 28 August 2006 05:36, Marc Eppelmann wrote:
+</I>&gt;&gt;<i> Hi all,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Since it was several wished, that IzPack *always* logs its 
+</I>&gt;<i>steps and files
+</I>&gt;&gt;<i> that are written, substituted and executed to a _user-defined_ or
+</I>&gt;&gt;<i> timestamp-based logfile, I re-invoke this discussion.
+</I>&gt;<i>
+</I>&gt;<i>Good - that's one thing my collegues are complaining about in IzPack.
+</I>&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> - It is possible to integrate 3rdParty Loging Products such as log4j.
+</I>&gt;&gt;<i> -to break a butterfly on a wheel ;-)
+</I>&gt;<i>
+</I>&gt;<i>Log4j has a lot of options - given that it's a fully-fledged 
+</I>&gt;<i>logging package, 
+</I>&gt;<i>it should. At it's base, though, it's really only the 
+</I>&gt;<i>inclusion of a jar and 
+</I>&gt;<i>a series of single method calls in the client code.
+</I>&gt;<i>
+</I>&gt;<i>I should add a disclaimer :). We use it at work, and I have 
+</I>&gt;<i>had to hack the 
+</I>&gt;<i>ode a bit for our own uses, some time ago, so I am reasonably 
+</I>&gt;<i>familiar with 
+</I>&gt;<i>the package. Theere's on properties file that is used to drive 
+</I>&gt;<i>it, which is 
+</I>&gt;<i>certainly no more complicated than the configuration required 
+</I>&gt;<i>to IzPack 
+</I>&gt;<i>itself.
+</I>&gt;<i>
+</I>
+We you also log4j in our company. But the difference to IzPack is,
+that we install the needed jars. Up to now most IzPack installations 
+depends only on a VM not on any additional jar file. Therefore
+needed class files are packed into the installation jar file (like the 
+nano XML parser). The base install engine needs about 500KB. With 
+log4j it will be ~ 220 KB more. In opposite to e.g. ant this will
+be not optional, or will it?
+
+
+&gt;&gt;<i>
+</I>&gt;&gt;<i> - Or to use the new Java.Logging classes functionality, 
+</I>&gt;<i>which are to new in
+</I>&gt;&gt;<i> my opinion.
+</I>&gt;<i>
+</I>&gt;<i>I disagree.  Logging as part of the JDK has been around from 
+</I>&gt;<i>Java 1.4, and 1.5 
+</I>&gt;<i>is now in use. It has the advantage of being part of the JDK, 
+</I>&gt;<i>obviating the 
+</I>&gt;<i>need for any external dependency.
+</I>&gt;<i>
+</I>
+Since 3.8 we support VM version &gt;= 1.4, therefore it should be
+no problem to use it. May be log4j is better, but with the VM
+resolution the jar file will not grow and we have no packaging
+problems.
+
+&gt;&gt;<i>
+</I>&gt;&gt;<i> - Or to implentend and integrate a self-implemented and lightweight
+</I>&gt;&gt;<i> solution maybe as derived a solution of the current Debug-Class.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I would prefer a mixed solution: integrate borrowed / 
+</I>&gt;<i>adapted code from
+</I>&gt;&gt;<i> Jog4J to meet what we need.- To hold this lightweight Installer as
+</I>&gt;&gt;<i> Lightweight Installer ;-)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> But I also would vote for an own independed solution if easy 
+</I>&gt;<i>adaptable /
+</I>&gt;&gt;<i> expandable in future.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>A custom solution may be more lightweight, and in-house code 
+</I>&gt;<i>might be more 
+</I>&gt;<i>conducive to flexibility in changing the solution, but carries 
+</I>&gt;<i>with it the 
+</I>&gt;<i>problem we have had at my workplace - you have to maintain a 
+</I>&gt;<i>logging product 
+</I>&gt;<i>of sorts. I'd rather break a butterfly on a wheel than 
+</I>&gt;<i>reinvent the wheel, 
+</I>&gt;<i>and have to roll it :)
+</I>&gt;<i> 
+</I>
+If it needs no investment to use the wheel, I will use it also
+I need only a little bit from it.
+
+&gt;<i>Personally, I'd plump for java.util.logging as first choice, 
+</I>&gt;<i>followed by 
+</I>&gt;<i>log4j, and an in-house solution last.
+</I>&gt;<i>
+</I>&gt;<i>Eric
+</I>&gt;<i>
+</I>&gt;<i>-- 
+</I>&gt;<i>Eric Rose              | &quot;Sed quis custodiet ipsos custodes?&quot;
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">eric at integeo.com</A>       |         Juvenal (Satires, VI.347-8)
+</I>&gt;<i>
+</I>&gt;<i>***********************************************************************
+</I>&gt;<i>This message contains privileged and confidential information intended
+</I>&gt;<i>only for the use of the addressee named above.  If you are not the
+</I>&gt;<i>intended recipient of this message you must not disseminate, copy or
+</I>&gt;<i>take any action in reliance on it.  If you have received this message
+</I>&gt;<i>in error please notify the sender immediately.  Any views expressed in
+</I>&gt;<i>this message are those of the individual sender, except where the
+</I>&gt;<i>sender specifically states them to be the views of another (including
+</I>&gt;<i>a Body Corporate).
+</I>&gt;<i>
+</I>&gt;<i>If you wish to opt out from future messages, send an email to
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">unsubscribe at integeo.com</A> with the subject UNSUBSCRIBE
+</I>&gt;<i>***************************************************************
+</I>&gt;<i>*********
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000457.html">[izpack-devel] Starting a discussion about logging
+</A></li>
+	<LI>Next message: <A HREF="000452.html">[izpack-devel] Addition of one	moreattribute'createForField'tomake installer more dynamic
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#446">[ date ]</a>
+              <a href="thread.html#446">[ thread ]</a>
+              <a href="subject.html#446">[ subject ]</a>
+              <a href="author.html#446">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

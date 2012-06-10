@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1521 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1521%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20compiler%20installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000265.html">
+   <LINK REL="Next"  HREF="000267.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1521 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1521%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20compiler%20installer&In-Reply-To="
+       TITLE="[izpack-changes] r1521 - in	izpack-src/trunk/src/lib/com/izforge/izpack: compiler installer">noreply at berlios.de
+       </A><BR>
+    <I>Tue Aug  8 10:53:03 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000265.html">[izpack-changes] r1520 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000267.html">[izpack-changes] r1522 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#266">[ date ]</a>
+              <a href="thread.html#266">[ thread ]</a>
+              <a href="subject.html#266">[ subject ]</a>
+              <a href="author.html#266">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-08-08 10:53:02 +0200 (Tue, 08 Aug 2006)
+New Revision: 1521
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+Throw an IllegalArgumentException in the compiler if the
+declared class name in the xml file differs in case from
+the founded class file. This will be better as to get
+the class not found error at install time.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-08-08 07:29:44 UTC (rev 1520)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-08-08 08:53:02 UTC (rev 1521)
+@@ -1011,7 +1011,7 @@
+             {
+                 fullClassName = getFullClassName(url, className);
+             }
+-            catch (Exception e)
++            catch (IOException e)
+             {
+             }
+             if (fullClassName != null)
+@@ -1988,9 +1988,9 @@
+      * @param url url of the jar file which contains the class
+      * @param className short name of the class for which the full name should be resolved
+      * @return full qualified class name
+-     * @throws Exception
++     * @throws IOException 
+      */
+-    private String getFullClassName(URL url, String className) throws Exception
++    private String getFullClassName(URL url, String className) throws IOException //throws Exception
+     {
+         JarInputStream jis = new JarInputStream(url.openStream());
+         ZipEntry zentry = null;
+@@ -2004,15 +2004,22 @@
+             }
+             name = name.replace('/', '.');
+             int pos = -1;
++            int nonCasePos = -1;
+             if (className != null)
+             {
+                 pos = name.indexOf(className);
++                nonCasePos = name.toLowerCase().indexOf(className.toLowerCase());
+             }
+             if (pos != -1 &amp;&amp; name.length() == pos + className.length() + 6) // &quot;Main&quot; class found
+             {
+                 jis.close();
+                 return (name.substring(0, lastPos));
+             }
++            
++            if (nonCasePos != -1 &amp;&amp; name.length() == nonCasePos + className.length() + 6)
++                // &quot;Main&quot; class with different case found
++                throw new IllegalArgumentException(&quot;Fatal error! The declared panel name in the xml file (&quot;
++                        + className + &quot;) differs in case to the founded class file (&quot; + name + &quot;).&quot;);
+         }
+         jis.close();
+         return (null);
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-08-08 07:29:44 UTC (rev 1520)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-08-08 08:53:02 UTC (rev 1521)
+@@ -231,7 +231,7 @@
+             if (!OsConstraint.oneMatchesCurrentSystem(p.osConstraints)) continue;
+             className = (String) p.className;
+             String praefix = &quot;com.izforge.izpack.panels.&quot;;
+-            if (className.compareTo(&quot;.&quot;) &gt; -1)
++            if (className.indexOf('.') &gt; -1)
+             // Full qualified class name
+                 praefix = &quot;&quot;;
+             objectClass = Class.forName(praefix + className);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000265.html">[izpack-changes] r1520 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000267.html">[izpack-changes] r1522 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#266">[ date ]</a>
+              <a href="thread.html#266">[ thread ]</a>
+              <a href="subject.html#266">[ subject ]</a>
+              <a href="author.html#266">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

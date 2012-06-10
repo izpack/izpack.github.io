@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Problems with localizing shortcuts.
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problems%20with%20localizing%20shortcuts.&In-Reply-To=000c01c85b38%24f833ce20%24e89b6a60%24%40com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001844.html">
+   <LINK REL="Next"  HREF="001846.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Problems with localizing shortcuts.</H1>
+    <B>Christian-Josef Schrattenthaler</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Problems%20with%20localizing%20shortcuts.&In-Reply-To=000c01c85b38%24f833ce20%24e89b6a60%24%40com"
+       TITLE="[izpack-users] Problems with localizing shortcuts.">christian-josef at schrattenthaler.com
+       </A><BR>
+    <I>Sun Jan 20 12:54:25 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001844.html">[izpack-users] Problems with localizing shortcuts.
+</A></li>
+        <LI>Next message: <A HREF="001846.html">[izpack-users] Problems with localizing shortcuts.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1845">[ date ]</a>
+              <a href="thread.html#1845">[ thread ]</a>
+              <a href="subject.html#1845">[ subject ]</a>
+              <a href="author.html#1845">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Lo&#239;c!
+
+ 
+
+I did it!
+
+ 
+
+I used my Newsreader to search in the Mailinglist (news.gmane.org -&gt;
+gmane.comp.java.izpack.user), and there I found your posting from
+24.04.2007/11:14. I changed the code of the actual trunk under src/lib,
+package com.izforge.izpack.panels, file ShortcutPanel.java from:
+
+ 
+
+*** Original ***
+
+try
+
+{
+
+input = parent.getResource(TargetFactory.getCurrentOSPrefix() +
+SPEC_FILE_NAME);
+
+}
+
+catch (ResourceNotFoundException rnfE)
+
+{
+
+input = parent.getResource(SPEC_FILE_NAME);
+
+}
+
+if (input == null)
+
+****************
+
+ 
+
+to
+
+ 
+
+*** Changes ***
+
+try
+
+{
+
+// Find os-&amp;-language-specific spec
+
+input = parent.getResource(TargetFactory.getCurrentOSPrefix() +
+SPEC_FILE_NAME + &quot;_&quot; + idata.localeISO3);
+
+}
+
+catch (ResourceNotFoundException rnfe)
+
+{
+
+try
+
+{
+
+// Not found ? Try generic OS but language-specific
+
+input = parent.getResource(SPEC_FILE_NAME + &quot;_&quot; + idata.localeISO3);
+
+}
+
+catch (ResourceNotFoundException rnfe2)
+
+{
+
+// Still not found ? Maybe generic language but OS-specific ?
+
+try
+
+{
+
+input = parent.getResource(TargetFactory.getCurrentOSPrefix() +
+SPEC_FILE_NAME);
+
+}
+
+catch (ResourceNotFoundException rnfe3)
+
+{
+
+// Can't find anything specific : falling back to default
+
+input = parent.getResource(SPEC_FILE_NAME);
+
+}
+
+}
+
+}
+
+if (input == null)
+
+****************
+
+ 
+
+Than I did the Ant Build, changed the files in my IzPack installation, and
+created a new installation of my testapplication. Now the shortcut system is
+working well.
+
+ 
+
+I don&#146;t know how, but I think we have to tell this to the developers of
+IzPack!?
+
+ 
+
+Greetings &amp; thanks,
+
+Christian.
+
+ 
+
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von
+Christian-Josef Schrattenthaler
+Gesendet: Sonntag, 20. J&#228;nner 2008 08:49
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: Re: [izpack-users] Problems with localizing shortcuts.
+
+ 
+
+Hi Lo&#239;c!
+
+ 
+
+At first: Thank you for your help!
+
+ 
+
+I downloaded the newest trunk from the svn, and built it under eclipse over
+ant as you described. After that I replaced the old IzPack Installation
+files with the new files from my build.
+
+ 
+
+Than I made a new installation form my testapplication. The same result as
+before. The shurtcuts are always in english.
+
+ 
+
+Any idea?
+
+ 
+
+Greatings,
+
+Christian.
+
+ 
+
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von Lo&#239;c
+Gesendet: Samstag, 19. J&#228;nner 2008 21:04
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: Re: [izpack-users] Problems with localizing shortcuts.
+
+ 
+
+Open &lt;sourcedir&gt;/src/build.xml in Eclipse.
+The Ant view will show up : use it to compile what you need (either the
+installer =&gt; target &quot;dist&quot; and/or the standalone compiler for inclusion into
+your own Ant buildfile =&gt; target &quot;build.standalone-compiler&quot;). 
+Full instructions are in the comments at the beginning of build.xml
+
+Christian-Josef Schrattenthaler a &#233;crit : 
+
+Hi Lo&#239;c!
+ 
+No, I used the official version from the Website.
+ 
+Now I downloaded the newest trunk (1990) over Subclipse as new project into
+my eclipse.
+ 
+Painful, but I don't know what to do now. I looked on the files, but there
+are some files missing. For example the 'compile.jar'.
+ 
+Please can you, or anybody else, tell me, how to create an installer for
+this version, so that I can change my installed version, with the version of
+the SVN?
+ 
+Thnaks,
+Christian.
+ 
+-----Urspr&#252;ngliche Nachricht-----
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von Lo&#239;c
+Gesendet: Samstag, 19. J&#228;nner 2008 14:12
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: Re: [izpack-users] Problems with localizing shortcuts.
+ 
+Christian-Josef Schrattenthaler a &#233;crit :
+  
+
+Hi!
+ 
+I want to localize my shortcuts, but it does not work.
+ 
+I have the following entries in my install.xml
+ 
+&lt;res src=&quot;IzPack/shortcutSpec.xml&quot; id=&quot;shortcutSpec.xml&quot; /&gt;
+&lt;res src=&quot;IzPack/shortcutSpec_deu.xml&quot; id=&quot;shortcutSpec.xml_deu&quot; /&gt;
+ 
+Both files have the same content, expect the one has englisch texts and
+    
+
+the
+  
+
+other has german texts.
+ 
+If I do the installation, always the englisch texts are used.
+ 
+Do you have any hints for me?
+  
+    
+
+ 
+Are you using the latest izPack from svn ? This has just been fixed some 
+time ago.
+ 
+Have a nice weekend,
+ 
+Lo&#239;c
+ 
+ 
+ 
+_______________________________________________
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+ 
+_______________________________________________
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+ 
+  
+
+ 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20080120/9e08c63b/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20080120/9e08c63b/attachment.html</A> 
+</PRE>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001844.html">[izpack-users] Problems with localizing shortcuts.
+</A></li>
+	<LI>Next message: <A HREF="001846.html">[izpack-users] Problems with localizing shortcuts.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1845">[ date ]</a>
+              <a href="thread.html#1845">[ thread ]</a>
+              <a href="subject.html#1845">[ subject ]</a>
+              <a href="author.html#1845">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

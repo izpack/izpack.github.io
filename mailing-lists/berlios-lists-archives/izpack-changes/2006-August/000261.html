@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1517 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1517%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000260.html">
+   <LINK REL="Next"  HREF="000262.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1517 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1517%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1517 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Mon Aug  7 15:04:31 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000260.html">[izpack-changes] r1516 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels
+</A></li>
+        <LI>Next message: <A HREF="000262.html">[izpack-changes] r1518 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#261">[ date ]</a>
+              <a href="thread.html#261">[ thread ]</a>
+              <a href="subject.html#261">[ subject ]</a>
+              <a href="author.html#261">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-08-07 15:04:16 +0200 (Mon, 07 Aug 2006)
+New Revision: 1517
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+Log:
+Handling of IZPACK_HOME changed and extended.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-08-07 07:36:53 UTC (rev 1516)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-08-07 13:04:16 UTC (rev 1517)
+@@ -34,6 +34,7 @@
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.net.MalformedURLException;
++import java.net.URI;
+ import java.net.URL;
+ import java.net.URLClassLoader;
+ import java.util.ArrayList;
+@@ -99,6 +100,11 @@
+     /** Constant for checking attributes. */
+     private static boolean NO = false;
+ 
++    private final static String IZ_TEST_FILE = &quot;ShellLink.dll&quot;;
++
++    private final static String IZ_TEST_SUBDIR = &quot;bin&quot; + File.separator + &quot;native&quot; + File.separator
++            + &quot;izpack&quot;;
++
+     /** The xml install file */
+     private String filename;
+     /** The xml install configuration text */
+@@ -1699,7 +1705,11 @@
+ 
+         // exit code 1 means: error
+         int exitCode = 1;
+-
++        String home = &quot;.&quot;;
++        // We get the IzPack home directory 
++        String izHome = System.getProperty(&quot;IZPACK_HOME&quot;);
++        if (izHome != null) home = izHome;
++                    
+         // We analyse the command line parameters
+         try
+         {
+@@ -1715,38 +1725,30 @@
+             int nArgs = args.length;
+             if (nArgs &lt; 1) throw new Exception(&quot;no arguments given&quot;);
+ 
+-            // We get the IzPack home directory 
+-            String home = &quot;.&quot;;
+-            String izHome = System.getProperty(&quot;IZPACK_HOME&quot;);
+-						if (izHome != null) home = izHome;
+-						
+-						
+-            File homeFile = new File(home);
+-            if (!homeFile.exists() &amp;&amp; homeFile.isDirectory())
+-            {
+-                System.err.println(&quot;IZPACK_HOME (&quot; + home + &quot;) doesn't exist&quot;);
+-                System.exit(-1);
+-            }
+-            Compiler.setIzpackHome(home);
+-
+             // The users wants to know the command line parameters
+             if (&quot;-?&quot;.equalsIgnoreCase(args[0]))
+             {
+                 System.out.println(&quot;-&gt; Command line parameters are : (xml file) [args]&quot;);
+                 System.out.println(&quot;   (xml file): the xml file describing the installation&quot;);
+-                System.out
+-                        .println(&quot;   -b (base) : indicates the base path that the compiler will use for filenames&quot;);
+-                System.out.println(&quot;               default is the current path&quot;);
++                System.out.println(&quot;   -h (IzPack home) : the root path of IzPack. This will be needed&quot;);
++                System.out.println(&quot;               if the compiler is not called in the root directory  of IzPack.&quot;);
++                System.out.println(&quot;               Do not forget quotations if there are blanks in the path.&quot;);
++                         System.out
++                          .println(&quot;   -b (base) : indicates the base path that the compiler will use for filenames&quot;);
++                System.out.println(&quot;               of sources. Default is the current path. Attend to -h.&quot;);
+                 System.out.println(&quot;   -k (kind) : indicates the kind of installer to generate&quot;);
+                 System.out.println(&quot;               default is standard&quot;);
+                 System.out.println(&quot;   -o (out)  : indicates the output file name&quot;);
+                 System.out.println(&quot;               default is the xml file name\n&quot;);
+-                System.out.println(&quot;   -c (compression)  : indicates the compression format to be used for packs&quot;);
++                System.out
++                        .println(&quot;   -c (compression)  : indicates the compression format to be used for packs&quot;);
+                 System.out.println(&quot;               default is the internal deflate compression\n&quot;);
+-                System.out.println(&quot;   -l (compression-level)  : indicates the level for the used compression format&quot;);
++                System.out
++                        .println(&quot;   -l (compression-level)  : indicates the level for the used compression format&quot;);
+                 System.out.println(&quot;                if supported. Only integer are valid\n&quot;);
+ 
+-                System.out.println(&quot;   When using vm option -DSTACKTRACE=true there is all kind of debug info &quot;);
++                System.out
++                        .println(&quot;   When using vm option -DSTACKTRACE=true there is all kind of debug info &quot;);
+                 System.out.println(&quot;&quot;);
+                 exitCode = 0;
+             }
+@@ -1813,6 +1815,15 @@
+                             else
+                                 throw new Exception(&quot;compression level argument missing&quot;);
+                             break;
++                        case 'h':
++                            if ((pos + 1) &lt; nArgs)
++                            {
++                                pos++;
++                                home = args[pos];
++                            }
++                            else
++                                throw new Exception(&quot;IzPack home path argument missing&quot;);
++                            break;
+                         default:
+                             throw new Exception(&quot;unknown argument&quot;);
+                         }
+@@ -1821,6 +1832,7 @@
+                     else
+                         throw new Exception(&quot;bad argument&quot;);
+ 
++                home = resolveIzPackHome(home);
+                 // Outputs what we are going to do
+                 System.out.println(&quot;-&gt; Processing  : &quot; + filename);
+                 System.out.println(&quot;-&gt; Output      : &quot; + output);
+@@ -1828,8 +1840,13 @@
+                 System.out.println(&quot;-&gt; Kind        : &quot; + kind);
+                 System.out.println(&quot;-&gt; Compression : &quot; + compr_format);
+                 System.out.println(&quot;-&gt; Compr. level: &quot; + compr_level);
++                System.out.println(&quot;-&gt; IzPack home : &quot; + home);
+                 System.out.println(&quot;&quot;);
+ 
++                
++                Compiler.setIzpackHome(home);
++
++
+                 // Calls the compiler
+                 CmdlinePackagerListener listener = new CmdlinePackagerListener();
+                 CompilerConfig compiler = new CompilerConfig(filename, base, kind, output, 
+@@ -1859,6 +1876,38 @@
+         System.exit(exitCode);
+     }
+ 
++    private static String resolveIzPackHome(String home)
++    {
++        File test = new File(home, IZ_TEST_SUBDIR + File.separator + IZ_TEST_FILE);
++        if( test != null &amp;&amp; test.exists())
++            return( home);
++        // Try to resolve the path using compiler.jar which also should be under
++        // IZPACK_HOME.
++        String self = Compiler.class.getName();
++        self = self.replace('.', '/');
++        self = &quot;/&quot; + self + &quot;.class&quot;;
++        URL url = Compiler.class.getResource(self);
++        String np = url.getFile();
++        int start = np.indexOf(self);
++        np = np.substring(0, start);
++        if( np.endsWith(&quot;!&quot;))
++            np = np.substring(0, np.length() - 1);
++        File root = null;
++        if( URI.create(np).isAbsolute())
++            root = new File(URI.create(np));
++        else 
++            root = new File(np);
++        while(true)
++        {
++            if( root == null )
++                throw new IllegalArgumentException(&quot;No valid IzPack home directory found&quot;);
++            test =  new File(root, IZ_TEST_SUBDIR + File.separator + IZ_TEST_FILE);
++            if( test.exists())
++                return(root.getAbsolutePath());
++            root = root.getParentFile();
++        }
++    }
++
+     // -------------------------------------------------------------------------
+     // ------------- Listener stuff ------------------------- START ------------
+ 
+@@ -1876,7 +1925,6 @@
+         // We get the listeners
+         XMLElement root = data.getFirstChildNamed(&quot;listeners&quot;);
+         if (root == null) return;
+-
+         Iterator iter = root.getChildrenNamed(&quot;listener&quot;).iterator();
+         while (iter.hasNext())
+         {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000260.html">[izpack-changes] r1516 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels
+</A></li>
+	<LI>Next message: <A HREF="000262.html">[izpack-changes] r1518 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#261">[ date ]</a>
+              <a href="thread.html#261">[ thread ]</a>
+              <a href="subject.html#261">[ subject ]</a>
+              <a href="author.html#261">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1439 - izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1439%20-%20izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000184.html">
+   <LINK REL="Next"  HREF="000186.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1439 - izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1439%20-%20izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1439 - izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jun  8 18:59:26 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000184.html">[izpack-changes] r1438 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+        <LI>Next message: <A HREF="000186.html">[izpack-changes] r1440 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: tschwarze
+Date: 2006-06-08 18:59:23 +0200 (Thu, 08 Jun 2006)
+New Revision: 1439
+
+Modified:
+   izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels/RuleInputField.java
+Log:
+fix NullPointerException
+
+Modified: izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels/RuleInputField.java
+===================================================================
+--- izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels/RuleInputField.java	2006-06-08 08:39:47 UTC (rev 1438)
++++ izpack-src/branches/branch-3-8/src/lib/com/izforge/izpack/panels/RuleInputField.java	2006-06-08 16:59:23 UTC (rev 1439)
+@@ -749,17 +749,20 @@
+     /*--------------------------------------------------------------------------*/
+     public void caretUpdate(CaretEvent event)
+     {
+-        String text = activeField.getText();
+-        int fieldSize = activeField.getEditLength();
+-        int caretPosition = activeField.getCaretPosition();
+-        int selection = activeField.getSelectionEnd() - activeField.getSelectionStart();
+-
+-        if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!activeField.unlimitedEdit()))
++        if (activeField != null)
+         {
+-            if ((text.length() == fieldSize) &amp;&amp; (selection == 0) &amp;&amp; (caretPosition == fieldSize)
+-                    &amp;&amp; !backstep)
++            String text = activeField.getText();
++            int fieldSize = activeField.getEditLength();
++            int caretPosition = activeField.getCaretPosition();
++            int selection = activeField.getSelectionEnd() - activeField.getSelectionStart();
++    
++            if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!activeField.unlimitedEdit()))
+             {
+-                activeField.transferFocus();
++                if ((text.length() == fieldSize) &amp;&amp; (selection == 0) &amp;&amp; (caretPosition == fieldSize)
++                        &amp;&amp; !backstep)
++                {
++                    activeField.transferFocus();
++                }
+             }
+         }
+     }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000184.html">[izpack-changes] r1438 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+	<LI>Next message: <A HREF="000186.html">[izpack-changes] r1440 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

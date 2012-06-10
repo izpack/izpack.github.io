@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Feature Request - Scripting Languages for custom	actions
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Feature%20Request%20-%20Scripting%20Languages%20for%20custom%0A%09actions&In-Reply-To=9291ebe10801120603p76aae38eh2049314bafb2c5c3%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001817.html">
+   <LINK REL="Next"  HREF="001819.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Feature Request - Scripting Languages for custom	actions</H1>
+    <B>Matthew Inger</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Feature%20Request%20-%20Scripting%20Languages%20for%20custom%0A%09actions&In-Reply-To=9291ebe10801120603p76aae38eh2049314bafb2c5c3%40mail.gmail.com"
+       TITLE="[izpack-users] Feature Request - Scripting Languages for custom	actions">mattinger at gmail.com
+       </A><BR>
+    <I>Sun Jan 13 04:51:05 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001817.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+        <LI>Next message: <A HREF="001819.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1818">[ date ]</a>
+              <a href="thread.html#1818">[ thread ]</a>
+              <a href="subject.html#1818">[ subject ]</a>
+              <a href="author.html#1818">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>1.  That's controlled by izpack itself, and I believe that it does not
+bundle listeners and/or panels
+     into the installer unless they're specifically referenced in the the
+installer.xml file.
+
+2.  Which exceptions in particular?  The script exceptions?  I'll take a
+look at my exception
+     handling.  As i had said, this is initial code, and it's working for me
+for what i'm doing here.
+     I'm deploying tomcat apps, and i'm using the script to backup the
+existing files before
+     they're replaced, and to remove the exploded webapp and the appropriate
+work directory
+     within tomcat.
+
+I'll work on a subversion patch after i address the exceptions.  I also want
+to decide whether I
+want to go with BSF 2.x, which is the approach I have, or to use BSF
+3.0(which is still beta),
+so I can use the Invocable interface.  This has implications on how the
+scripts are defined.
+With bsf 2.x, the beforePacks is defined (in groovy) as:
+     beforePacks = {
+           // code, which assumes that certain symbols like idata, npacks,
+and handler are defined
+     }
+
+With bsf 3.0, it would be:
+     void beforePacks (InstallerData idata, Integer npacks,
+UIProgressHandler hander) {
+           // code.
+     }
+
+The differences is that the first is a symbol which references an anonymous
+function, while
+the second is an actual method definition within the compiled class.
+
+It's really the difference between using a C function pointer, and an actual
+declared function.
+
+
+On Jan 12, 2008 9:03 AM, Julien Ponge &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">julien.ponge at gmail.com</A>&gt; wrote:
+
+&gt;<i> Hi Matthew,
+</I>&gt;<i>
+</I>&gt;<i> I have had a look at your initial code proposal (not tested though). I
+</I>&gt;<i> definitely looks promising, so here I'll go with some minor comments
+</I>&gt;<i> ;-)
+</I>&gt;<i>
+</I>&gt;<i> 1. Make sure that it does not get bundled into every possible
+</I>&gt;<i> installer (but I'm sure it doesn't anyway - just make the check).
+</I>&gt;<i>
+</I>&gt;<i> 2. The caught exceptions should at least print a stack trace unless
+</I>&gt;<i> there is a good reason to do so.
+</I>&gt;<i>
+</I>&gt;<i> Once you get something ready, please send us a patch against the
+</I>&gt;<i> latest trunk of our Subversion server.
+</I>&gt;<i>
+</I>&gt;<i> Keep up the good work
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20080112/69c5489d/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20080112/69c5489d/attachment.html</A> 
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001817.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+	<LI>Next message: <A HREF="001819.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1818">[ date ]</a>
+              <a href="thread.html#1818">[ thread ]</a>
+              <a href="subject.html#1818">[ subject ]</a>
+              <a href="author.html#1818">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

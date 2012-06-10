@@ -1,0 +1,814 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1622 - in	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack:	. compiler installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1622%20-%20in%0A%09izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack%3A%0A%09.%20compiler%20installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000366.html">
+   <LINK REL="Next"  HREF="000368.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1622 - in	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack:	. compiler installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1622%20-%20in%0A%09izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack%3A%0A%09.%20compiler%20installer&In-Reply-To="
+       TITLE="[izpack-changes] r1622 - in	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack:	. compiler installer">noreply at berlios.de
+       </A><BR>
+    <I>Fri Sep 29 00:48:13 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000366.html">[izpack-changes] r1621 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+        <LI>Next message: <A HREF="000368.html">[izpack-changes] r1623 -	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#367">[ date ]</a>
+              <a href="thread.html#367">[ thread ]</a>
+              <a href="subject.html#367">[ subject ]</a>
+              <a href="author.html#367">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsshilli
+Date: 2006-09-29 00:48:07 +0200 (Fri, 29 Sep 2006)
+New Revision: 1622
+
+Modified:
+   izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/Info.java
+   izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java
+   izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+   izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/Unpacker.java
+Log:
+- Added a new attribute to the &quot;uninstaller&quot; element called &quot;path&quot;.  It's the path that the uninstaller jar will be deployed to on install.
+    - We now differentiate between when closing requires asking and when closing requires the files to be removed.  This way it still asks you if you want to quite at any time before the finish panel.
+    - Added an optional splash screen that shows up with the installer starts up.
+        - Add a resource called &quot;SplashScreen&quot; and it will be compiled in and come up.  ie:
+            &lt;res id=&quot;SplashScreen&quot; src=&quot;installer/resources/InstallerSplash.png&quot;/&gt;
+        - Also, on Solaris over some old XWindows clients had a hard time showing the splash screen, so if you start the installer with -Dskip_splash=true then the splash screen doesn't get shown.
+    - If you specify a resource named &quot;Icon&quot;, the installer will use that instead of the default IzPack icon.
+    - Shutdown file cleanup now uses the Housekeeper.  Hence, if you add additional shutdown hooks to the Housekeeper they will get executed before the files are removed.
+
+Modified: izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/Info.java
+===================================================================
+--- izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/Info.java	2006-09-28 16:34:46 UTC (rev 1621)
++++ izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/Info.java	2006-09-28 22:48:07 UTC (rev 1622)
+@@ -58,6 +58,9 @@
+     /** The uninstaller name */
+     private String uninstallerName = &quot;uninstaller.jar&quot;;
+ 
++    /** The uninstaller path (in the $INSTALL_PATH) */
++    private String uninstallerPath = &quot;Uninstaller&quot;;
++
+     /** The path of the summary log file */
+     private String summaryLogFilePath = &quot;$INSTALL_PATH/Uninstaller/InstallSummary.htm&quot;;
+ 
+@@ -233,6 +236,26 @@
+     }
+ 
+     /**
++     * Sets the path of the uninstaller.
++     *
++     * @param name the name of the uninstaller.
++     */
++    public void setUninstallerPath(String name)
++    {
++        this.uninstallerPath = name;
++    }
++
++    /**
++     * Returns the path of the uninstaller.
++     *
++     * @return the name of the uninstaller.
++     */
++    public String getUninstallerPath()
++    {
++        return this.uninstallerPath;
++    }
++
++    /**
+      * This class represents an author.
+      * 
+      * @author Julien Ponge
+
+Modified: izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-09-28 16:34:46 UTC (rev 1621)
++++ izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2006-09-28 22:48:07 UTC (rev 1622)
+@@ -1205,6 +1205,11 @@
+                 if (uninstallerName != null &amp;&amp; uninstallerName.endsWith(&quot;.jar&quot;)
+                         &amp;&amp; uninstallerName.length() &gt; &quot;.jar&quot;.length())
+                     info.setUninstallerName(uninstallerName);
++                String uninstallerPath = uninstallInfo.getAttribute(&quot;path&quot;);
++                if (uninstallerPath != null)
++                {
++                    info.setUninstallerPath(uninstallerPath);
++                }
+             }
+         }
+         // Add the path for the summary log file if specified
+
+Modified: izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java
+===================================================================
+--- izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java	2006-09-28 16:34:46 UTC (rev 1621)
++++ izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java	2006-09-28 22:48:07 UTC (rev 1622)
+@@ -93,9 +93,12 @@
+     /** The current panel. */
+     public int curPanelNumber;
+ 
+-    /** Can we close the installer ? */
+-    public boolean canClose = false;
++    /** Do we need to ask if it's okay if the user tries to close the installer? */
++    public boolean closeRequiresAsking = true;
+ 
++    /** Do we need to uninstall the installed files if the user tries to close the installer? */
++    public boolean closeRequiresUninstall = false;
++
+     /** Did the installation succeed ? */
+     public boolean installSuccess = true;
+ 
+
+Modified: izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+===================================================================
+--- izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2006-09-28 16:34:46 UTC (rev 1621)
++++ izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2006-09-28 22:48:07 UTC (rev 1622)
+@@ -1,5 +1,5 @@
+ /*
+- * $Id:$
++ * $Id$
+  * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+@@ -36,6 +36,7 @@
+ import java.awt.event.WindowEvent;
+ import java.io.InputStream;
+ import java.io.ObjectInputStream;
++import java.io.IOException;
+ import java.lang.reflect.Method;
+ import java.util.HashMap;
+ import java.util.Iterator;
+@@ -67,6 +68,7 @@
+ import com.izforge.izpack.gui.ButtonFactory;
+ import com.izforge.izpack.gui.IzPackMetalTheme;
+ import com.izforge.izpack.gui.LabelFactory;
++import com.izforge.izpack.gui.SplashScreen;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.OsVersion;
+ import com.izforge.izpack.util.VariableSubstitutor;
+@@ -97,6 +99,9 @@
+     /** holds language to ISO-3 language code translation */
+     private static HashMap isoTable;
+ 
++    /** This is the optional splash screen to show while the installer starts up. */
++    protected SplashScreen splashScreen;
++
+     /**
+      * The constructor.
+      * 
+@@ -139,13 +144,25 @@
+         // Load custom langpack if exist.
+         addCustomLangpack(installdata);
+ 
++        // Load custom langpack if exist and we're not skipping it.
+         // We launch the installer GUI
+         SwingUtilities.invokeLater(new Runnable() {
+             public void run()
+             {
+                 try
+                 {
++                    // Show the splash screen, if it's set and &quot;skip_splash&quot; wasn't set on the command line.
++                    if (!&quot;true&quot;.equalsIgnoreCase(System.getProperty(&quot;skip_splash&quot;))) {
++                        loadSplashScreen();
++                    }
++
+                     loadGUI();
++
++                    // Close the splash screen
++                    if (!&quot;true&quot;.equalsIgnoreCase(System.getProperty(&quot;skip_splash&quot;))) {
++                        unloadSplashScreen();
++                    }
++
+                 }
+                 catch (Exception e)
+                 {
+@@ -399,6 +416,25 @@
+         }
+     }
+ 
++    public void loadSplashScreen()
++    {
++        try
++        {
++            ImageIcon image = ResourceManager.getInstance().getImageIconResource(&quot;SplashScreen&quot;);
++            splashScreen = new SplashScreen(image.getImage());
++            splashScreen.run();
++        }
++        catch(ResourceNotFoundException e)
++        {
++            // There isn't a Splash screen specified.
++        }
++        catch(IOException e)
++        {
++            e.printStackTrace();
++        }
++
++    }
++
+     /**
+      * Loads the GUI.
+      * 
+@@ -427,6 +463,13 @@
+         new InstallerFrame(title, this.installdata);
+     }
+ 
++    protected void unloadSplashScreen(){
++        if(splashScreen != null)
++        {
++            splashScreen.close();
++        }
++    }
++
+     /**
+      * Returns whether flags should be used in the language selection dialog or not.
+      * 
+
+Modified: izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-09-28 16:34:46 UTC (rev 1621)
++++ izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-09-28 22:48:07 UTC (rev 1622)
+@@ -54,9 +54,7 @@
+ import java.lang.reflect.Constructor;
+ import java.net.URL;
+ import java.util.ArrayList;
+-import java.util.Enumeration;
+ import java.util.HashSet;
+-import java.util.Hashtable;
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+@@ -65,21 +63,7 @@
+ import java.util.zip.ZipException;
+ import java.util.zip.ZipOutputStream;
+ 
+-import javax.swing.BorderFactory;
+-import javax.swing.Box;
+-import javax.swing.BoxLayout;
+-import javax.swing.ImageIcon;
+-import javax.swing.JButton;
+-import javax.swing.JComponent;
+-import javax.swing.JFrame;
+-import javax.swing.JLabel;
+-import javax.swing.JOptionPane;
+-import javax.swing.JPanel;
+-import javax.swing.JProgressBar;
+-import javax.swing.JSeparator;
+-import javax.swing.SwingUtilities;
+-import javax.swing.UIManager;
+-import javax.swing.WindowConstants;
++import javax.swing.*;
+ import javax.swing.border.TitledBorder;
+ import javax.swing.text.JTextComponent;
+ 
+@@ -97,13 +81,8 @@
+ import com.izforge.izpack.gui.ButtonFactory;
+ import com.izforge.izpack.gui.EtchedLineBorder;
+ import com.izforge.izpack.gui.IconsDatabase;
+-import com.izforge.izpack.util.AbstractUIProgressHandler;
+-import com.izforge.izpack.util.Debug;
+-import com.izforge.izpack.util.Housekeeper;
+-import com.izforge.izpack.util.IoHelper;
+-import com.izforge.izpack.util.OsConstraint;
+-import com.izforge.izpack.util.VariableSubstitutor;
+-import com.izforge.izpack.util.os.unix.UnixUser;
++import com.izforge.izpack.gui.JPanelWithBackground;
++import com.izforge.izpack.util.*;
+ 
+ /**
+  * The IzPack installer frame.
+@@ -165,8 +144,8 @@
+     /** The heading counter component. */
+     protected JComponent headingCounterComponent;
+     
+-    /** Image */
+-    private JLabel iconLabel;
++    /** This panel contains the image on the left hand side of the window. */
++    protected JPanelWithBackground imagePanel;
+ 
+     /** Count for discarded interrupt trials. */
+     private int interruptCount = 1;
+@@ -311,7 +290,20 @@
+     {
+         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE); //patch 06/07/2005, Fabrice Mirabile
+         // Sets the frame icon
+-        setIconImage(icons.getImageIcon(&quot;JFrameIcon&quot;).getImage());
++        try
++        {
++            setIconImage(ResourceManager.getInstance().getImageIconResource(&quot;Icon&quot;).getImage());
++        }
++        catch(ResourceNotFoundException e)
++        {
++            // There isn't an Icon resource specified.
++            useDefaultIcon();
++        }
++        catch(IOException e)
++        {
++            e.printStackTrace();
++            useDefaultIcon();
++        }
+ 
+         // Prepares the glass pane to block the gui interaction when needed
+         JPanel glassPane = (JPanel) getGlassPane();
+@@ -373,13 +365,12 @@
+             ImageIcon icon = loadIcon(ICON_RESOURCE, 0, true);
+             if (icon != null)
+             {
+-                JPanel imgPanel = new JPanel();
+-                imgPanel.setLayout(new BorderLayout());
+-                imgPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
+-                iconLabel = new JLabel(icon);
+-                iconLabel.setBorder(BorderFactory.createLoweredBevelBorder());
+-                imgPanel.add(iconLabel, BorderLayout.NORTH);
+-                contentPane.add(imgPanel, BorderLayout.WEST);
++                JPanel outerImagePanel = new JPanel(new BorderLayout());
++                outerImagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 0));
++                imagePanel = new JPanelWithBackground(icon.getImage());
++                imagePanel.setBorder(BorderFactory.createLoweredBevelBorder());
++                outerImagePanel.add(imagePanel);
++                contentPane.add(outerImagePanel, BorderLayout.WEST);
+             }
+         }
+         catch (Exception e)
+@@ -393,6 +384,8 @@
+         createHeading(navPanel);
+     }
+ 
++    protected void useDefaultIcon(){setIconImage(icons.getImageIcon(&quot;JFrameIcon&quot;).getImage());}
++    
+     private void callGUIListener(int what)
+     {
+         callGUIListener(what, null);
+@@ -409,7 +402,7 @@
+             throws ResourceNotFoundException, IOException
+     {
+         ResourceManager rm = ResourceManager.getInstance();
+-        ImageIcon icon = null;
++        ImageIcon icon;
+         if (tryBaseIcon)
+         {
+             try
+@@ -428,21 +421,16 @@
+ 
+     private void loadAndShowImage(int panelNo)
+     {
+-        loadAndShowImage(iconLabel, ICON_RESOURCE, panelNo);
+-    }
+-
+-    private void loadAndShowImage(JLabel iLabel, String resPrefix, int panelNo)
+-    {
+         ImageIcon icon = null;
+         try
+         {
+-            icon = loadIcon(resPrefix, panelNo, false);
++            icon = loadIcon(ICON_RESOURCE, panelNo, false);
+         }
+         catch (Exception e)
+         {
+             try
+             {
+-                icon = loadIcon(resPrefix, panelNo, true);
++                icon = loadIcon(ICON_RESOURCE, panelNo, true);
+             }
+             catch (Exception e1)
+             {
+@@ -451,9 +439,9 @@
+         }
+         if (icon != null)
+         {
+-            iLabel.setVisible(false);
+-            iLabel.setIcon(icon);
+-            iLabel.setVisible(true);
++            imagePanel.setVisible(false);
++            imagePanel.setBackgroundImage(icon.getImage());
++            imagePanel.setVisible(true);
+         }
+     }
+ 
+@@ -483,7 +471,6 @@
+                 isBack = true;
+             }
+             panelsContainer.setVisible(false);
+-            IzPanel panel = (IzPanel) installdata.panels.get(installdata.curPanelNumber);
+             IzPanel l_panel = (IzPanel) installdata.panels.get(last);
+             //instead of writing data here which leads to duplicated entries in
+             //auto-installation script (bug # 4551), let's make data only immediately before
+@@ -533,6 +520,7 @@
+             // Change panels container to the current one.
+             panelsContainer.remove(l_panel);
+             l_panel.panelDeactivate();
++            IzPanel panel = (IzPanel) installdata.panels.get(installdata.curPanelNumber);
+             panelsContainer.add(panel);
+ 
+             if (panel.getInitialFocus() != null)
+@@ -570,7 +558,7 @@
+                 }
+             }
+             performHeading(panel);
+-            performHeadingCounter(panel);
++            performHeadingCounter();
+             panel.panelActivate();
+             panelsContainer.setVisible(true);
+             loadAndShowImage(((Integer) visiblePanelMapping.get(installdata.curPanelNumber))
+@@ -696,7 +684,6 @@
+                         {
+                             String nativeLibName = (String) ((List) nativeLibIter.next()).get(0);
+                             byte[] buffer = new byte[5120];
+-                            long bytesCopied = 0;
+                             int bytesInBuffer;
+                             outJar.putNextEntry(new ZipEntry(&quot;native/&quot; + nativeLibName));
+                             InputStream in = getClass().getResourceAsStream(
+@@ -704,7 +691,6 @@
+                             while ((bytesInBuffer = in.read(buffer)) != -1)
+                             {
+                                 outJar.write(buffer, 0, bytesInBuffer);
+-                                bytesCopied += bytesInBuffer;
+                             }
+                             outJar.closeEntry();
+                         }
+@@ -723,7 +709,6 @@
+                         while (listenerIter.hasNext())
+                         {
+                             byte[] buffer = new byte[5120];
+-                            long bytesCopied = 0;
+                             int bytesInBuffer;
+                             CustomData customData = (CustomData) listenerIter.next();
+                             // First element of the list contains the listener
+@@ -756,7 +741,6 @@
+                                     while ((bytesInBuffer = in.read(buffer)) != -1)
+                                     {
+                                         outJar.write(buffer, 0, bytesInBuffer);
+-                                        bytesCopied += bytesInBuffer;
+                                     }
+                                 }
+                                 else
+@@ -824,7 +808,7 @@
+     {
+         InputStream result;
+         String basePath = &quot;&quot;;
+-        ResourceManager rm = null;
++        ResourceManager rm;
+ 
+         try
+         {
+@@ -891,38 +875,44 @@
+     /** Makes a clean closing. */
+     public void exit()
+     {
+-        if (installdata.canClose)
++        int res = JOptionPane.YES_OPTION;
++
++        if (installdata.closeRequiresAsking)
+         {
+-            // this does nothing if the uninstaller was not included
+-            writeUninstallData();
+-            Housekeeper.getInstance().shutDown(0);
++            res = JOptionPane.showConfirmDialog(this, langpack
++                    .getString(&quot;installer.quit.message&quot;), langpack
++                    .getString(&quot;installer.quit.title&quot;), JOptionPane.YES_NO_OPTION);
+         }
+-        else
++
++        if(res == JOptionPane.YES_OPTION)
+         {
+-            // The installation is not over
+-            if (Unpacker.isDiscardInterrupt() &amp;&amp; interruptCount &lt; MAX_INTERRUPT)
+-            { // But we should not interrupt.
+-                interruptCount++;
+-                return;
+-            }
+-            // Use a alternate message and title if defined.
+-            final String mkey = &quot;installer.quit.reversemessage&quot;;
+-            final String tkey = &quot;installer.quit.reversetitle&quot;;
+-            String message = langpack.getString(mkey);
+-            String title = langpack.getString(tkey);
+-            // message equal to key -&gt; no alternate message defined.
+-            if (message.indexOf(mkey) &gt; -1) message = langpack.getString(&quot;installer.quit.message&quot;);
+-            // title equal to key -&gt; no alternate title defined.
+-            if (title.indexOf(tkey) &gt; -1) title = langpack.getString(&quot;installer.quit.title&quot;);
+-            // Now replace variables in message or title.
+-            VariableSubstitutor vs = new VariableSubstitutor(installdata.getVariables());
+-            message = vs.substitute(message, null);
+-            title = vs.substitute(title, null);
+-            int res = JOptionPane
+-                    .showConfirmDialog(this, message, title, JOptionPane.YES_NO_OPTION);
+-            if (res == JOptionPane.YES_OPTION)
++            if(installdata.closeRequiresUninstall)
+             {
++                // The installation is not over
++                if (Unpacker.isDiscardInterrupt() &amp;&amp; interruptCount &lt; MAX_INTERRUPT)
++                {
++                    // But we should not interrupt.
++                    interruptCount++;
++                    return;
++                }
++
+                 wipeAborted();
++
++                JDialog dialog = new JDialog(this);
++                dialog.getContentPane().add(new JLabel(installdata.langpack.getString(&quot;InstallPanel.cleaning&quot;), JLabel.CENTER));
++                dialog.setSize(200, 100);
++                centerFrame(dialog);
++                dialog.setVisible(true);
++
++                new Thread() {
++                    public void run()
++                    {
++                        Housekeeper.getInstance().shutDown(0);
++                    }
++                }.start();
++            } else {
++                // this does nothing if the uninstaller was not included
++                writeUninstallData();
+                 Housekeeper.getInstance().shutDown(0);
+             }
+         }
+@@ -931,25 +921,40 @@
+     /** Wipes the written files when you abort the installation. */
+     protected void wipeAborted()
+     {
+-        Iterator it;
++        // Wipes them all in 2 stages
++        CleanupClient wipeCleanupClient = new CleanupClient()
++        {
++            public void cleanUp()
++            {
++                // We set interrupt to all running Unpacker and wait 40 sec for maximum.
++                // If interrupt is discarded (return value false), return immediately:
++                if(!Unpacker.interruptAll(40000))
++                {
++                    return;
++                }
+ 
+-        // We set interrupt to all running Unpacker and wait 40 sec for maximum.
+-        // If interrupt is discarded (return value false), return immediately:
+-        if (!Unpacker.interruptAll(40000)) return;
++                UninstallData u = UninstallData.getInstance();
++                Iterator it = u.getFilesList().iterator();
++                if(!it.hasNext())
++                {
++                    return;
++                }
++                while (it.hasNext())
++                {
++                    String p = (String) it.next();
++                    File f = new File(p);
++                    System.out.println(&quot;Deleting file &quot; + f.getPath());
++                    f.delete();
++                }
++                String fullCleanup = installdata.getVariable(&quot;InstallerFrame.cleanAllAtInterrupt&quot;);
++                if (fullCleanup == null || !fullCleanup.equalsIgnoreCase(&quot;no&quot;))
++                {
++                    cleanWipe(new File(installdata.getInstallPath()));
++                }
+ 
+-        // Wipes them all in 2 stages
+-        UninstallData u = UninstallData.getInstance();
+-        it = u.getFilesList().iterator();
+-        if (!it.hasNext()) return;
+-        while (it.hasNext())
+-        {
+-            String p = (String) it.next();
+-            File f = new File(p);
+-            f.delete();
+-        }
+-        String fullCleanup = installdata.getVariable(&quot;InstallerFrame.cleanAllAtInterrupt&quot;);
+-        if (fullCleanup == null || !&quot;no&quot;.equalsIgnoreCase(fullCleanup))
+-            cleanWipe(new File(installdata.getInstallPath()));
++            }
++        };
++        Housekeeper.getInstance().registerForCleanup(wipeCleanupClient);
+     }
+ 
+     /**
+@@ -1131,6 +1136,15 @@
+             switchPanel(installdata.curPanelNumber + 1);
+         }
+     }
++    
++    /** Get the panel on the left hand side where the image is.  This is useful if you want to put status messages there.
++     *
++     * @return the panel for the left hand side image, or null if no image was set.
++     */
++    public JPanel getImagePanel()
++    {
++        return imagePanel;
++    }
+ 
+     /**
+      * Handles the events from the navigation bar elements.
+@@ -1177,26 +1191,6 @@
+ 			// We ask for confirmation
+ 			exit();
+ 		}
+-		
+-		/** OLD VERSION
+-         * We can't avoid the exit here, so don't call exit anywhere else.
+-         * 
+-         * @param e The event.
+-         
+-        public void windowClosing(WindowEvent e)
+-        {
+-            if (Unpacker.isDiscardInterrupt() &amp;&amp; interruptCount &lt; MAX_INTERRUPT)
+-            { // But we should not interrupt.
+-                interruptCount++;
+-                return;
+-            }
+-            // We show an alert anyway
+-            if (!installdata.canClose)
+-                JOptionPane.showMessageDialog(null, langpack.getString(&quot;installer.quit.message&quot;),
+-                        langpack.getString(&quot;installer.warning&quot;), JOptionPane.ERROR_MESSAGE);
+-            wipeAborted();
+-            Housekeeper.getInstance().shutDown(0);
+-        }*/
+ 	}
+ 
+     /**
+@@ -1240,7 +1234,7 @@
+     }
+ 
+ 
+-    private void createHeadingLabels(int headingLines, Color back)
++    private void createHeadingLabels(int headingLines)
+     {
+         // headingLabels are an array which contains the labels for header (0),
+         // description lines and the icon (last).
+@@ -1267,14 +1261,18 @@
+ 
+     }
+ 
+-    private void createHeadingCounter(Color back, JPanel navPanel, JPanel leftHeadingPanel)
++    private void createHeadingCounter(JPanel navPanel, JPanel leftHeadingPanel)
+     {
+         int i;
+         String counterPos = &quot;inHeading&quot;;
+         if (installdata.guiPrefs.modifier.containsKey(&quot;headingPanelCounterPos&quot;))
+             counterPos = (String) installdata.guiPrefs.modifier.get(&quot;headingPanelCounterPos&quot;);
+         // Do not create counter if it should be in the heading, but no heading should be used.
+-        if (leftHeadingPanel == null &amp;&amp; &quot;inHeading&quot;.equalsIgnoreCase(counterPos)) return;
++        if (leftHeadingPanel == null &amp;&amp; &quot;inHeading&quot;.equalsIgnoreCase(counterPos))
++        {
++            return;
++        }
++
+         if (installdata.guiPrefs.modifier.containsKey(&quot;headingPanelCounter&quot;))
+         {
+             headingCounterComponent = null;
+@@ -1290,8 +1288,7 @@
+             else if (&quot;text&quot;.equalsIgnoreCase((String) installdata.guiPrefs.modifier
+                     .get(&quot;headingPanelCounter&quot;)))
+             {
+-                JLabel headingCountPanels = new JLabel(&quot; &quot;);
+-                headingCounterComponent = headingCountPanels;
++                headingCounterComponent = new JLabel(&quot; &quot;);
+                 headingCounterComponent.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
+             }
+             if (&quot;inHeading&quot;.equals(counterPos))
+@@ -1349,7 +1346,6 @@
+             headingLines = Integer.parseInt((String) installdata.guiPrefs.modifier
+                     .get(&quot;headingLineCount&quot;));
+         Color back = null;
+-        int i = 0;
+         // It is possible to determine the used background color of the heading panel.
+         if (installdata.guiPrefs.modifier.containsKey(&quot;headingBackgroundColor&quot;))
+             back = Color.decode((String) installdata.guiPrefs.modifier
+@@ -1357,23 +1353,28 @@
+         // Try to create counter if no heading should be used.
+         if (!isHeading(null)) 
+         { 
+-            createHeadingCounter(back, navPanel, null);
++            createHeadingCounter(navPanel, null);
+             return; 
+         }
+         
+         // We create the text labels and the needed panels. From inner to outer.
+         // Labels
+-        createHeadingLabels(headingLines, back);
++        createHeadingLabels(headingLines);
+         // Panel which contains the labels
+         JPanel leftHeadingPanel = new JPanel();
+-        if (back != null) leftHeadingPanel.setBackground(back);
++        if (back != null)
++        {
++            leftHeadingPanel.setBackground(back);
++        }
+         leftHeadingPanel.setLayout(new BoxLayout(leftHeadingPanel, BoxLayout.Y_AXIS));
+-        for (i = 0; i &lt; headingLines; ++i)
++        for (int i = 0; i &lt; headingLines; ++i)
++        {
+             leftHeadingPanel.add(headingLabels[i]);
++        }
+         // HeadingPanel counter: this is a label or a progress bar which can be placed
+         // in the leftHeadingPanel or in the navigation bar. It is facultative. If
+         // exist, it shows the current panel number and the amount of panels.
+-        createHeadingCounter(back, navPanel, leftHeadingPanel);
++        createHeadingCounter(navPanel, leftHeadingPanel);
+         // It is possible to place an icon on the right side of the heading panel.
+         JPanel imgPanel = createHeadingIcon(back);
+ 
+@@ -1416,7 +1417,6 @@
+ 
+     private void performHeading(IzPanel panel)
+     {
+-        int i;
+         int headingLines = 1;
+         if (installdata.guiPrefs.modifier.containsKey(&quot;headingLineCount&quot;))
+             headingLines = Integer.parseInt((String) installdata.guiPrefs.modifier
+@@ -1429,10 +1429,10 @@
+             headingPanel.setVisible(false);
+             return;
+         }
+-        for (i = 0; i &lt;= headingLines; ++i)
++        for (int i = 0; i &lt;= headingLines; ++i)
+             if (headingLabels[i] != null) headingLabels[i].setVisible(false);
+         String info;
+-        for (i = 0; i &lt; headingLines - 1; ++i)
++        for (int i = 0; i &lt; headingLines - 1; ++i)
+         {
+             info = panel.getI18nStringForClass(&quot;headinfo&quot; + Integer.toString(i));
+             if (info == null) info = &quot; &quot;;
+@@ -1455,8 +1455,35 @@
+         headingPanel.setVisible(true);
+ 
+     }
+-    private void performHeadingCounter(IzPanel panel)
++
++    private void loadAndShowImage(JLabel iLabel, String resPrefix, int panelNo)
+     {
++        ImageIcon icon = null;
++        try
++        {
++            icon = loadIcon(resPrefix, panelNo, false);
++        }
++        catch (Exception e)
++        {
++            try
++            {
++                icon = loadIcon(resPrefix, panelNo, true);
++            }
++            catch (Exception e1)
++            {
++                // ignore
++            }
++        }
++        if (icon != null)
++        {
++            iLabel.setVisible(false);
++            iLabel.setIcon(icon);
++            iLabel.setVisible(true);
++        }
++    }
++
++    private void performHeadingCounter()
++    {
+         if (headingCounterComponent != null)
+         {
+             int curPanelNo = ((Integer) visiblePanelMapping.get(installdata.curPanelNumber))
+
+Modified: izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/Unpacker.java
+===================================================================
+--- izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/Unpacker.java	2006-09-28 16:34:46 UTC (rev 1621)
++++ izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/installer/Unpacker.java	2006-09-28 22:48:07 UTC (rev 1622)
+@@ -844,7 +844,7 @@
+         in[1] = Unpacker.class.getResourceAsStream(&quot;/res/IzPack.uninstaller-ext&quot;);
+ 
+         // Me make the .uninstaller directory
+-        String dest = IoHelper.translatePath(&quot;$INSTALL_PATH&quot;, vs) + File.separator + &quot;Uninstaller&quot;;
++        String dest = IoHelper.translatePath(&quot;$INSTALL_PATH&quot;, vs) + File.separator + idata.info.getUninstallerPath();
+         String jar = dest + File.separator + idata.info.getUninstallerName();
+         File pathMaker = new File(dest);
+         pathMaker.mkdirs();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000366.html">[izpack-changes] r1621 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+	<LI>Next message: <A HREF="000368.html">[izpack-changes] r1623 -	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#367">[ date ]</a>
+              <a href="thread.html#367">[ thread ]</a>
+              <a href="subject.html#367">[ subject ]</a>
+              <a href="author.html#367">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

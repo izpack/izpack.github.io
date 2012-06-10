@@ -1,0 +1,307 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1875 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1875%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20panels%20util/os&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000622.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1875 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1875%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20panels%20util/os&In-Reply-To="
+       TITLE="[izpack-changes] r1875 - in	izpack-src/trunk/src/lib/com/izforge/izpack: panels util/os">noreply at berlios.de
+       </A><BR>
+    <I>Mon Oct  8 00:09:37 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000622.html">[izpack-changes] r1876 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#621">[ date ]</a>
+              <a href="thread.html#621">[ thread ]</a>
+              <a href="subject.html#621">[ subject ]</a>
+              <a href="author.html#621">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-10-08 00:09:32 +0200 (Mon, 08 Oct 2007)
+New Revision: 1875
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+Log:
+Unix shortcut creation and GUI fixes. Re-entrant ShortcutPanel(from WALLEM Pascal AWL-T&amp;P).
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-09-24 18:28:25 UTC (rev 1874)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ShortcutPanel.java	2007-10-07 22:09:32 UTC (rev 1875)
+@@ -1,7 +1,7 @@
+ /*
+  * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
+  *
+- * <A HREF="http://izpack.org/">http://izpack.org/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+  *
+  * Copyright 2002 Elmar Grom
+  *
+@@ -271,6 +271,8 @@
+ 
+     private static ShortcutPanel self = null;
+ 
++    private static boolean firstTime = true;
++
+     /** internal flag: create */
+     static boolean create;
+     
+@@ -343,6 +345,12 @@
+ 
+     /** The name chosen by the user for the program group, */
+     private String groupName;
++    
++    /** The icon for the group in XDG/unix menu */
++    private String programGroupIconFile;
++    
++    /** Comment for XDG/unix group */
++    private String programGroupComment;
+ 
+     /**
+      * The location for placign the program group. This is the same as the location (type) of a
+@@ -508,7 +516,8 @@
+         // ----------------------------------------------------
+         else if (eventSource.equals(defaultButton))
+         {
+-            groupList.getSelectionModel().clearSelection();
++            if(groupList != null &amp;&amp; groupList.getSelectionModel() != null)
++               groupList.getSelectionModel().clearSelection();
+             programGroup.setText(suggestedProgramGroup);
+ 
+             return;
+@@ -659,6 +668,7 @@
+                     itsUserType = Shortcut.CURRENT_USER;
+                 }                
+                 
++                if (firstTime)
+                 buildUI(getProgramsFolder(isRootUser ? Shortcut.ALL_USERS : Shortcut.CURRENT_USER));
+ 
+                 // addSelectionList();
+@@ -670,11 +680,13 @@
+             else
+             {
+                 // TODO MEP: Test
++                if (firstTime)
+                 buildAlternateUI();
+ 
+                 // parent.unlockNextButton();
+                 // parent.lockPrevButton();
+             }
++            firstTime = false;
+         }
+         else
+         {
+@@ -756,12 +768,11 @@
+ 
+         try
+         {
+-            input = ResourceManager.getInstance().getInputStream(
+-                    TargetFactory.getCurrentOSPrefix() + SPEC_FILE_NAME);
++            input = parent.getResource(TargetFactory.getCurrentOSPrefix() + SPEC_FILE_NAME);
+         }
+         catch (ResourceNotFoundException rnfE)
+         {
+-            input = ResourceManager.getInstance().getInputStream(SPEC_FILE_NAME);
++            input = parent.getResource(SPEC_FILE_NAME);
+         }
+ 
+         if (input == null)
+@@ -869,6 +880,8 @@
+         if (group != null)
+         {
+             suggestedProgramGroup = group.getAttribute(SPEC_ATTRIBUTE_DEFAULT_GROUP, &quot;&quot;);
++            programGroupIconFile = group.getAttribute(&quot;iconFile&quot;, &quot;&quot;);
++            programGroupComment = group.getAttribute(&quot;comment&quot;, &quot;&quot;);
+             location = group.getAttribute(SPEC_ATTRIBUTE_LOCATION, SPEC_VALUE_APPLICATIONS);
+         }
+         else
+@@ -1127,6 +1140,8 @@
+        String menuConfigText = &quot;&lt;Menu&gt;\n&quot; +
+             &quot;&lt;Name&gt;Applications&lt;/Name&gt;\n&quot; +
+             &quot;&lt;Menu&gt;\n&quot; +
++            // Ubuntu can't handle spaces, replace with &quot;-&quot;
++            &quot;&lt;Directory&gt;&quot; + menuName.replaceAll(&quot; &quot;, &quot;-&quot;) + &quot;-izpack.directory&lt;/Directory&gt;\n&quot;+
+             &quot;&lt;Name&gt;&quot; + menuName + &quot;&lt;/Name&gt;\n&quot; +
+             &quot;&lt;Include&gt;\n&quot;;
+        
+@@ -1140,42 +1155,74 @@
+            
+     }
+     
+-    private void writeXDGMenuFile(ArrayList desktopFileNames, String groupName)
++    private String createXDGDirectory(String menuName, String icon, String comment)
+     {
++       String menuDirectoryDescriptor = &quot;[Desktop Entry]\n&quot; +
++       &quot;Name=$Name\n&quot; +
++       &quot;Comment=$Comment\n&quot; +
++       &quot;Icon=$Icon\n&quot; +
++       &quot;Type=Directory\n&quot;+
++       &quot;Encoding=UTF-8&quot;;
++       menuDirectoryDescriptor = 
++          StringTool.replace(menuDirectoryDescriptor, &quot;$Name&quot;, menuName);
++       menuDirectoryDescriptor = 
++          StringTool.replace(menuDirectoryDescriptor, &quot;$Comment&quot;, comment);
++       menuDirectoryDescriptor = 
++          StringTool.replace(menuDirectoryDescriptor, &quot;$Icon&quot;, icon);
++       return menuDirectoryDescriptor;
++    }
++    
++    private void writeXDGMenuFile(ArrayList desktopFileNames, String groupName, String icon, String comment)
++    {
++       if(&quot;&quot;.equals(suggestedProgramGroup) || suggestedProgramGroup == null) return; // No group name means the shortcuts
++       // will be placed by category
+        if(OsVersion.IS_UNIX)
+        {
+           String menuFile = createXDGMenu(desktopFileNames, groupName);
++          String dirFile = createXDGDirectory(groupName, icon, comment);
+           String menuFolder;
++          String directoryFolder;
+           if(itsUserType == Shortcut.ALL_USERS)
+           {
+-             menuFolder = &quot;/etc/xdg/menus/applications-merged/&quot;;              
++             menuFolder = &quot;/etc/xdg/menus/applications-merged/&quot;; 
++             directoryFolder = &quot;/usr/share/desktop-directories/&quot;;
+           }
+           else
+           {
+              menuFolder = System.getProperty(&quot;user.home&quot;) + File.separator
+                   + &quot;.config/menus/applications-merged/&quot;;
++             directoryFolder = System.getProperty(&quot;user.home&quot;) + File.separator
++                  + &quot;.local/share/desktop-directories/&quot;;
+           }
+-          File menuConfigFolder = new File(menuFolder);
++          File menuFolderFile = new File(menuFolder);
++          File directoryFolderFile = new File(directoryFolder);
+           String menuFilePath = menuFolder + groupName + &quot;.menu&quot;;
+-          menuConfigFolder.mkdirs();
+-          FileWriter menuFileWriter;
+-          boolean failed = false;
+-          try{
+-             
+-             menuFileWriter = new FileWriter(menuFilePath);
+-             menuFileWriter.write(menuFile);
+-             menuFileWriter.close();
+-          }
+-          catch(Exception ignore)
+-          {
+-             failed = true;
+-             Debug.log(&quot;Failed to create menu for gnome.&quot;);
+-          }
+-          if(!failed) UninstallData.getInstance().addFile(menuFilePath);
++          // Ubuntu can't handle spaces in the directory file name
++          String dirFilePath = directoryFolder + groupName.replaceAll(&quot; &quot;, &quot;-&quot;) + &quot;-izpack.directory&quot;;
++          menuFolderFile.mkdirs();
++          directoryFolderFile.mkdirs();
++          writeString(menuFile, menuFilePath);
++          writeString(dirFile, dirFilePath);
++       }       
++       
+ 
+-       }       
+     }
+     
++    private void writeString(String str, String file)
++    {
++       boolean failed = false;
++       try{
++          FileWriter writer = new FileWriter(file);
++          writer.write(str);
++          writer.close();
++       }
++       catch(Exception ignore)
++       {
++          failed = true;
++          Debug.log(&quot;Failed to create menu for gnome.&quot;);
++       }
++       if(!failed) UninstallData.getInstance().addFile(file);
++    }
+     /*--------------------------------------------------------------------------*/
+ 
+     /**
+@@ -1303,7 +1350,8 @@
+                 continue;
+             }
+         }
+-        if(OsVersion.IS_UNIX) writeXDGMenuFile(startMenuShortcuts, groupName);
++        if(OsVersion.IS_UNIX) writeXDGMenuFile(startMenuShortcuts,
++              groupName, programGroupIconFile, programGroupComment);
+         shortcut.execPostAction();
+ 
+         try
+@@ -1620,6 +1668,13 @@
+         constraints.fill = GridBagConstraints.HORIZONTAL;
+         layout.addLayoutComponent(defaultButton, constraints);
+         add(defaultButton);
++        
++        if(suggestedProgramGroup == null || &quot;&quot;.equals(suggestedProgramGroup))
++        {
++           programGroup.setVisible(false);
++           defaultButton.setVisible(false);
++           listLabel.setVisible(false);
++        }
+     }
+ 
+     /**
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2007-09-24 18:28:25 UTC (rev 1874)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/Unix_Shortcut.java	2007-10-07 22:09:32 UTC (rev 1875)
+@@ -557,6 +557,9 @@
+             // the following is for backwards compatibility to older versions of KDE!
+             // on newer versions of KDE the icons will appear duplicated unless you set
+             // the category=&quot;&quot;
++           
++           //removed because of compatibility issues
++           /*
+             Object categoryobject = props.getProperty($Categories);
+             if(categoryobject != null &amp;&amp; ((String)categoryobject).length()&gt;0)
+             {
+@@ -568,7 +571,8 @@
+ 
+                uninstaller.addFile(kdemenufile.toString());
+             }
+-            
++            */
++           
+             if (rootUser4All &amp;&amp; create4All)
+             {
+                 {
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000622.html">[izpack-changes] r1876 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#621">[ date ]</a>
+              <a href="thread.html#621">[ thread ]</a>
+              <a href="subject.html#621">[ subject ]</a>
+              <a href="author.html#621">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

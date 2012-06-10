@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] more patches - small i18n change and ShortcutPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20more%20patches%20-%20small%20i18n%20change%20and%20ShortcutPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000349.html">
+   <LINK REL="Next"  HREF="000351.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] more patches - small i18n change and ShortcutPanel</H1>
+    <B>Joachim Hofer</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20more%20patches%20-%20small%20i18n%20change%20and%20ShortcutPanel&In-Reply-To="
+       TITLE="[izpack-devel] more patches - small i18n change and ShortcutPanel">joachim.hofer at imbus.de
+       </A><BR>
+    <I>Thu Jul 27 12:10:17 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000349.html">[izpack-devel] fixed docu
+</A></li>
+        <LI>Next message: <A HREF="000351.html">[izpack-devel] IzPanel Layout
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#350">[ date ]</a>
+              <a href="thread.html#350">[ thread ]</a>
+              <a href="subject.html#350">[ subject ]</a>
+              <a href="author.html#350">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+still hoping to help a bit, so here goes.
+
+I have created a subversion patch based on rev. 1508 which is attached.
+
+First, there is a type of messages which do not come with a correctly
+localized title, namely notifications (&quot;emitNotification()&quot;). This only
+happens if the OS is of another language than the installation language,
+but nevertheless. I added a title parameter and also added the necessary
+strings in the German and English language packs (I don't know how you
+handle synchronizing with all the other packs).
+
+Then, there is the rather new feature of subgroups for shortcuts in the
+ShortcutPanel. Currently I have to define them in a rather cumbersome
+(and yet undocumented) way. For example, look at this way of doing it
+(after my patch):
+
+&lt;programGroup defaultName=&quot;someGroup&quot; location=&quot;startMenu&quot; /&gt;
+  &lt;shortcut name=&quot;docu1&quot; subgroup=&quot;documentation&quot;
+     target=[...]
+  &lt;/shortcut&gt;
+  &lt;shortcut name=&quot;docu2&quot; subgroup=&quot;documentation&quot;
+     target=[...]
+  &lt;shortcut name=&quot;docu3&quot; subgroup=&quot;documentation&quot;
+     target=[...]
+  &lt;/shortcut&gt;
+  [...]
+
+in comparison with this (as it has to be done currently):
+&lt;programGroup defaultName=&quot;someGroup&quot; location=&quot;startMenu&quot; /&gt;
+  &lt;shortcut name=&quot;docu1&quot; subgroup=&quot;\documentation&quot;
+     target=[...]
+  &lt;/shortcut&gt;
+  &lt;shortcut name=&quot;docu2&quot; subgroup=&quot;\..\documentation&quot;
+     target=[...]
+  &lt;shortcut name=&quot;docu3&quot; subgroup=&quot;\..\documentation&quot;
+     target=[...]
+  &lt;/shortcut&gt;
+  [...]
+
+The former xml code would currently generate start menu entries looking
+like this:
+someGroupdocumentation / docu1
+someGroupdocumentationdocumentation / docu2
+someGroupdocumentationdocumentationdocumentation / docu3
+
+Did you expect that? ;) - I expected:
+someGroup / documentation / docu1
+someGroup / documentation / docu2
+someGroup / documentation / docu3
+
+So I'd say the latter xml code is unintuitive, you can easily run into
+problems when switching the order of the shortcuts (forgetting about the
+&quot;subgroup path cursor&quot;) and you also need to explicitely care for the
+file separators. So I fixed it so that the first of my two samples works.
+
+I also added the subgroup field to the automation xml file for the
+shortcut panel (though the automated setup doesn't seem to generate
+shortcuts at all atm).
+
+Joachim Hofer
+imbus AG
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: patch.1508.diff
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20060727/adcb5f59/attachment.ksh">https://lists.berlios.de/pipermail/izpack-devel/attachments/20060727/adcb5f59/attachment.ksh</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000349.html">[izpack-devel] fixed docu
+</A></li>
+	<LI>Next message: <A HREF="000351.html">[izpack-devel] IzPanel Layout
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#350">[ date ]</a>
+              <a href="thread.html#350">[ thread ]</a>
+              <a href="subject.html#350">[ subject ]</a>
+              <a href="author.html#350">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

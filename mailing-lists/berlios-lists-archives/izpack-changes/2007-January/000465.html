@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1720 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1720%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/compiler%20src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000464.html">
+   <LINK REL="Next"  HREF="000466.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1720 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1720%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/compiler%20src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1720 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 25 10:43:49 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000464.html">[izpack-changes] r1719 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000466.html">[izpack-changes] r1721 - in izpack-src/branches/3.10: . src	src/dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#465">[ date ]</a>
+              <a href="thread.html#465">[ thread ]</a>
+              <a href="subject.html#465">[ subject ]</a>
+              <a href="author.html#465">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-25 10:43:21 +0100 (Thu, 25 Jan 2007)
+New Revision: 1720
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java
+Log:
+Added ignore as possible value for failure argument in executables
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-01-24 10:05:54 UTC (rev 1719)
++++ izpack-src/trunk/Versions.txt	2007-01-25 09:43:21 UTC (rev 1720)
+@@ -1,5 +1,8 @@
+ [ The list of the different public versions of IzPack ]
++  &gt; ???
+ 
++- Added ignore as possible value for failure argument in executables (Dennis Reil)
++
+   &gt; Next release
+ 
+ - Added docu: executeForPack, executeclass,logfiledir  for ProcessPanel (Fabrice Mirabile)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-01-24 10:05:54 UTC (rev 1719)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-01-25 09:43:21 UTC (rev 1720)
+@@ -647,6 +647,7 @@
+                 if (&quot;abort&quot;.equalsIgnoreCase(val))
+                     executable.onFailure = ExecutableFile.ABORT;
+                 else if (&quot;warn&quot;.equalsIgnoreCase(val)) executable.onFailure = ExecutableFile.WARN;
++                else if (&quot;ignore&quot;.equalsIgnoreCase(val)) executable.onFailure = ExecutableFile.IGNORE;
+ 
+                 // whether to keep the executable after executing it
+                 val = e.getAttribute(&quot;keep&quot;);
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java	2007-01-24 10:05:54 UTC (rev 1719)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java	2007-01-25 09:43:21 UTC (rev 1720)
+@@ -360,6 +360,10 @@
+                         handler.emitWarning(&quot;file execution error&quot;, message);
+                         exitStatus = 0;
+                     }
++                    else if (efile.onFailure == ExecutableFile.IGNORE){
++                        // do nothing  
++                        exitStatus = 0;
++                    }
+                     else
+                     {
+                         if (handler
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000464.html">[izpack-changes] r1719 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000466.html">[izpack-changes] r1721 - in izpack-src/branches/3.10: . src	src/dist-files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#465">[ date ]</a>
+              <a href="thread.html#465">[ thread ]</a>
+              <a href="subject.html#465">[ subject ]</a>
+              <a href="author.html#465">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

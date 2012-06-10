@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] izpack-src/src/lib/com/izforge/izpack/panels SelectPrinterPanel.java,NONE,1.1.2.1
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/panels%20SelectPrinterPanel.java%2CNONE%2C1.1.2.1&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000071.html">
+   <LINK REL="Next"  HREF="000073.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] izpack-src/src/lib/com/izforge/izpack/panels SelectPrinterPanel.java,NONE,1.1.2.1</H1>
+    <B>miraodb</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/panels%20SelectPrinterPanel.java%2CNONE%2C1.1.2.1&In-Reply-To="
+       TITLE="[izpack-changes] izpack-src/src/lib/com/izforge/izpack/panels SelectPrinterPanel.java,NONE,1.1.2.1">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jan  6 19:14:34 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000071.html">[izpack-changes] izpack-src/bin/langpacks/flags kor.gif,NONE,1.1.2.1
+</A></li>
+        <LI>Next message: <A HREF="000073.html">[izpack-changes] izpack-src Thanks.txt,1.52.4.3,1.52.4.4 Versions.txt,1.210.2.7,1.210.2.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#72">[ date ]</a>
+              <a href="thread.html#72">[ thread ]</a>
+              <a href="subject.html#72">[ subject ]</a>
+              <a href="author.html#72">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/panels
+In directory sheep:/tmp/cvs-serv7416/src/lib/com/izforge/izpack/panels
+
+Added Files:
+      Tag: branch-3-8
+	SelectPrinterPanel.java 
+Log Message:
+Towards 3.8.1: (FM)
+
+- Added korean langpack
+- Added new panel: SelectedPrinterPanel
+- Redid the docu: XHTML and DocBook
+- Added strings for Italian, French and English for the new panel.
+- Updated thanks and versions.
+
+--- NEW FILE: SelectPrinterPanel.java ---
+/*
+ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+ *
+ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+ *
+ * Copyright 2006 Hal Vaughan
+ * <A HREF="http://thresholddigital.com">http://thresholddigital.com</A>
+ * <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">hal at thresholddigital.com</A>
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Updated by Fabrice Mirabile the 06/01/2006 
+ *
+ */
+
+package com.izforge.izpack.panels;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+
+import javax.print.PrintServiceLookup;
+import javax.print.PrintService;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import com.izforge.izpack.gui.LabelFactory;
+import com.izforge.izpack.installer.InstallData;
+import com.izforge.izpack.installer.InstallerFrame;
+import com.izforge.izpack.installer.IzPanel;
+
+/**
+ * The SelectPrinter panel class.
+ *
+ * @author Hal Vaughan
+ */
+public class SelectPrinterPanel extends IzPanel implements ActionListener
+{
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3257848774955905587L;
+
+    /** The layout. */
+    private BoxLayout layout;
+
+    /** The select label. */
+    private JLabel selectLabel;
+
+    /** The ComboBox to list the printers. */
+	 private JComboBox cbPrinters;
+
+    /** List of print services. */
+	 private PrintService[] pServices;
+
+    /** Install data variables. */
+	 private InstallData iData;
+
+    /**
+     * The constructor.
+     *
+     * @param parent The parent.
+     * @param iData The installation data.
+     */
+    public SelectPrinterPanel(InstallerFrame parent, InstallData id)
+    {
+        super(parent, id);
+        
+        iData = id;
+
+        // The 'super' layout
+        GridBagLayout superLayout = new GridBagLayout();
+        setLayout(superLayout);
+        GridBagConstraints gbConstraints = new GridBagConstraints();
+        gbConstraints.insets = new Insets(0, 0, 0, 0);
+        gbConstraints.fill = GridBagConstraints.NONE;
+        gbConstraints.anchor = GridBagConstraints.CENTER;
+
+        // We initialize our 'real' layout
+        JPanel centerPanel = new JPanel();
+        layout = new BoxLayout(centerPanel, BoxLayout.Y_AXIS);
+        centerPanel.setLayout(layout);
+        superLayout.addLayoutComponent(centerPanel, gbConstraints);
+        add(centerPanel);
+
+        cbPrinters = new JComboBox();
+    	pServices = PrintServiceLookup.lookupPrintServices(null, null);
+    	iData.setVariable(&quot;SELECTED_PRINTER&quot;, pServices[0].getName());
+    	for (int i = 0; i &lt; pServices.length; i++)
+    	{
+    		cbPrinters.addItem(pServices[i].getName());
+    	}
+        cbPrinters.addActionListener(this);
+
+        // We create and put the labels
+        String str;
+
+        centerPanel.add(Box.createVerticalStrut(10));
+        
+        str = parent.langpack.getString(&quot;PrinterSelectPanel.select_printer&quot;);
+        selectLabel = LabelFactory.create(str, JLabel.LEADING);
+        selectLabel.setAlignmentX(JLabel.LEADING);
+        centerPanel.add(selectLabel);
+
+        centerPanel.add(Box.createVerticalStrut(20));
+        
+        centerPanel.add(cbPrinters);
+
+        
+    }
+
+    public void actionPerformed(ActionEvent event)
+    {
+    	String sPrinter = (String) cbPrinters.getSelectedItem();
+    	iData.setVariable(&quot;SELECTED_PRINTER&quot;, sPrinter);
+    	return;
+    }
+
+    /**
+     * Indicates wether the panel has been validated or not.
+     *
+     * @return Always true.
+     */
+    public boolean isValidated()
+    {
+        return true;
+    }
+}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000071.html">[izpack-changes] izpack-src/bin/langpacks/flags kor.gif,NONE,1.1.2.1
+</A></li>
+	<LI>Next message: <A HREF="000073.html">[izpack-changes] izpack-src Thanks.txt,1.52.4.3,1.52.4.4 Versions.txt,1.210.2.7,1.210.2.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#72">[ date ]</a>
+              <a href="thread.html#72">[ thread ]</a>
+              <a href="subject.html#72">[ subject ]</a>
+              <a href="author.html#72">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

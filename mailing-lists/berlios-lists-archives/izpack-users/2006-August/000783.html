@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Accessing variables at install time
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Accessing%20variables%20at%20install%20time&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000781.html">
+   <LINK REL="Next"  HREF="000786.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Accessing variables at install time</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Accessing%20variables%20at%20install%20time&In-Reply-To="
+       TITLE="[izpack-users] Accessing variables at install time">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Aug  9 09:00:31 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000781.html">[izpack-users] Query regarding Search field
+</A></li>
+        <LI>Next message: <A HREF="000786.html">[izpack-users] How to gray &quot;Previous&quot; button &amp; enable &quot;Cancel&quot;	button in InstallPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#783">[ date ]</a>
+              <a href="thread.html#783">[ thread ]</a>
+              <a href="subject.html#783">[ subject ]</a>
+              <a href="author.html#783">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Paul,
+attached my InstallerListener for writing all IzPack variables with the
+prefix &quot;EJBProperties.&quot; into the file $INSTALL_PATH/project/system/ejbsystem.properties.
+One reason to put it not in the contribution of IzPack is, that a common version of
+this &quot;peanuts&quot; needs the 5th time or more.
+You see, much of the configuration of this custom action is hard coded. May be a 
+configuration file driven custom action will be nicer, but for my requirements the relation
+between implementation time, benefit and maintenance is very good.
+In the method &quot;setFixedEJBProperties&quot; I set defaults and properties which value I can
+resolve from already setted IzPack variables.
+ 
+Hope it helps
+ 
+Klaus
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Paul Stuart
+Sent: Tuesday, August 08, 2006 8:37 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Subject: Re: [izpack-users] Accessing variables at install time
+
+
+Hi Klaus,
+
+Thanks for the feedback. Yes, sample source would be valuable :-)
+
+I'm prepared to do custom code for this, I just wanted to avoid reinventing the wheel. I would think that this would be built in--after all, one has just gathered up all a user's input for an installation but there is no standard mechanism to apply that data. 
+
+I'm impressed by the product and hope to be able to contribute to it as well.
+
+Cheers,
+Paul
+
+
+On 8/8/06, Bartz, Klaus &lt;  &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; wrote: 
+
+Hi Paul,
+more than one way goes to Rom...
+I use the AntActionInstallerListener of IzPack for revise our ear file. 
+It contains place holder in some config files. For it I have written a
+little ant task which unpacks the ear, uses the replace task and packs
+it again. The placeholder are in a properties file.
+This file I create in an other custom action on the fly. There is no 
+template, else the defaults are written in the source of the custom action.
+All IzPack variables for this have a prefix. All variables with such an
+prefix will be write into the properties file. Therefore only the 
+variable have to be declared to add a new one.
+If needed, I can give you the source.
+I do not use the UserInputPanel else I write my own panels (in the moment
+I change the layout behavior for this). I create simple the variables 
+in the isValidated() method like
+idata.setVariable(&quot;EJBProperties.EJB_Host&quot;, hostName.getText());
+
+Cheers
+
+Klaus
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Paul Stuart
+</I>&gt;<i>Sent: Monday, August 07, 2006 5:40 PM 
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: [izpack-users] Accessing variables at install time
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Hi,
+</I>&gt;<i>
+</I>&gt;<i>Our software currently is installed using a script wrapper around an 
+</I>&gt;<i>ant installer. The user has to edit a properties file and then run the
+</I>&gt;<i>script.
+</I>&gt;<i>
+</I>&gt;<i>I would like to use IzPack to gather user input and generate the
+</I>&gt;<i>properties file and then run the script. 
+</I>&gt;<i>
+</I>&gt;<i>I've created a &quot;Hello World&quot; installer with multiple UserInputPanel
+</I>&gt;<i>panels but haven't been able to figure out how to acces all those user
+</I>&gt;<i>input variables at install time (to generate a new properties file). I 
+</I>&gt;<i>see
+</I>&gt;<i>
+</I>&gt;<i>I also couldn't see a clean way of importing the initial properties
+</I>&gt;<i>file into the installer--the only way it looks like would be for me to
+</I>&gt;<i>do a transform of the file to a &lt;variables&gt; list and insert that into 
+</I>&gt;<i>install.xml.
+</I>&gt;<i>
+</I>&gt;<i>Any insight would be appreciated!
+</I>&gt;<i>
+</I>&gt;<i>-Paul
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i>  &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://bat.berlios.de/mailman/listinfo/izpack-users">http://bat.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>_______________________________________________
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+<A HREF="http://bat.berlios.de/mailman/listinfo/izpack-users">http://bat.berlios.de/mailman/listinfo/izpack-users</A>  &lt;<A HREF="http://bat.berlios.de/mailman/listinfo/izpack-users">http://bat.berlios.de/mailman/listinfo/izpack-users</A>&gt; 
+
+
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060809/f1b784bd/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060809/f1b784bd/attachment.html</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: EJBPropertiesInstallerListener.java
+Type: application/octet-stream
+Size: 5652 bytes
+Desc: EJBPropertiesInstallerListener.java
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060809/f1b784bd/attachment.obj">https://lists.berlios.de/pipermail/izpack-users/attachments/20060809/f1b784bd/attachment.obj</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000781.html">[izpack-users] Query regarding Search field
+</A></li>
+	<LI>Next message: <A HREF="000786.html">[izpack-users] How to gray &quot;Previous&quot; button &amp; enable &quot;Cancel&quot;	button in InstallPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#783">[ date ]</a>
+              <a href="thread.html#783">[ thread ]</a>
+              <a href="subject.html#783">[ subject ]</a>
+              <a href="author.html#783">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,711 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1918 - in izpack-src/trunk: . src src/dtd	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1918%20-%20in%20izpack-src/trunk%3A%20.%20src%20src/dtd%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000663.html">
+   <LINK REL="Next"  HREF="000665.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1918 - in izpack-src/trunk: . src src/dtd	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1918%20-%20in%20izpack-src/trunk%3A%20.%20src%20src/dtd%0A%09src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1918 - in izpack-src/trunk: . src src/dtd	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Thu Nov 29 15:02:29 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000663.html">[izpack-changes] r1917 - in izpack-src/trunk/src:	lib/com/coi/tools/os/win lib/com/izforge/izpack	lib/com/izforge/izpack/event lib/com/izforge/izpack/gui	lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels lib/com/izforge/izpack/rules	lib/com/izforge/izpack/util/os tests/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000665.html">[izpack-changes] r1919 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#664">[ date ]</a>
+              <a href="thread.html#664">[ thread ]</a>
+              <a href="subject.html#664">[ subject ]</a>
+              <a href="author.html#664">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-29 15:02:17 +0100 (Thu, 29 Nov 2007)
+New Revision: 1918
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/dtd/installation.dtd
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+Log:
+Added conditions declaration to installation xml.
+Refactoring Packager implementations
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/Versions.txt	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -58,6 +58,8 @@
+ - Added condition-attribute to pack element in installer.xml (Dennis Reil)
+ - Spanish langpack update (Sergio Banos Calvo via Julien Ponge)
+ - Various fixes (Loic via Julien Ponge)
++- Added conditions-definition to installer xml (Dennis Reil)
++
+   
+   &gt; 3.10.2 (build 2007.05.11)
+ 
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/build.xml	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -290,6 +290,7 @@
+             &lt;include name=&quot;com/izforge/izpack/util/Debug.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/OsConstraint.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/JarOutputStream.java&quot; /&gt;
++        	&lt;include name=&quot;com/izforge/izpack/rules/*.java&quot; /&gt;
+             &lt;include name=&quot;net/n3/nanoxml/*.java&quot; /&gt;
+         &lt;/javac&gt;
+         &lt;copy todir=&quot;${build.dir}/com/izforge/izpack/ant/langpacks&quot;&gt;
+@@ -321,6 +322,8 @@
+                 &lt;include name=&quot;com/izforge/izpack/ant/langpacks/*.properties&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/event/CompilerListener.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/event/SimpleCompilerListener.class&quot; /&gt;
++            	&lt;include name=&quot;com/izforge/izpack/rules/*.class&quot; /&gt;
++            	&lt;include name=&quot;com/izforge/izpack/installer/*.class&quot; /&gt;
+                 &lt;include name=&quot;net/n3/nanoxml/*.class&quot; /&gt;
+             &lt;/fileset&gt;
+         &lt;/jar&gt;
+@@ -385,6 +388,7 @@
+             &lt;include name=&quot;com/izforge/izpack/util/os/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/rules/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/uninstaller/SelfModifier*.java&quot;/&gt;
++        	&lt;include name=&quot;com/izforge/izpack/rules/*.java&quot; /&gt;
+             &lt;include name=&quot;net/n3/nanoxml/*.java&quot; /&gt;
+         &lt;/javac&gt;
+     &lt;/target&gt;
+@@ -408,6 +412,7 @@
+                 &lt;include name=&quot;com/izforge/izpack/panels/NextMedia*.class&quot;/&gt;
+                 &lt;include name=&quot;com/izforge/izpack/rules/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/uninstaller/SelfModifier*.class&quot;/&gt;
++            	&lt;include name=&quot;com/izforge/izpack/rules/*.class&quot; /&gt;
+                 &lt;include name=&quot;net/n3/nanoxml/*.class&quot; /&gt;
+             &lt;/fileset&gt;
+             &lt;zipfileset src=&quot;${basedir}/lib/jakarta-regexp-1.3.jar&quot;&gt;
+@@ -917,10 +922,12 @@
+         &lt;/copy&gt;
+     &lt;/target&gt;
+ 
+-    &lt;target name=&quot;build.docu&quot; description=&quot;Builds the customer documentation&quot;&gt;    	
++    &lt;target name=&quot;build.docu&quot; description=&quot;Builds the customer documentation&quot;&gt;
++        &lt;!--     	
+         &lt;exec executable=&quot;python&quot; dir=&quot;${basedir}/src/doc-reST&quot;&gt;
+             &lt;arg value=&quot;build.py&quot;/&gt;
+         &lt;/exec&gt;
++         
+         &lt;mkdir dir=&quot;${doc.dir}/izpack/html&quot; /&gt;
+         &lt;copy todir=&quot;${doc.dir}/izpack/html&quot; preservelastmodified=&quot;true&quot;&gt;
+             &lt;fileset dir=&quot;${basedir}/src/doc-reST/html&quot;&gt;
+@@ -932,7 +939,8 @@
+             &lt;fileset dir=&quot;${basedir}/src/doc-reST/pdf&quot;&gt;
+                 &lt;include name=&quot;manual.pdf&quot; /&gt;
+             &lt;/fileset&gt;
+-        &lt;/copy&gt;    	
++        &lt;/copy&gt;
++        --&gt;    	
+     &lt;/target&gt;
+ 
+     &lt;target name=&quot;create.docu&quot;
+
+Modified: izpack-src/trunk/src/dtd/installation.dtd
+===================================================================
+--- izpack-src/trunk/src/dtd/installation.dtd	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/dtd/installation.dtd	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -10,7 +10,7 @@
+ --&gt;
+ 
+ &lt;!-- The root element --&gt;
+-&lt;!ELEMENT installation (preinstall?, info, packaging?, properties?, variables?, 
++&lt;!ELEMENT installation (preinstall?, info, packaging?, properties?, variables?,conditions?, 
+                         guiprefs?, locale, resources?, panels,
+                         listeners?, packs, jar*, native*, postinstall?)&gt;
+     &lt;!ATTLIST installation version CDATA #REQUIRED&gt;
+@@ -55,6 +55,13 @@
+     &lt;!ELEMENT variable EMPTY&gt;
+         &lt;!ATTLIST variable name CDATA #REQUIRED&gt;
+         &lt;!ATTLIST variable value CDATA #REQUIRED&gt;
++
++&lt;!-- The conditions markup (condition declarations) --&gt;
++&lt;!ELEMENT conditions (condition*)&gt;
++&lt;!-- condition elements can have child elements depending on the specific type --&gt;
++&lt;!ELEMENT condition EMPTY&gt;
++&lt;!ATTLIST condition type CDATA #REQUIRED&gt;
++&lt;!ATTLIST condition id CDATA #REQUIRED&gt;
+         
+ &lt;!-- The guiprefs markup (customizes the installer in GUI mode) --&gt;
+ &lt;!ELEMENT guiprefs (laf*, modifier*)&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -92,7 +92,7 @@
+     private String compr_format;
+     private int compr_level;
+     private PackagerListener packagerlistener;
+-
++      
+     /**
+      * Set the IzPack home directory
+      * @param izHome - the izpack home directory
+@@ -150,7 +150,7 @@
+         // initialize backed by system properties
+         properties = new Properties(System.getProperties());
+         propertySubstitutor = new VariableSubstitutor(properties);
+-
++       
+         // add izpack built in property
+         setProperty(&quot;izpack.version&quot;, IZPACK_VERSION);
+         setProperty(&quot;basedir&quot;, basedir);
+@@ -865,4 +865,22 @@
+         }
+     }
+ 
++    
++    /**
++     * @return the conditions
++     */
++    public Map getConditions()
++    {
++        return this.packager.getRules();
++    }
++
++    
++    /**
++     * @param conditions the conditions to set
++     */
++    public void setConditions(Map conditions)
++    {
++        this.packager.setRules(conditions);        
++    }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -67,6 +67,8 @@
+ import com.izforge.izpack.UpdateCheck;
+ import com.izforge.izpack.compiler.Compiler.CmdlinePackagerListener;
+ import com.izforge.izpack.event.CompilerListener;
++import com.izforge.izpack.rules.Condition;
++import com.izforge.izpack.rules.RulesEngine;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.OsConstraint;
+ import com.izforge.izpack.util.VariableSubstitutor;
+@@ -319,6 +321,7 @@
+ 
+         // We add all the information
+         addVariables(data);
++        addConditions(data);
+         addInfo(data);
+         addGUIPrefs(data);
+         addLangpacks(data);
+@@ -1509,6 +1512,41 @@
+         }
+         notifyCompilerListener(&quot;addVariables&quot;, CompilerListener.END, data);
+     }
++    
++    /**
++     * Parse conditions and add them to the compiler.
++     * @param data
++     * @throws CompilerException
++     */
++    protected void addConditions(XMLElement data) throws CompilerException
++    {
++        notifyCompilerListener(&quot;addConditions&quot;, CompilerListener.BEGIN, data);
++        // We get the condition list
++        XMLElement root = data.getFirstChildNamed(&quot;conditions&quot;);
++        Map conditions = compiler.getConditions();
++        if (root != null) {               
++            Iterator iter = root.getChildrenNamed(&quot;condition&quot;).iterator();
++            while (iter.hasNext())
++            {
++                XMLElement conditionel = (XMLElement) iter.next();
++                Condition condition = RulesEngine.analyzeCondition(conditionel);
++                if (condition != null) {
++                    String conditionid = condition.getId();
++                    if (conditions.containsKey(conditionid))
++                    {
++                        parseWarn(conditionel, &quot;Condition with id '&quot; + conditionid + &quot;' will be overwritten&quot;);
++                    }
++                    conditions.put(conditionid, condition);
++                    
++                }
++                else {
++                    parseWarn(conditionel, &quot;Condition couldn't be instantiated.&quot;);
++                }
++            }
++        }        
++        notifyCompilerListener(&quot;addConditions&quot;, CompilerListener.END, data);
++    }
++    
+ 
+     /**
+      * Properties declaration is a fragment of the xml file. For example:
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -21,6 +21,7 @@
+ import java.io.File;
+ import java.net.URL;
+ import java.util.List;
++import java.util.Map;
+ import java.util.Properties;
+ 
+ import net.n3.nanoxml.XMLElement;
+@@ -182,4 +183,14 @@
+      * @param data - the xml-element packaging from the install.xml
+      */
+     public abstract void addConfigurationInformation(XMLElement data);
++    
++    /**
++     * @return the rules
++     */
++    public abstract Map getRules();    
++    
++    /**
++     * @param rules the rules to set
++     */
++    public abstract void setRules(Map rules);
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -131,19 +131,7 @@
+ 
+         sendStart();
+ 
+-        // write the primary jar. MUST be first so manifest is not overwritten
+-        // by
+-        // an included jar
+-        System.out.println(&quot;Writing skeleton installer.&quot;);
+-        writeSkeletonInstaller();
+-        writeInstallerObject(&quot;info&quot;, info);
+-        writeInstallerObject(&quot;vars&quot;, variables);
+-        writeInstallerObject(&quot;GUIPrefs&quot;, guiPrefs);
+-        writeInstallerObject(&quot;panelsOrder&quot;, panelList);
+-        writeInstallerObject(&quot;customData&quot;, customDataList);
+-        writeInstallerObject(&quot;langpacks.info&quot;, langpackNameList);
+-        writeInstallerResources();
+-        writeIncludedJars();
++        writeInstaller();
+ 
+         // Pack File Data may be written to separate jars
+         String packfile = baseFile.getParent() + File.separator + INSTALLER_PAK_NAME;
+@@ -192,7 +180,7 @@
+      * Write skeleton installer to primary jar. It is just an included jar, except that we copy the
+      * META-INF as well.
+      */
+-    private void writeSkeletonInstaller() throws IOException
++    protected void writeSkeletonInstaller() throws IOException
+     {
+         sendMsg(&quot;Copying the skeleton installer&quot;, PackagerListener.MSG_VERBOSE);
+         
+@@ -267,7 +255,7 @@
+     /**
+      * Write an arbitrary object to primary jar.
+      */
+-    private void writeInstallerObject(String entryName, Object object) throws IOException
++    protected void writeInstallerObject(String entryName, Object object) throws IOException
+     {
+         primaryJarStream.putNextEntry(new ZipEntry(entryName));
+         ObjectOutputStream out = new ObjectOutputStream(primaryJarStream);
+@@ -277,7 +265,7 @@
+     }
+ 
+     /** Write the data referenced by URL to primary jar. */
+-    private void writeInstallerResources() throws IOException
++    protected void writeInstallerResources() throws IOException
+     {
+         sendMsg(&quot;Copying &quot; + installerResourceURLMap.size() + &quot; files into installer&quot;);
+ 
+@@ -300,7 +288,7 @@
+     }
+ 
+     /** Copy included jars to primary jar. */
+-    private void writeIncludedJars() throws IOException
++    protected void writeIncludedJars() throws IOException
+     {
+         sendMsg(&quot;Merging &quot; + includedJarURLs.size() + &quot; jars into installer&quot;);
+ 
+@@ -497,22 +485,8 @@
+ 
+         return jar;
+     }
+-
++    
+     /**
+-     * Copies contents of one jar to another.
+-     * 
+-     * &lt;p&gt;
+-     * TODO: it would be useful to be able to keep signature information from signed jar files, can
+-     * we combine manifests and still have their content signed?
+-     * 
+-     * @see #copyStream(InputStream, OutputStream)
+-     */
+-    private void copyZip(ZipInputStream zin, ZipOutputStream out) throws IOException
+-    {
+-        copyZip(zin, out, null);
+-    }
+-
+-    /**
+      * Copies specified contents of one jar to another.
+      * 
+      * &lt;p&gt;
+@@ -664,4 +638,13 @@
+        this.configdata = data;        
+     }
+ 
++    /* (non-Javadoc)
++     * @see com.izforge.izpack.compiler.PackagerBase#writePacks()
++     */
++    protected void writePacks() throws Exception
++    {
++        // TODO Auto-generated method stub
++        
++    }
++
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -114,23 +114,8 @@
+ 
+         sendStart();
+         
+-        // write the primary jar. MUST be first so manifest is not overwritten
+-        // by
+-        // an included jar
+-        writeSkeletonInstaller();
++        writeInstaller();
+ 
+-        writeInstallerObject(&quot;info&quot;, info);
+-        writeInstallerObject(&quot;vars&quot;, variables);
+-        writeInstallerObject(&quot;GUIPrefs&quot;, guiPrefs);
+-        writeInstallerObject(&quot;panelsOrder&quot;, panelList);
+-        writeInstallerObject(&quot;customData&quot;, customDataList);
+-        writeInstallerObject(&quot;langpacks.info&quot;, langpackNameList);
+-        writeInstallerResources();
+-        writeIncludedJars();
+-
+-        // Pack File Data may be written to separate jars
+-        writePacks();
+-
+         // Finish up. closeAlways is a hack for pack compressions other than
+         // default. Some of it (e.g. BZip2) closes the slave of it also.
+         // But this should not be because the jar stream should be open 
+@@ -149,7 +134,7 @@
+      * Write skeleton installer to primary jar. It is just an included jar, except that we copy the
+      * META-INF as well.
+      */
+-    private void writeSkeletonInstaller() throws IOException
++    protected void writeSkeletonInstaller() throws IOException
+     {
+         sendMsg(&quot;Copying the skeleton installer&quot;, PackagerListener.MSG_VERBOSE);
+ 
+@@ -166,7 +151,7 @@
+     /**
+      * Write an arbitrary object to primary jar.
+      */
+-    private void writeInstallerObject(String entryName, Object object) throws IOException
++    protected void writeInstallerObject(String entryName, Object object) throws IOException
+     {
+         primaryJarStream.putNextEntry(new org.apache.tools.zip.ZipEntry(entryName));
+         ObjectOutputStream out = new ObjectOutputStream(primaryJarStream);
+@@ -176,7 +161,7 @@
+     }
+ 
+     /** Write the data referenced by URL to primary jar. */
+-    private void writeInstallerResources() throws IOException
++    protected void writeInstallerResources() throws IOException
+     {
+         sendMsg(&quot;Copying &quot; + installerResourceURLMap.size() + &quot; files into installer&quot;);
+ 
+@@ -199,7 +184,7 @@
+     }
+ 
+     /** Copy included jars to primary jar. */
+-    private void writeIncludedJars() throws IOException
++    protected void writeIncludedJars() throws IOException
+     {
+         sendMsg(&quot;Merging &quot; + includedJarURLs.size() + &quot; jars into installer&quot;);
+ 
+@@ -216,7 +201,7 @@
+     /**
+      * Write Packs to primary jar or each to a separate jar.
+      */
+-    private void writePacks() throws Exception
++    protected void writePacks() throws Exception
+     {
+         final int num = packsList.size();
+         sendMsg(&quot;Writing &quot; + num + &quot; Pack&quot; + (num &gt; 1 ? &quot;s&quot; : &quot;&quot;) + &quot; into installer&quot;);
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -23,6 +23,7 @@
+ package com.izforge.izpack.compiler;
+ 
+ import java.io.File;
++import java.io.IOException;
+ import java.net.URL;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+@@ -81,6 +82,9 @@
+ 
+     /** The langpack URLs keyed by locale name (e.g. de_CH). */
+     protected Map installerResourceURLMap = new HashMap();
++    
++    /** the conditions */
++    protected Map rules = new HashMap();
+ 
+     /** Jar file URLs who's contents will be copied into the installer. */
+     protected Set includedJarURLs = new HashSet();
+@@ -290,4 +294,48 @@
+         this.listener = listener;
+     }
+ 
++    
++    /**
++     * @return the rules
++     */
++    public Map getRules()
++    {
++        return this.rules;
++    }
++
++    
++    /**
++     * @param rules the rules to set
++     */
++    public void setRules(Map rules)
++    {
++        this.rules = rules;
++    }
++
++    
++    protected void writeInstaller() throws Exception{
++        // write the primary jar. MUST be first so manifest is not overwritten
++        // by
++        // an included jar
++        writeSkeletonInstaller();
++
++        writeInstallerObject(&quot;info&quot;, info);
++        writeInstallerObject(&quot;vars&quot;, variables);
++        writeInstallerObject(&quot;GUIPrefs&quot;, guiPrefs);
++        writeInstallerObject(&quot;panelsOrder&quot;, panelList);
++        writeInstallerObject(&quot;customData&quot;, customDataList);
++        writeInstallerObject(&quot;langpacks.info&quot;, langpackNameList);
++        writeInstallerObject(&quot;rules&quot;, rules);
++        writeInstallerResources();
++        writeIncludedJars();
++
++        // Pack File Data may be written to separate jars
++        writePacks();
++    }
++    
++    protected abstract void writeInstallerObject(String entryName, Object object) throws IOException;
++    protected abstract void writeSkeletonInstaller() throws IOException;    
++    protected abstract void writeInstallerResources() throws IOException;
++    protected abstract void writeIncludedJars() throws IOException;
++    protected abstract void writePacks() throws Exception;
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -48,6 +48,7 @@
+ import java.io.FileOutputStream;
+ import java.io.IOException;
+ import java.io.InputStream;
++import java.io.ObjectInputStream;
+ import java.io.ObjectOutputStream;
+ import java.io.OutputStream;
+ import java.io.OutputStreamWriter;
+@@ -268,13 +269,30 @@
+      */
+     protected void loadConditions()
+     {
++        // try to load already parsed conditions
++        try {
++            InputStream in = InstallerFrame.class.getResourceAsStream(&quot;/rules&quot;);
++            ObjectInputStream objIn = new ObjectInputStream(in);
++            Map rules = (Map) objIn.readObject();
++            if ((rules != null) &amp;&amp; (rules.size() != 0)) {
++                this.rules = new RulesEngine(rules,installdata);
++            }
++            objIn.close();
++        }
++        catch (Exception e) {
++            
++        }
++        if (rules != null) {
++            // rules already read
++            return;
++        }
+         try
+         {
+             InputStream input = null;
+             input = this.getResource(CONDITIONS_SPECRESOURCENAME);
+             if (input == null)
+             {
+-                this.rules = new RulesEngine(null, installdata);
++                this.rules = new RulesEngine((XMLElement) null, installdata);
+                 return;
+             }
+ 
+@@ -291,7 +309,7 @@
+         {
+             Debug.trace(&quot;Can not find optional resource &quot; + CONDITIONS_SPECRESOURCENAME);
+             // there seem to be no conditions
+-            this.rules = new RulesEngine(null, installdata);
++            this.rules = new RulesEngine((XMLElement) null, installdata);
+         }
+     }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/Condition.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -21,6 +21,8 @@
+ 
+ package com.izforge.izpack.rules;
+ 
++import java.io.Serializable;
++
+ import com.izforge.izpack.installer.AutomatedInstallData;
+ import net.n3.nanoxml.XMLElement;
+ 
+@@ -29,7 +31,7 @@
+  *
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  */
+-public abstract class Condition
++public abstract class Condition implements Serializable
+ {
+ 
+     protected String id;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-11-27 21:02:03 UTC (rev 1917)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-11-29 14:02:17 UTC (rev 1918)
+@@ -50,19 +50,28 @@
+ 
+     protected static InstallData installdata;
+ 
++    private RulesEngine() {
++        conditionsmap = new Hashtable();
++        this.panelconditions = new Hashtable();
++        this.packconditions = new Hashtable();
++        this.optionalpackconditions = new Hashtable();
++    }
++    
+     /**
+      * 
+      */
+     public RulesEngine(XMLElement conditionsspecxml, InstallData installdata)
+     {
+-        this.conditionsspec = conditionsspecxml;
+-        conditionsmap = new Hashtable();
+-        this.panelconditions = new Hashtable();
+-        this.packconditions = new Hashtable();
+-        this.optionalpackconditions = new Hashtable();
++        this();
++        this.conditionsspec = conditionsspecxml;        
+         RulesEngine.installdata = installdata;
+         this.readConditions();
+     }
++    
++    public RulesEngine(Map rules, InstallData installdata) {
++        this();
++        RulesEngine.installdata = installdata;
++    }
+ 
+     /**
+      * Checks if an attribute for an xmlelement is set.
+@@ -103,7 +112,8 @@
+                     + conditiontype.substring(1, conditiontype.length());
+                 conditionclassname += &quot;Condition&quot;;
+             }
+-            ClassLoader loader = ClassLoader.getSystemClassLoader();
++            //ClassLoader loader = ClassLoader.getSystemClassLoader();
++            ClassLoader loader = RulesEngine.class.getClassLoader();
+             try
+             {
+                 Class conditionclass = loader.loadClass(conditionclassname);
+@@ -115,14 +125,17 @@
+             catch (ClassNotFoundException e)
+             {
+                 Debug.trace(conditionclassname + &quot; not found.&quot;);
++                e.printStackTrace();                
+             }
+             catch (InstantiationException e)
+             {
+                 Debug.trace(conditionclassname + &quot; couldn't be instantiated.&quot;);
++                e.printStackTrace();
+             }
+             catch (IllegalAccessException e)
+             {
+                 Debug.trace(&quot;Illegal access to &quot; + conditionclassname);
++                e.printStackTrace();
+             }            
+         }
+         return result;
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000663.html">[izpack-changes] r1917 - in izpack-src/trunk/src:	lib/com/coi/tools/os/win lib/com/izforge/izpack	lib/com/izforge/izpack/event lib/com/izforge/izpack/gui	lib/com/izforge/izpack/installer	lib/com/izforge/izpack/panels lib/com/izforge/izpack/rules	lib/com/izforge/izpack/util/os tests/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000665.html">[izpack-changes] r1919 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#664">[ date ]</a>
+              <a href="thread.html#664">[ thread ]</a>
+              <a href="subject.html#664">[ subject ]</a>
+              <a href="author.html#664">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1725 - in izpack-src/tags: .	3.10.0/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1725%20-%20in%20izpack-src/tags%3A%20.%0A%093.10.0/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000470.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1725 - in izpack-src/tags: .	3.10.0/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1725%20-%20in%20izpack-src/tags%3A%20.%0A%093.10.0/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1725 - in izpack-src/tags: .	3.10.0/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Tue Jan 30 09:39:19 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000470.html">[izpack-changes] r1724 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#471">[ date ]</a>
+              <a href="thread.html#471">[ thread ]</a>
+              <a href="subject.html#471">[ subject ]</a>
+              <a href="author.html#471">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-01-30 09:39:17 +0100 (Tue, 30 Jan 2007)
+New Revision: 1725
+
+Added:
+   izpack-src/tags/3.10.0/
+   izpack-src/tags/3.10.0/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java
+Removed:
+   izpack-src/tags/3.10.0/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java
+Log:
+Tag for 3.10.0
+
+Copied: izpack-src/tags/3.10.0 (from rev 1722, izpack-src/branches/3.10)
+
+Deleted: izpack-src/tags/3.10.0/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java	2007-01-28 17:49:04 UTC (rev 1722)
++++ izpack-src/tags/3.10.0/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java	2007-01-30 08:39:17 UTC (rev 1725)
+@@ -1,158 +0,0 @@
+-/*
+- * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
+- * 
+- * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+- * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+- * 
+- * Copyright 2003 Jonathan Halliday
+- * 
+- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- * 
+- *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+- *     
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-
+-package com.izforge.izpack.panels;
+-
+-import java.util.Iterator;
+-import java.util.Vector;
+-
+-import net.n3.nanoxml.XMLElement;
+-
+-import com.izforge.izpack.Pack;
+-import com.izforge.izpack.installer.AutomatedInstallData;
+-import com.izforge.izpack.installer.PanelAutomation;
+-
+-/**
+- * Functions to support automated usage of the PacksPanel
+- * 
+- * @author Jonathan Halliday
+- * @author Julien Ponge
+- */
+-public class PacksPanelAutomationHelper implements PanelAutomation
+-{
+-
+-    /**
+-     * Asks to make the XML panel data.
+-     * 
+-     * @param idata The installation data.
+-     * @param panelRoot The XML tree to write the data in.
+-     */
+-    public void makeXMLData(AutomatedInstallData idata, XMLElement panelRoot)
+-    {
+-        // We add each pack to the panelRoot element
+-        for (int i = 0; i &lt; idata.availablePacks.size(); i++)
+-        {
+-            Pack pack = (Pack) idata.availablePacks.get(i);
+-            XMLElement el = new XMLElement(&quot;pack&quot;);
+-            el.setAttribute(&quot;index&quot;, Integer.toString(i));
+-            el.setAttribute(&quot;name&quot;, pack.name);
+-            Boolean selected = Boolean.valueOf(idata.selectedPacks.contains(pack));
+-            el.setAttribute(&quot;selected&quot;, selected.toString());
+-
+-            panelRoot.addChild(el);
+-        }
+-    }
+-
+-    /**
+-     * Asks to run in the automated mode.
+-     * 
+-     * @param idata The installation data.
+-     * @param panelRoot The root of the panel data.
+-     * 
+-     * @return true if all packs were found and selected, false if something was wrong.
+-     */
+-    public boolean runAutomated(AutomatedInstallData idata, XMLElement panelRoot)
+-    {
+-        // We get the packs markups
+-        Vector pm = panelRoot.getChildrenNamed(&quot;pack&quot;);
+-
+-        boolean result = true;
+-        
+-        // We figure out the selected ones
+-        int size = pm.size();
+-        idata.selectedPacks.clear();
+-        for (int i = 0; i &lt; size; i++)
+-        {
+-            XMLElement el = (XMLElement) pm.get(i);
+-            Boolean selected = Boolean.TRUE; // No longer needed.
+-
+-            if (selected.booleanValue())
+-            {
+-                String index_str = el.getAttribute(&quot;index&quot;);
+-
+-                // be liberal in what we accept
+-                // (For example, this allows auto-installer files to be fitted
+-                // to automatically generated installers, yes I need this! tschwarze.)
+-                if (index_str != null)
+-                {
+-                    try
+-                    {
+-                        int index = Integer.parseInt(index_str);
+-                        if ((index &gt;= 0) &amp;&amp; (index &lt; idata.availablePacks.size()))
+-                        {
+-                            idata.selectedPacks.add(idata.availablePacks.get(index));
+-                        }
+-                        else
+-                        {
+-                            System.err.println(&quot;Invalid pack index \&quot;&quot; + index_str + &quot;\&quot; in line &quot;
+-                                    + el.getLineNr());
+-                            result = false;
+-                        }
+-                    }
+-                    catch (NumberFormatException e)
+-                    {
+-                        System.err.println(&quot;Invalid pack index \&quot;&quot; + index_str + &quot;\&quot; in line &quot;
+-                                + el.getLineNr());
+-                        result = false;
+-                    }
+-                }
+-                else
+-                {
+-                    String name = el.getAttribute(&quot;name&quot;);
+-
+-                    if (name != null)
+-                    {
+-                        // search for pack with that name
+-                        Iterator pack_it = idata.availablePacks.iterator();
+-
+-                        boolean found = false;
+-
+-                        while ((!found) &amp;&amp; pack_it.hasNext())
+-                        {
+-                            Pack pack = (Pack) pack_it.next();
+-
+-                            if (pack.name.equals(name))
+-                            {
+-                                idata.selectedPacks.add(pack);
+-                                found = true;
+-                            }
+-
+-                        }
+-
+-                        if (!found)
+-                        {
+-                            System.err.println(&quot;Could not find selected pack named \&quot;&quot; + name
+-                                    + &quot;\&quot; in line &quot; + el.getLineNr());
+-                            result = false;
+-                        }
+-
+-                    }
+-
+-                }
+-
+-            }
+-
+-        }
+-
+-        return result;
+-    }
+-
+-}
+
+Copied: izpack-src/tags/3.10.0/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java (from rev 1723, izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels/PacksPanelAutomationHelper.java)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000470.html">[izpack-changes] r1724 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#471">[ date ]</a>
+              <a href="thread.html#471">[ thread ]</a>
+              <a href="subject.html#471">[ subject ]</a>
+              <a href="author.html#471">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

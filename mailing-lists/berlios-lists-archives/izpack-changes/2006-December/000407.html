@@ -1,0 +1,531 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1662 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1662%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000408.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1662 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1662%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1662 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Fri Dec  1 16:39:28 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000408.html">[izpack-changes] r1663 - in izpack-src/trunk: . src	src/doc-ng/XHTML src/doc-ng/docbooks src/lib/com/izforge/izpack/ant	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#407">[ date ]</a>
+              <a href="thread.html#407">[ thread ]</a>
+              <a href="subject.html#407">[ subject ]</a>
+              <a href="author.html#407">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2006-12-01 16:39:26 +0100 (Fri, 01 Dec 2006)
+New Revision: 1662
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java
+Log:
+Added missing implementations for packselection-conditions
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java	2006-11-30 11:50:25 UTC (rev 1661)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/AndCondition.java	2006-12-01 15:39:26 UTC (rev 1662)
+@@ -1,5 +1,6 @@
+ package com.izforge.izpack.rules;
+ 
++import java.util.List;
+ import java.util.Properties;
+ 
+ import net.n3.nanoxml.XMLElement;
+@@ -7,49 +8,69 @@
+ 
+ /**
+  * Defines a condition where both operands have to be true
+- *
++ * 
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  */
+-public class AndCondition extends Condition {
++public class AndCondition extends Condition
++{
++
+     protected Condition leftoperand;
++
+     protected Condition rightoperand;
+ 
+     /**
+-     *
++     * 
+      */
+-    public AndCondition() {
+-        super();        
++    public AndCondition()
++    {
++        super();
+     }
+ 
+     /**
+-     *
++     * 
+      */
+-    public AndCondition(Condition operand1, Condition operand2) {
++    public AndCondition(Condition operand1, Condition operand2)
++    {
+         this.leftoperand = operand1;
+         this.rightoperand = operand2;
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.util.Condition#isTrue()
+-    */
+-    public boolean isTrue(Properties variables) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.util.Condition#isTrue()
++     */
++    public boolean isTrue(Properties variables)
++    {
+         return leftoperand.isTrue(variables) &amp;&amp; rightoperand.isTrue(variables);
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+-    */
+-    public void readFromXML(XMLElement xmlcondition) {
+-        try {
+-            if (xmlcondition.getChildrenCount() != 2) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
++     */
++    public void readFromXML(XMLElement xmlcondition)
++    {
++        try
++        {
++            if (xmlcondition.getChildrenCount() != 2)
++            {
+                 Debug.log(&quot;and-condition needs two conditions as operands&quot;);
+                 return;
+             }
+             this.leftoperand = RulesEngine.analyzeCondition(xmlcondition.getChildAtIndex(0));
+             this.rightoperand = RulesEngine.analyzeCondition(xmlcondition.getChildAtIndex(1));
+         }
+-        catch (Exception e) {
++        catch (Exception e)
++        {
+             Debug.log(&quot;missing element in and-condition&quot;);
+         }
+     }
++
++    public boolean isTrue(Properties variables, List selectedpacks)
++    {
++        return leftoperand.isTrue(variables, selectedpacks)
++                &amp;&amp; rightoperand.isTrue(variables, selectedpacks);
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java	2006-11-30 11:50:25 UTC (rev 1661)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/NotCondition.java	2006-12-01 15:39:26 UTC (rev 1662)
+@@ -1,53 +1,70 @@
+ package com.izforge.izpack.rules;
+ 
++import java.util.List;
+ import java.util.Properties;
+ 
+ import net.n3.nanoxml.XMLElement;
+ import com.izforge.izpack.util.Debug;
+ 
+-
+ /**
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  */
+-public class NotCondition extends Condition {
++public class NotCondition extends Condition
++{
+ 
+     protected Condition operand;
+ 
+     /**
+-     *
++     * 
+      */
+-    public NotCondition() {
++    public NotCondition()
++    {
+         super();
+         // TODO Auto-generated constructor stub
+     }
+ 
+     /**
+-     *
++     * 
+      */
+-    public NotCondition(Condition operand) {
++    public NotCondition(Condition operand)
++    {
+         this.operand = operand;
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.util.Condition#isTrue()
+-    */
+-    public boolean isTrue(Properties variables) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.util.Condition#isTrue()
++     */
++    public boolean isTrue(Properties variables)
++    {
+         return !operand.isTrue(variables);
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+-    */
+-    public void readFromXML(XMLElement xmlcondition) {
+-        try {
+-            if (xmlcondition.getChildrenCount() != 1) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
++     */
++    public void readFromXML(XMLElement xmlcondition)
++    {
++        try
++        {
++            if (xmlcondition.getChildrenCount() != 1)
++            {
+                 Debug.log(&quot;not-condition needs one condition as operand&quot;);
+                 return;
+             }
+             this.operand = RulesEngine.analyzeCondition(xmlcondition.getChildAtIndex(0));
+         }
+-        catch (Exception e) {
++        catch (Exception e)
++        {
+             Debug.log(&quot;missing element in not-condition&quot;);
+         }
+     }
++
++    public boolean isTrue(Properties variables, List selectedpacks)
++    {
++        return !operand.isTrue(variables, selectedpacks);
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java	2006-11-30 11:50:25 UTC (rev 1661)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/OrCondition.java	2006-12-01 15:39:26 UTC (rev 1662)
+@@ -1,59 +1,80 @@
+ package com.izforge.izpack.rules;
+ 
++import java.util.List;
+ import java.util.Properties;
+ 
+ import net.n3.nanoxml.XMLElement;
+ import com.izforge.izpack.util.Debug;
+ 
+-
+ /**
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  * @version $Id: OrCondition.java,v 1.1 2006/09/29 14:40:38 dennis Exp $
+  */
+-public class OrCondition extends Condition {
++public class OrCondition extends Condition
++{
++
+     public static final String RDE_VCS_REVISION = &quot;$Revision: 1.1 $&quot;;
++
+     public static final String RDE_VCS_NAME = &quot;$Name:  $&quot;;
+ 
+     protected Condition leftoperand;
++
+     protected Condition rightoperand;
+ 
+     /**
+-     *
++     * 
+      */
+-    public OrCondition() {
++    public OrCondition()
++    {
+         super();
+         // TODO Auto-generated constructor stub
+     }
+ 
+     /**
+-     *
++     * 
+      */
+-    public OrCondition(Condition operand1, Condition operand2) {
++    public OrCondition(Condition operand1, Condition operand2)
++    {
+         this.leftoperand = operand1;
+         this.rightoperand = operand2;
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.util.Condition#isTrue()
+-    */
+-    public boolean isTrue(Properties variables) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.util.Condition#isTrue()
++     */
++    public boolean isTrue(Properties variables)
++    {
+         return this.leftoperand.isTrue(variables) || this.rightoperand.isTrue(variables);
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+-    */
+-    public void readFromXML(XMLElement xmlcondition) {
+-        try {
+-            if (xmlcondition.getChildrenCount() != 2) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
++     */
++    public void readFromXML(XMLElement xmlcondition)
++    {
++        try
++        {
++            if (xmlcondition.getChildrenCount() != 2)
++            {
+                 Debug.log(&quot;or-condition needs two conditions as operands&quot;);
+                 return;
+             }
+             this.leftoperand = RulesEngine.analyzeCondition(xmlcondition.getChildAtIndex(0));
+             this.rightoperand = RulesEngine.analyzeCondition(xmlcondition.getChildAtIndex(1));
+         }
+-        catch (Exception e) {
++        catch (Exception e)
++        {
+             Debug.log(&quot;missing element in or-condition&quot;);
+         }
+     }
++
++    public boolean isTrue(Properties variables, List selectedpacks)
++    {
++        return this.leftoperand.isTrue(variables, selectedpacks)
++                || this.rightoperand.isTrue(variables, selectedpacks);
++    }
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java	2006-11-30 11:50:25 UTC (rev 1661)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RefCondition.java	2006-12-01 15:39:26 UTC (rev 1662)
+@@ -1,32 +1,46 @@
+ package com.izforge.izpack.rules;
+ 
++import java.util.List;
+ import java.util.Properties;
+ 
+ import net.n3.nanoxml.XMLElement;
+ 
+ /**
+  * References an already defined condition
+- *
++ * 
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  */
+-public class RefCondition extends Condition {
++public class RefCondition extends Condition
++{
++
+     Condition referencedcondition;
+ 
+-    public RefCondition() {
++    public RefCondition()
++    {
+         this.referencedcondition = null;
+     }
+ 
+-    public boolean isTrue(Properties variables) {
+-        if (referencedcondition == null) {
++    public boolean isTrue(Properties variables)
++    {
++        if (referencedcondition == null)
++        {
+             return false;
+-        } else {
++        }
++        else
++        {
+             return referencedcondition.isTrue(variables);
+         }
+     }
+ 
+-    public void readFromXML(XMLElement xmlcondition) {
++    public void readFromXML(XMLElement xmlcondition)
++    {
+         String refid = xmlcondition.getAttribute(&quot;refid&quot;);
+         this.referencedcondition = RulesEngine.getCondition(refid);
+     }
+ 
++    public boolean isTrue(Properties variables, List selectedpacks)
++    {
++        return referencedcondition.isTrue(variables, selectedpacks);
++    }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java	2006-11-30 11:50:25 UTC (rev 1661)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/XOrCondition.java	2006-12-01 15:39:26 UTC (rev 1662)
+@@ -1,20 +1,23 @@
+ package com.izforge.izpack.rules;
+ 
++import java.util.List;
+ import java.util.Properties;
+ 
+ import net.n3.nanoxml.XMLElement;
+ import com.izforge.izpack.util.Debug;
+ 
+-
+ /**
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+  * @version $Id: XOrCondition.java,v 1.1 2006/09/29 14:40:38 dennis Exp $
+  */
+-public class XOrCondition extends OrCondition {
++public class XOrCondition extends OrCondition
++{
++
+     /**
+-     *
++     * 
+      */
+-    public XOrCondition() {
++    public XOrCondition()
++    {
+         super();
+         // TODO Auto-generated constructor stub
+     }
+@@ -23,38 +26,62 @@
+      * @param operand1
+      * @param operand2
+      */
+-    public XOrCondition(Condition operand1, Condition operand2) {
++    public XOrCondition(Condition operand1, Condition operand2)
++    {
+         super(operand1, operand2);
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.util.OrCondition#isTrue()
+-    */
+-    public boolean isTrue(Properties variables) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.util.OrCondition#isTrue()
++     */
++    public boolean isTrue(Properties variables)
++    {
+         boolean op1true = leftoperand.isTrue(variables);
+         boolean op2true = rightoperand.isTrue(variables);
+ 
+-        if (op1true &amp;&amp; op2true) {
++        if (op1true &amp;&amp; op2true)
++        {
+             // in case where both are true
+             return false;
+         }
+         return op1true || op2true;
+     }
+ 
+-    /* (non-Javadoc)
+-    * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
+-    */
+-    public void readFromXML(XMLElement xmlcondition) {
+-        try {
+-            if (xmlcondition.getChildrenCount() != 2) {
++    /*
++     * (non-Javadoc)
++     * 
++     * @see de.reddot.installer.rules.Condition#readFromXML(net.n3.nanoxml.XMLElement)
++     */
++    public void readFromXML(XMLElement xmlcondition)
++    {
++        try
++        {
++            if (xmlcondition.getChildrenCount() != 2)
++            {
+                 Debug.log(&quot;xor-condition needs two conditions as operands&quot;);
+                 return;
+             }
+             this.leftoperand = RulesEngine.analyzeCondition(xmlcondition.getChildAtIndex(0));
+             this.rightoperand = RulesEngine.analyzeCondition(xmlcondition.getChildAtIndex(1));
+         }
+-        catch (Exception e) {
++        catch (Exception e)
++        {
+             Debug.log(&quot;missing element in xor-condition&quot;);
+         }
+     }
++
++    public boolean isTrue(Properties variables, List selectedpacks)
++    {
++        boolean op1true = leftoperand.isTrue(variables, selectedpacks);
++        boolean op2true = rightoperand.isTrue(variables, selectedpacks);
++
++        if (op1true &amp;&amp; op2true)
++        {
++            // in case where both are true
++            return false;
++        }
++        return op1true || op2true;
++    }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000408.html">[izpack-changes] r1663 - in izpack-src/trunk: . src	src/doc-ng/XHTML src/doc-ng/docbooks src/lib/com/izforge/izpack/ant	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#407">[ date ]</a>
+              <a href="thread.html#407">[ thread ]</a>
+              <a href="subject.html#407">[ subject ]</a>
+              <a href="author.html#407">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

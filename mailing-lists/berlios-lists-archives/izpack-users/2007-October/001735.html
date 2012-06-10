@@ -1,0 +1,257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Questions on getting up and running with Izpack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Questions%20on%20getting%20up%20and%20running%20with%20Izpack&In-Reply-To=9E959A3319ECAD489BBD4B1F891758BB01129237%40mail0.tw.l-3com.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001724.html">
+   <LINK REL="Next"  HREF="001733.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Questions on getting up and running with Izpack</H1>
+    <B>Paul Taylor</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Questions%20on%20getting%20up%20and%20running%20with%20Izpack&In-Reply-To=9E959A3319ECAD489BBD4B1F891758BB01129237%40mail0.tw.l-3com.com"
+       TITLE="[izpack-users] Questions on getting up and running with Izpack">paul_t100 at fastmail.fm
+       </A><BR>
+    <I>Wed Oct 31 14:31:34 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001724.html">[izpack-users] Questions on getting up and running with Izpack
+</A></li>
+        <LI>Next message: <A HREF="001733.html">[izpack-users] Windows wrong shortcut
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1735">[ date ]</a>
+              <a href="thread.html#1735">[ thread ]</a>
+              <a href="subject.html#1735">[ subject ]</a>
+              <a href="author.html#1735">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Joseph
+
+Sorry I didnt reply earlier, I tried your solution but it didnt make any 
+difference. I then though there might a problem with building it on 
+Windows Vista, got distracted and worked on something else. I have since 
+found another Izpack installation for a different program, built it and 
+deployed on Vista with shortcust successfully,  so thats not the problem 
+. Ive made numerous minor modiifications to my build file and shortcut 
+file, and then end result is always the same , it always installs but 
+NEVER shows the shortcut panel., Im building using ant. My biggest 
+confusion is over the Shelllink.dll file , where does it have to be and 
+is it distributed with the installtion ? It driving me a bit mad now, 
+Ive shown the latest files below, in case anyone can see a problem.
+
+thanks paul
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+
+&lt;!--
+    A sample installation file.
+    Use it as a base for your own installers :-)
+   
+    To compile it :
+    - go in the bin directory where you installed IzPack
+    - call &quot;compile ../sample/install.xml -b ../sample&quot;
+--&gt;
+
+&lt;installation version=&quot;1.0&quot;&gt;
+
+    &lt;!--
+        The info section.
+        The meaning of the tags should be natural ...
+    --&gt;
+    &lt;info&gt;
+        &lt;appname&gt;Jaikoz&lt;/appname&gt;
+        &lt;appversion&gt;2.0&lt;/appversion&gt;      
+        &lt;url&gt;<A HREF="http://www.jthink.net/jaikoz/&lt;/url">http://www.jthink.net/jaikoz/&lt;/url</A>&gt;
+        &lt;javaversion&gt;1.6&lt;/javaversion&gt;
+        &lt;appsubpath&gt;Jthink/Jaikoz&lt;/appsubpath&gt;
+    &lt;/info&gt;
+   
+    &lt;!--
+        The gui preferences indication.
+        Sets the installer window to 640x480. It will not be able to 
+change the size.
+    --&gt;
+    &lt;guiprefs width=&quot;640&quot; height=&quot;480&quot; resizable=&quot;no&quot;/&gt;
+   
+    &lt;!--
+        The locale section.
+        Asks here to include the English and French langpacks.
+    --&gt;
+    &lt;locale&gt;
+        &lt;langpack iso3=&quot;eng&quot;/&gt;
+        &lt;langpack iso3=&quot;spa&quot;/&gt;
+        &lt;langpack iso3=&quot;deu&quot;/&gt;
+        &lt;langpack iso3=&quot;fra&quot;/&gt;
+        &lt;langpack iso3=&quot;ita&quot;/&gt;
+    &lt;/locale&gt;
+
+      &lt;native type=&quot;izpack&quot; name=&quot;ShellLink.dll&quot;/&gt;
+
+    &lt;!--
+        The resources section.
+        The ids must be these ones if you want to use the LicencePanel 
+and/or the InfoPanel.
+    --&gt;
+    &lt;resources&gt;
+        &lt;res id=&quot;shortcutSpec.xml&quot; src=&quot;shortcutSpec.xml&quot;/&gt;
+      &lt;res id=&quot;LicencePanel.licence&quot; 
+src=&quot;../activebuild/buildWindows/license.txt&quot;/&gt;       
+    &lt;/resources&gt;
+   
+  
+ 
+    &lt;!--
+        The panels section.
+        We indicate here which panels we want to use. The order will be 
+respected.
+    --&gt;
+    &lt;panels&gt;
+        &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+        &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+        &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+        &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+        &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+        &lt;panel classname=&quot;ShortcutPanel&quot;/&gt;
+        &lt;panel classname=&quot;SimpleFinishPanel&quot;/&gt;
+    &lt;/panels&gt;  
+   
+    &lt;!--
+        The packs section.
+        We specify here our packs.
+    --&gt;
+    &lt;packs&gt;
+        &lt;pack name=&quot;Base&quot; required=&quot;yes&quot; preselected=&quot;yes&quot;&gt;
+            &lt;description&gt;Jaikoz&lt;/description&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/lib&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/help&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;jaikoz.exe&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;            
+            &lt;file src=&quot;../../conf/jaikoz.gif&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;   
+            &lt;file src=&quot;../activebuild/buildWindows/ident.exe&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;   
+            &lt;file src=&quot;../activebuild/buildWindows/libexpat.dll&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;    
+            &lt;file src=&quot;../activebuild/buildWindows/AACTagReader.exe&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;            
+            &lt;file src=&quot;../activebuild/buildWindows/genpuid.exe&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/mipcore.exe&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/acknowledgement.html&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/ident.exe&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/jaikoz.bat&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/jaikoz.properties&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/jaikoz_de.properties&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/jaikoz_en.properties&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/jaikoz_es.properties&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/layout.properties&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/license.txt&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/settings.jai&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file src=&quot;../activebuild/buildWindows/settingsdefaults.jai&quot; 
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;executable targetfile=&quot;$INSTALL_PATH/ident.exe&quot; stage=&quot;never&quot;/&gt;
+            &lt;executable targetfile=&quot;$INSTALL_PATH/AACTagReader.exe&quot; 
+stage=&quot;never&quot;/&gt;
+            &lt;executable targetfile=&quot;$INSTALL_PATH/genpuid.exe&quot; 
+stage=&quot;never&quot;/&gt;
+            &lt;executable targetfile=&quot;$INSTALL_PATH/mipcore.exe&quot; 
+stage=&quot;never&quot;/&gt;          
+            &lt;executable targetfile=&quot;$INSTALL_PATH/jaikoz.bat&quot; 
+stage=&quot;never&quot;/&gt;
+            &lt;executable targetfile=&quot;$INSTALL_PATH/jaikoz.exe&quot; 
+stage=&quot;never&quot;/&gt;                         
+        &lt;/pack&gt;       
+    &lt;/packs&gt;
+          
+&lt;/installation&gt;
+
+shortcutSpec.xml:
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+&lt;shortcuts&gt;
+&lt;programGroup defaultName=&quot;Jaikoz&quot; location=&quot;applications&quot;/&gt;
+&lt;shortcut
+name=&quot;Jaikoz&quot;
+target=&quot;$INSTALL_PATH\Jaikoz.exe&quot;
+commandLine=&quot;&quot;
+workingDirectory=&quot;$INSTALL_PATH\&quot;
+description=&quot;Jaikoz Audio Tagger&quot;
+iconFile=&quot;$INSTALL_PATH\jaikoz.gif&quot;
+iconIndex=&quot;0&quot;
+initialState=&quot;maximized&quot;
+programGroup=yes&quot;
+desktop=&quot;yes&quot;
+applications=&quot;yes&quot;
+startMenu=&quot;no&quot;
+startup=&quot;no&quot;&gt;
+&lt;createForPack name='Base'/&gt;
+&lt;/shortcut&gt;
+&lt;/shortcuts&gt;
+
+
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Joseph.Fiedler at l-3com.com</A> wrote:
+&gt;<i> Paul,
+</I>&gt;<i>
+</I>&gt;<i> Try rearranging your install.xml file as follows:
+</I>&gt;<i> Also, rename your shortcut specification file to shortcutSpec.xml; I ran
+</I>&gt;<i> into some problems when using a different filename and/or extension.
+</I>&gt;<i>
+</I>&gt;<i>   &lt;native type=&quot;izpack&quot; name=&quot;Shelllink.dll&quot;&gt;
+</I>&gt;<i>     &lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;<i>   &lt;/native&gt;
+</I>&gt;<i>
+</I>&gt;<i>   &lt;resources&gt;
+</I>&gt;<i>     &lt;res src=&quot;shortcutSpec.xml&quot; id=&quot;shortcutSpec.xml&quot;/&gt;
+</I>&gt;<i>   &lt;/resources&gt;
+</I>&gt;<i>
+</I>&gt;<i>   &lt;panels&gt;
+</I>&gt;<i>     &lt;!-- panel elements --&gt;
+</I>&gt;<i>   &lt;/panels&gt;
+</I>&gt;<i>
+</I>&gt;<i>   &lt;packs&gt;
+</I>&gt;<i>     &lt;!-- pack elements --&gt;
+</I>&gt;<i>   &lt;/packs&gt;
+</I>&gt;<i>
+</I>&gt;<i> - Joseph Fiedler
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001724.html">[izpack-users] Questions on getting up and running with Izpack
+</A></li>
+	<LI>Next message: <A HREF="001733.html">[izpack-users] Windows wrong shortcut
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1735">[ date ]</a>
+              <a href="thread.html#1735">[ thread ]</a>
+              <a href="subject.html#1735">[ subject ]</a>
+              <a href="author.html#1735">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] nested conditions in conditions.xml
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20nested%20conditions%20in%20conditions.xml&In-Reply-To=OF5A894195.02548A0C-ON65257268.0041E084-65257268.0044AB88%40tcs.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001260.html">
+   <LINK REL="Next"  HREF="001262.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] nested conditions in conditions.xml</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20nested%20conditions%20in%20conditions.xml&In-Reply-To=OF5A894195.02548A0C-ON65257268.0041E084-65257268.0044AB88%40tcs.com"
+       TITLE="[izpack-users] nested conditions in conditions.xml">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Fri Jan 19 14:17:31 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001260.html">[izpack-users] nested conditions in conditions.xml
+</A></li>
+        <LI>Next message: <A HREF="001262.html">[izpack-users] Regarding Izpack-Querry on &quot;shortcutpanel&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1261">[ date ]</a>
+              <a href="thread.html#1261">[ thread ]</a>
+              <a href="subject.html#1261">[ subject ]</a>
+              <a href="author.html#1261">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> I wanted to specify nested condition in conditions.xml 
+</I>&gt;<i> I.e I wanted to copy packs if my both  conditions specified in
+</I>&gt;<i> conditions.xml are true. 
+</I>&gt;<i> 
+</I>&gt;<i> My xml tags are  ........ 
+</I>&gt;<i> 
+</I>&gt;<i> ..............................condition1........................................................ 
+</I>&gt;<i> &lt;condition type=&quot;variable&quot; id=&quot;client_select_var&quot;&gt; 
+</I>&gt;<i>                         &lt;name&gt;client&lt;/name&gt; 
+</I>&gt;<i>                         &lt;value&gt;clientselected&lt;/value&gt; 
+</I>&gt;<i> &lt;/condition&gt;  
+</I>&gt;<i> ..................................condition2.................................................................... 
+</I>&gt;<i> &lt;condition type=&quot;variable&quot; id=&quot;struts_selected&quot;&gt; 
+</I>&gt;<i>                         &lt;name&gt;install_type&lt;/name&gt; 
+</I>&gt;<i>                         &lt;value&gt;Struts&lt;/value&gt; 
+</I>&gt;<i> &lt;/condition&gt; 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> I wanted to copy below pack if  both condition 1and 2 are
+</I>&gt;<i> true(client=clientselected and install_type=Struts) 
+</I>
+
+Just use the and and ref condition ;-)
+
+&lt;condition type=&quot;and&quot; id=&quot;clientandstruts&quot;&gt;
+   &lt;condition type=&quot;ref&quot; refid=&quot;client_select_var&quot;/&gt;
+   &lt;condition type=&quot;ref&quot; refid=&quot;struts_selected&quot; /&gt;
+&lt;/condition&gt;
+
+
+Btw, there are also Not, Or, Xor conditions. 
+For most cases, the already implemented conditions should be enough, but
+if there is a condition type, which is not available at the moment, you
+can implement one by deriving the abstract base class
+com.izforge.izpack.rules.Condition
+Your new condition should be in the same package. At the moment it has
+to be named &lt;Yourname&gt;Condition.java and the only the first character of
+&lt;Yourname&gt; has to be capital. The new condition could then be referenced
+like:
+
+&lt;condition type=&quot;&lt;Yourname&gt;&quot; id=&quot;&quot;&gt;
+...
+&lt;/condition&gt;
+
+Regards,
+   Dennis
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001260.html">[izpack-users] nested conditions in conditions.xml
+</A></li>
+	<LI>Next message: <A HREF="001262.html">[izpack-users] Regarding Izpack-Querry on &quot;shortcutpanel&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1261">[ date ]</a>
+              <a href="thread.html#1261">[ thread ]</a>
+              <a href="subject.html#1261">[ subject ]</a>
+              <a href="author.html#1261">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] xinclude - can't use include from within	userInputSpec.xml (in installation time)
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20xinclude%20-%20can%27t%20use%20include%20from%20within%0A%09userInputSpec.xml%20%28in%20installation%20time%29&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001544.html">
+   <LINK REL="Next"  HREF="001548.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] xinclude - can't use include from within	userInputSpec.xml (in installation time)</H1>
+    <B>Matthew Fudge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20xinclude%20-%20can%27t%20use%20include%20from%20within%0A%09userInputSpec.xml%20%28in%20installation%20time%29&In-Reply-To="
+       TITLE="[izpack-devel] xinclude - can't use include from within	userInputSpec.xml (in installation time)">matfud at yahoo.com
+       </A><BR>
+    <I>Tue Feb  5 16:23:40 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001544.html">[izpack-devel] IzPack is a CodeHaus proiect!
+</A></li>
+        <LI>Next message: <A HREF="001548.html">[izpack-devel] Italian translation does not work
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1547">[ date ]</a>
+              <a href="thread.html#1547">[ thread ]</a>
+              <a href="subject.html#1547">[ subject ]</a>
+              <a href="author.html#1547">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>This is what I was talking about yesterday.
+
+
+
+The SystemID is being set incorrectly to &quot;file:/tmp/izpp45530.tmp&quot; when 
+it should be set to the location of the actual include.xml file I'm not 
+sure when this change occurred (but I know it used to work).
+
+
+
+I'm a bit to busy to fix it at the moment. You might want to look at it 
+(I don't think its a big fix)
+
+
+
+
+
+
+
+Cheers
+
+
+
+Matt
+
+
+----- Original Message ----
+From: Piotr Skowronek &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">piotr at skowro.net</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Sent: Tuesday, 5 February, 2008 2:17:35 PM
+Subject: Re: [izpack-devel] xinclude - can't use include from within userInputSpec.xml (in installation time)
+
+Matthew 
+Fudge 
+wrote:
+&gt;<i> 
+</I>Hi 
+Piotr,
+&gt;<i> 
+</I>&gt;<i> 
+</I>Try 
+using 
+the 
+&quot;parsexml&quot; 
+attribute 
+on 
+the 
+&quot;res&quot; 
+element. 
+This 
+should 
+cause 
+the 
+xml 
+in 
+your 
+UserInputSpec.xml 
+to 
+have 
+its 
+&gt;<i> 
+</I>xincludes 
+parsed 
+at 
+compile 
+time.
+&gt;<i> 
+</I>
+Hi 
+Mat,
+
+Thanks 
+for 
+the 
+hint, 
+but 
+it 
+seems 
+I 
+have 
+no 
+luck 
+today.
+I've 
+tried 
+to 
+add 
+parsexml 
+attribute 
+to 
+res, 
+and 
+compilation
+failed 
+with 
+following 
+exception:
+
+Adding 
+resource: 
+packsLang.xml
+Adding 
+resource: 
+CustomLangpack.xml
+-&gt; 
+Fatal 
+error 
+:<i>
+</I>  
+  
+install.xml:58: 
+Invalid 
+input: 
+`&#271;&#380;&#733;&#271;&#380;&#733;&#271;&#380;&#733;' 
+(0xffff), 
+SystemID='file:/tmp/izpp45530.tmp', 
+Line=1
+com.izforge.izpack.compiler.CompilerException: 
+install.xml:58: 
+Invalid 
+input: 
+`&#271;&#380;&#733;&#271;&#380;&#733;&#271;&#380;&#733;' 
+(0xffff), 
+SystemID='file:/tmp/izpp45530.tmp', 
+Line=1
+  
+  
+  
+  
+ 
+at 
+com.izforge.izpack.compiler.CompilerConfig.parseError(CompilerConfig.java:1911)
+  
+  
+  
+  
+ 
+at 
+com.izforge.izpack.compiler.CompilerConfig.addResources(CompilerConfig.java:1378)
+  
+  
+  
+  
+ 
+at 
+com.izforge.izpack.compiler.CompilerConfig.executeCompiler(CompilerConfig.java:333)
+  
+  
+  
+  
+ 
+at 
+com.izforge.izpack.compiler.CompilerConfig.main(CompilerConfig.java:2229)
+  
+  
+  
+  
+ 
+at 
+com.izforge.izpack.compiler.Compiler.main(Compiler.java:709)
+Caused 
+by: 
+net.n3.nanoxml.XMLParseException: 
+Invalid 
+input: 
+`&#271;&#380;&#733;&#271;&#380;&#733;&#271;&#380;&#733;' 
+(0xffff), 
+SystemID='file:/tmp/izpp45530.tmp', 
+Line=1
+  
+  
+  
+  
+ 
+at 
+net.n3.nanoxml.XMLUtil.errorInvalidInput(XMLUtil.java:453)
+  
+  
+  
+  
+ 
+at 
+net.n3.nanoxml.StdXMLParser.scanData(StdXMLParser.java:232)
+  
+  
+  
+  
+ 
+at 
+net.n3.nanoxml.StdXMLParser.parse(StdXMLParser.java:194)
+  
+  
+  
+  
+ 
+at 
+com.izforge.izpack.compiler.CompilerConfig.addResources(CompilerConfig.java:1335)
+  
+  
+  
+  
+ 
+... 
+3 
+more
+
+
+Regards,
+Piotr
+_______________________________________________
+izpack-devel 
+mailing 
+list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+
+
+
+      ___________________________________________________________
+Support the World Aids Awareness campaign this month with Yahoo! For Good <A HREF="http://uk.promotions.yahoo.com/forgood/">http://uk.promotions.yahoo.com/forgood/</A>
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001544.html">[izpack-devel] IzPack is a CodeHaus proiect!
+</A></li>
+	<LI>Next message: <A HREF="001548.html">[izpack-devel] Italian translation does not work
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1547">[ date ]</a>
+              <a href="thread.html#1547">[ thread ]</a>
+              <a href="subject.html#1547">[ subject ]</a>
+              <a href="author.html#1547">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

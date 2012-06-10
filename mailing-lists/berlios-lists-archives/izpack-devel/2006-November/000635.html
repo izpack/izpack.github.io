@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] condition aware UserInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20condition%20aware%20UserInputPanel&In-Reply-To=ekhc44%24m71%241%40sea.gmane.org">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000634.html">
+   <LINK REL="Next"  HREF="000624.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] condition aware UserInputPanel</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20condition%20aware%20UserInputPanel&In-Reply-To=ekhc44%24m71%241%40sea.gmane.org"
+       TITLE="[izpack-devel] condition aware UserInputPanel">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Tue Nov 28 14:26:45 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000634.html">[izpack-devel] condition aware UserInputPanel
+</A></li>
+        <LI>Next message: <A HREF="000624.html">[izpack-devel] Coding rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#635">[ date ]</a>
+              <a href="thread.html#635">[ thread ]</a>
+              <a href="subject.html#635">[ subject ]</a>
+              <a href="author.html#635">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>&gt;<i> can you please show how conditions.xml must be declared in the resources section.
+</I>Documentation will follow soon. For now:
+
+Define a resource
+&lt;res id=&quot;conditions.xml&quot; src=&quot;&lt;PATH TO CONDITIONS-SPECIFICATION&gt;&quot; /&gt;		
+
+in the xml, you have to specify the conditions like the following:
+
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;conditions&gt;	
+	&lt;condition type=&quot;variable&quot; id=&quot;warfilesetup&quot;&gt;
+		&lt;name&gt;izpack.setuptype&lt;/name&gt;
+		&lt;value&gt;warfile&lt;/value&gt;
+	&lt;/condition&gt;
+	
+	&lt;condition type=&quot;not&quot; id=&quot;notwarfilesetup&quot;&gt;
+		&lt;condition type=&quot;ref&quot; refid=&quot;warfilesetup&quot; /&gt;	
+	&lt;/condition&gt;
+	
+	&lt;condition type=&quot;not&quot; id=&quot;notrdbsetup&quot;&gt;
+		&lt;condition type=&quot;variable&quot;&gt;
+			&lt;name&gt;dbtype&lt;/name&gt;
+			&lt;value&gt;rdb&lt;/value&gt;			
+		&lt;/condition&gt;
+	&lt;/condition&gt;
+&lt;/conditions&gt;
+
+Additionally, add some panelconditions after the condition-elements:
+&lt;panelcondition panelid=&quot;installdirpanel&quot;
+conditionid=&quot;notwarfilesetup&quot;/&gt;
+	&lt;panelcondition panelid=&quot;jvmpanel&quot; conditionid=&quot;notwarfilesetup&quot;/&gt;
+
+To use the conditions in UserInputpanel, you just have to use the
+attribute conditionid of a field-element in the spec for userinput
+panels. The conditionid is just a reference to the id of a condition
+element.
+
+Is this enough as an answer to your question?
+
+-- 
+Regards
+   Dennis
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000634.html">[izpack-devel] condition aware UserInputPanel
+</A></li>
+	<LI>Next message: <A HREF="000624.html">[izpack-devel] Coding rules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#635">[ date ]</a>
+              <a href="thread.html#635">[ thread ]</a>
+              <a href="subject.html#635">[ subject ]</a>
+              <a href="author.html#635">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

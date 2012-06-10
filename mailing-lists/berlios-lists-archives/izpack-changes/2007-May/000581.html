@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1835 - in izpack-src/trunk: . lib	src/doc-ng/XHTML src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1835%20-%20in%20izpack-src/trunk%3A%20.%20lib%0A%09src/doc-ng/XHTML%20src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000580.html">
+   <LINK REL="Next"  HREF="000582.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1835 - in izpack-src/trunk: . lib	src/doc-ng/XHTML src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1835%20-%20in%20izpack-src/trunk%3A%20.%20lib%0A%09src/doc-ng/XHTML%20src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1835 - in izpack-src/trunk: . lib	src/doc-ng/XHTML src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon May 14 14:02:56 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000580.html">[izpack-changes] r1834 - in izpack-src/trunk: .	bin/langpacks/installer src src/dist-files src/doc-ng/XHTML	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000582.html">[izpack-changes] r1836 - in izpack-src/trunk: . lib src/dist-files	src/doc-ng/XHTML src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#581">[ date ]</a>
+              <a href="thread.html#581">[ thread ]</a>
+              <a href="subject.html#581">[ subject ]</a>
+              <a href="author.html#581">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-05-14 14:02:38 +0200 (Mon, 14 May 2007)
+New Revision: 1835
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/lib/liquidlnf.jar
+   izpack-src/trunk/lib/looks.jar
+   izpack-src/trunk/src/doc-ng/XHTML/node4.html
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+Log:
+Update of the Liquid and JGoodies look and feel libraries (Julien Ponge)
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-05-14 11:45:44 UTC (rev 1834)
++++ izpack-src/trunk/Versions.txt	2007-05-14 12:02:38 UTC (rev 1835)
+@@ -1,10 +1,6 @@
+ [ The list of the different public versions of IzPack ]
+ 
+-&lt;&lt;&lt;&lt;&lt;&lt;&lt; .courant
+   &gt; Next major release
+-=======
+-  &gt; 3.10.2 (build 2007.05.11)
+-&gt;&gt;&gt;&gt;&gt;&gt;&gt; .fusion-droit.r1833
+ 
+ - Added ignore as possible value for failure argument in executables (Dennis Reil)
+ - Added Conditional expressions (Dennis Reil)
+@@ -21,6 +17,7 @@
+ - Dynamic control validation on radio and checkbox selection events (Vladimir Ralev)
+ - Locale support of Shortcut specification file (Klaus Bartz using a hint of Loic)
+ - Enabled distributed pack-definitions (Hans Aikema based on patch by Syed Khadeer)
++- Update of the Liquid and JGoodies look and feel libraries (Julien Ponge).
+ 
+   &gt; 3.10.2 (build 2007.05.11)
+ 
+
+Modified: izpack-src/trunk/lib/liquidlnf.jar
+===================================================================
+(Binary files differ)
+
+Modified: izpack-src/trunk/lib/looks.jar
+===================================================================
+(Binary files differ)
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node4.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node4.html	2007-05-14 11:45:44 UTC (rev 1834)
++++ izpack-src/trunk/src/doc-ng/XHTML/node4.html	2007-05-14 12:02:38 UTC (rev 1835)
+@@ -481,7 +481,7 @@
+ &lt;p&gt;The &lt;i&gt;JGoodies Looks&lt;/i&gt; look and feel can be specified by using the &lt;tt&gt;variant&lt;/tt&gt; parameters. The values can be one of:&lt;/p&gt;
+ 
+ &lt;ul&gt;
+-&lt;li&gt;&lt;tt&gt;extwin&lt;/tt&gt;: use the Windows Extension look&lt;/li&gt;
++&lt;li&gt;&lt;tt&gt;windows&lt;/tt&gt;: use the Windows look&lt;/li&gt;
+ 
+ &lt;li&gt;&lt;tt&gt;plastic&lt;/tt&gt;: use the basic Plastic look&lt;/li&gt;
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-05-14 11:45:44 UTC (rev 1834)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/GUIInstaller.java	2007-05-14 12:02:38 UTC (rev 1835)
+@@ -390,10 +390,10 @@
+         if (&quot;looks&quot;.equals(laf))
+         {
+             Map variants = new TreeMap();
+-            variants.put(&quot;extwin&quot;, &quot;com.jgoodies.plaf.windows.ExtWindowsLookAndFeel&quot;);
+-            variants.put(&quot;plastic&quot;, &quot;com.jgoodies.plaf.plastic.PlasticLookAndFeel&quot;);
+-            variants.put(&quot;plastic3D&quot;, &quot;com.jgoodies.plaf.plastic.Plastic3DLookAndFeel&quot;);
+-            variants.put(&quot;plasticXP&quot;, &quot;com.jgoodies.plaf.plastic.PlasticXPLookAndFeel&quot;);
++            variants.put(&quot;windows&quot;, &quot;com.jgoodies.looks.windows.WindowsLookAndFeel&quot;);
++            variants.put(&quot;plastic&quot;, &quot;com.jgoodies.looks.plastic.PlasticLookAndFeel&quot;);
++            variants.put(&quot;plastic3D&quot;, &quot;com.jgoodies.looks.plastic.Plastic3DLookAndFeel&quot;);
++            variants.put(&quot;plasticXP&quot;, &quot;com.jgoodies.looks.plastic.Plastic3DLookAndFeel&quot;);
+             String variant = (String) variants.get(&quot;plasticXP&quot;);
+ 
+             Map params = (Map) installdata.guiPrefs.lookAndFeelParams.get(laf);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000580.html">[izpack-changes] r1834 - in izpack-src/trunk: .	bin/langpacks/installer src src/dist-files src/doc-ng/XHTML	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000582.html">[izpack-changes] r1836 - in izpack-src/trunk: . lib src/dist-files	src/doc-ng/XHTML src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#581">[ date ]</a>
+              <a href="thread.html#581">[ thread ]</a>
+              <a href="subject.html#581">[ subject ]</a>
+              <a href="author.html#581">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

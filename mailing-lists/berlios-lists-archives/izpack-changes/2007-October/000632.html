@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1886 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1886%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000631.html">
+   <LINK REL="Next"  HREF="000633.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1886 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1886%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1886 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Oct 25 16:09:32 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000631.html">[izpack-changes] r1885 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os
+</A></li>
+        <LI>Next message: <A HREF="000633.html">[izpack-changes] r1887 - in izpack-src/trunk: .	src/img/installer/img src/img/uninstaller/img	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#632">[ date ]</a>
+              <a href="thread.html#632">[ thread ]</a>
+              <a href="subject.html#632">[ subject ]</a>
+              <a href="author.html#632">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-10-25 16:09:20 +0200 (Thu, 25 Oct 2007)
+New Revision: 1886
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+Log:
+Fixed wrong display size of really big packs
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-10-20 17:28:16 UTC (rev 1885)
++++ izpack-src/trunk/Versions.txt	2007-10-25 14:09:20 UTC (rev 1886)
+@@ -49,6 +49,7 @@
+   kept on uninstallation (Gildas Le Louarn via Julien Ponge)
+ - Uninstaller: in GUI mode, users don't see the 'force uninstallation' checkbox unless the
+   '-x' command-line flag is used (Gildas Le Louarn via Julien Ponge)
++- Fixed wrong display size of really big packs (Dennis Reil) 
+   
+   &gt; 3.10.2 (build 2007.05.11)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-10-20 17:28:16 UTC (rev 1885)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-10-25 14:09:20 UTC (rev 1886)
+@@ -311,7 +311,7 @@
+             }
+ 
+         case 2:
+-            return Pack.toByteUnitsString((int) pack.nbytes);
++            return Pack.toByteUnitsString(pack.nbytes);
+ 
+         default:
+             return null;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-10-20 17:28:16 UTC (rev 1885)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2007-10-25 14:09:20 UTC (rev 1886)
+@@ -30,8 +30,6 @@
+ import java.awt.Graphics;
+ import java.awt.GridBagConstraints;
+ import java.awt.GridBagLayout;
+-import java.awt.event.ActionEvent;
+-import java.awt.event.ActionListener;
+ import java.io.File;
+ import java.io.InputStream;
+ import java.util.HashMap;
+@@ -39,7 +37,6 @@
+ import java.util.List;
+ import java.util.Map;
+ 
+-import javax.swing.AbstractCellEditor;
+ import javax.swing.BorderFactory;
+ import javax.swing.Box;
+ import javax.swing.BoxLayout;
+@@ -53,12 +50,10 @@
+ import javax.swing.JTable;
+ import javax.swing.JTextArea;
+ import javax.swing.ListSelectionModel;
+-import javax.swing.border.Border;
+ import javax.swing.event.ListSelectionEvent;
+ import javax.swing.event.ListSelectionListener;
+ import javax.swing.plaf.metal.MetalLookAndFeel;
+ import javax.swing.table.DefaultTableCellRenderer;
+-import javax.swing.table.TableCellEditor;
+ import javax.swing.table.TableCellRenderer;
+ 
+ import net.n3.nanoxml.XMLElement;
+@@ -133,7 +128,7 @@
+     /**
+      * The bytes of the current pack.
+      */
+-    protected int bytes = 0;
++    protected long bytes = 0;
+ 
+     /**
+      * The free bytes of the current selected disk.
+@@ -203,7 +198,7 @@
+      */
+     public int getBytes()
+     {
+-        return (bytes);
++        return (int) (bytes);
+     }
+ 
+     /*
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000631.html">[izpack-changes] r1885 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os
+</A></li>
+	<LI>Next message: <A HREF="000633.html">[izpack-changes] r1887 - in izpack-src/trunk: .	src/img/installer/img src/img/uninstaller/img	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#632">[ date ]</a>
+              <a href="thread.html#632">[ thread ]</a>
+              <a href="subject.html#632">[ subject ]</a>
+              <a href="author.html#632">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

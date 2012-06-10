@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] InstallationGroupPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20InstallationGroupPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001384.html">
+   <LINK REL="Next"  HREF="001376.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] InstallationGroupPanel</H1>
+    <B>Jeff Gordon</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20InstallationGroupPanel&In-Reply-To="
+       TITLE="[izpack-devel] InstallationGroupPanel">jeff.not24 at gmail.com
+       </A><BR>
+    <I>Wed Jan  9 19:13:31 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001384.html">[izpack-devel] UninstallerFrame
+</A></li>
+        <LI>Next message: <A HREF="001376.html">[izpack-devel] InstallationGroupPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1372">[ date ]</a>
+              <a href="thread.html#1372">[ thread ]</a>
+              <a href="subject.html#1372">[ subject ]</a>
+              <a href="author.html#1372">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I'd like to propose the InstallationGroupPanel table display be changed to
+remove the description from the radio button display (basically just
+removing the center column).  It is already displayed below as text and
+there's no way any descriptive text could all be displayed in the small
+space provided.  In addition, I propose the size column be right justified
+to display numerical value-derived text in a more consistent manner.
+Original code is commented for comparison in the patch below.
+
+- Jeff Gordon
+
+
+
+Index: InstallationGroupPanel.java
+===================================================================
+--- InstallationGroupPanel.java    (revision 1977)
++++ InstallationGroupPanel.java    (working copy)
+@@ -59,6 +59,8 @@
+ import com.izforge.izpack.util.AbstractUIHandler;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.OsConstraint;
++import javax.swing.SwingConstants;
++import javax.swing.table.DefaultTableCellRenderer;
+
+
+ /**
+@@ -148,6 +150,10 @@
+           }
+         };
+         tcm.getColumn(0).setCellRenderer(radioButtonRenderer);
++
++        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
++        renderer.setHorizontalAlignment(SwingConstants.RIGHT);
++        tcm.getColumn(1).setCellRenderer(renderer);
+
+         //groupsTable.setColumnSelectionAllowed(false);
+         //groupsTable.setRowSelectionAllowed(true);
+@@ -499,9 +505,9 @@
+     protected TableModel getModel(HashMap groupData)
+     {
+         String c1 = parent.langpack.getString(&quot;
+InstallationGroupPanel.colNameSelected&quot;);
+-        String c2 = parent.langpack.getString(&quot;
+InstallationGroupPanel.colNameInstallType&quot;);
++        //String c2 = parent.langpack.getString(&quot;
+InstallationGroupPanel.colNameInstallType&quot;);
+         String c3 = parent.langpack.getString(&quot;
+InstallationGroupPanel.colNameSize&quot;);
+-        String[] columns = {c1, c2, c3};
++        String[] columns = {c1, c3};
+          DefaultTableModel model = new DefaultTableModel (columns, 0)
+          {
+             public boolean isCellEditable (int row, int column)
+@@ -567,7 +573,8 @@
+             }
+             buttonGroup.add(btn);
+             String sizeText = gd.getSizeString();
+-            Object[] data = { btn, gd.description, sizeText};
++            //Object[] data = { btn, gd.description, sizeText};
++            Object[] data = { btn, sizeText};
+             model.addRow(data);
+             count ++;
+         }
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20080109/4c2141a3/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20080109/4c2141a3/attachment.html</A> 
+</PRE>
+
+
+
+
+
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001384.html">[izpack-devel] UninstallerFrame
+</A></li>
+	<LI>Next message: <A HREF="001376.html">[izpack-devel] InstallationGroupPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1372">[ date ]</a>
+              <a href="thread.html#1372">[ thread ]</a>
+              <a href="subject.html#1372">[ subject ]</a>
+              <a href="author.html#1372">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

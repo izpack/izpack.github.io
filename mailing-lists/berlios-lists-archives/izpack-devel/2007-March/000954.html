@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Vista
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Vista&In-Reply-To=1f2b1d2b0703150712r428ae4b6t7dc3c63274d598a8%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000952.html">
+   <LINK REL="Next"  HREF="000949.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Vista</H1>
+    <B>Stefan Wachter</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Vista&In-Reply-To=1f2b1d2b0703150712r428ae4b6t7dc3c63274d598a8%40mail.gmail.com"
+       TITLE="[izpack-devel] Vista">stefan.wachter at gmx.de
+       </A><BR>
+    <I>Tue Mar 20 19:20:00 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000952.html">[izpack-devel] Vista
+</A></li>
+        <LI>Next message: <A HREF="000949.html">[izpack-devel] Vista
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#954">[ date ]</a>
+              <a href="thread.html#954">[ thread ]</a>
+              <a href="subject.html#954">[ subject ]</a>
+              <a href="author.html#954">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Markus,
+
+here is an application manifest that requires administrator privileges for an executable:
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; standalone=&quot;yes&quot;?&gt;
+&lt;assembly xmlns=&quot;urn:schemas-microsoft-com:asm.v1&quot; manifestVersion=&quot;1.0&quot;&gt;
+   &lt;assemblyIdentity version=&quot;1.0.0.0&quot;
+      processorArchitecture=&quot;X86&quot;
+      name=&quot;setup&quot;
+      type=&quot;win32&quot;/&gt;
+   &lt;description&gt;Installiert das PolFHa&lt;/description&gt;
+   &lt;trustInfo xmlns=&quot;urn:schemas-microsoft-com:asm.v3&quot;&gt;
+     &lt;security&gt;
+       &lt;requestedPrivileges&gt;
+         &lt;requestedExecutionLevel
+           level=&quot;requireAdministrator&quot;
+           uiAccess=&quot;false&quot;/&gt;
+         &lt;/requestedPrivileges&gt;
+        &lt;/security&gt;
+   &lt;/trustInfo&gt;
+&lt;/assembly&gt;
+
+It seems that the encoding must be UTF-8 because otherwise an error is reported. In addition, 
+uiAccess=&quot;false&quot; must be set (uiAccess=&quot;true&quot; causes an error; the application is allowed to open a 
+window even if uiAccess=&quot;false&quot;).
+
+There seems to be a difference between the privileges an executable gets if it is named &quot;setup.exe&quot; 
+and the privileges it gets with the above manifest!
+
+In my case invoking the setup without the above manifest created shortcuts in 
+&quot;ProgramData\Microsoft\...\Start Menu\...&quot;, i.e. for all users whereas invoking the setup with the 
+manifest created shortcuts in &quot;\Users\swachter\AppData\...\Start Menu\..&quot;, i.e. for the current user 
+only.
+
+I am not using the IzPack shortcut mechanism but the OrangeVolt Ant tasks. However, maybe IzPack 
+shortcuts show the same strange behaviour!
+
+--Stefan
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000952.html">[izpack-devel] Vista
+</A></li>
+	<LI>Next message: <A HREF="000949.html">[izpack-devel] Vista
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#954">[ date ]</a>
+              <a href="thread.html#954">[ thread ]</a>
+              <a href="subject.html#954">[ subject ]</a>
+              <a href="author.html#954">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

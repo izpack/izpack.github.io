@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Some more Xinclude thoughts
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Some%20more%20Xinclude%20thoughts&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001331.html">
+   <LINK REL="Next"  HREF="001333.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Some more Xinclude thoughts</H1>
+    <B>Matthew Fudge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Some%20more%20Xinclude%20thoughts&In-Reply-To="
+       TITLE="[izpack-devel] Some more Xinclude thoughts">matfud at yahoo.com
+       </A><BR>
+    <I>Sat Dec 15 19:13:48 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001331.html">[izpack-devel] Some more Xinclude thoughts
+</A></li>
+        <LI>Next message: <A HREF="001333.html">[izpack-devel] Some more Xinclude thoughts
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1332">[ date ]</a>
+              <a href="thread.html#1332">[ thread ]</a>
+              <a href="subject.html#1332">[ subject ]</a>
+              <a href="author.html#1332">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Tino,
+Thanks for the prompt reply.
+
+Im having simlar kinds of problems. The xinclude mostly helps but does have limitations. 
+
+The &quot;xinclude&quot; element is recursive such that included documents/fragments are also processed and 
+thier &quot;xinclude&quot;s are included. I'm planning, primarily, on using it in this context.
+
+So I'm hoping your second suggestion is sufficient for my needs as the first would require a fairly large chunk of 
+rework inside izpack (as you noted the xinclude stuff I wrote is in the parser and does not interact with izpack
+in any way and therefore cannot have access to the variable/properties defined in izpack install files) while the second 
+seems to currently work with the xinclude stuff.
+
+I have been considering adding something like &quot;foreach&quot; and  possibly some conditional processing. However I am not 
+sure that it would be that useful. If I added it then it would likely be added to the xml parser and therefore would not have 
+access to izpack variables/properties. There is probably some w3c standard I can bastardise to handle this but I'm not 
+sure if it is worth it.
+
+Another problem I am currently having is realted to the &quot;pack&quot; element. I can quite easily include packs (using pack-ref or xinclude)
+but thier &quot;required&quot; attribute is causing issues. Product 'B' includes product 'A'. As such Product 'B'  xincludes/pack-refs a number of
+packs from product 'A'. Product 'A' has a &quot;pack&quot; element that is marked as required, however for product 'B' that pack is optional.
+
+Any ideas?
+
+
+cheers
+matfud
+
+
+----- Original Message ----
+From: Tino Schwarze &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">berlios.de at tisc.de</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Sent: Saturday, 15 December, 2007 5:26:17 PM
+Subject: Re: [izpack-devel] Some more Xinclude thoughts
+
+Hi Matthew,
+
+On Sat, Dec 15, 2007 at 08:26:29AM -0800, Matthew Fudge wrote:
+
+&gt;<i> It sounds like you have similar problems to myself.
+</I>&gt;<i> 
+</I>&gt;<i> Yep, I've been down the magic comments route. Some times it's the
+</I> most
+&gt;<i> suitable approach and we still use them for some stuff. However since
+</I>&gt;<i> I am currently involved in creating a new build/install system for a
+</I>&gt;<i> number of older products I thought it might be nice to use tools
+</I> (like
+&gt;<i> IzPack) that would enable me to do away with magic comments (although
+</I>&gt;<i> I think we'll still be left with some).
+</I>&gt;<i> 
+</I>&gt;<i> Actually the maigc comments weren't too bad when we where using ant
+</I>&gt;<i> (although we didn't use them for installers (have you ever seen the
+</I>&gt;<i> xml file that InstallAnywhere creates?)) but under maven they are
+</I>&gt;<i> turning out to be a bit of a pain in the arse.
+</I>&gt;<i> 
+</I>&gt;<i> The xinclude code allows you to specify fallbacks if the specified
+</I>&gt;<i> href can not be found. This fallback can actually be an empty element
+</I>&gt;<i> in which case the entire xinclude just disappears (and does not
+</I> fail).
+&gt;<i> This may address some of your issues wrt including varying numbers of
+</I>&gt;<i> modules (if you can structure it correctly).
+</I>
+Solving this &quot;nicely&quot; would require some sophisticated macro stuff. In
+my case, we've got a product which is composed of modules (some of them
+are mandatory and always there). The point is, I don't know what
+ modules
+are there or may be there in the future. Therefore I've got a script in
+the core module which takes a list of modules to include in the
+installer. The script knows where to find the appropiate XML snippets
+and includes them.
+
+The XML inclusion for know only happens in two files (installer.xml and
+compilationSpec.xml). To automate this or replace by a single
+ statement,
+I'd need some foreach macro, like this:
+a) &lt;xinclude foreach_var=&quot;module&quot; foreach_list=&quot;$modulelist&quot;
+    href=&quot;../../$module/config/installer.xml&quot; /&gt;
+or
+b) &lt;foreach var=&quot;module&quot; values=&quot;$modulelist&quot;&gt;
+  &lt;xinclude href=&quot;../../$module/config/installer.xml&quot; /&gt;
+&lt;/foreach&gt;
+
+Hm, doesn't sound too complicated to implement. (Note that I've never
+looked at the XInclude specs!) Either way, NanoXML couldn't handle the
+xinclude tag any more since it wouldn't know the value of $module.
+But it shouldn't be too hard to add a preprocessing step to the
+ compiler
+(variables would have to be passed by command line or we get a
+chicken-and-egg problem) to resolve foreach loops and alter the
+ document
+structure accordingly.
+
+While I'm thinking this through, it doesn't sound easy any more. :-|
+
+Another approach would be to include an XML which includes other XMLs:
+&lt;xinclude href=&quot;modules.xml&quot;/&gt;
+Then we could generate modules.xml like this:
+&lt;xinclude href=&quot;../../module1/config/installer.xml&quot; /&gt;
+&lt;xinclude href=&quot;../../module2/config/installer.xml&quot; /&gt;
+
+This would also work for resources and should be easier to create using
+ant or maven...
+
+Bye,
+
+Tino.
+
+&gt;<i> ----- Original Message ----
+</I>&gt;<i> From: Tino Schwarze &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">berlios.de at tisc.de</A>&gt;
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Sent: Saturday, 15 December, 2007 3:25:47 PM
+</I>&gt;<i> Subject: Re: [izpack-devel] Some more Xinclude thoughts
+</I>&gt;<i> 
+</I>&gt;<i> Hi Matthew,
+</I>&gt;<i> 
+</I>&gt;<i> On Sat, Dec 15, 2007 at 08:03:28AM -0700, Matthew Fudge wrote:
+</I>&gt;<i> 
+</I>&gt;<i> &gt; Perhaps you could clarify somthing for me. I was looking at the
+</I> code
+&gt;<i> &gt; for CompilerConfig#addResources
+</I>&gt;<i> &gt;
+</I>&gt;<i>
+</I>  (<A HREF="http://svn.berlios.de/svnroot/repos/izpack/izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java">http://svn.berlios.de/svnroot/repos/izpack/izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java</A>)
+&gt;<i> &gt; In that file it appears that the &quot;parse&quot; attribute (on a &quot;res&quot;
+</I>&gt;<i> &gt; element) causes variable substitution to occur at compile time
+</I> (sorry
+&gt;<i> &gt; I don't have an IDE to help me track through the code at the moment
+</I>&gt;<i>  to
+</I>&gt;<i> &gt; see if this is really the case).
+</I>&gt;<i> 
+</I>&gt;<i> I don't have an IzPack/IDE setup there, currently, so I'm just trying
+</I>&gt;<i>  to
+</I>&gt;<i> remember stuff. I mixed this up with the &lt;parsable&gt; tag where parsing
+</I>&gt;<i> happens at installation time. 
+</I>&gt;<i> 
+</I>&gt;<i> Yes, the above code parses at compile time. I would opt for
+</I> introducing
+&gt;<i> an &quot;parsexml&quot; attribute which is independent of the parse attribute.
+</I>&gt;<i> This way the user has freedom of choice: No parsing, just XML parsing
+</I>&gt;<i> (=including), just variable parsing or both.
+</I>&gt;<i> 
+</I>&gt;<i> Hm, this xinclude stuff may be useful for me as well - we're
+</I> currently
+&gt;<i> using a wrapper script to substitute some magic comments by XML
+</I>&gt;<i>  snippets.
+</I>&gt;<i> On the other hand, we'd still need to substitute the magic comments
+</I> by
+&gt;<i> appropiate &lt;xinclude&gt; tags since the number of modules may vary...
+</I>&gt;<i> 
+</I>&gt;<i> Bye+Thanks for the work,
+</I>&gt;<i> 
+</I>&gt;<i> Tino.
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i> www.craniosacralzentrum.de
+</I>&gt;<i> www.lebensraum11.de
+</I>&gt;<i> www.spiritualdesign-chemnitz.de
+</I>&gt;<i> 
+</I>&gt;<i> Tino Schwarze * Parkstra&#223;e 17h * 09120 Chemnitz
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>       ___________________________________________________________
+</I>&gt;<i> Support the World Aids Awareness campaign this month with Yahoo! For
+</I> Good <A HREF="http://uk.promotions.yahoo.com/forgood/">http://uk.promotions.yahoo.com/forgood/</A>
+&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>
+-- 
+www.craniosacralzentrum.de
+www.lebensraum11.de
+www.spiritualdesign-chemnitz.de
+
+Tino Schwarze * Parkstra&#223;e 17h * 09120 Chemnitz
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+
+
+
+      __________________________________________________________
+Sent from Yahoo! Mail - a smarter inbox <A HREF="http://uk.mail.yahoo.com">http://uk.mail.yahoo.com</A>
+
+</PRE>
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001331.html">[izpack-devel] Some more Xinclude thoughts
+</A></li>
+	<LI>Next message: <A HREF="001333.html">[izpack-devel] Some more Xinclude thoughts
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1332">[ date ]</a>
+              <a href="thread.html#1332">[ thread ]</a>
+              <a href="subject.html#1332">[ subject ]</a>
+              <a href="author.html#1332">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

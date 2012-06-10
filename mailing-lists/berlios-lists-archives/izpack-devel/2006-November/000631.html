@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Writing a TopLevel Registry Key...
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Writing%20a%20TopLevel%20Registry%20Key...&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000630.html">
+   <LINK REL="Next"  HREF="000632.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Writing a TopLevel Registry Key...</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Writing%20a%20TopLevel%20Registry%20Key...&In-Reply-To="
+       TITLE="[izpack-devel] Writing a TopLevel Registry Key...">markus.schlegel at pulinco.com
+       </A><BR>
+    <I>Tue Nov 28 12:09:19 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000630.html">[izpack-devel] Finding Default InstallationDirectory for Programs	under Windows
+</A></li>
+        <LI>Next message: <A HREF="000632.html">[izpack-devel] Finding Default InstallationDirectory for	Programsunder Windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#631">[ date ]</a>
+              <a href="thread.html#631">[ thread ]</a>
+              <a href="subject.html#631">[ subject ]</a>
+              <a href="author.html#631">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi
+Our Application requires wirting Toplevel keys to the Windows Registry for File-ending and URL-Protocol Registration.
+For Example we have to write a Key &quot;HKCR\.xte&quot;. While this should be a very common task for an Installer operation in Windows, this is not supported with the current release of IzPack (3.9.0).
+ 
+First of all, when defining such an entry in the RegistrySpec.xml file, it just stops writing to the registry with an error, but no Error-Text, because the Native Exception is wrapped by a &quot;WrappedNativeException&quot; which has no Message anymore. Thus its very annoying to track down the reason of this failure. 
+I have fixed this (give the message to the WrappedNativeExcpetion). 
+I then took a look into the implementation (RegistryImpl.java) and found out, that there is no good reason why setting a toplevel RegistryKey should be &quot;forbidden&quot;. So I enhanced the code in RegistryImpl to accept TopLevel Registry Keys.
+The remaining problem is now, that it seems not possible to remove such Toplevel Keys from the registry at uninstallation. Without a modification of &quot;RegistryImpl.deleteKeyIfEmpty()&quot;, I get the following Exception on uninstallation:
+ 
+(from native Method &quot;RegistryImpl.deleteKeyN()&quot;)
+...WrappedNativeException: Der Registry-Schl&#252;ssel HKCR\.xte konnte nicht gel&#246;scht werden.
+Fehlernummer des Betriebssystems: 2
+Fehlertext des Betriebssystems: Das System kann die angegebene Datei nicht finden.
+ 
+I now made a temporary solution for this by not trying to delete toplevel keys at all. But I think this could be solved inside the native code. Maybe someone of you who knows the native code could fix this?
+ 
+Regards
+Markus Schlegel
+ 
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061128/6b8fa681/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061128/6b8fa681/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000630.html">[izpack-devel] Finding Default InstallationDirectory for Programs	under Windows
+</A></li>
+	<LI>Next message: <A HREF="000632.html">[izpack-devel] Finding Default InstallationDirectory for	Programsunder Windows
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#631">[ date ]</a>
+              <a href="thread.html#631">[ thread ]</a>
+              <a href="subject.html#631">[ subject ]</a>
+              <a href="author.html#631">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

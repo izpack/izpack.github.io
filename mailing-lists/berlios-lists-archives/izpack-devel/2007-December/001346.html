@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Problem with InputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Problem%20with%20InputPanel&In-Reply-To=476990AF.9050005%40gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001345.html">
+   <LINK REL="Next"  HREF="001347.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Problem with InputPanel</H1>
+    <B>Julien Ponge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Problem%20with%20InputPanel&In-Reply-To=476990AF.9050005%40gmail.com"
+       TITLE="[izpack-devel] Problem with InputPanel">julien.ponge at gmail.com
+       </A><BR>
+    <I>Wed Dec 19 22:50:28 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001345.html">[izpack-devel] Problem with InputPanel
+</A></li>
+        <LI>Next message: <A HREF="001347.html">[izpack-devel] IzPack-based GlassFish installer now available
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1346">[ date ]</a>
+              <a href="thread.html#1346">[ thread ]</a>
+              <a href="subject.html#1346">[ subject ]</a>
+              <a href="author.html#1346">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi... Julien ;-)
+
+&gt;<i> I've noticed a strange behavior of the InputPanel. I have a 'search'
+</I>&gt;<i> field type. I've noticed that if I click the 'browse' button to  
+</I>&gt;<i> find my
+</I>&gt;<i> path, the variable will be set. However, if I type directly the  
+</I>&gt;<i> path in
+</I>&gt;<i> the field, the variable doesn't get set. I noticed this behavior under
+</I>&gt;<i> Linux (Ubuntu 7.10 to be precise), with Java 6. Also under CentOS 5,
+</I>&gt;<i> also using Java 6.
+</I>
+I'll let others answer on this panel as I am not the specialist on it.
+
+&gt;<i>
+</I>&gt;<i> Another bug I encountered is that when I get to the finish panel, when
+</I>&gt;<i> the uninstaller should be written, I get the following exception:
+</I>&gt;<i>
+</I>&gt;&gt;<i> java.lang.NullPointerException
+</I>&gt;&gt;<i>         at java.io.Writer.write(Writer.java:140)
+</I>&gt;&gt;<i>         at  
+</I>&gt;&gt;<i> com.izforge.izpack.installer.InstallerFrame.writeUninstallData 
+</I>&gt;&gt;<i> (InstallerFrame.java:1020)
+</I>&gt;&gt;<i>         at com.izforge.izpack.installer.InstallerFrame.exit 
+</I>&gt;&gt;<i> (InstallerFrame.java:1268)
+</I>&gt;&gt;<i>         at com.izforge.izpack.installer.InstallerFrame 
+</I>&gt;&gt;<i> $NavigationHandler.actionPerformed(InstallerFrame.java:1628)
+</I>&gt;&gt;<i>         at javax.swing.AbstractButton.fireActionPerformed 
+</I>&gt;&gt;<i> (AbstractButton.java:1995)
+</I>&gt;&gt;<i>         at javax.swing.AbstractButton$Handler.actionPerformed 
+</I>&gt;&gt;<i> (AbstractButton.java:2318)
+</I>&gt;&gt;<i>         at javax.swing.DefaultButtonModel.fireActionPerformed 
+</I>&gt;&gt;<i> (DefaultButtonModel.java:387)
+</I>&gt;&gt;<i>         at javax.swing.DefaultButtonModel.setPressed 
+</I>&gt;&gt;<i> (DefaultButtonModel.java:242)
+</I>&gt;&gt;<i>         ...
+</I>&gt;<i>
+</I>&gt;<i> I've linked it back to UninstallData.java, around line 90:
+</I>&gt;<i>
+</I>&gt;<i>          if(path != null)
+</I>&gt;<i>              installedFilesList.add(path);
+</I>&gt;<i>              if (uninstall) uninstallableFilesList.add(path);
+</I>&gt;<i>
+</I>&gt;<i> Should be:
+</I>&gt;<i>
+</I>&gt;<i>          if(path != null) {
+</I>&gt;<i>              installedFilesList.add(path);
+</I>&gt;<i>              if (uninstall) uninstallableFilesList.add(path);
+</I>&gt;<i>          }
+</I>&gt;<i>
+</I>
+Ok I'm fixing this one now.
+
+Cheers
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001345.html">[izpack-devel] Problem with InputPanel
+</A></li>
+	<LI>Next message: <A HREF="001347.html">[izpack-devel] IzPack-based GlassFish installer now available
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1346">[ date ]</a>
+              <a href="thread.html#1346">[ thread ]</a>
+              <a href="subject.html#1346">[ subject ]</a>
+              <a href="author.html#1346">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

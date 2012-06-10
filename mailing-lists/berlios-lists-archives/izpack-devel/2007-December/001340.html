@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Small corrections
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Small%20corrections&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001342.html">
+   <LINK REL="Next"  HREF="001343.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Small corrections</H1>
+    <B>Bernhard Kastner</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Small%20corrections&In-Reply-To="
+       TITLE="[izpack-devel] Small corrections">beka at vision-flow.at
+       </A><BR>
+    <I>Mon Dec 17 15:01:56 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001342.html">[izpack-devel] will this installer do the trick?
+</A></li>
+        <LI>Next message: <A HREF="001343.html">[izpack-devel] Announcing an IzPack-based GlassFish installer!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1340">[ date ]</a>
+              <a href="thread.html#1340">[ thread ]</a>
+              <a href="subject.html#1340">[ subject ]</a>
+              <a href="author.html#1340">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi ng,
+
+as I wrote in 10.12.2007, I had a little problem with the automated 
+installer which selected every pack available, no matter if the 
+XML-attribute &quot;selected&quot; said yes or no... (see my message from 071210 
+15:10 &quot;Automated Installer&quot;)
+
+In PacksPanelAutomationHelper the problem was quite obvious: There is no 
+decision whatsoever, if the attribute &quot;selected&quot; says anything, the 
+packs are just added to idata.selectedPacks if they are present in the 
+XML, which means, all packs are being added to idata.selectedPacks.
+This may be prevented by either not writing unselected packs to the XML, 
+or by properly checking the &quot;selected&quot;-attribute. I decided to do the 
+latter. Before the line
+idata.selectedPacks.add(idata.availablePacks.get(index));
+simply insert the following if-clause
+if (el.getAttribute(&quot;selected&quot;).equalsIgnoreCase(&quot;true&quot;))
+in PacksPanelAutomationHelper.java
+
+That did the trick for me.
+
+Another thing I stumbled across during testing the installer on Ubuntu 
+Linux with Gnome and KDE (Kubuntu) is, that the Gnome-shortcut for the 
+start menu (with Gnome it's called gnome-panel or simply panel) actually 
+doesn't work due to a missing newline at the end of the .desktop-file. I 
+fixed this issue by simply adding a newline to the shortCutDef-String in 
+Unix_Shortcut.save(). I replaced this line
+String shortCutDef = this.replace();
+with that one:
+String shortCutDef = this.replace() + N;
+
+I'm sorry I don't have any time to create a patch or something like 
+that, but I'm sure some coders from the project will have that done in 
+no-time as long as you want to include those fixes.
+
+The version I was working with was 3.10.2 (build 2007.05.11). It's the 
+most recent that is presented as primary link on the 
+izpack.org-homepage. As far as I have tested, my changes have no side 
+effects, but don't take that for granted as I'm still testing the final 
+version of my installer.
+
+hth
+
+Bernhard
+</PRE>
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001342.html">[izpack-devel] will this installer do the trick?
+</A></li>
+	<LI>Next message: <A HREF="001343.html">[izpack-devel] Announcing an IzPack-based GlassFish installer!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1340">[ date ]</a>
+              <a href="thread.html#1340">[ thread ]</a>
+              <a href="subject.html#1340">[ subject ]</a>
+              <a href="author.html#1340">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

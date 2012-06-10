@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] batchfile not invoked after installation
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20batchfile%20not%20invoked%20after%20installation&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891708%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000811.html">
+   <LINK REL="Next"  HREF="000813.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] batchfile not invoked after installation</H1>
+    <B>mika</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20batchfile%20not%20invoked%20after%20installation&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891708%40coi11.coi.com"
+       TITLE="[izpack-users] batchfile not invoked after installation">mika.works at gentlemansclub.de
+       </A><BR>
+    <I>Tue Aug 22 10:46:05 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000811.html">[izpack-users] batchfile not invoked after installation
+</A></li>
+        <LI>Next message: <A HREF="000813.html">[izpack-users] Informations about ProcessPanel? How does it work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#812">[ date ]</a>
+              <a href="thread.html#812">[ thread ]</a>
+              <a href="subject.html#812">[ subject ]</a>
+              <a href="author.html#812">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus,
+
+thanks for your hints. But I ran another path for solving the problem.
+In the executable section is the option for passing an param...
+
+I solved it by giving the batch file a parameter with the target path.
+
+The batch file jumps into this path...
+
+And now it works *bigsmile*.
+
+Thanks,
+mika
+
+-------- Original-Nachricht --------
+Datum: Tue, 22 Aug 2006 09:11:30 +0200
+Von: &quot;Bartz, Klaus&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt;
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: Re: [izpack-users] batchfile not invoked after installation
+
+&gt;<i> Hi Mika,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;The paths are valid!
+</I>&gt;<i> &gt;
+</I>&gt;<i> Really? Also from an exec started from java?
+</I>&gt;<i> 
+</I>&gt;<i> May be the cmd created by the installation has an other current
+</I>&gt;<i> dir as a cmd where you go into the dir and call then the batch.
+</I>&gt;<i> To test it, write
+</I>&gt;<i> dir/w &gt; c:\temp\myTest.log
+</I>&gt;<i> in your batch and look where you are with the batch.
+</I>&gt;<i> 
+</I>&gt;<i> In my batch and shell scripts I use an absolute path using
+</I>&gt;<i> IzPack variables which I declare as parseable; e.g.
+</I>&gt;<i> 
+</I>&gt;<i> set JAVA_HOME=$JDKPath
+</I>&gt;<i> 
+</I>&gt;<i> for you may be it should be
+</I>&gt;<i> 
+</I>&gt;<i> Attention: then you need three entries for the file:
+</I>&gt;<i> 
+</I>&gt;<i> in a file or fileset to install
+</I>&gt;<i> parseable to revise variables
+</I>&gt;<i> executeable to execute
+</I>&gt;<i> 
+</I>&gt;<i> If you start the installation from a cmd and define
+</I>&gt;<i> -DTRACE=TRUE
+</I>&gt;<i> before -jar like
+</I>&gt;<i> 
+</I>&gt;<i> java -DTRACE=TRUE -jar install.jar
+</I>&gt;<i> 
+</I>&gt;<i> you get some trace informations mainly for executable.
+</I>&gt;<i> 
+</I>&gt;<i> Cheers
+</I>&gt;<i> 
+</I>&gt;<i> Klaus
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> &gt;-----Original Message-----
+</I>&gt;<i> &gt;From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i> &gt;[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of mika
+</I>&gt;<i> &gt;Sent: Tuesday, August 22, 2006 8:11 AM
+</I>&gt;<i> &gt;To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt;Subject: Re: [izpack-users] batchfile not invoked after installation
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Hello,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;I'll post some additional information.
+</I>&gt;<i> &gt;The TAR.GZ is intended to be extracted via the javatar-2.5 
+</I>&gt;<i> &gt;package, which contains a tar.jar. This tar.jar is used to 
+</I>&gt;<i> &gt;extract these tar.gz file.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Therefor I've created a batch file with following content:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;-------------------------------
+</I>&gt;<i> &gt;@echo off
+</I>&gt;<i> &gt;set 
+</I>&gt;<i> &gt;CLASSPATH=native\classes;native\jars\tar.jar;native\jars\activation.jar
+</I>&gt;<i> &gt;set JAVA_HOME=..\..\..\shared\jdk\jre
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;pause
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;java com.ice.tar.tar -xzf asa.tar.gz
+</I>&gt;<i> &gt;-------------------------------
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;As you can see, the javatar-2.5 content is in an subfolder 
+</I>&gt;<i> &gt;&quot;native&quot; which contains two more folders &quot;jars&quot; and &quot;classes&quot;. 
+</I>&gt;<i> &gt;In the classes directory are the class files and in the jars 
+</I>&gt;<i> &gt;directory the jars :-).
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;The paths are valid!
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;As written before the tar.gz is being extracted when I invoke 
+</I>&gt;<i> &gt;the batch file myself. But not after installation has finished...
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;Thanks, mika
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;&gt; Good morning,
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; there is a problem in invoking a batch file after the 
+</I>&gt;<i> &gt;installation has
+</I>&gt;<i> &gt;&gt; finished.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; In one pack-section is an executable-tag but this is not 
+</I>&gt;<i> &gt;being invoked
+</I>&gt;<i> &gt;&gt; after the installation has finished.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Or is there another way, because this batch file should be executed
+</I>&gt;<i> &gt;&gt; before the shortcuts are being created. The batch file is used to
+</I>&gt;<i> &gt;&gt; extract an tar.gz-archive. In the extracted archive are some 
+</I>&gt;<i> &gt;more batch
+</I>&gt;<i> &gt;&gt; files.
+</I>&gt;<i> &gt;&gt; For one of these batch files a shortcut has to be created...
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; While installing an prompt &quot;continue&quot; with options yes/no 
+</I>&gt;<i> &gt;occurs. I've
+</I>&gt;<i> &gt;&gt; clicked on &quot;yes&quot; but nothing happened. The paths are also 
+</I>&gt;<i> &gt;exact, because &gt; if I invoke the batch after installation has 
+</I>&gt;<i> &gt;finished, it does its
+</I>&gt;<i> &gt;&gt; work...
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Is there another way for invoking this file?
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Thanks,
+</I>&gt;<i> &gt;&gt; mika
+</I>&gt;<i> &gt;-- 
+</I>-- 
+
+
+Echte DSL-Flatrate dauerhaft f&#252;r 0,- Euro*. Nur noch kurze Zeit!
+&quot;Feel free&quot; mit GMX DSL: <A HREF="http://www.gmx.net/de/go/dsl">http://www.gmx.net/de/go/dsl</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000811.html">[izpack-users] batchfile not invoked after installation
+</A></li>
+	<LI>Next message: <A HREF="000813.html">[izpack-users] Informations about ProcessPanel? How does it work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#812">[ date ]</a>
+              <a href="thread.html#812">[ thread ]</a>
+              <a href="subject.html#812">[ subject ]</a>
+              <a href="author.html#812">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

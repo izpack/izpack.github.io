@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1556 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1556%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000300.html">
+   <LINK REL="Next"  HREF="000302.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1556 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1556%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1556 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Fri Sep  1 20:39:39 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000300.html">[izpack-changes] r1555 - izpack-launcher/trunk/src
+</A></li>
+        <LI>Next message: <A HREF="000302.html">[izpack-changes] r1557 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#301">[ date ]</a>
+              <a href="thread.html#301">[ thread ]</a>
+              <a href="subject.html#301">[ subject ]</a>
+              <a href="author.html#301">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-01 20:39:02 +0200 (Fri, 01 Sep 2006)
+New Revision: 1556
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/RuleInputField.java
+Log:
+Applied Patch from Dennis Reil, to suppress a NPE that occurs in some cases.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/RuleInputField.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/RuleInputField.java	2006-09-01 09:58:11 UTC (rev 1555)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/RuleInputField.java	2006-09-01 18:39:02 UTC (rev 1556)
+@@ -140,6 +140,7 @@
+     private int resultFormat = DEFAULT;
+ 
+     private InstallData idata = null;
++
+     /**
+      * Holds an instance of the &lt;code&gt;Validator&lt;/code&gt; if one was specified and available
+      */
+@@ -605,8 +606,7 @@
+                     }
+                 }
+                 catch (Throwable exception)
+-                {
+-                }
++                {}
+             }
+         }
+     }
+@@ -748,17 +748,20 @@
+     /*--------------------------------------------------------------------------*/
+     public void caretUpdate(CaretEvent event)
+     {
+-        String text = activeField.getText();
+-        int fieldSize = activeField.getEditLength();
+-        int caretPosition = activeField.getCaretPosition();
+-        int selection = activeField.getSelectionEnd() - activeField.getSelectionStart();
++        if (activeField != null)
++        {
++            String text = activeField.getText();
++            int fieldSize = activeField.getEditLength();
++            int caretPosition = activeField.getCaretPosition();
++            int selection = activeField.getSelectionEnd() - activeField.getSelectionStart();
+ 
+-        if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!activeField.unlimitedEdit()))
+-        {
+-            if ((text.length() == fieldSize) &amp;&amp; (selection == 0) &amp;&amp; (caretPosition == fieldSize)
+-                    &amp;&amp; !backstep)
++            if ((!inputFields.lastElement().equals(activeField)) &amp;&amp; (!activeField.unlimitedEdit()))
+             {
+-                activeField.transferFocus();
++                if ((text.length() == fieldSize) &amp;&amp; (selection == 0)
++                        &amp;&amp; (caretPosition == fieldSize) &amp;&amp; !backstep)
++                {
++                    activeField.transferFocus();
++                }
+             }
+         }
+     }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000300.html">[izpack-changes] r1555 - izpack-launcher/trunk/src
+</A></li>
+	<LI>Next message: <A HREF="000302.html">[izpack-changes] r1557 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#301">[ date ]</a>
+              <a href="thread.html#301">[ thread ]</a>
+              <a href="subject.html#301">[ subject ]</a>
+              <a href="author.html#301">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

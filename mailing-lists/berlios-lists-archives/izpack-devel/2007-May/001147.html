@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] TreePacksPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20TreePacksPanel&In-Reply-To=465C96DB.3050802%40redhat.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001146.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] TreePacksPanel</H1>
+    <B>Julien Ponge</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20TreePacksPanel&In-Reply-To=465C96DB.3050802%40redhat.com"
+       TITLE="[izpack-devel] TreePacksPanel">julien.ponge at gmail.com
+       </A><BR>
+    <I>Tue May 29 23:22:52 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001146.html">[izpack-devel] TreePacksPanel
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1147">[ date ]</a>
+              <a href="thread.html#1147">[ thread ]</a>
+              <a href="subject.html#1147">[ subject ]</a>
+              <a href="author.html#1147">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thanks for the work!
+
+On 5/29/07, Vladimir Ralev &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">vralev at redhat.com</A>&gt; wrote:
+&gt;<i> Yes, leaf packages show their individual size, but parents show total
+</I>&gt;<i> size (their own + all childs transitively).
+</I>&gt;<i>
+</I>&gt;<i> I have committed now my initial version in the trunk, which looks stable
+</I>&gt;<i> although there is still some undefined behaviour when child nodes are
+</I>&gt;<i> required but a parent node is excluded by other rules, I think I must
+</I>&gt;<i> re-write the PacksModel instead of wrapping it, but for now this will
+</I>&gt;<i> do. You can try it and let me know if you find something wrong. Thanks
+</I>&gt;<i> everyone.
+</I>&gt;<i>
+</I>&gt;<i> Scott M Stark &#1085;&#1072;&#1087;&#1080;&#1089;&#1072;:
+</I>&gt;<i> &gt; Looks good Valdimir. Sizes on the individual elements as well as
+</I>&gt;<i> &gt; cumulative totals would be a nice addition.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Vladimir Ralev wrote:
+</I>&gt;<i> &gt;&gt; Hi guys,
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; I am working on a hierarchical pack selection panel. I am not
+</I>&gt;<i> &gt;&gt; committing it to the official repo since i'd like to get some
+</I>&gt;<i> &gt;&gt; feedback first.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; So, here is a sample root node declaration:
+</I>&gt;<i> &gt;&gt;      &lt;pack name=&quot;Seam&quot; id=&quot;Seam&quot;
+</I>&gt;<i> &gt;&gt;          installGroups=&quot;default&quot;
+</I>&gt;<i> &gt;&gt;          group=&quot;Core&quot;
+</I>&gt;<i> &gt;&gt;          required=&quot;no&quot;&gt;
+</I>&gt;<i> &gt;&gt;      &lt;description&gt;&lt;/description&gt;
+</I>&gt;<i> &gt;&gt;      &lt;pack name=&quot;Documentation&quot; id=&quot;seam-docs&quot;
+</I>&gt;<i> &gt;&gt;          installGroups=&quot;default&quot;
+</I>&gt;<i> &gt;&gt;          group=&quot;Core&quot;
+</I>&gt;<i> &gt;&gt;          required=&quot;no&quot; parent=&quot;Seam&quot;&gt;
+</I>&gt;<i> &gt;&gt;      &lt;description&gt;&lt;/description&gt;
+</I>&gt;<i> &gt;&gt;    &lt;/pack&gt;    &lt;pack name=&quot;Samples&quot; id=&quot;seam-samples&quot;
+</I>&gt;<i> &gt;&gt;          installGroups=&quot;default&quot;
+</I>&gt;<i> &gt;&gt;          group=&quot;Core&quot;
+</I>&gt;<i> &gt;&gt;          required=&quot;no&quot; parent=&quot;Seam&quot;&gt;
+</I>&gt;<i> &gt;&gt;      &lt;description&gt;&lt;/description&gt;
+</I>&gt;<i> &gt;&gt;    &lt;/pack&gt;    &lt;pack name=&quot;Seam generator&quot; id=&quot;seam-gen&quot;
+</I>&gt;<i> &gt;&gt;          installGroups=&quot;default&quot;
+</I>&gt;<i> &gt;&gt;          group=&quot;Core&quot;
+</I>&gt;<i> &gt;&gt;          required=&quot;no&quot; parent=&quot;Seam&quot;&gt;
+</I>&gt;<i> &gt;&gt;      &lt;description&gt;&lt;/description&gt;
+</I>&gt;<i> &gt;&gt;    &lt;/pack&gt;
+</I>&gt;<i> &gt;&gt; Note the parent attribute of the packs, which specifies the parent
+</I>&gt;<i> &gt;&gt; node. If it's null the node is top-level. It works perfectly fine
+</I>&gt;<i> &gt;&gt; with flat pack structures (no tree). I am attaching a screenshot. You
+</I>&gt;<i> &gt;&gt; can see a fully selected node and a partially selected node, the
+</I>&gt;<i> &gt;&gt; dependency logic is the same as the normal packs panel, in fact if
+</I>&gt;<i> &gt;&gt; uses the flat PacksModel to resolve dependencies (with rules and
+</I>&gt;<i> &gt;&gt; everything). The click logic is correct - when all childs are
+</I>&gt;<i> &gt;&gt; deselected the parent is deselected too and vice versa. I am trying
+</I>&gt;<i> &gt;&gt; to find some nice way to show the pack size of each pack in the tree
+</I>&gt;<i> &gt;&gt; (like the flat packs panel) and i have to wire some more model values.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; ------------------------------------------------------------------------
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; ------------------------------------------------------------------------
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; _______________________________________________
+</I>&gt;<i> &gt;&gt; izpack-devel mailing list
+</I>&gt;<i> &gt;&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> &gt;&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I></PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001146.html">[izpack-devel] TreePacksPanel
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1147">[ date ]</a>
+              <a href="thread.html#1147">[ thread ]</a>
+              <a href="subject.html#1147">[ subject ]</a>
+              <a href="author.html#1147">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

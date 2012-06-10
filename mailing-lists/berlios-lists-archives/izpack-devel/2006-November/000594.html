@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] UserInputPanel -	replacing	MultiLineLabelwithJTextPane?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20UserInputPanel%20-%0A%09replacing%09MultiLineLabelwithJTextPane%3F&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889177B%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000584.html">
+   <LINK REL="Next"  HREF="000585.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] UserInputPanel -	replacing	MultiLineLabelwithJTextPane?</H1>
+    <B>Vladimir Ralev</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20UserInputPanel%20-%0A%09replacing%09MultiLineLabelwithJTextPane%3F&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889177B%40coi11.coi.com"
+       TITLE="[izpack-devel] UserInputPanel -	replacing	MultiLineLabelwithJTextPane?">vralev at redhat.com
+       </A><BR>
+    <I>Sat Nov 18 19:07:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000584.html">[izpack-devel] UserInputPanel - replacing	MultiLineLabelwithJTextPane?
+</A></li>
+        <LI>Next message: <A HREF="000585.html">[izpack-devel] mutually exclusive packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#594">[ date ]</a>
+              <a href="thread.html#594">[ thread ]</a>
+              <a href="subject.html#594">[ subject ]</a>
+              <a href="author.html#594">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE> From my experience the problem can't be resolved with setFont() at all. 
+Once you set the content type to &quot;text/html&quot; the font is managed only by 
+the HTML engine and I couldn't find a way to manipulate it's default 
+font. This is why I only enable HTML rendering when the text is 
+surrounded in &lt;html&gt; tags. If your string doesn't have &lt;html&gt;&lt;/html&gt;, it 
+will render like the MultiLineLabel, except the text will be selectable.
+
+ From the screenshot - number 1 is declared as follows:
+      &lt;field type=&quot;staticText&quot; align=&quot;left&quot;
+         txt=&quot;&lt;html&gt;This section allows you to control whether the JMX 
+interfaces are secured. See &lt;a 
+href='<A HREF="http://wiki.jboss.org/wiki/Wiki.jsp?page=SecureJBoss'">http://wiki.jboss.org/wiki/Wiki.jsp?page=SecureJBoss'</A>&gt;<A HREF="http://wiki.jboss.org/wiki/Wiki.jsp?page=SecureJBoss&lt;/a">http://wiki.jboss.org/wiki/Wiki.jsp?page=SecureJBoss&lt;/a</A>&gt; 
+for additional security configuration.&lt;/html&gt;&quot;
+         id=&quot;jmxSecurityText&quot;/&gt;
+
+number 2 is declared as:
+      &lt;field type=&quot;text&quot; variable=&quot;jmxConsoleDomain&quot;&gt;
+         &lt;description align=&quot;left&quot; txt=&quot;The JAAS security domain name 
+for the jmx access points&quot;
+            id=&quot;jmxConsoleDomain.text&quot;/&gt;
+         &lt;spec txt=&quot;Enter security-domain:&quot; id=&quot;text.label&quot; size=&quot;32&quot; 
+set=&quot;jmx-console&quot;/&gt;
+      &lt;/field&gt;
+
+(Notice that 1 has the &lt;html&gt; tags and thus used the HTML default font, 
+while 2 has the label's default font.)
+
+Attached also is the patch.
+
+The links do not launch the pages for now. This is left as a TODO.
+
+Bartz, Klaus wrote:
+&gt;<i> Hi,
+</I>&gt;<i> but please no removing of the class MultiLineLabel because I use
+</I>&gt;<i> it in some custom panels.
+</I>&gt;<i>
+</I>&gt;<i> In PacksPanelBase.createTextArea the font problem will be managed.
+</I>&gt;<i> Simple area.setFont(getControlTextFont());
+</I>&gt;<i>
+</I>&gt;<i> As I know current minimal VM version is 1.4.
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Elmar Grom
+</I>&gt;&gt;<i> Sent: Wednesday, November 15, 2006 5:41 PM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: Re: [izpack-devel] UserInputPanel - replacing
+</I>&gt;&gt;<i> MultiLineLabelwithJTextPane?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> This sounds like a good idea. However, I don't think we have 
+</I>&gt;&gt;<i> to be content
+</I>&gt;&gt;<i> with the font. It should be possible to get the label font and 
+</I>&gt;&gt;<i> then set that
+</I>&gt;&gt;<i> as font on the JTextPane.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> One issue might be version compatibility. At least for a while 
+</I>&gt;&gt;<i> there was a
+</I>&gt;&gt;<i> desire to have IzPack compatible as far back as possible. I 
+</I>&gt;&gt;<i> don't know if we
+</I>&gt;&gt;<i> have a policy at present and if so, what the desired version 
+</I>&gt;&gt;<i> compatibility
+</I>&gt;&gt;<i> is.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 	Elmar
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Vladimir
+</I>&gt;&gt;<i> Ralev
+</I>&gt;&gt;<i> Sent: Saturday, November 11, 2006 4:07 AM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: [izpack-devel] UserInputPanel - replacing MultiLineLabel
+</I>&gt;&gt;<i> withJTextPane?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> At least for staticText field types it's useful to have the html
+</I>&gt;&gt;<i> formatting enabled. It also allows the text to be 
+</I>&gt;&gt;<i> selected/copied/pasted
+</I>&gt;&gt;<i> (links, numbers...). With some tweaks it can start the links with the
+</I>&gt;&gt;<i> default Internet browser. I tested it on Windows with jdk5, 
+</I>&gt;&gt;<i> the only con
+</I>&gt;&gt;<i> being that if html content is used the default html font is different
+</I>&gt;&gt;<i> than the default label font, but it's not that bad (screen shot
+</I>&gt;&gt;<i> attached) and can be fixed either by not using &quot;text/html&quot; content or
+</I>&gt;&gt;<i> making html formatting to match the font.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> What do you think?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> --
+</I>&gt;&gt;<i> Vladimir Ralev, JBoss/RedHat
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>   
+</I>
+
+-- 
+Vladimir Ralev, JBoss/RedHat
+
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: staticTextWithJTextPane.patch
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061118/b62aaca7/attachment.ksh">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061118/b62aaca7/attachment.ksh</A> 
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: jmxpanel-fonts.JPG
+Type: image/jpeg
+Size: 49330 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061118/b62aaca7/attachment.jpe">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061118/b62aaca7/attachment.jpe</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000584.html">[izpack-devel] UserInputPanel - replacing	MultiLineLabelwithJTextPane?
+</A></li>
+	<LI>Next message: <A HREF="000585.html">[izpack-devel] mutually exclusive packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#594">[ date ]</a>
+              <a href="thread.html#594">[ thread ]</a>
+              <a href="subject.html#594">[ subject ]</a>
+              <a href="author.html#594">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

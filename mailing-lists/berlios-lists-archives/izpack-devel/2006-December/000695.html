@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] UPDATED: Patch 5/6: Language From OS Switch
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20UPDATED%3A%20Patch%205/6%3A%20Language%20From%20OS%20Switch&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000694.html">
+   <LINK REL="Next"  HREF="000696.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] UPDATED: Patch 5/6: Language From OS Switch</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20UPDATED%3A%20Patch%205/6%3A%20Language%20From%20OS%20Switch&In-Reply-To="
+       TITLE="[izpack-devel] UPDATED: Patch 5/6: Language From OS Switch">markus.schlegel at pulinco.com
+       </A><BR>
+    <I>Tue Dec 12 14:14:10 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000694.html">[izpack-devel] Patch 5/6: Language From OS Switch
+</A></li>
+        <LI>Next message: <A HREF="000696.html">[izpack-devel] FW:  Logging -&gt; need feedback (API included)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#695">[ date ]</a>
+              <a href="thread.html#695">[ thread ]</a>
+              <a href="subject.html#695">[ subject ]</a>
+              <a href="author.html#695">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Klaus, thanks for the input.
+ 
+The flag is useful, if you &quot;wrap&quot; the jar file with a Launcher like I do
+(Launch4J). 
+I would never expect from a target system that there is already a VM
+installed, therefore I will always use Launch4J to wrap the
+installer.jar ...
+Therefore I can not agree with you, that there is more work to write the
+cmdline switch than selecting the language.
+It just depends on who has the work. Again, I am sure, that there is no
+need for a Languageselection, if the Installer contains the language the
+system runs on and no special action is taken. I *guess* that 90% of the
+users don't need the language selection. So the decision of including
+this &quot;panel&quot; should be the choice of the developer of the installer and
+not the choice of the IzPack-team. 
+ 
+I admit, that the commandline switch is not the best solution to do
+this. It is better to have a configuration item in the XML file. Also
+there is no need to change the default behavior. It was just my opinion
+that it should be the default, because most installer on Windows do not
+ask for the language, even if they could do it. But of corse changing
+this is not so easy with a large base of usages.
+ 
+Attached the new version of the patch that uses the modifier instead of
+the System Property.
+ 
+The Documentation can be edited by adding the following paragraph to the
+&quot;Modify Language selection Dialog&quot; section:
+ 
+- langFromOS:
+possible are &quot;yes&quot; or &quot;no&quot;. Default is &quot;no&quot;. If it is set to &quot;yes&quot;, the
+installer first checks if the system runs with a language supported by
+the installer and ommits the Lanugage Selection Dialog if so. If the
+System runs with a Language not supported by the installer, the Language
+Selection Dialog is displayed neverthless.
+ 
+ 
+Regards 
+Markus
+ 
+ 
+
+
+________________________________
+
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of Bartz, Klaus
+Sent: Tuesday, December 12, 2006 10:19 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: Re: [izpack-devel] Patch 5/6: Language From OS Switch
+
+
+I do not vote to add this patch to IzPack, but I can live with it if so.
+ 
+1. Until now the regular usage of an installations made with IzPack
+needs 
+no command line options. It is more work to write the option as to
+select
+the default language. Additional the user has to know  the option.
+May be the usage of a batch or cmd or sh file for starting solves this,
+but
+why. What about international OS installations?
+ 
+A better solution for suppress the language selection feature will be to
+declare 
+it in the &lt;guiprefs&gt;. To save extension of the element it is possible to
+use
+the sub element &lt;modifier&gt;. But without docu this should not be done.
+ 
+ 
+I warn about to change the default behavior; I will not live with it.
+ 
+2. The language selection dialog is not a bug else a feature of IzPack.
+May be there are other state of the art installer where a language
+selection
+needs a calling program which merges an other language into the
+installation. 
+IzPack provides this as feature for all users, not only for the users
+which reads 
+the installation docu where (we hope) it is written how to call the
+installation to 
+get the language selection dialog.
+ 
+It is normal that one loves the daughter and one the mother. Long time
+ago
+a developer of IzPack has decided that there is a language selection
+dialog.
+We should not change this if some one do not like it. Else we start a
+ping
+pong play.
+ 
+Cheers
+ 
+Klaus
+
+	-----Original Message-----
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Markus
+Schlegel
+	Sent: Thursday, December 07, 2006 7:24 PM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+	Subject: [izpack-devel] Patch 5/6: Language From OS Switch
+	
+	
+	Added a commandline switch (-DlangFromOS=true) to disable the
+language-selection dialog if a provided language in the installer
+matches the systemlanguage. --&gt; A User with a german system does not
+want to select the installationlanguage, if there is german as an
+option. Same applies to english users on english systems and so on. This
+is now added as an option, but I think this could also be the default
+behavior.
+	 
+	Markus 
+	 
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/b7b9c3cc/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/b7b9c3cc/attachment.html</A> 
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: langSwitch2.txt
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/b7b9c3cc/attachment.txt">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061212/b7b9c3cc/attachment.txt</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000694.html">[izpack-devel] Patch 5/6: Language From OS Switch
+</A></li>
+	<LI>Next message: <A HREF="000696.html">[izpack-devel] FW:  Logging -&gt; need feedback (API included)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#695">[ date ]</a>
+              <a href="thread.html#695">[ thread ]</a>
+              <a href="subject.html#695">[ subject ]</a>
+              <a href="author.html#695">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

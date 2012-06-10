@@ -1,0 +1,273 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Some Issues with IzPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Some%20Issues%20with%20IzPack&In-Reply-To=71e79c840707250458w3b3df7eax880365c732441850%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001619.html">
+   <LINK REL="Next"  HREF="001617.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Some Issues with IzPack</H1>
+    <B>Daniel Silva</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Some%20Issues%20with%20IzPack&In-Reply-To=71e79c840707250458w3b3df7eax880365c732441850%40mail.gmail.com"
+       TITLE="[izpack-users] Some Issues with IzPack">ddso.01 at gmail.com
+       </A><BR>
+    <I>Wed Jul 25 16:15:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001619.html">[izpack-users] Some Issues with IzPack
+</A></li>
+        <LI>Next message: <A HREF="001617.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1621">[ date ]</a>
+              <a href="thread.html#1621">[ thread ]</a>
+              <a href="subject.html#1621">[ subject ]</a>
+              <a href="author.html#1621">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>correcting
+
+${installer.dir} is NOT the root folder. It is the installer folder inside
+the root folder.
+
+&lt;property name=&quot;installer.dir&quot; value=&quot;${basedir}/installer&quot;/&gt;
+
+So InstallSpec.xml is in ${installer.dir}/spec and HTMLInfoPanel.info and
+HTMLLicencePanel.licence resorces are in ${installer.dir}/base
+
+
+On 7/25/07, Daniel Silva &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">ddso.01 at gmail.com</A>&gt; wrote:
+&gt;<i>
+</I>&gt;<i> Regarding issue 1:
+</I>&gt;<i>
+</I>&gt;<i> Looks like you are experiencing relative folder problems.
+</I>&gt;<i>
+</I>&gt;<i> In my project root folder there is the build.xml is for the ant building;
+</I>&gt;<i>
+</I>&gt;<i> The build.xml has the followin lines for the izPack
+</I>&gt;<i>
+</I>&gt;<i> &lt;izpack input=&quot;${installer.dir}/spec/InstallerSpec.xml&quot;
+</I>&gt;<i>                 output=&quot;${installer.dir}/${installer.jar}&quot;
+</I>&gt;<i>                 installerType=&quot;standard&quot;
+</I>&gt;<i>                 basedir=&quot;${ installer.dir}&quot;
+</I>&gt;<i>                 izPackDir=&quot;${izpack.dir}/&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i> where ${installer.dir} is the root folder of the aplication (where
+</I>&gt;<i> build.xml is)
+</I>&gt;<i>
+</I>&gt;<i> At ${installer.dir}/installer/spec folder there is the InstallSpec.xml,
+</I>&gt;<i> witch is the xml for the izPack process.
+</I>&gt;<i>
+</I>&gt;<i> I keep the HTMLInfoPanel.info and HTMLLicencePanel.licence resorces at ${
+</I>&gt;<i> installer.dir}/installer/base and in the InstallerSpec.xml I put
+</I>&gt;<i>
+</I>&gt;<i> &lt;res src=&quot;./base/Readme.html&quot; id=&quot;HTMLInfoPanel.info&quot;/&gt;
+</I>&gt;<i> &lt;res src=&quot;./base/Licence.html&quot; id=&quot;HTMLLicencePanel.licence&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i> The building is executed in the root folder. This works for me.
+</I>&gt;<i>
+</I>&gt;<i> Regarding issue 2
+</I>&gt;<i>
+</I>&gt;<i> Try executing not the jar file, but java.exe and passing the jar file as
+</I>&gt;<i> an argument to it. Like this:
+</I>&gt;<i>
+</I>&gt;<i> &lt;processing&gt;
+</I>&gt;<i>     &lt;job name=&quot;DS Install&quot;&gt;
+</I>&gt;<i>         &lt;logfiledir&gt;&quot;$INSTALL_PATH/log&quot;&lt;/logfiledir&gt;
+</I>&gt;<i>         &lt;osfamily=&quot;windows&quot;/&gt;
+</I>&gt;<i>         &lt;executefile name=&quot;java&quot;&gt;
+</I>&gt;<i>             &lt;arg&gt;-jar&lt;/arg&gt;
+</I>&gt;<i>             &lt;arg&gt;&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot;&lt;/arg&gt;
+</I>&gt;<i>         &lt;/executefile&gt;
+</I>&gt;<i>     &lt;/job&gt;
+</I>&gt;<i> &lt;/processing&gt;
+</I>&gt;<i>
+</I>&gt;<i> On 7/25/07, yj &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">yj at m-itc.net</A>&gt; wrote:
+</I>&gt;<i>
+</I>&gt;<i> &gt; Hi,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I am trying to build an installer for a web application which will be
+</I>&gt;<i> &gt; used across europe by enforcement agencies. The installer should perform
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; the following tasks:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; - Deploy a web application into jboss
+</I>&gt;<i> &gt; - Add and upgrade certain libraries of jboss (such as hibernate,
+</I>&gt;<i> &gt; javassist ...etc)
+</I>&gt;<i> &gt; - Modify certain config files
+</I>&gt;<i> &gt; - Create a DS file in the server/default/deploy directory describing the
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; datasource to be used by the web application
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I have the following issues and badly need these to be resolved as i
+</I>&gt;<i> &gt; have to release this by the end of this week end.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Issue 1 : Cannot find Resource for HTMLLicencePanel.licence and
+</I>&gt;<i> &gt; HTMLInfoPanel
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I define the resources like that in the resource section of the install
+</I>&gt;<i> &gt; file
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;    &lt;res id=&quot;HTMLLicencePanel.licence&quot; src=&quot;txt/Licence.html&quot;/&gt;
+</I>&gt;<i> &gt;    &lt;res id=&quot;HTMLInfoPanel.info&quot; src=&quot;txt/Readme.txt&quot;/&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; but it gives me the following error:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; -&gt; Fatal error :
+</I>&gt;<i> &gt;   C:\Installer\install.xml:48: Resource not found:
+</I>&gt;<i> &gt; C:\Installer\txt\Licence.html
+</I>&gt;<i> &gt; com.izforge.izpack.compiler.CompilerException:
+</I>&gt;<i> &gt; C:\Installer\install.xml:48: Resource not found:
+</I>&gt;<i> &gt; C:\Installer\txt\Licence.html
+</I>&gt;<i> &gt;        at
+</I>&gt;<i> &gt; com.izforge.izpack.compiler.CompilerConfig.parseError(
+</I>&gt;<i> &gt; CompilerConfig.java :1619)
+</I>&gt;<i> &gt;        at
+</I>&gt;<i> &gt; com.izforge.izpack.compiler.CompilerConfig.findProjectResource(
+</I>&gt;<i> &gt; CompilerConfig.java:1548)
+</I>&gt;<i> &gt;        at
+</I>&gt;<i> &gt; com.izforge.izpack.compiler.CompilerConfig.addResources(
+</I>&gt;<i> &gt; CompilerConfig.java:1142)
+</I>&gt;<i> &gt;        at
+</I>&gt;<i> &gt; com.izforge.izpack.compiler.CompilerConfig.executeCompiler(
+</I>&gt;<i> &gt; CompilerConfig.java:322)
+</I>&gt;<i> &gt;        at
+</I>&gt;<i> &gt; com.izforge.izpack.compiler.CompilerConfig.main(CompilerConfig.java
+</I>&gt;<i> &gt; :1950)
+</I>&gt;<i> &gt;        at com.izforge.izpack.compiler.Compiler.main (Compiler.java:709)
+</I>&gt;<i> &gt; (tip : use -? to get the commmand line parameters)
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The same error is obtained if i use the simple License and Info Panels
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Issue 2:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I have swing application which should be executed at post install. This
+</I>&gt;<i> &gt; swing app is an executable jar file which generates a data source
+</I>&gt;<i> &gt; configuration file in the server/default/deploy directory of jboss.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I launch the application using the following
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;        &lt;pack name=&quot;utils&quot; required=&quot;yes&quot;&gt;
+</I>&gt;<i> &gt;           &lt;description&gt;The utility files&lt;/description&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;           &lt;!-- utils --&gt;
+</I>&gt;<i> &gt;           &lt;fileset dir=&quot;utils&quot; targetdir=&quot;$INSTALL_PATH/utils&quot;
+</I>&gt;<i> &gt; override=&quot;true&quot;&gt;
+</I>&gt;<i> &gt;                &lt;include name=&quot;*.*&quot;/&gt;
+</I>&gt;<i> &gt;           &lt;/fileset&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;          &lt;executable
+</I>&gt;<i> &gt; targetfile=&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot; type=&quot;jar&quot;
+</I>&gt;<i> &gt; failure=&quot;ask&quot; stage=&quot;postinstall&quot; keep=&quot;true&quot;/&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;        &lt;/pack&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; While the swing app is correctly launched and no error occurs. It is not
+</I>&gt;<i> &gt; able to create the file in the desired directory in the INSTALL_PATH. If
+</I>&gt;<i> &gt; i launch the same executable jar file after installation, it correctly
+</I>&gt;<i> &gt; creates the datasource file. Is there some kind of lock on the
+</I>&gt;<i> &gt; INSTALL_PATH by the installer which prevents the swing application to
+</I>&gt;<i> &gt; create files in this directory
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I tried using the ProcessPanel with the following
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Defined the resource as :
+</I>&gt;<i> &gt;    &lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;ProcessPanel.Spec.xml&quot;/&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The ProcessPanelSpec.xml is as follows:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;processing&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;job name=&quot;DS Install&gt;
+</I>&gt;<i> &gt;    &lt;os family=&quot;windows&quot; /&gt;
+</I>&gt;<i> &gt;    &lt;executable targetfile=&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot;
+</I>&gt;<i> &gt; type=&quot;jar&quot; failure=&quot;ask&quot; stage=&quot;postinstall&quot; keep=&quot;true&quot;/&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;/job&gt;
+</I>&gt;<i> &gt; &lt;/processing&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Defined the panel after the install Panel
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;    &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+</I>&gt;<i> &gt;    &lt;panel classname=&quot;ProcessPanel&quot;/&gt;
+</I>&gt;<i> &gt;    &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; While the ProcessPanel does appear, it does not perform anything and get
+</I>&gt;<i> &gt; stuck at 0%. I also doubt that this is what i need.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I have just started using IzPack after finding that Jboss uses it for
+</I>&gt;<i> &gt; its JEMS installer and only know the basics. Could you please tell me
+</I>&gt;<i> &gt; what am i doing wrong and if possible suggest work arounds.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Loads of thnx in advance.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Regards,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; --
+</I>&gt;<i> &gt; Jankee Yogesh
+</I>&gt;<i> &gt; Team Leader
+</I>&gt;<i> &gt; M-ITC LTD
+</I>&gt;<i> &gt; <A HREF="http://www.m-itc.net">http://www.m-itc.net</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-users mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i> Abra&#231;os,
+</I>&gt;<i> Daniel Silva
+</I>
+
+
+
+-- 
+Abra&#231;os,
+Daniel Silva
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070725/d97f95b0/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070725/d97f95b0/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001619.html">[izpack-users] Some Issues with IzPack
+</A></li>
+	<LI>Next message: <A HREF="001617.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1621">[ date ]</a>
+              <a href="thread.html#1621">[ thread ]</a>
+              <a href="subject.html#1621">[ subject ]</a>
+              <a href="author.html#1621">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

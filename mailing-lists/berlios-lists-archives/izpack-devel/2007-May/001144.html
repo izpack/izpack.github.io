@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] izPack evaluation - some questions
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20izPack%20evaluation%20-%20some%20questions&In-Reply-To=20070528100638.F0AFBD0E31%40mail.berlios.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001140.html">
+   <LINK REL="Next"  HREF="001146.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] izPack evaluation - some questions</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20izPack%20evaluation%20-%20some%20questions&In-Reply-To=20070528100638.F0AFBD0E31%40mail.berlios.de"
+       TITLE="[izpack-devel] izPack evaluation - some questions">schlm3 at gmail.com
+       </A><BR>
+    <I>Tue May 29 08:49:28 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001140.html">[izpack-devel] izPack evaluation - some questions
+</A></li>
+        <LI>Next message: <A HREF="001146.html">[izpack-devel] TreePacksPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1144">[ date ]</a>
+              <a href="thread.html#1144">[ thread ]</a>
+              <a href="subject.html#1144">[ subject ]</a>
+              <a href="author.html#1144">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>#1. Checkout the sources, setup project in Eclipse, either write to the Log
+or place a breakpoint and you are done....
+#2. Add a Custom InstallAction that reads the license. You may lookup the
+code in the PacksPanel on how to select packs programatically. This is a
+typical usage scenario of IzPack: If you miss a functionality, add it
+yourself by using the open API...
+#3. Not sure about this. There is an unzip option for archives, but I am not
+sure how it works exactly. I use a Custom InstallAction to copy some
+customer specific files after the installation took place (patches,
+customisation). But if some of these files are new (not known in the
+installer already), the uninstaller does not delete them, except the user
+checks the flag &quot;delete all files&quot;.
+Because the uninstaller is not pluggable, you can't modify this uninstaller
+behaviour without branching the IzPack Sources :-(
+
+Markus
+
+2007/5/28, Glen &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack at verran.za.net</A>&gt;:
+&gt;<i>
+</I>&gt;<i> Hi folks,
+</I>&gt;<i>
+</I>&gt;<i> I am in the process of evaluating izPack.  Here is the scenorio in which I
+</I>&gt;<i> am going to use it and I am hoping that you'll be able to please answer
+</I>&gt;<i> some
+</I>&gt;<i> questions for me. :)  This may sound like a tall order ... :)
+</I>&gt;<i>
+</I>&gt;<i> We have over 150 jars that we've developed and about 80 3rd party jars.
+</I>&gt;<i> Each module that we develop in a jar on its own. Our archietecture is
+</I>&gt;<i> pluggable hense the large amount of jars.  What I've done is I've set up
+</I>&gt;<i> each jar as a pack inside the install.xml file.  I've also specified each
+</I>&gt;<i> jar's dependencies, whether they are our own developed jars or any 3rd
+</I>&gt;<i> party
+</I>&gt;<i> jars.
+</I>&gt;<i>
+</I>&gt;<i> #1.  I attempted to compile the install.xml, but came across a circular
+</I>&gt;<i> dependency error.  The compilier doesn't indicate what dependency is
+</I>&gt;<i> circular.  Is there a way to find out what dependency is circular?
+</I>&gt;<i>
+</I>&gt;<i> When the installer runs, I query for a zip file containing jars that we've
+</I>&gt;<i> developed specifically for a client as well as a license file.
+</I>&gt;<i>
+</I>&gt;<i> #2.  Is there a way to dynamically without user intervention to choose
+</I>&gt;<i> packs
+</I>&gt;<i> in IzPack to install?  The license depicts what packs must be installed,
+</I>&gt;<i> so
+</I>&gt;<i> basically I want to interrigate the license and filter down the packs that
+</I>&gt;<i> I
+</I>&gt;<i> don't need and only copy the packs that are licensed.  In order to do
+</I>&gt;<i> this,
+</I>&gt;<i> I'll need to get the license from the zip file (the easy part), but I need
+</I>&gt;<i> to know how to get the packs and filter them down before the installation
+</I>&gt;<i> runs.
+</I>&gt;<i>
+</I>&gt;<i> #3.  Contained within this zip file, are other client speicifc jars too.
+</I>&gt;<i> How can I add these to the installation process? i.e. instead of IzPack
+</I>&gt;<i> copying them from the installer jar file, they are copied from the zip
+</I>&gt;<i> file
+</I>&gt;<i> that was specified.  I also need to copy the license file too.   Is this
+</I>&gt;<i> possible?
+</I>&gt;<i>
+</I>&gt;<i> These are my questions for now.  Please let me know if you need more info.
+</I>&gt;<i>
+</I>&gt;<i> Thanks a lot!
+</I>&gt;<i> ~Glen
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070529/68260138/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070529/68260138/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001140.html">[izpack-devel] izPack evaluation - some questions
+</A></li>
+	<LI>Next message: <A HREF="001146.html">[izpack-devel] TreePacksPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1144">[ date ]</a>
+              <a href="thread.html#1144">[ thread ]</a>
+              <a href="subject.html#1144">[ subject ]</a>
+              <a href="author.html#1144">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

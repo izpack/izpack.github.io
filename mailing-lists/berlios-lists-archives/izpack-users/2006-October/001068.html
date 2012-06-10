@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] stage: uninstall - running bat-file with arguments
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20stage%3A%20uninstall%20-%20running%20bat-file%20with%20arguments&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001066.html">
+   <LINK REL="Next"  HREF="001072.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] stage: uninstall - running bat-file with arguments</H1>
+    <B>J-Pro</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20stage%3A%20uninstall%20-%20running%20bat-file%20with%20arguments&In-Reply-To="
+       TITLE="[izpack-users] stage: uninstall - running bat-file with arguments">joker.pro at gmail.com
+       </A><BR>
+    <I>Sat Oct 28 07:47:46 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001066.html">[izpack-users] Alignment/Size problem with TargetPanel
+</A></li>
+        <LI>Next message: <A HREF="001072.html">[izpack-users] How to modify userinputpanel according to	anexecutable response
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1068">[ date ]</a>
+              <a href="thread.html#1068">[ thread ]</a>
+              <a href="subject.html#1068">[ subject ]</a>
+              <a href="author.html#1068">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Good afternoon, IzPack gurus.
+
+I'm trying to uninstall some services from my bat-file, but I run it from 
+uninstaller.
+I've just added these strings in install.xml:
+
+  &lt;executable targetfile=&quot;uninstall.bat&quot; stage=&quot;uninstall&quot; os=&quot;windows&quot;&gt;
+    &lt;arg&gt;$catalinaServiceName&lt;/arg&gt;
+    &lt;arg&gt;$catalinaServiceName&lt;/arg&gt;
+    &lt;arg&gt;$postgreInstallFolder&lt;/arg&gt;
+    &lt;arg&gt;$TOMSScelDelFilename&lt;/arg&gt;
+    &lt;arg&gt;$postgreUser&lt;/arg&gt;
+    &lt;arg&gt;$postgreServiceName&lt;/arg&gt;
+    &lt;arg&gt;$postgreServiceName&lt;/arg&gt;
+    &lt;arg&gt;&gt;&gt;&lt;/arg&gt;
+    &lt;arg&gt;C:\T_INSTALL.log&lt;/arg&gt;
+  &lt;/executable&gt;
+
+&quot;&gt;&gt; C:\T_INSTALL.log&quot;  is specified because I want to see bat output 
+somewhere.
+
+With these strings when uninstall starts and I press &quot;Uninstall&quot; button, the 
+dialog appears asking me &quot;Continue?&quot;. I assume that this dialog appears 
+because my bat-files fails to execute and waits for some input. So I just 
+want to see the error in it. So when I press &quot;Yes&quot; - it uninstalls 
+everything I need except things in the bat-file. And of course there is no 
+file C:\T_INSTALL.log created . :(  I don't know why....
+
+
+Here is my bat-file(strings like echo 1 $catalinaServiceName are for me, 
+just to know arguments order):
+
+@echo off
+
+echo ============================= START
+echo ---------------- stopping and disabling Tomcat service
+echo 1 $catalinaServiceName
+echo 2 $catalinaServiceName
+sc stop %1
+sc config %2 start=disabled
+echo ---------------- deleting TOMS DB
+echo Run data script to delete all TOMS data (DB, tables, functions, etc.)
+echo psql.exe -f TOMSskel.sql -U tomsUser
+echo ..
+echo 3 $postgreInstallFolder
+echo 4 $TOMSScelDelFilename
+echo 5 $postgreUser
+echo
+echo
+echo
+%3/bin/psql -f %4 -U %5
+echo ---------------- stopping and disabling PostgreSQL service
+echo 6 $postgreServiceName
+echo 7 $postgreServiceName
+echo
+echo
+sc stop %6
+sc config %7 start=disabled
+echo ============================= END
+
+Here are my variables:
+
+        &lt;variable name=&quot;catalinaServiceName&quot; value=&quot;Tomcat5&quot;/&gt;
+        &lt;variable name=&quot;postgreInstallFolder&quot; value=&quot;C:\Program 
+Files\PostgreSQL\8.1&quot;/&gt;
+        &lt;variable name=&quot;TOMSScelDelFilename&quot; value=&quot;TOMSskelDel.sql&quot;/&gt;
+        &lt;variable name=&quot;postgreUser&quot; value=&quot;postgres&quot;/&gt;
+        &lt;variable name=&quot;postgreServiceName&quot; value=&quot;pgsql-8.1&quot;/&gt;
+
+
+I see that I've passed one variable for two times. But I think there will be 
+no error because of this reason.
+
+
+And one more thing: maybe you wonder why didn't I call &quot;sc&quot; with arguments 
+from install.xml via &lt;executable/&gt; - I'll explain. I did it. But when 
+uninstall starts and I press &quot;Uninstall&quot;, it just hangs up because of sc.exe 
+waiting for some data. I saw it in processes.
+
+Here is the code I used for calling sc and other stuff from xml:
+
+     &lt;!-- stopping and disabling Tomcat service --&gt;
+     &lt;executable targetfile=&quot;sc&quot; stage=&quot;uninstall&quot; os=&quot;windows&quot;&gt;
+  &lt;arg&gt;stop&lt;/arg&gt;
+  &lt;arg&gt;$catalinaServiceName&lt;/arg&gt;
+     &lt;/executable&gt;
+
+     &lt;executable targetfile=&quot;sc&quot; stage=&quot;uninstall&quot; os=&quot;windows&quot;&gt;
+  &lt;arg&gt;config&lt;/arg&gt;
+  &lt;arg&gt;$catalinaServiceName&lt;/arg&gt;
+  &lt;arg&gt;start=&lt;/arg&gt;
+  &lt;arg&gt;disabled&lt;/arg&gt;
+     &lt;/executable&gt;
+
+     &lt;!-- deleting TOMS DB --&gt;
+     &lt;executable targetfile=&quot;$postgreInstallFolder/bin/psql&quot; 
+stage=&quot;uninstall&quot; os=&quot;windows&quot;&gt;
+            &lt;!-- Run data script to delete all TOMS data (DB, tables, 
+functions, etc.) --&gt;
+            &lt;!-- psql.exe -f TOMSskel.sql -U tomsUser --&gt;
+  &lt;arg&gt;-f&lt;/arg&gt;
+  &lt;arg&gt;$TOMSScelDelFilename&lt;/arg&gt;
+  &lt;arg&gt;-U&lt;/arg&gt;
+  &lt;arg&gt;$postgreUser&lt;/arg&gt;
+        &lt;/executable&gt;
+
+     &lt;!-- stopping and disabling PostgreSQL service --&gt;
+     &lt;executable targetfile=&quot;sc&quot; stage=&quot;uninstall&quot; os=&quot;windows&quot;&gt;
+  &lt;arg&gt;stop&lt;/arg&gt;
+  &lt;arg&gt;$postgreServiceName&lt;/arg&gt;
+     &lt;/executable&gt;
+
+     &lt;executable targetfile=&quot;sc&quot; stage=&quot;uninstall&quot; os=&quot;windows&quot;&gt;
+  &lt;arg&gt;config&lt;/arg&gt;
+  &lt;arg&gt;$postgreServiceName&lt;/arg&gt;
+  &lt;arg&gt;start=&lt;/arg&gt;
+  &lt;arg&gt;disabled&lt;/arg&gt;
+ &lt;/executable&gt;
+
+
+Please, help me to solve this problem...  Thank you very much in advance.
+
+
+P.S.: &quot;The data in this mail is absolutely the same with mine.&quot;
+
+
+________________________________
+With respect,
+
+Yurii Kartsev,
+Soft IT 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001066.html">[izpack-users] Alignment/Size problem with TargetPanel
+</A></li>
+	<LI>Next message: <A HREF="001072.html">[izpack-users] How to modify userinputpanel according to	anexecutable response
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1068">[ date ]</a>
+              <a href="thread.html#1068">[ thread ]</a>
+              <a href="subject.html#1068">[ subject ]</a>
+              <a href="author.html#1068">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

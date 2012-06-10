@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Coding custom components against an IzPack API
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Coding%20custom%20components%20against%20an%20IzPack%20API&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001124.html">
+   <LINK REL="Next"  HREF="001129.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Coding custom components against an IzPack API</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Coding%20custom%20components%20against%20an%20IzPack%20API&In-Reply-To="
+       TITLE="[izpack-devel] Coding custom components against an IzPack API">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue May 22 09:10:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001124.html">[izpack-devel] Coding custom components against an IzPack API
+</A></li>
+        <LI>Next message: <A HREF="001129.html">[izpack-devel] Coding custom components against an IzPack API
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1125">[ date ]</a>
+              <a href="thread.html#1125">[ thread ]</a>
+              <a href="subject.html#1125">[ subject ]</a>
+              <a href="author.html#1125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Raz,
+you need installer.jar of IzPack in your classpath to compile a custom
+panel or a custom action.
+All needed class files have to be stored in jar file which name is that
+from the panel class (custom actions class).
+You have to store (or copy) the created jar file to %IZ_HOME%\bin\panels
+(%IZ_HOME%\bin\customActions).
+ 
+You can use a package path you like for panels or custom actions.
+You can store the sources for them else where.
+ 
+I use an ant script for this. Following some parts of it which handels
+panels and custom actions:
+ 
+...
+ &lt;!-- Compile a custom panel --&gt;
+ &lt;target name=&quot;compile.custompanel&quot;&gt;
+  &lt;echo message=&quot;Compiles custom panel ${panel}&quot; level=&quot;info&quot;/&gt;
+  &lt;mkdir dir=&quot;${bin.dir}/panels/${panel-dir}&quot;/&gt;
+  &lt;javac srcdir=&quot;${src.dir}&quot; destdir=&quot;${bin.dir}/panels/${panel-dir}&quot;
+classpath=&quot;${installer.jar}&quot;
+   optimize=&quot;on&quot; deprecation=&quot;on&quot; debug=&quot;${debug}&quot;
+   source=&quot;${source}&quot; debuglevel=&quot;${debuglevel}&quot;&gt;
+   &lt;include name=&quot;${panel}*.java&quot;/&gt;
+  &lt;/javac&gt;
+ &lt;/target&gt;
+ &lt;!-- Make JAR for a custom panel --&gt;
+ &lt;target name=&quot;compile.custompanel.finish&quot;&gt;
+  &lt;jar jarfile=&quot;${bin.dir}/panels/${panel}.jar&quot;&gt;
+   &lt;fileset dir=&quot;${bin.dir}/panels/${panel}&quot;&gt;
+    &lt;include name=&quot;**/*.class&quot;/&gt;
+   &lt;/fileset&gt;
+  &lt;/jar&gt;
+ &lt;/target&gt;
+ &lt;!-- convenience: compile simple custom panel and finish it --&gt;
+ &lt;target name=&quot;compile.custompanel.simple&quot;&gt;
+  &lt;antcall target=&quot;compile.custompanel&quot;&gt;
+   &lt;param name=&quot;panel&quot; value=&quot;${panel}&quot;/&gt;
+   &lt;param name=&quot;panel-dir&quot; value=&quot;${panel-dir}&quot;/&gt;
+  &lt;/antcall&gt;
+  &lt;antcall target=&quot;compile.custompanel.finish&quot;&gt;
+   &lt;param name=&quot;panel&quot; value=&quot;${panel-dir}&quot;/&gt;
+  &lt;/antcall&gt;
+ &lt;/target&gt;
+ &lt;!-- Compile all custom panels and put them at the right location --&gt;
+ &lt;target name=&quot;build.customPanels&quot; &gt;
+  &lt;antcall target=&quot;compile.custompanel.simple&quot;&gt;
+   &lt;param name=&quot;panel&quot;
+value=&quot;com/coi/tools/install/panels/AccountMonoSelectPanel&quot;/&gt;
+   &lt;param name=&quot;panel-dir&quot; value=&quot;AccountMonoSelectPanel&quot;/&gt;
+  &lt;/antcall&gt;
+...
+ &lt;/target&gt;
+ &lt;!-- Listener stuff targets
+**************************************************** START --&gt;
+ &lt;!-- &quot;Normal&quot; listener targets are also now defined here because common
+IzPack
+       build script was changed to macro usage --&gt;
+    &lt;!-- Compile a listener --&gt;
+    &lt;target name=&quot;compile.listener&quot; &gt;
+        &lt;echo message=&quot;Compiles listener ${listener}&quot;/&gt;
+        &lt;mkdir dir=&quot;${bin.dir}/customActions/${listener-dir}&quot;/&gt;
+        &lt;javac srcdir=&quot;${src.dir}&quot;
+               destdir=&quot;${bin.dir}/customActions/${listener-dir}&quot;
+ 
+classpath=&quot;${installer.jar};${compiler.jar};${izevent.jar}&quot;
+               optimize=&quot;on&quot;
+               deprecation=&quot;on&quot;
+               debug=&quot;${debug}&quot;
+        source=&quot;${source}&quot;
+               debuglevel=&quot;${debuglevel}&quot;&gt;
+            &lt;include name=&quot;${listener-include}/${listener}*.java&quot;/&gt;
+        &lt;/javac&gt;
+    &lt;/target&gt;
+ 
+    &lt;!-- Make JAR for a listener --&gt;
+    &lt;target name=&quot;compile.listener.finish&quot;&gt;
+     &lt;unzip src=&quot;${izevent.jar}&quot;
+dest=&quot;${bin.dir}/customActions/${listener}&quot; /&gt;
+        &lt;jar jarfile=&quot;${bin.dir}/customActions/${listener}.jar&quot;&gt;
+            &lt;fileset dir=&quot;${bin.dir}/customActions/${listener}&quot;&gt;
+                &lt;include name=&quot;**/*.class&quot;/&gt;
+                &lt;exclude name=&quot;**/*${listener-exclude1}*.class&quot;/&gt;
+                &lt;exclude name=&quot;**/*${listener-exclude2}*.class&quot;/&gt;
+            &lt;/fileset&gt;
+        &lt;/jar&gt;
+    &lt;/target&gt;
+    &lt;!-- convenience: compile simple listener and finish it --&gt;
+    &lt;target name=&quot;compile.listener.simple&quot;&gt;
+        &lt;antcall target=&quot;compile.listener&quot;&gt;
+            &lt;param name=&quot;listener&quot; value=&quot;${listener}&quot;/&gt;
+            &lt;param name=&quot;listener-dir&quot; value=&quot;${listener-dir}&quot;/&gt;
+            &lt;param name=&quot;listener-include&quot; value=&quot;${listener-include}&quot;/&gt;
+        &lt;/antcall&gt;
+        &lt;antcall target=&quot;compile.listener.finish&quot;&gt;
+            &lt;param name=&quot;listener&quot; value=&quot;${listener}&quot;/&gt;
+            &lt;param name=&quot;listener-exclude1&quot;
+value=&quot;${listener-exclude1}&quot;/&gt;
+            &lt;param name=&quot;listener-exclude2&quot;
+value=&quot;${listener-exclude2}&quot;/&gt;
+        &lt;/antcall&gt;
+    &lt;/target&gt;
+ 
+    &lt;!-- simple installer listener --&gt;
+    &lt;target name=&quot;compile.installer-listener.simple&quot;&gt;
+        &lt;antcall target=&quot;compile.listener.simple&quot;&gt;
+            &lt;param name=&quot;listener&quot; value=&quot;${listener}&quot;/&gt;
+            &lt;param name=&quot;listener-dir&quot; value=&quot;${listener-dir}&quot;/&gt;
+            &lt;param name=&quot;listener-include&quot; value=&quot;${listener-include}&quot;/&gt;
+            &lt;param name=&quot;listener-exclude1&quot; value=&quot;Uninstaller&quot;/&gt;
+            &lt;param name=&quot;listener-exclude2&quot; value=&quot;_NO_MORE_EXCLUDES_&quot;/&gt;
+        &lt;/antcall&gt;
+    &lt;/target&gt;
+    &lt;!-- simple uninstaller listener --&gt;
+    &lt;target name=&quot;compile.uninstaller-listener.simple&quot;&gt;
+        &lt;antcall target=&quot;compile.listener.simple&quot;&gt;
+            &lt;param name=&quot;listener&quot; value=&quot;${listener}&quot;/&gt;
+            &lt;param name=&quot;listener-dir&quot; value=&quot;${listener-dir}&quot;/&gt;
+            &lt;param name=&quot;listener-include&quot; value=&quot;${listener-include}&quot;/&gt;
+            &lt;param name=&quot;listener-exclude1&quot; value=&quot;Installer&quot;/&gt;
+            &lt;param name=&quot;listener-exclude2&quot; value=&quot;_NO_MORE_EXCLUDES_&quot;/&gt;
+        &lt;/antcall&gt;
+    &lt;/target&gt;
+    &lt;!-- simple compiler listener --&gt;
+    &lt;target name=&quot;compile.compiler-listener.simple&quot;&gt;
+        &lt;antcall target=&quot;compile.listener.simple&quot;&gt;
+            &lt;param name=&quot;listener&quot; value=&quot;${listener}&quot;/&gt;
+            &lt;param name=&quot;listener-dir&quot; value=&quot;${listener-dir}&quot;/&gt;
+            &lt;param name=&quot;listener-include&quot; value=&quot;${listener-include}&quot;/&gt;
+            &lt;param name=&quot;listener-exclude1&quot; value=&quot;Installer&quot;/&gt;
+            &lt;param name=&quot;listener-exclude2&quot; value=&quot;Uninstaller&quot;/&gt;
+        &lt;/antcall&gt;
+    &lt;/target&gt;
+ &lt;!-- Listener stuff targets
+**************************************************** END --&gt;
+ &lt;!-- Compile all custom actions (listener) and put them at the right
+location --&gt;
+ &lt;target name=&quot;build.listener&quot; &gt;
+  &lt;antcall target=&quot;compile.compiler-listener.simple&quot;&gt;
+   &lt;param name=&quot;listener&quot; value=&quot;PermissionCompilerListener&quot;/&gt;
+   &lt;param name=&quot;listener-dir&quot; value=&quot;PermissionCompilerListener&quot;/&gt;
+   &lt;param name=&quot;listener-include&quot;
+value=&quot;com/coi/tools/install/listener&quot;/&gt;
+  &lt;/antcall&gt;
+  &lt;antcall target=&quot;compile.installer-listener.simple&quot;&gt;
+   &lt;param name=&quot;listener&quot; value=&quot;InitDBInstallerListener&quot;/&gt;
+   &lt;param name=&quot;listener-dir&quot; value=&quot;InitDBInstallerListener&quot;/&gt;
+   &lt;param name=&quot;listener-include&quot;
+value=&quot;com/coi/tools/install/listener&quot;/&gt;
+  &lt;/antcall&gt;
+...
+ 
+Cheers
+ 
+Klaus
+
+	-----Ori  ginal Message-----
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of Raz Yalov
+	Sent: Monday, May 21, 2007 9:01 PM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+	Subject: [izpack-devel] Coding custom components against an
+IzPack API
+	
+	
+
+	First, sorry if this is the wrong list for this question.
+
+	 
+
+	In short: is there an official &quot;izpack-api.jar&quot; exposed to
+enabled development of custom elements (panels, validators etc.) outside
+the IzPack project context?
+
+	 
+
+	Details: I would like to create as part of my product's project
+an izPack-ext.jar that will hold customized code I've written to enhance
+my IzPack setup but I want to maintain and build this in the context of
+my product's baseline and not within IzPack project.
+
+	 
+
+	I couldn't find any kind of &quot;izpack-api.jar&quot; type of file that
+holds all the interfaces that are needed in order to compile your own
+extensions.
+
+	 
+
+	Is the only expected way to add custom elements is by adding
+them to a local copy of the entire IzPack project?
+
+	 
+
+	 
+
+	Any ideas/direction would be appreciated.
+
+	 
+
+	 
+
+	Raz
+
+	 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070522/1c2c8f8b/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070522/1c2c8f8b/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001124.html">[izpack-devel] Coding custom components against an IzPack API
+</A></li>
+	<LI>Next message: <A HREF="001129.html">[izpack-devel] Coding custom components against an IzPack API
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1125">[ date ]</a>
+              <a href="thread.html#1125">[ thread ]</a>
+              <a href="subject.html#1125">[ subject ]</a>
+              <a href="author.html#1125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

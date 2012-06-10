@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] NullPointerException due to missing pack ID
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20NullPointerException%20due%20to%20missing%20pack%20ID&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001403.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] NullPointerException due to missing pack ID</H1>
+    <B>Tim Wood</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20NullPointerException%20due%20to%20missing%20pack%20ID&In-Reply-To="
+       TITLE="[izpack-users] NullPointerException due to missing pack ID">T.Wood at teamphone.com
+       </A><BR>
+    <I>Mon Apr  2 17:39:44 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001403.html">[izpack-users] NullPointerException due to missing pack ID
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1402">[ date ]</a>
+              <a href="thread.html#1402">[ thread ]</a>
+              <a href="subject.html#1402">[ subject ]</a>
+              <a href="author.html#1402">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+If I do not specify pack ids, when I select a pack in the packs panel
+the dependencies of the pack are not displayed and an NPE is thrown.
+
+I think this is due to the code in PacksPanelBase.java in the method
+getI18NPackName(Pack); I think the check in the or statement is the
+wrong way around:
+
+        if (&quot;&quot;.equals(packName) || key.equals(packName) || pack.id ==
+null)
+        {
+            packName = pack.name;
+        }
+
+Should probably instead be:
+
+        if (&quot;&quot;.equals(packName) || key == null || key.equals(packName))
+        {
+            packName = pack.name;
+        }
+
+IZPack version: 3.10.1
+
+Specifying Pack ids also works around this issue. The stack trace I get
+is:
+
+Exception in thread &quot;AWT-EventQueue-0&quot; java.lang.	
+        at
+com.izforge.izpack.panels.PacksPanelBase.getI18NPackName(PacksPanelBase.
+java:364)
+        at
+com.izforge.izpack.panels.PacksPanelBase.valueChanged(PacksPanelBase.jav
+a:313)
+        at
+javax.swing.DefaultListSelectionModel.fireValueChanged(Unknown Source)
+        at
+javax.swing.DefaultListSelectionModel.fireValueChanged(Unknown Source)
+        at
+javax.swing.DefaultListSelectionModel.fireValueChanged(Unknown Source)
+        at javax.swing.DefaultListSelectionModel.changeSelection(Unknown
+Source)
+        at javax.swing.DefaultListSelectionModel.changeSelection(Unknown
+Source)
+        at
+javax.swing.DefaultListSelectionModel.setSelectionInterval(Unknown
+Source)
+        at javax.swing.JTable.changeSelectionModel(Unknown Source)
+        at javax.swing.JTable.changeSelection(Unknown Source)
+        at
+javax.swing.plaf.basic.BasicTableUI$Handler.makeSelectionChange(Unknown
+Source)
+        at
+javax.swing.plaf.basic.BasicTableUI$Handler.adjustFocusAndSelection(Unkn
+own Source)
+        at
+javax.swing.plaf.basic.BasicTableUI$Handler.mousePressed(Unknown Source)
+        at java.awt.AWTEventMulticaster.mousePressed(Unknown Source)
+        at java.awt.Component.processMouseEvent(Unknown Source)
+        at javax.swing.JComponent.processMouseEvent(Unknown Source)
+        at java.awt.Component.processEvent(Unknown Source)
+        at java.awt.Container.processEvent(Unknown Source)
+        at java.awt.Component.dispatchEventImpl(Unknown Source)
+        at java.awt.Container.dispatchEventImpl(Unknown Source)
+        at java.awt.Component.dispatchEvent(Unknown Source)
+        at java.awt.LightweightDispatcher.retargetMouseEvent(Unknown
+Source)
+        at java.awt.LightweightDispatcher.processMouseEvent(Unknown
+Source)
+        at java.awt.LightweightDispatcher.dispatchEvent(Unknown Source)
+        at java.awt.Container.dispatchEventImpl(Unknown Source)
+        at java.awt.Window.dispatchEventImpl(Unknown Source)
+        at java.awt.Component.dispatchEvent(Unknown Source)
+        at java.awt.EventQueue.dispatchEvent(Unknown Source)
+        at java.awt.EventDispatchThread.pumpOneEventForHierarchy(Unknown
+Source)
+        at java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown
+Source)
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+        at java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+        at java.awt.EventDispatchThread.run(Unknown Source)
+Exception in thread &quot;AWT-EventQueue-0&quot; java.lang.NullPointerException
+        at
+com.izforge.izpack.panels.PacksPanelBase.getI18NPackName(PacksPanelBase.
+java:364)
+        at
+com.izforge.izpack.panels.PacksPanelBase.valueChanged(PacksPanelBase.jav
+a:313)
+
+Cheers,
+
+Tim
+
+*****************************************************************
+
+Teamphone Ltd 
+Registered in England and Wales. 
+Company Number 01403177. VAT Number GB 645 5327 31
+Registered office: 25-27 Shaftesbury Avenue,  London,  W1D 7EQ
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001403.html">[izpack-users] NullPointerException due to missing pack ID
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1402">[ date ]</a>
+              <a href="thread.html#1402">[ thread ]</a>
+              <a href="subject.html#1402">[ subject ]</a>
+              <a href="author.html#1402">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How to pass the information about selected packs to Ant?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20to%20pass%20the%20information%20about%20selected%20packs%0A%20to%20Ant%3F&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891666%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000514.html">
+   <LINK REL="Next"  HREF="000516.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How to pass the information about selected packs to Ant?</H1>
+    <B>Stefan Wachter</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20to%20pass%20the%20information%20about%20selected%20packs%0A%20to%20Ant%3F&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891666%40coi11.coi.com"
+       TITLE="[izpack-users] How to pass the information about selected packs to Ant?">Stefan.Wachter at gmx.de
+       </A><BR>
+    <I>Mon May  8 10:07:48 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000514.html">[izpack-users] How to pass the information about selected packs to Ant?
+</A></li>
+        <LI>Next message: <A HREF="000516.html">[izpack-users] How to pass the information about selected packs to Ant?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#515">[ date ]</a>
+              <a href="thread.html#515">[ thread ]</a>
+              <a href="subject.html#515">[ subject ]</a>
+              <a href="author.html#515">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Klaus,
+
+thanks for the information. Can you please give some more details for 
+the second option? How would a custom action look like that shifts the 
+information about selected packs into an IzPack-Variable?
+
+Based on my current knowledge I would implement an InstallerListener and 
+implement the method beforePacks. Using the 
+AutomatedInstallData.selectedPacks member I would define  a variable 
+using the setVariable method of the AutomatiedInstallData object.
+
+Do you agree with this proceeding? What kind of object is contained in 
+the selectedPacks member? Are there plain strings in this list?
+
+Regards,
+--Stefan
+
+
+Bartz, Klaus wrote:
+&gt;<i> Hi Stefan,
+</I>&gt;<i> yes, it is possible.
+</I>&gt;<i> The simplest is to use the custom action 
+</I>&gt;<i> AntActionInstallerListener
+</I>&gt;<i> There you need two xml files, one &quot;normal&quot; ant task file and
+</I>&gt;<i> one file which describes what to call in what manner from ant.
+</I>&gt;<i> The dtd of the secound file you can find at
+</I>&gt;<i> $IzPackInstallation/src/dtd/event/antaction.dtd
+</I>&gt;<i> ,if you have installed src package of IzPack...
+</I>&gt;<i> There you can see, that a antcall depends on the pack. You can
+</I>&gt;<i> declare properties or a propertyfile here for ant. You can
+</I>&gt;<i> use IzPack variables at this point (normaly not in the ant 
+</I>&gt;<i> task script).
+</I>&gt;<i>
+</I>&gt;<i> An other way will be to give ant a property which contains
+</I>&gt;<i> whether the interested pack was selected or not. For this
+</I>&gt;<i> you need a custom action or a custom panel to shift the
+</I>&gt;<i> information into a IzPack variable which you send to ant.
+</I>&gt;<i> The selected packs are in
+</I>&gt;<i> idata.selectedPacks
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Stefan Wachter
+</I>&gt;&gt;<i> Sent: Saturday, May 06, 2006 3:45 PM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+</I>&gt;&gt;<i> Subject: [izpack-users] How to pass the information about 
+</I>&gt;&gt;<i> selected packs
+</I>&gt;&gt;<i> to Ant?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Hi all,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I have a setup with various packs. In addition to copying the selected 
+</I>&gt;&gt;<i> packs, an Ant script must be run, that must do something depending on 
+</I>&gt;&gt;<i> the selected packs. Now my question is:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Is there a possibility to pass information about the selected packs to 
+</I>&gt;&gt;<i> an AntAction?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Thanks for your attention,
+</I>&gt;&gt;<i> --Stefan
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>     
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000514.html">[izpack-users] How to pass the information about selected packs to Ant?
+</A></li>
+	<LI>Next message: <A HREF="000516.html">[izpack-users] How to pass the information about selected packs to Ant?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#515">[ date ]</a>
+              <a href="thread.html#515">[ thread ]</a>
+              <a href="subject.html#515">[ subject ]</a>
+              <a href="author.html#515">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

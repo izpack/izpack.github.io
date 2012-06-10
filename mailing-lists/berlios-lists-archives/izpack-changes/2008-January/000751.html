@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2005 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2005%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000750.html">
+   <LINK REL="Next"  HREF="000752.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2005 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2005%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r2005 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 24 20:25:06 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000750.html">[izpack-changes] r2004 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000752.html">[izpack-changes] r2006 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#751">[ date ]</a>
+              <a href="thread.html#751">[ thread ]</a>
+              <a href="subject.html#751">[ subject ]</a>
+              <a href="author.html#751">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-24 20:25:01 +0100 (Thu, 24 Jan 2008)
+New Revision: 2005
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/ValidatorContainer.java
+Log:
+Addition to support multiple validators.
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/ValidatorContainer.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/ValidatorContainer.java	2008-01-24 19:22:46 UTC (rev 2004)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/ValidatorContainer.java	2008-01-24 19:25:01 UTC (rev 2005)
+@@ -0,0 +1,60 @@
++package com.izforge.izpack.panels;
++
++import java.util.Map;
++
++/**
++ *
++ * @author Jeff Gordon
++ */
++public class ValidatorContainer {
++  private Validator validator = null;
++  private String message;
++  private boolean hasParams = false;
++  private Map validatorParams = null;
++
++  public ValidatorContainer(String validator, String message, Map validatorParams) {
++    try {
++      this.validator = (Validator) Class.forName(validator).newInstance();
++      this.message = message;
++      this.validatorParams = validatorParams;
++      if (validatorParams != null) {
++        if (validatorParams.size() &gt; 0) {
++          hasParams = true;
++        }
++      }
++    } catch (Throwable e) {
++      System.out.println(&quot;ValidatorContainer Constructor Failed: &quot;+e);
++      this.validator = null;
++      this.message = null;
++      hasParams = false;
++      validatorParams = null;
++    }
++  }
++
++  /**
++   * @return true if this instance has any parameters to pass to the Validator instance.
++   */
++  public boolean hasParams() {
++    return hasParams;
++  }
++  
++  /**
++   * Returns the validator parameters, if any. The caller should check for the existence of
++   * validator parameters via the &lt;code&gt;hasParams()&lt;/code&gt; method prior to invoking this method.
++   * 
++   * @return a java.util.Map containing the validator parameters.
++   */
++  public Map getValidatorParams() {
++    return validatorParams;
++  }
++
++  public Validator getValidator() {
++    return validator;
++  }
++  
++  public String getMessage() {
++    return message;
++  }
++  
++  
++}
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000750.html">[izpack-changes] r2004 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000752.html">[izpack-changes] r2006 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#751">[ date ]</a>
+              <a href="thread.html#751">[ thread ]</a>
+              <a href="subject.html#751">[ subject ]</a>
+              <a href="author.html#751">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

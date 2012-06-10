@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] executable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20executable&In-Reply-To=BAY144-W35A0B88752B01FA46894C5DCA90%40phx.gbl">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001699.html">
+   <LINK REL="Next"  HREF="001701.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] executable</H1>
+    <B>Scott Plante</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20executable&In-Reply-To=BAY144-W35A0B88752B01FA46894C5DCA90%40phx.gbl"
+       TITLE="[izpack-users] executable">splante at insightsys.com
+       </A><BR>
+    <I>Fri Oct  5 23:46:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001699.html">[izpack-users] executable
+</A></li>
+        <LI>Next message: <A HREF="001701.html">[izpack-users] JDKPathPanel is not getting hide
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1700">[ date ]</a>
+              <a href="thread.html#1700">[ thread ]</a>
+              <a href="subject.html#1700">[ subject ]</a>
+              <a href="author.html#1700">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+  This is a snippet I put at the top of my script:
+
+########################################################################
+# Run in a command window
+if tty -s
+then
+  [ pause = &quot;$1&quot; ] &amp;&amp;
+    { $0; ret=$?; echo &quot;Press Enter to exit&quot;; read ans; exit $ret; }
+else
+  xterm -e /bin/bash $0 pause
+  exit $?
+fi
+########################################################################
+
+It detects whether the script is being run from a terminal and if it
+isn't, it runs itself within an xterm with a &quot;pause&quot; argument. If it ran
+itself in an xterm, it pauses before returning so the user can see any
+messages that were generated. If the user running the script was already
+in a xterm (or konsole or other terminal) then it proceeds normally
+without creating another window.
+
+Scott
+
+david alejandro garcia ortega wrote:
+&gt;<i> Thanks Lo&#239;c , &quot;xterm&quot; is what i needed
+</I>&gt;<i>
+</I>&gt;<i> David Alejandro Garc&#237;a Ortega
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>     ------------------------------------------------------------------------
+</I>&gt;<i>     Date: Fri, 5 Oct 2007 19:56:21 +0200
+</I>&gt;<i>     From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">lbndev at yahoo.fr</A>
+</I>&gt;<i>     To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>     Subject: Re: [izpack-users] executable
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>     A few possibilities :
+</I>&gt;<i>
+</I>&gt;<i>         * Modify your scripts to redirect all output to log files
+</I>&gt;<i>         * Wrap your scripts into another that will run them in an
+</I>&gt;<i>           xterm of some kind.
+</I>&gt;<i>         * Run your scripts using the ProcessPanel instead of the
+</I>&gt;<i>           &lt;executable&gt; tag (direct inputs will not be possible, so
+</I>&gt;<i>           you'll have to use a UserInputPanel first to gather the
+</I>&gt;<i>           information, and then parse your script with the &lt;parsable&gt;
+</I>&gt;<i>           tag to replace the variables).
+</I>&gt;<i>
+</I>&gt;<i>     I would advise you to use the latter. It is a bit more
+</I>&gt;<i>     complicated, but it looks much cleaner to the end-user.
+</I>&gt;<i>
+</I>&gt;<i>     Good luck,
+</I>&gt;<i>
+</I>&gt;<i>     Lo&#239;c
+</I>&gt;<i>
+</I>&gt;<i>     david alejandro garcia ortega a &#233;crit :
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>          
+</I>&gt;<i>         Hi, i'am making an installer with izpack, i have a packet that
+</I>&gt;<i>         contains 2 executables, both are shell scripts for
+</I>&gt;<i>         unix. I need this scripts runs in terminal, when I test my
+</I>&gt;<i>         installer in Linux,the scripts don&#180;t work because
+</I>&gt;<i>         run&#180;s without terminal and i need a terminal to read/write
+</I>&gt;<i>         some information. What can i do for get mi script
+</I>&gt;<i>         runing in terminal?
+</I>&gt;<i>          
+</I>&gt;<i>         Here are my executables:
+</I>&gt;<i>          
+</I>&gt;<i>         &lt;executable
+</I>&gt;<i>         targetfile=&quot;$INSTALL_PATH/utilidades/installjai32.sh&quot;
+</I>&gt;<i>         keep=&quot;yes&quot; stage=&quot;postinstall&quot; /&gt;
+</I>&gt;<i>         &lt;executable
+</I>&gt;<i>         targetfile=&quot;$INSTALL_PATH/utilidades/installjava3d32.sh&quot;
+</I>&gt;<i>         keep=&quot;yes&quot; stage=&quot;postinstall&quot; /&gt;  
+</I>&gt;<i>          
+</I>&gt;<i>         Thanks.
+</I>&gt;<i>
+</I>&gt;<i>         David Alejandro Garc&#237;a Ortega
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>         ------------------------------------------------------------------------
+</I>&gt;<i>         Express yourself instantly with MSN Messenger! MSN Messenger
+</I>&gt;<i>         &lt;<A HREF="http://clk.atdmt.com/AVE/go/onm00200471ave/direct/01/">http://clk.atdmt.com/AVE/go/onm00200471ave/direct/01/</A>&gt;
+</I>&gt;<i>
+</I>&gt;<i>         ------------------------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i>         _______________________________________________
+</I>&gt;<i>         izpack-users mailing list
+</I>&gt;<i>         <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A> &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+</I>&gt;<i>         <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>           
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i> Express yourself instantly with MSN Messenger! MSN Messenger
+</I>&gt;<i> &lt;<A HREF="http://clk.atdmt.com/AVE/go/onm00200471ave/direct/01/">http://clk.atdmt.com/AVE/go/onm00200471ave/direct/01/</A>&gt;
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>   
+</I>
+</PRE>
+
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001699.html">[izpack-users] executable
+</A></li>
+	<LI>Next message: <A HREF="001701.html">[izpack-users] JDKPathPanel is not getting hide
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1700">[ date ]</a>
+              <a href="thread.html#1700">[ thread ]</a>
+              <a href="subject.html#1700">[ subject ]</a>
+              <a href="author.html#1700">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

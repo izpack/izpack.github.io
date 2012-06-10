@@ -1,0 +1,654 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] izpack-src/src/lib/com/izforge/izpack/installer AutomatedInstallData.java,1.16,1.17 AutomatedInstaller.java,1.13,1.14 CompileHandler.java,1.4,1.5 CompileResult.java,1.6,1.7 CompileWorker.java,1.13,1.14 GUIInstaller.java,1.35,1.36 InstallData.java,1.20,1.21 Installer.java,1.25,1.26 InstallerBase.java,1.29,1.30 InstallerException.java,1.3,1.4 InstallerFrame.java,1.48,1.49 IzPanel.java,1.29,1.30 PanelAutomation.java,1.6,1.7 PanelAutomationHelper.java,1.5,1.6 ProcessPanelWorker.java,1.12,1.13 ResourceManager.java,1.8,1.9 ResourceNotFoundException.java,1.6,1.7 ScriptParser.java,1.20,1.21 UninstallData.java,1.17,1.18 Unpacker.java,1.49,1.50 WebAccessor.java,1.6,1.7
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/installer%20AutomatedInstallData.java%2C1.16%2C1.17%20AutomatedInstaller.java%2C1.13%2C1.14%20CompileHandler.java%2C1.4%2C1.5%20CompileResult.java%2C1.6%2C1.7%20CompileWorker.java%2C1.13%2C1.14%20GUIInstaller.java%2C1.35%2C1.36%20InstallData.java%2C1.20%2C1.21%20Installer.java%2C1.25%2C1.26%20InstallerBase.java%2C1.29%2C1.30%20InstallerException.java%2C1.3%2C1.4%20InstallerFrame.java%2C1.48%2C1.49%20IzPanel.java%2C1.29%2C1.30%20PanelAutomation.java%2C1.6%2C1.7%20PanelAutomationHelper.java%2C1.5%2C1.6%20ProcessPanelWorker.java%2C1.12%2C1.13%20ResourceManager.java%2C1.8%2C1.9%20ResourceNotFoundException.java%2C1.6%2C1.7%20ScriptParser.java%2C1.20%2C1.21%20UninstallData.java%2C1.17%2C1.18%20Unpacker.java%2C1.49%2C1.50%20WebAccessor.java%2C1.6%2C1.7&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000140.html">
+   <LINK REL="Next"  HREF="000138.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] izpack-src/src/lib/com/izforge/izpack/installer AutomatedInstallData.java,1.16,1.17 AutomatedInstaller.java,1.13,1.14 CompileHandler.java,1.4,1.5 CompileResult.java,1.6,1.7 CompileWorker.java,1.13,1.14 GUIInstaller.java,1.35,1.36 InstallData.java,1.20,1.21 Installer.java,1.25,1.26 InstallerBase.java,1.29,1.30 InstallerException.java,1.3,1.4 InstallerFrame.java,1.48,1.49 IzPanel.java,1.29,1.30 PanelAutomation.java,1.6,1.7 PanelAutomationHelper.java,1.5,1.6 ProcessPanelWorker.java,1.12,1.13 ResourceManager.java,1.8,1.9 ResourceNotFoundException.java,1.6,1.7 ScriptParser.java,1.20,1.21 UninstallData.java,1.17,1.18 Unpacker.java,1.49,1.50 WebAccessor.java,1.6,1.7</H1>
+    <B>jponge</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/installer%20AutomatedInstallData.java%2C1.16%2C1.17%20AutomatedInstaller.java%2C1.13%2C1.14%20CompileHandler.java%2C1.4%2C1.5%20CompileResult.java%2C1.6%2C1.7%20CompileWorker.java%2C1.13%2C1.14%20GUIInstaller.java%2C1.35%2C1.36%20InstallData.java%2C1.20%2C1.21%20Installer.java%2C1.25%2C1.26%20InstallerBase.java%2C1.29%2C1.30%20InstallerException.java%2C1.3%2C1.4%20InstallerFrame.java%2C1.48%2C1.49%20IzPanel.java%2C1.29%2C1.30%20PanelAutomation.java%2C1.6%2C1.7%20PanelAutomationHelper.java%2C1.5%2C1.6%20ProcessPanelWorker.java%2C1.12%2C1.13%20ResourceManager.java%2C1.8%2C1.9%20ResourceNotFoundException.java%2C1.6%2C1.7%20ScriptParser.java%2C1.20%2C1.21%20UninstallData.java%2C1.17%2C1.18%20Unpacker.java%2C1.49%2C1.50%20WebAccessor.java%2C1.6%2C1.7&In-Reply-To="
+       TITLE="[izpack-changes] izpack-src/src/lib/com/izforge/izpack/installer AutomatedInstallData.java,1.16,1.17 AutomatedInstaller.java,1.13,1.14 CompileHandler.java,1.4,1.5 CompileResult.java,1.6,1.7 CompileWorker.java,1.13,1.14 GUIInstaller.java,1.35,1.36 InstallData.java,1.20,1.21 Installer.java,1.25,1.26 InstallerBase.java,1.29,1.30 InstallerException.java,1.3,1.4 InstallerFrame.java,1.48,1.49 IzPanel.java,1.29,1.30 PanelAutomation.java,1.6,1.7 PanelAutomationHelper.java,1.5,1.6 ProcessPanelWorker.java,1.12,1.13 ResourceManager.java,1.8,1.9 ResourceNotFoundException.java,1.6,1.7 ScriptParser.java,1.20,1.21 UninstallData.java,1.17,1.18 Unpacker.java,1.49,1.50 WebAccessor.java,1.6,1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Mar 12 18:31:40 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000140.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/uninstaller Destroyer.java,1.24,1.25 SelfModifier.java,1.11,1.12 Uninstaller.java,1.18,1.19 UninstallerFrame.java,1.22,1.23
+</A></li>
+        <LI>Next message: <A HREF="000138.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/util/os RegistryDefaultHandler.java,1.3,1.4 RegistryHandler.java,1.6,1.7 ShellLink.java,1.22,1.23 Shortcut.java,1.21,1.22 Unix_Shortcut.java,1.9,1.10 Unix_ShortcutConstants.java,1.4,1.5 Win_RegistryHandler.java,1.6,1.7 Win_Shortcut.java,1.22,1.23 WrappedNativeLibException.java,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#141">[ date ]</a>
+              <a href="thread.html#141">[ thread ]</a>
+              <a href="subject.html#141">[ subject ]</a>
+              <a href="author.html#141">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer
+In directory sheep:/tmp/cvs-serv10032/src/lib/com/izforge/izpack/installer
+
+Modified Files:
+	AutomatedInstallData.java AutomatedInstaller.java 
+	CompileHandler.java CompileResult.java CompileWorker.java 
+	GUIInstaller.java InstallData.java Installer.java 
+	InstallerBase.java InstallerException.java InstallerFrame.java 
+	IzPanel.java PanelAutomation.java PanelAutomationHelper.java 
+	ProcessPanelWorker.java ResourceManager.java 
+	ResourceNotFoundException.java ScriptParser.java 
+	UninstallData.java Unpacker.java WebAccessor.java 
+Log Message:
+Synchronizing HEAD from the changes in branch-3-8.
+
+
+Index: AutomatedInstallData.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/AutomatedInstallData.java,v
+retrieving revision 1.16
+retrieving revision 1.17
+diff -u -d -r1.16 -r1.17
+--- AutomatedInstallData.java	21 Oct 2005 07:21:06 -0000	1.16
++++ AutomatedInstallData.java	12 Mar 2006 16:32:22 -0000	1.17
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: AutomatedInstaller.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -u -d -r1.13 -r1.14
+--- AutomatedInstaller.java	6 May 2005 20:09:11 -0000	1.13
++++ AutomatedInstaller.java	12 Mar 2006 16:32:24 -0000	1.14
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: CompileHandler.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/CompileHandler.java,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -d -r1.4 -r1.5
+--- CompileHandler.java	6 May 2005 20:09:10 -0000	1.4
++++ CompileHandler.java	12 Mar 2006 16:32:24 -0000	1.5
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: CompileResult.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/CompileResult.java,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -d -r1.6 -r1.7
+--- CompileResult.java	6 May 2005 20:09:11 -0000	1.6
++++ CompileResult.java	12 Mar 2006 16:32:24 -0000	1.7
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: CompileWorker.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/CompileWorker.java,v
+retrieving revision 1.13
+retrieving revision 1.14
+diff -u -d -r1.13 -r1.14
+--- CompileWorker.java	6 May 2005 20:09:11 -0000	1.13
++++ CompileWorker.java	12 Mar 2006 16:32:24 -0000	1.14
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: GUIInstaller.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/GUIInstaller.java,v
+retrieving revision 1.35
+retrieving revision 1.36
+diff -u -d -r1.35 -r1.36
+--- GUIInstaller.java	8 Sep 2005 02:51:02 -0000	1.35
++++ GUIInstaller.java	12 Mar 2006 16:32:24 -0000	1.36
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+@@ -23,9 +23,11 @@
+ import java.awt.Component;
+ import java.awt.Dimension;
+ import java.awt.Font;
++import java.awt.GraphicsEnvironment;
+ import java.awt.GridBagConstraints;
+ import java.awt.GridBagLayout;
+ import java.awt.Insets;
++import java.awt.Point;
+ import java.awt.Toolkit;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+@@ -54,6 +56,7 @@
+ import javax.swing.ListCellRenderer;
+ import javax.swing.LookAndFeel;
+ import javax.swing.SwingConstants;
++import javax.swing.SwingUtilities;
+ import javax.swing.UIManager;
+ import javax.swing.plaf.metal.MetalLookAndFeel;
+ import javax.swing.plaf.metal.MetalTheme;
+@@ -114,7 +117,19 @@
+         checkJavaVersion();
+ 
+         // Loads the suitable langpack
+-        loadLangPack();
++        SwingUtilities.invokeAndWait(new Runnable() {
++            public void run()
++            {
++                try
++                {
++                    loadLangPack();
++                }
++                catch (Exception e)
++                {
++                    e.printStackTrace();
++                }
++            }
++        });
+ 
+         // create the resource manager (after the language selection!)
+         ResourceManager.create(this.installdata);
+@@ -123,7 +138,19 @@
+         addCustomLangpack(installdata);
+ 
+         // We launch the installer GUI
+-        loadGUI();
++        SwingUtilities.invokeLater(new Runnable() {
++            public void run()
++            {
++                try
++                {
++                    loadGUI();
++                }
++                catch (Exception e)
++                {
++                    e.printStackTrace();
++                }
++            }
++        });
+     }
+ 
+     /**
+@@ -529,9 +556,9 @@
+                 setSize(getPreferredSize());
+ 
+             Dimension frameSize = getSize();
+-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+-            setLocation((screenSize.width - frameSize.width) / 2,
+-                    (screenSize.height - frameSize.height) / 2 - 10);
++            Point center = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
++            setLocation(center.x - frameSize.width / 2,
++                    center.y - frameSize.height / 2 - 10);
+             setResizable(true);
+         }
+ 
+
+Index: InstallData.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/InstallData.java,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -u -d -r1.20 -r1.21
+--- InstallData.java	6 May 2005 20:09:11 -0000	1.20
++++ InstallData.java	12 Mar 2006 16:32:24 -0000	1.21
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: Installer.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/Installer.java,v
+retrieving revision 1.25
+retrieving revision 1.26
+diff -u -d -r1.25 -r1.26
+--- Installer.java	25 Aug 2005 16:21:37 -0000	1.25
++++ Installer.java	12 Mar 2006 16:32:24 -0000	1.26
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: InstallerBase.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/InstallerBase.java,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -u -d -r1.29 -r1.30
+--- InstallerBase.java	27 Jul 2005 08:57:10 -0000	1.29
++++ InstallerBase.java	12 Mar 2006 16:32:24 -0000	1.30
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+@@ -30,6 +30,7 @@
+ import java.util.List;
+ import java.util.Locale;
+ import java.util.Properties;
++import java.net.InetAddress;
+ 
+ import com.izforge.izpack.CustomData;
+ import com.izforge.izpack.Info;
+@@ -92,7 +93,8 @@
+ 
+         // We put the Info data as variables
+         installdata.setVariable(ScriptParser.APP_NAME, inf.getAppName());
+-        installdata.setVariable(ScriptParser.APP_URL, inf.getAppURL());
++        if (inf.getAppURL() != null)
++            installdata.setVariable(ScriptParser.APP_URL, inf.getAppURL());
+         installdata.setVariable(ScriptParser.APP_VER, inf.getAppVersion());
+ 
+         // We read the panels order data
+@@ -137,11 +139,34 @@
+                 dir = System.getProperty(&quot;user.home&quot;);
+             }
+         }
++        
++        // We determine the hostname and IPAdress
++        String hostname;
++        String IPAddress;
++        
++        try {
++            InetAddress addr = InetAddress.getLocalHost();
++    
++		        // Get IP Address
++		        IPAddress = addr.getHostAddress();
++		    
++		        // Get hostname
++		        hostname = addr.getHostName();
++        } catch (Exception e) {
++            hostname = &quot;&quot;;
++            IPAddress = &quot;&quot;;
++        }
++        
++				
++
+         installdata.setVariable(&quot;APPLICATIONS_DEFAULT_ROOT&quot;, dir);
+         dir = dir + File.separator;
+         installdata.setVariable(ScriptParser.JAVA_HOME, System.getProperty(&quot;java.home&quot;));
++        installdata.setVariable(ScriptParser.CLASS_PATH, System.getProperty(&quot;java.class.path&quot;));
+         installdata.setVariable(ScriptParser.USER_HOME, System.getProperty(&quot;user.home&quot;));
+         installdata.setVariable(ScriptParser.USER_NAME, System.getProperty(&quot;user.name&quot;));
++        installdata.setVariable(ScriptParser.IP_ADDRESS, IPAddress);
++        installdata.setVariable(ScriptParser.HOST_NAME, hostname);
+         installdata.setVariable(ScriptParser.FILE_SEPARATOR, File.separator);
+ 
+         Enumeration e = System.getProperties().keys();
+
+Index: InstallerException.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/InstallerException.java,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -u -d -r1.3 -r1.4
+--- InstallerException.java	6 May 2005 20:09:11 -0000	1.3
++++ InstallerException.java	12 Mar 2006 16:32:24 -0000	1.4
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: InstallerFrame.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/InstallerFrame.java,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -u -d -r1.48 -r1.49
+--- InstallerFrame.java	21 Jul 2005 01:20:37 -0000	1.48
++++ InstallerFrame.java	12 Mar 2006 16:32:24 -0000	1.49
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+@@ -26,9 +26,10 @@
+ import java.awt.Cursor;
+ import java.awt.Dimension;
+ import java.awt.Font;
++import java.awt.GraphicsEnvironment;
+ import java.awt.GridBagConstraints;
+ import java.awt.GridLayout;
+-import java.awt.Toolkit;
++import java.awt.Point;
+ import java.awt.Window;
+ import java.awt.event.ActionEvent;
+ import java.awt.event.ActionListener;
+@@ -397,7 +398,10 @@
+             panelsContainer.setVisible(false);
+             IzPanel panel = (IzPanel) installdata.panels.get(installdata.curPanelNumber);
+             IzPanel l_panel = (IzPanel) installdata.panels.get(last);
+-            l_panel.makeXMLData(installdata.xmlData.getChildAtIndex(last));
++            //instead of writing data here which leads to duplicated entries in
++            //auto-installation script (bug # 4551), let's make data only immediately before
++            //writing out that script.
++            //l_panel.makeXMLData(installdata.xmlData.getChildAtIndex(last));
+ 
+             if (installdata.curPanelNumber == 0)
+             {
+@@ -677,10 +681,10 @@
+      */
+     public void centerFrame(Window frame)
+     {
++        Point center = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+         Dimension frameSize = frame.getSize();
+-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+-        frame.setLocation((screenSize.width - frameSize.width) / 2,
+-                (screenSize.height - frameSize.height) / 2 - 10);
++        frame.setLocation(center.x - frameSize.width / 2,
++                center.y - frameSize.height / 2 - 10);
+     }
+ 
+     /**
+@@ -805,7 +809,14 @@
+     public void writeXMLTree(XMLElement root, OutputStream out) throws Exception
+     {
+         XMLWriter writer = new XMLWriter(out);
+-        writer.write(root);
++        //fix bug# 4551
++        //writer.write(root);
++        for (int i = 0; i &lt; installdata.panels.size(); i++)
++        {
++            IzPanel panel = (IzPanel)installdata.panels.get(i);
++            panel.makeXMLData(installdata.xmlData.getChildAtIndex(i));
++        }
++        writer.write(installdata.xmlData);
+     }
+ 
+     /**
+
+Index: IzPanel.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/IzPanel.java,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -u -d -r1.29 -r1.30
+--- IzPanel.java	27 Jul 2005 08:57:11 -0000	1.29
++++ IzPanel.java	12 Mar 2006 16:32:24 -0000	1.30
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: PanelAutomation.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/PanelAutomation.java,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -d -r1.6 -r1.7
+--- PanelAutomation.java	6 May 2005 20:09:11 -0000	1.6
++++ PanelAutomation.java	12 Mar 2006 16:32:24 -0000	1.7
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: PanelAutomationHelper.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/PanelAutomationHelper.java,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -u -d -r1.5 -r1.6
+--- PanelAutomationHelper.java	6 May 2005 20:09:11 -0000	1.5
++++ PanelAutomationHelper.java	12 Mar 2006 16:32:24 -0000	1.6
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: ProcessPanelWorker.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/ProcessPanelWorker.java,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -u -d -r1.12 -r1.13
+--- ProcessPanelWorker.java	6 May 2005 20:09:11 -0000	1.12
++++ ProcessPanelWorker.java	12 Mar 2006 16:32:25 -0000	1.13
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: ResourceManager.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/ResourceManager.java,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -u -d -r1.8 -r1.9
+--- ResourceManager.java	6 May 2005 20:09:11 -0000	1.8
++++ ResourceManager.java	12 Mar 2006 16:32:25 -0000	1.9
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: ResourceNotFoundException.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/ResourceNotFoundException.java,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -d -r1.6 -r1.7
+--- ResourceNotFoundException.java	6 May 2005 20:09:11 -0000	1.6
++++ ResourceNotFoundException.java	12 Mar 2006 16:32:25 -0000	1.7
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: ScriptParser.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/ScriptParser.java,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -u -d -r1.20 -r1.21
+--- ScriptParser.java	6 May 2005 20:09:11 -0000	1.20
++++ ScriptParser.java	12 Mar 2006 16:32:25 -0000	1.21
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+@@ -48,6 +48,9 @@
+ 
+     /** The Java home path. */
+     public final static String JAVA_HOME = &quot;JAVA_HOME&quot;;
++    
++    /** The ClassPath. */
++    public final static String CLASS_PATH = &quot;CLASS_PATH&quot;;    
+ 
+     /** The user home path. */
+     public final static String USER_HOME = &quot;USER_HOME&quot;;
+@@ -55,6 +58,12 @@
+     /** The user name. */
+     public final static String USER_NAME = &quot;USER_NAME&quot;;
+ 
++		/** The hostname. */
++    public final static String HOST_NAME = &quot;HOST_NAME&quot;;
++
++		/** The ip address. */
++    public final static String IP_ADDRESS = &quot;IP_ADDRESS&quot;;
++
+     /** The file separator character. */
+     public final static String FILE_SEPARATOR = &quot;FILE_SEPARATOR&quot;;
+ 
+@@ -69,6 +78,7 @@
+ 
+     /** The language IS03 code. */
+     public final static String ISO3_LANG = &quot;ISO3_LANG&quot;;
++    
+ 
+     /** The files to parse. */
+     private Collection files;
+
+Index: UninstallData.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/UninstallData.java,v
+retrieving revision 1.17
+retrieving revision 1.18
+diff -u -d -r1.17 -r1.18
+--- UninstallData.java	6 May 2005 20:09:11 -0000	1.17
++++ UninstallData.java	12 Mar 2006 16:32:25 -0000	1.18
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+
+Index: Unpacker.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/Unpacker.java,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -u -d -r1.49 -r1.50
+--- Unpacker.java	26 Aug 2005 06:48:51 -0000	1.49
++++ Unpacker.java	12 Mar 2006 16:32:25 -0000	1.50
+@@ -1,6 +1,6 @@
+ /*
+  * $Id$
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+@@ -400,7 +400,7 @@
+ 
+                                     int answer = handler.askQuestion(idata.langpack
+                                             .getString(&quot;InstallPanel.overwrite.title&quot;)
+-                                            + pathFile.getName(), idata.langpack
++                                            + &quot; - &quot; + pathFile.getName(), idata.langpack
+                                             .getString(&quot;InstallPanel.overwrite.question&quot;)
+                                             + pathFile.getAbsolutePath(),
+                                             AbstractUIHandler.CHOICES_YES_NO, def_choice);
+
+Index: WebAccessor.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/installer/WebAccessor.java,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -d -r1.6 -r1.7
+--- WebAccessor.java	6 May 2005 20:09:11 -0000	1.6
++++ WebAccessor.java	12 Mar 2006 16:32:25 -0000	1.7
+@@ -1,5 +1,5 @@
+ /*
+- * IzPack - Copyright 2001-2005 Julien Ponge, All Rights Reserved.
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+@@ -42,6 +42,7 @@
+ import javax.swing.JPasswordField;
+ import javax.swing.JTextField;
+ import javax.swing.UIManager;
++import javax.swing.JProgressBar;
+ 
+ /**
+  * Dialogs for password authentication and firewall specification, when needed, during web
+@@ -120,8 +121,13 @@
+     {
+         // TODO: i18n everything
+         Object[] options = { soloCancelOption};
+-        JOptionPane pane = new JOptionPane(&quot;Connecting to the Internet&quot;,
+-                JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options,
++        
++        JProgressBar progressBar = new JProgressBar(1, 100);
++        progressBar.setIndeterminate(true);
++        Object[] contents = { &quot;Connecting to the Internet&quot;, progressBar };
++        JOptionPane pane = new JOptionPane(contents, 
++        				JOptionPane.INFORMATION_MESSAGE, 
++        				JOptionPane.DEFAULT_OPTION, null, options,
+                 options[0]);
+         dialog = pane.createDialog(parent, &quot;Accessing Install Files&quot;);
+         pane.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000140.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/uninstaller Destroyer.java,1.24,1.25 SelfModifier.java,1.11,1.12 Uninstaller.java,1.18,1.19 UninstallerFrame.java,1.22,1.23
+</A></li>
+	<LI>Next message: <A HREF="000138.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/util/os RegistryDefaultHandler.java,1.3,1.4 RegistryHandler.java,1.6,1.7 ShellLink.java,1.22,1.23 Shortcut.java,1.21,1.22 Unix_Shortcut.java,1.9,1.10 Unix_ShortcutConstants.java,1.4,1.5 Win_RegistryHandler.java,1.6,1.7 Win_Shortcut.java,1.22,1.23 WrappedNativeLibException.java,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#141">[ date ]</a>
+              <a href="thread.html#141">[ thread ]</a>
+              <a href="subject.html#141">[ subject ]</a>
+              <a href="author.html#141">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1999 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1999%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000744.html">
+   <LINK REL="Next"  HREF="000746.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1999 -	izpack-src/trunk/src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1999%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1999 -	izpack-src/trunk/src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 24 20:09:44 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000744.html">[izpack-changes] r1998 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000746.html">[izpack-changes] r2000 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#745">[ date ]</a>
+              <a href="thread.html#745">[ thread ]</a>
+              <a href="subject.html#745">[ subject ]</a>
+              <a href="author.html#745">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-24 20:09:31 +0100 (Thu, 24 Jan 2008)
+New Revision: 1999
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/RegularExpressionValidator.java
+Log:
+Allows the password fields to use the regular expression validator.  It grabs the string to be validated from the password fields if a PasswordGroup is sent in, and from a call to getText() otherwise to maintain compatibility with any existing implementations.  If any other field types are to be used they will need to be added in the &quot;instance of&quot; evaluation.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/RegularExpressionValidator.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/RegularExpressionValidator.java	2008-01-21 20:17:35 UTC (rev 1998)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/RegularExpressionValidator.java	2008-01-24 19:09:31 UTC (rev 1999)
+@@ -19,6 +19,7 @@
+ 
+ package com.izforge.izpack.util;
+ 
++import com.izforge.izpack.panels.PasswordGroup;
+ import java.util.Map;
+ import java.util.regex.Pattern;
+ 
+@@ -54,9 +55,25 @@
+         {
+             patternString = STR_PATTERN_DEFAULT;
+         }
+-
+         Pattern pattern = Pattern.compile(patternString);
+-        return pattern.matcher(client.getText()).matches();
++        return pattern.matcher(getString(client)).matches();
+     }
++    
++    private String getString(ProcessingClient client) {
++      String returnValue = &quot;&quot;;
++      if (client instanceof PasswordGroup) {
++        int numFields = client.getNumFields();
++        if (numFields &gt; 0) {
++          returnValue = client.getFieldContents(0);
++        } else {
++          // Should never get here, but might as well try and grab some text
++          returnValue = client.getText();
++        }
++      } else {
++        // Original way to retrieve text for validation
++        returnValue = client.getText();
++      }
++      return returnValue;
++    }
+ 
+ }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000744.html">[izpack-changes] r1998 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000746.html">[izpack-changes] r2000 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#745">[ date ]</a>
+              <a href="thread.html#745">[ thread ]</a>
+              <a href="subject.html#745">[ subject ]</a>
+              <a href="author.html#745">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

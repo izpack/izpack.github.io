@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] izpack-src/src/lib/com/izforge/izpack/event ProgressBarInstallerListener.java,1.4,1.5 RegistryInstallerListener.java,1.6,1.7 SimpleInstallerListener.java,1.5,1.6 SimpleUninstallerListener.java,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/event%20ProgressBarInstallerListener.java%2C1.4%2C1.5%20RegistryInstallerListener.java%2C1.6%2C1.7%20SimpleInstallerListener.java%2C1.5%2C1.6%20SimpleUninstallerListener.java%2C1.4%2C1.5&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000149.html">
+   <LINK REL="Next"  HREF="000148.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] izpack-src/src/lib/com/izforge/izpack/event ProgressBarInstallerListener.java,1.4,1.5 RegistryInstallerListener.java,1.6,1.7 SimpleInstallerListener.java,1.5,1.6 SimpleUninstallerListener.java,1.4,1.5</H1>
+    <B>jponge</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/event%20ProgressBarInstallerListener.java%2C1.4%2C1.5%20RegistryInstallerListener.java%2C1.6%2C1.7%20SimpleInstallerListener.java%2C1.5%2C1.6%20SimpleUninstallerListener.java%2C1.4%2C1.5&In-Reply-To="
+       TITLE="[izpack-changes] izpack-src/src/lib/com/izforge/izpack/event ProgressBarInstallerListener.java,1.4,1.5 RegistryInstallerListener.java,1.6,1.7 SimpleInstallerListener.java,1.5,1.6 SimpleUninstallerListener.java,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Mar 21 19:14:50 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000149.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/compiler CompilerConfig.java,1.9,1.10
+</A></li>
+        <LI>Next message: <A HREF="000148.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/gui TwoColumnLayout.java,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#146">[ date ]</a>
+              <a href="thread.html#146">[ thread ]</a>
+              <a href="subject.html#146">[ subject ]</a>
+              <a href="author.html#146">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/event
+In directory sheep:/tmp/cvs-serv3622/src/lib/com/izforge/izpack/event
+
+Modified Files:
+	ProgressBarInstallerListener.java 
+	RegistryInstallerListener.java SimpleInstallerListener.java 
+	SimpleUninstallerListener.java 
+Log Message:
+Some fixes adviced by IntelliJ IDEA 5.1 code inspector.
+
+Index: ProgressBarInstallerListener.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/event/ProgressBarInstallerListener.java,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -d -r1.4 -r1.5
+--- ProgressBarInstallerListener.java	12 Mar 2006 16:32:16 -0000	1.4
++++ ProgressBarInstallerListener.java	21 Mar 2006 18:14:44 -0000	1.5
+@@ -59,7 +59,7 @@
+         {
+             String progress = getMsg(&quot;CustomActions.progress&quot;);
+             String tip = getMsg(&quot;CustomActions.tip&quot;);
+-            if (tip.equals(&quot;CustomActions.tip&quot;) || progress.equals(&quot;CustomActions.progress&quot;))
++            if (&quot;CustomActions.tip&quot;.equals(tip) || &quot;CustomActions.progress&quot;.equals(progress))
+             {
+                 Debug
+                         .trace(&quot;No messages found for custom action progress bar interactions; skiped.&quot;);
+
+Index: RegistryInstallerListener.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/event/RegistryInstallerListener.java,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -d -r1.6 -r1.7
+--- RegistryInstallerListener.java	12 Mar 2006 16:32:16 -0000	1.6
++++ RegistryInstallerListener.java	21 Mar 2006 18:14:44 -0000	1.7
+@@ -220,7 +220,7 @@
+         rh.setRoot(rootId);
+ 
+         String override = regEntry.getAttribute(REG_OVERRIDE, &quot;true&quot;);
+-        if (!override.equalsIgnoreCase(&quot;true&quot;))
++        if (!&quot;true&quot;.equalsIgnoreCase(override))
+         { // Do not set value if override is not true and the value exist.
+ 
+             if (rh.getValue(keypath, name, null) != null) return;
+@@ -327,10 +327,10 @@
+     private int resolveRoot(XMLElement regEntry, String root, VariableSubstitutor substitutor)
+             throws Exception
+     {
+-        root = substitutor.substitute(root, null);
+-        Integer tmp = (Integer) RegistryHandler.ROOT_KEY_MAP.get(root);
++        String root1 = substitutor.substitute(root, null);
++        Integer tmp = (Integer) RegistryHandler.ROOT_KEY_MAP.get(root1);
+         if (tmp != null) return (tmp.intValue());
+-        getSpecHelper().parseError(regEntry, &quot;Unknown value (&quot; + root + &quot;)for registry root.&quot;);
++        getSpecHelper().parseError(regEntry, &quot;Unknown value (&quot; + root1 + &quot;)for registry root.&quot;);
+         return 0;
+     }
+ 
+
+Index: SimpleInstallerListener.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/event/SimpleInstallerListener.java,v
+retrieving revision 1.5
+retrieving revision 1.6
+diff -u -d -r1.5 -r1.6
+--- SimpleInstallerListener.java	12 Mar 2006 16:32:16 -0000	1.5
++++ SimpleInstallerListener.java	21 Mar 2006 18:14:44 -0000	1.6
+@@ -91,7 +91,6 @@
+     public void afterFile(File file, PackFile pf) throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+@@ -103,7 +102,6 @@
+     public void afterDir(File dir, PackFile pf) throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+@@ -117,7 +115,6 @@
+     {
+ 
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+@@ -167,7 +164,6 @@
+             throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+@@ -190,7 +186,6 @@
+     public void beforeFile(File file, PackFile pf) throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+@@ -202,7 +197,6 @@
+     public void beforeDir(File dir, PackFile pf) throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /**
+
+Index: SimpleUninstallerListener.java
+===================================================================
+RCS file: /cvsroot/izpack/izpack-src/src/lib/com/izforge/izpack/event/SimpleUninstallerListener.java,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -d -r1.4 -r1.5
+--- SimpleUninstallerListener.java	12 Mar 2006 16:32:16 -0000	1.4
++++ SimpleUninstallerListener.java	21 Mar 2006 18:14:44 -0000	1.5
+@@ -55,7 +55,6 @@
+     public void beforeDeletion(List files, AbstractUIProgressHandler handler) throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+@@ -67,7 +66,6 @@
+     public void beforeDelete(File file, AbstractUIProgressHandler handler) throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+@@ -79,7 +77,6 @@
+     public void afterDelete(File file, AbstractUIProgressHandler handler) throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+@@ -91,7 +88,6 @@
+     public void afterDeletion(List files, AbstractUIProgressHandler handler) throws Exception
+     {
+         // Do nothing
+-        ;
+     }
+ 
+     /*
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000149.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/compiler CompilerConfig.java,1.9,1.10
+</A></li>
+	<LI>Next message: <A HREF="000148.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/gui TwoColumnLayout.java,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#146">[ date ]</a>
+              <a href="thread.html#146">[ thread ]</a>
+              <a href="subject.html#146">[ subject ]</a>
+              <a href="author.html#146">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

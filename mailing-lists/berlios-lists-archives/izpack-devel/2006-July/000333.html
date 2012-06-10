@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Another patch suggestion: setting multiple variables	in radio fields
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Another%20patch%20suggestion%3A%20setting%20multiple%20variables%0A%09in%20radio%20fields&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000332.html">
+   <LINK REL="Next"  HREF="000334.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Another patch suggestion: setting multiple variables	in radio fields</H1>
+    <B>Joachim Hofer</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Another%20patch%20suggestion%3A%20setting%20multiple%20variables%0A%09in%20radio%20fields&In-Reply-To="
+       TITLE="[izpack-devel] Another patch suggestion: setting multiple variables	in radio fields">joachim.hofer at imbus.de
+       </A><BR>
+    <I>Wed Jul 19 12:47:03 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000332.html">[izpack-devel] Patch suggestion: Processor for SearchField
+</A></li>
+        <LI>Next message: <A HREF="000334.html">[izpack-devel] Another patch suggestion: setting multiple	variables in radio fields
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#333">[ date ]</a>
+              <a href="thread.html#333">[ thread ]</a>
+              <a href="subject.html#333">[ subject ]</a>
+              <a href="author.html#333">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+another thing I needed to add...
+
+Scenario: The user selects a JDBC driver type via radio buttons. The
+application has two variables &quot;$jdbcURL&quot; and &quot;$jdbcClass&quot; that need to
+be substituted in various configuration files. The current radio field
+can only set one of them. We need to set both at once.
+
+I extended the XML of the &lt;choice&gt; tag within the &lt;field type=&quot;radio&quot;&gt;
+section of UserInputPanel.xml and adapted UserInputPanel.java accordingly.
+
+Now it is possible to do the following (as an example):
+
+    &lt;field type=&quot;radio&quot; variable=&quot;ClientMinimalMem&quot;&gt;
+      &lt;description align=&quot;left&quot;  id=&quot;minRAM&quot;
+          txt=&quot;please enter client minimal memory&quot; /&gt;
+      &lt;spec&gt;
+        &lt;choice txt=&quot; 32 MB&quot; id=&quot;minimal.1&quot; value=&quot;-Xms32m&quot;&gt;
+          &lt;assign variable=&quot;meminfo&quot; value=&quot;32 MB&quot; /&gt;
+          &lt;assign variable=&quot;meminfo_extended&quot;
+              value=&quot;The current minimal memory is set to 32 MB&quot; /&gt;
+        &lt;/choice&gt;
+        &lt;choice txt=&quot; 64 MB&quot; id=&quot;minimal.2&quot; value=&quot;-Xms64m&quot; set=&quot;true&quot;&gt;
+          &lt;assign variable=&quot;meminfo&quot; value=&quot;64 MB&quot; /&gt;
+          &lt;assign variable=&quot;meminfo_extended&quot;
+              value=&quot;The current minimal memory is set to 64 MB&quot; /&gt;
+        &lt;/choice&gt;
+      &lt;/spec&gt;
+    &lt;/field&gt;
+
+The attached patch handles this in the intuitive way (setting
+$ClientMinimalMem to &quot;-Xms32m&quot;/&quot;-Xms64m&quot;, $meminfo to &quot;32 MB&quot;/&quot;64 MB&quot;
+etc respectively).
+
+The patch is combined with my previous patch suggestion, as I haven't
+branched separately.
+
+I also cleaned up two compiler warnings happening with jdk 1.5 (though
+this will probably stop compilation with jdk 1.4 if that has still been
+working before).
+
+Joachim Hofer
+imbus AG
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: UserInputPanel.java.diff
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20060719/a43a739a/attachment.ksh">https://lists.berlios.de/pipermail/izpack-devel/attachments/20060719/a43a739a/attachment.ksh</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000332.html">[izpack-devel] Patch suggestion: Processor for SearchField
+</A></li>
+	<LI>Next message: <A HREF="000334.html">[izpack-devel] Another patch suggestion: setting multiple	variables in radio fields
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#333">[ date ]</a>
+              <a href="thread.html#333">[ thread ]</a>
+              <a href="subject.html#333">[ subject ]</a>
+              <a href="author.html#333">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

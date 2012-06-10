@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] ClassCastException with custom listeners
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20ClassCastException%20with%20custom%20listeners&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001488.html">
+   <LINK REL="Next"  HREF="001497.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] ClassCastException with custom listeners</H1>
+    <B>Steve Dodge</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20ClassCastException%20with%20custom%20listeners&In-Reply-To="
+       TITLE="[izpack-users] ClassCastException with custom listeners">steve at robododge.com
+       </A><BR>
+    <I>Mon May 21 17:40:49 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001488.html">[izpack-users] How to get parameters on this UserInputPanel from	previous UserInputPanel?
+</A></li>
+        <LI>Next message: <A HREF="001497.html">[izpack-users] ClassCastException with custom listeners
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1490">[ date ]</a>
+              <a href="thread.html#1490">[ thread ]</a>
+              <a href="subject.html#1490">[ subject ]</a>
+              <a href="author.html#1490">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I've built a compile listener and an installer listener.  Using  
+IzPack 3.10.1.   The compile listener added a filename to the of a  
+Velocity template to the additionalData map.  The Installer listener  
+checks during afterFile() if the name of the file matches a Velocity  
+template, and applies the template if so.  I am also using the  
+standalone-compiler.jar. My install.xml has the following.
+
+   &lt;listeners&gt;
+    &lt;listener
+       compiler=&quot;nm.trw.utils.listener.CompileListener&quot;
+       installer=&quot;nm.trw.utils.listener.VelocityListener&quot;
+       jar=&quot;lib/tekPackListeners.jar&quot;
+       /&gt;
+
+    &lt;listener installer=&quot;AntActionInstallerListener&quot;
+               uninstaller=&quot;AntActionUninstallerListener&quot;/&gt;
+    &lt;/listeners&gt;
+
+Using debug output, I verify the compile listener is being called  
+correctly during compile time as it searches for &lt;addititionalData&gt;  
+tags within the &lt;fileset&gt; and parses the data correctly.
+During install, when the install panel is showing the progress bar, I  
+get the following exception:
+
+java.lang.ClassCastException: nm.trw.utils.listener.CompileListener
+         at com.izforge.izpack.installer.Unpacker.getCustomActions 
+(Unpacker.java:1139)
+         at com.izforge.izpack.installer.Unpacker.run(Unpacker.java:295)
+         at java.lang.Thread.run(Thread.java:613)
+
+Looking at the code for Unpacker, it seems the CompileListener was  
+improperly placed in the collection of InstallerListeners, thus  
+ClassCastException.
+
+Here are the &lt;jars&gt; that I had to add to make it work.
+&lt;jar src=&quot;lib/tekPackListeners.jar&quot;/&gt;
+&lt;jar src=&quot;lib/izevent-3.10.1.jar&quot;/&gt;
+&lt;jar src=&quot;lib/compiler-3.10.1.jar&quot;/&gt;&lt;!-- this one has to be here,  
+izevent isn't enough,  otherwise ClassNotFoundException for  
+CompilerListener interface
+&lt;jar src=&quot;lib/ant-1.6.5.jar&quot;/&gt;
+&lt;jar src=&quot;lib/ant-launcher-1.6.5.jar&quot;/&gt;
+&lt;jar src=&quot;lib/velocity-1.5.jar&quot;/&gt;
+
+I think I'm missing something in the installation here.
+
+Thanks,
+Steve
+
+
+
+
+
+
+Am I missing something in the setup here?  I cannot figure out how  
+CompileListener makes it way into the
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001488.html">[izpack-users] How to get parameters on this UserInputPanel from	previous UserInputPanel?
+</A></li>
+	<LI>Next message: <A HREF="001497.html">[izpack-users] ClassCastException with custom listeners
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1490">[ date ]</a>
+              <a href="thread.html#1490">[ thread ]</a>
+              <a href="subject.html#1490">[ subject ]</a>
+              <a href="author.html#1490">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

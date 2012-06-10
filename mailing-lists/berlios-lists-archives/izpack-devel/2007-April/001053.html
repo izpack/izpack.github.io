@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Distrubuted install.xml files ...
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Distrubuted%20install.xml%20files%20...&In-Reply-To=9291ebe10704250855n4749dcfdq78bcd667e8aca3b2%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001046.html">
+   <LINK REL="Next"  HREF="001056.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Distrubuted install.xml files ...</H1>
+    <B>Hans Aikema</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Distrubuted%20install.xml%20files%20...&In-Reply-To=9291ebe10704250855n4749dcfdq78bcd667e8aca3b2%40mail.gmail.com"
+       TITLE="[izpack-devel] Distrubuted install.xml files ...">aikebah at aikebah.net
+       </A><BR>
+    <I>Wed Apr 25 21:37:05 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001046.html">[izpack-devel] Distrubuted install.xml files ...
+</A></li>
+        <LI>Next message: <A HREF="001056.html">[izpack-devel] Distrubuted install.xml files ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1053">[ date ]</a>
+              <a href="thread.html#1053">[ thread ]</a>
+              <a href="subject.html#1053">[ subject ]</a>
+              <a href="author.html#1053">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Julien,
+
+no problem.... (maybe you should sleep some more.... being too tired at
+6 o'clock ;) )
+
+The main issue is that (allthough not working correctly on my Vista;
+more on that on a seperate message to this list) the ImgPacksPanel uses
+a set of image-resources for each package.
+If working correctly (deducing from the source-code) the image of the
+package (defined as a resource with an id of
+ImgPacksPanel.img.&lt;sequence-number of the package) is shown when the
+selection changes to that package in the package selection list.
+
+When allowing for externally defined packages through the refpack
+element the designer of the main install.xml file will most likely not
+know in advance the packs that the developer will define in the
+distributed xml-file (and he should not have to know, since otherwise he
+might just as well get the entire pack-definitions to enter them into
+the main install.xml, rather than allowing for a distributed definition
+which is taken into account by IzPack at installer-compile time).
+It thus would make more sense to at least allow the images to be used in
+the ImgPacksPanel to be defined from the distributed file as well. It
+will however be hard to maintain correct references to the pack-images
+(regardless of the position) when using the array-index of the
+install-pack in the install-packs array-list.
+
+In the current situation (using the current patch) it might even
+surprise the installation-developers. A small example:
+&lt;packs&gt;
+    &lt;pack&gt; ..... &lt;/pack&gt; &lt;!-- gets index 0 --&gt;
+    &lt;refpack file=&quot;distributedsinglepackfile.xml&quot; /&gt; &lt;!-- the single
+pack that was defined in this file gets index 2 --&gt;
+    &lt;pack&gt; .... &lt;/pack&gt; &lt;!-- gets index 1 --&gt;
+&lt;/packs&gt;
+
+Most install-writers will expect a '0 - 1 - 2' instead of the resulting
+'0 - 2 - 1' for this scenario. It gets even more complicated if the
+refpack contains more than one pack.... and the install contains more
+refpacks. How to compute the correct indexes to use for each of the packs?
+
+Therefore it seems wise to change the selection of the pack-image for
+the ImgPacksPanel, making the suffix of the resource-id not the
+sequence-number of the pack, but some property/attribute of the pack
+definition itself. It seems most logical to me to either use the pack
+name-attribute or to introduce a new attribute dedicated to linking a
+pack with its ImgPackPanel image-resource.
+
+I was also wondering if there were even more parts of the install that
+should be distributed (due to the fact that the developer writing the
+distributed pack-definition should be responsible for providing all
+details concerning the pack(s) in the distributed pack-definition file).
+Rather than struggling through all IzPack code trying to find all
+possible configurable options and deciding whether or not those should
+be distributed as well I'd rather depend on the collective mind of the
+IzPack developer-community.
+
+hope this magical mumbo-jumbo ranting of mine clears your mind a little
+and makes some sense
+
+regards,
+Hans Aikema
+
+Julien Ponge wrote:
+&gt;<i> Hi Hans,
+</I>&gt;<i>
+</I>&gt;<i> First of all thanks for taking care of the patch.
+</I>&gt;<i>
+</I>&gt;<i> I don't quite get it, so could you please re-explain what the
+</I>&gt;<i> different options imply? (or maybe I am just too tired to understand
+</I>&gt;<i> :-))
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>   
+</I>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001046.html">[izpack-devel] Distrubuted install.xml files ...
+</A></li>
+	<LI>Next message: <A HREF="001056.html">[izpack-devel] Distrubuted install.xml files ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1053">[ date ]</a>
+              <a href="thread.html#1053">[ thread ]</a>
+              <a href="subject.html#1053">[ subject ]</a>
+              <a href="author.html#1053">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

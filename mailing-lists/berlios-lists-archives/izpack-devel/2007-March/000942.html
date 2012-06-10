@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Dynamic%20controls%26validation%20in%20UserInputPanel&In-Reply-To=45F6CE63.9020803%40redhat.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000941.html">
+   <LINK REL="Next"  HREF="000943.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Dynamic controls&amp;validation in UserInputPanel</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Dynamic%20controls%26validation%20in%20UserInputPanel&In-Reply-To=45F6CE63.9020803%40redhat.com"
+       TITLE="[izpack-devel] Dynamic controls&amp;validation in UserInputPanel">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Tue Mar 13 17:25:44 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000941.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+        <LI>Next message: <A HREF="000943.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#942">[ date ]</a>
+              <a href="thread.html#942">[ thread ]</a>
+              <a href="subject.html#942">[ subject ]</a>
+              <a href="author.html#942">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Vladimir,
+
+Great idea!
+
+regards,
+  Dennis
+
+
+
+Am Dienstag, den 13.03.2007, 18:16 +0200 schrieb Vladimir Ralev:
+&gt;<i> Now that we have conditions and the different fields can be displayed 
+</I>&gt;<i> conditionally with some rules assigned to them, I think it will be a 
+</I>&gt;<i> good addition to make these a bit more dynamic. In other words - make 
+</I>&gt;<i> the UIP GUI to be completely redrawn and revalidated on certain events 
+</I>&gt;<i> (like clicking on a checkbox or radio, others are possible too).
+</I>&gt;<i> 
+</I>&gt;<i> For example let's say you have a Normal/Advanced radio selector in your 
+</I>&gt;<i> UIP and you want additional controls to be displayed for advanced users, 
+</I>&gt;<i> but not to be shown for users who selected the &quot;Normal&quot; option. Another 
+</I>&gt;<i> example is server security (this is what need here at JBoss). The user 
+</I>&gt;<i> has to choose:
+</I>&gt;<i> 1. Enable local administration only (no authentication)
+</I>&gt;<i> 2. Enable remote administration (password authentication)
+</I>&gt;<i> 
+</I>&gt;<i> When the users clicks on remote admin he gets user/pass input fields, 
+</I>&gt;<i> otherwise nothig additional and all this in a single panel without 
+</I>&gt;<i> clicking next and going back and forth.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> The implementation:
+</I>&gt;<i> ---------------------
+</I>&gt;<i> 
+</I>&gt;<i> I added an attribute for radio and checkbox fields called &quot;revalidate&quot;. 
+</I>&gt;<i> If you set revalidave=&quot;yes&quot; for a radio of checkbox the whole Panel is 
+</I>&gt;<i> being recreated with updated variables.
+</I>&gt;<i> 
+</I>&gt;<i>    &lt;!-- Standard/Advanced configuration panel --&gt;
+</I>&gt;<i>    &lt;panel order=&quot;0&quot;&gt;
+</I>&gt;<i>       &lt;field type=&quot;radio&quot; variable=&quot;installConfig&quot;&gt;
+</I>&gt;<i>          &lt;description align=&quot;left&quot; txt=&quot;Select Standard installation or 
+</I>&gt;<i> select Advanced to make changes&quot;
+</I>&gt;<i>             id=&quot;installConfig.text&quot;/&gt;
+</I>&gt;<i>          &lt;spec&gt;
+</I>&gt;<i>            &lt;choice txt=&quot;Standard&quot; revalidate=&quot;yes&quot; 
+</I>&gt;<i> id=&quot;installConfig.radio.standard&quot; value=&quot;standard&quot;  set=&quot;true&quot;/&gt;        
+</I>&gt;<i>            &lt;choice txt=&quot;Advance&quot; revalidate=&quot;yes&quot; 
+</I>&gt;<i> id=&quot;installConfig.radio.advanced&quot; value=&quot;advanced&quot; /&gt;          
+</I>&gt;<i>          &lt;/spec&gt;
+</I>&gt;<i>       &lt;/field&gt;     
+</I>&gt;<i>       &lt;field type=&quot;divider&quot; align=&quot;center&quot;/&gt;
+</I>&gt;<i>       &lt;field type=&quot;staticText&quot; conditionid=&quot;advanced&quot; align=&quot;left&quot; 
+</I>&gt;<i> id=&quot;installConfig.note&quot;
+</I>&gt;<i>          txt=&quot;This text is only displayed if advanced if checked&quot; /&gt;
+</I>&gt;<i>    &lt;/panel&gt;
+</I>&gt;<i> 
+</I>&gt;<i> You can see that installConfig.note is rendered only when condition 
+</I>&gt;<i> &quot;advanced&quot; is satisfied. Condition advanced is defined like this:
+</I>&gt;<i> 
+</I>&gt;<i>         &lt;condition type=&quot;variable&quot; id=&quot;advanced&quot;&gt;
+</I>&gt;<i>                 &lt;name&gt;installConfig&lt;/name&gt;
+</I>&gt;<i>                 &lt;value&gt;advanced&lt;/value&gt;
+</I>&gt;<i>         &lt;/condition&gt;
+</I>&gt;<i> 
+</I>&gt;<i> This condition is checking whether installConfig (the radio) is in 
+</I>&gt;<i> advanced mode. Note that installConfig.radio.standard and 
+</I>&gt;<i> installConfig.radio.advanced cause revalidation, so the note is updated 
+</I>&gt;<i> whenever the user clicks on one of them.
+</I>&gt;<i> 
+</I>&gt;<i> Performance:
+</I>&gt;<i> --------------
+</I>&gt;<i> There is no noticeable slowdown for up to about 10 conditionid-enabled 
+</I>&gt;<i> controls on my machine. Have in mind that if you radios or checkboxes do 
+</I>&gt;<i> not have revalidate=&quot;yes&quot; there is no performance loss at all.
+</I>&gt;<i> 
+</I>&gt;<i> One more hack:
+</I>&gt;<i> ----------------
+</I>&gt;<i> The UIPs are using a TwoColumnLayout with hardcoded topBuffer=25%. With 
+</I>&gt;<i> the dynamic panel updates the height of you panel varies as components 
+</I>&gt;<i> are removed or added on the fly, and thus moved up and down with each 
+</I>&gt;<i> revalidation. That's why I added an attribute topBuffer to the panel tag 
+</I>&gt;<i> in userInputSpec.xml. If you set topBuffer=0% the panel always appears 
+</I>&gt;<i> at the topmost available place and stays there no matter the height. If 
+</I>&gt;<i> you omit the topBuffer, the default value is 25 as before.
+</I>&gt;<i>    &lt;!-- Standard/Advanced configuration panel --&gt;
+</I>&gt;<i>    &lt;panel order=&quot;0&quot; topBuffer=&quot;0&quot;&gt;
+</I>&gt;<i>       &lt;field type=&quot;title&quot; align=&quot;right&quot;
+</I>&gt;<i>          txt=&quot;Standard - Advanced Option&quot; bold=&quot;true&quot; size=&quot;2&quot;
+</I>&gt;<i>          id=&quot;installConfigName&quot;
+</I>&gt;<i>          icon=&quot;/images/search.png&quot;
+</I>&gt;<i>          /&gt;
+</I>&gt;<i>       &lt;field type=&quot;radio&quot; variable=&quot;installConfig&quot;&gt;
+</I>&gt;<i>          &lt;description align=&quot;left&quot; txt=&quot;Select Standard installation or 
+</I>&gt;<i> select Advanced to make changes&quot;
+</I>&gt;<i>             id=&quot;installConfig.text&quot;/&gt;
+</I>&gt;<i>          &lt;spec&gt;
+</I>&gt;<i>            &lt;choice txt=&quot;Standard&quot; revalidate=&quot;yes&quot; 
+</I>&gt;<i> id=&quot;installConfig.radio.standard&quot; value=&quot;standard&quot;  set=&quot;true&quot;/&gt;        
+</I>&gt;<i>            &lt;choice txt=&quot;Advance&quot; revalidate=&quot;yes&quot; 
+</I>&gt;<i> id=&quot;installConfig.radio.advanced&quot; value=&quot;advanced&quot; /&gt;          
+</I>&gt;<i>          &lt;/spec&gt;
+</I>&gt;<i>       &lt;/field&gt;     
+</I>&gt;<i>       &lt;field type=&quot;divider&quot; align=&quot;center&quot;/&gt;
+</I>&gt;<i>       &lt;field type=&quot;staticText&quot; conditionid=&quot;standard-advanced&quot; 
+</I>&gt;<i> align=&quot;left&quot; id=&quot;installConfig.note&quot;
+</I>&gt;<i>          txt=&quot;Note: Selecting Advanced option allows you to chnage 
+</I>&gt;<i> various configurations like DataSource, Security, Isolation and Call by 
+</I>&gt;<i> Value Semantics etc&quot; /&gt;
+</I>&gt;<i>    &lt;/panel&gt;
+</I>&gt;<i> 
+</I>&gt;<i> You can use spaces to make some static gap if you want to have similar 
+</I>&gt;<i> effects.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> If you approve this feature I will commit it to the trunk or the 3.10.1 
+</I>&gt;<i> branch (it's just 20 lines of code)?
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>-- 
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070313/92d9b23e/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070313/92d9b23e/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000941.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+	<LI>Next message: <A HREF="000943.html">[izpack-devel] Dynamic controls&amp;validation in UserInputPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#942">[ date ]</a>
+              <a href="thread.html#942">[ thread ]</a>
+              <a href="subject.html#942">[ subject ]</a>
+              <a href="author.html#942">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

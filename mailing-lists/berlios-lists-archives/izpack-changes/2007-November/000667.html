@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1921 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1921%20-%20in%20izpack-src/trunk/src%3A%20.%0A%09lib/com/izforge/izpack/compiler%20lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000666.html">
+   <LINK REL="Next"  HREF="000668.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1921 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1921%20-%20in%20izpack-src/trunk/src%3A%20.%0A%09lib/com/izforge/izpack/compiler%20lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1921 - in izpack-src/trunk/src: .	lib/com/izforge/izpack/compiler lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Thu Nov 29 16:43:19 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000666.html">[izpack-changes] r1920 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000668.html">[izpack-changes] r1922 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#667">[ date ]</a>
+              <a href="thread.html#667">[ thread ]</a>
+              <a href="subject.html#667">[ subject ]</a>
+              <a href="author.html#667">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-29 16:43:15 +0100 (Thu, 29 Nov 2007)
+New Revision: 1921
+
+Modified:
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2007-11-29 15:25:13 UTC (rev 1920)
++++ izpack-src/trunk/src/build.xml	2007-11-29 15:43:15 UTC (rev 1921)
+@@ -389,6 +389,7 @@
+             &lt;include name=&quot;com/izforge/izpack/rules/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/uninstaller/SelfModifier*.java&quot;/&gt;
+         	&lt;include name=&quot;com/izforge/izpack/rules/*.java&quot; /&gt;
++        	&lt;include name=&quot;com/izforge/izpack/compiler/DynamicVariable.java&quot; /&gt;
+             &lt;include name=&quot;net/n3/nanoxml/*.java&quot; /&gt;
+         &lt;/javac&gt;
+     &lt;/target&gt;
+@@ -413,6 +414,7 @@
+                 &lt;include name=&quot;com/izforge/izpack/rules/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/uninstaller/SelfModifier*.class&quot;/&gt;
+             	&lt;include name=&quot;com/izforge/izpack/rules/*.class&quot; /&gt;
++            	&lt;include name=&quot;com/izforge/izpack/compiler/DynamicVariable.class&quot; /&gt;
+                 &lt;include name=&quot;net/n3/nanoxml/*.class&quot; /&gt;
+             &lt;/fileset&gt;
+             &lt;zipfileset src=&quot;${basedir}/lib/jakarta-regexp-1.3.jar&quot;&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java	2007-11-29 15:25:13 UTC (rev 1920)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/PackagerBase.java	2007-11-29 15:43:15 UTC (rev 1921)
+@@ -329,6 +329,7 @@
+         writeInstallerObject(&quot;customData&quot;, customDataList);
+         writeInstallerObject(&quot;langpacks.info&quot;, langpackNameList);
+         writeInstallerObject(&quot;rules&quot;, rules);
++        System.out.println(&quot;Dynamicvariables: &quot; + dynamicvariables.size());
+         writeInstallerObject(&quot;dynvariables&quot;,dynamicvariables);
+         writeInstallerResources();
+         writeIncludedJars();
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-11-29 15:25:13 UTC (rev 1920)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-11-29 15:43:15 UTC (rev 1921)
+@@ -275,7 +275,8 @@
+         if (dynamicvariables != null) {
+             Iterator iter = dynamicvariables.keySet().iterator();
+             while (iter.hasNext()) {
+-                DynamicVariable dynvar = (DynamicVariable) iter.next();
++                String dynvarname = (String) iter.next();
++                DynamicVariable dynvar = (DynamicVariable) dynamicvariables.get(dynvarname);
+                 boolean refresh = false;
+                 if (dynvar.getConditionid() != null) {
+                     if (rules.isConditionTrue(dynvar.getConditionid())) {
+@@ -303,7 +304,8 @@
+             objIn.close();
+         }
+         catch (Exception e) {
+-            Debug.trace(&quot;Can not find optional dynamic variables&quot;);           
++            Debug.trace(&quot;Can not find optional dynamic variables&quot;);   
++            System.out.println(e);
+         }        
+     }
+ 
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000666.html">[izpack-changes] r1920 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000668.html">[izpack-changes] r1922 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#667">[ date ]</a>
+              <a href="thread.html#667">[ thread ]</a>
+              <a href="subject.html#667">[ subject ]</a>
+              <a href="author.html#667">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

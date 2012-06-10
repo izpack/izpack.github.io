@@ -1,0 +1,365 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1559 - in izpack-src/trunk/src: dist-files	doc-ng/XHTML lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1559%20-%20in%20izpack-src/trunk/src%3A%20dist-files%0A%09doc-ng/XHTML%20lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000303.html">
+   <LINK REL="Next"  HREF="000305.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1559 - in izpack-src/trunk/src: dist-files	doc-ng/XHTML lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1559%20-%20in%20izpack-src/trunk/src%3A%20dist-files%0A%09doc-ng/XHTML%20lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1559 - in izpack-src/trunk/src: dist-files	doc-ng/XHTML lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon Sep  4 17:46:19 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000303.html">[izpack-changes] r1558 - in izpack-src/trunk: . src src/dist-files
+</A></li>
+        <LI>Next message: <A HREF="000305.html">[izpack-changes] r1560 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-09-04 17:46:18 +0200 (Mon, 04 Sep 2006)
+New Revision: 1559
+
+Modified:
+   izpack-src/trunk/src/dist-files/IzPack-install.xml
+   izpack-src/trunk/src/doc-ng/XHTML/node5.html
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+Panel counter also if no heading is used; docu for layout modifier;
+layout modifier in the and support of registry in the standard installation 
+description file.
+
+
+Modified: izpack-src/trunk/src/dist-files/IzPack-install.xml
+===================================================================
+--- izpack-src/trunk/src/dist-files/IzPack-install.xml	2006-09-04 01:15:41 UTC (rev 1558)
++++ izpack-src/trunk/src/dist-files/IzPack-install.xml	2006-09-04 15:46:18 UTC (rev 1559)
+@@ -50,6 +50,14 @@
+         &lt;laf name=&quot;looks&quot;&gt;
+             &lt;os family=&quot;unix&quot;/&gt;
+         &lt;/laf&gt;
++        &lt;!-- GUI addaption for more informations see &quot;Modifying the GUI&quot; in the documentation --&gt;
++    	&lt;modifier key=&quot;layoutAnchor&quot; value=&quot;CENTER&quot;/&gt;
++    	&lt;modifier key=&quot;headingPanelCounter&quot; value=&quot;text&quot;/&gt;
++		&lt;modifier key=&quot;headingPanelCounterPos&quot; value=&quot;inNavigationPanel&quot;/&gt;
++		&lt;modifier key=&quot;allYGap&quot; value=&quot;3&quot;/&gt;
++		&lt;modifier key=&quot;paragraphYGap&quot; value=&quot;10&quot;/&gt;	
++		&lt;modifier key=&quot;filler1YGap&quot; value=&quot;5&quot;/&gt;
++		&lt;modifier key=&quot;filler3XGap&quot; value=&quot;10&quot;/&gt;
+     &lt;/guiprefs&gt;
+ 
+     &lt;variables&gt;
+@@ -110,11 +118,12 @@
+         &lt;res src=&quot;border6.png&quot; id=&quot;Installer.image.6&quot;/&gt;
+         &lt;res src=&quot;border7.png&quot; id=&quot;Installer.image.7&quot;/&gt;
+         &lt;res src=&quot;border8.png&quot; id=&quot;Installer.image.8&quot;/&gt;
++        &lt;res src=&quot;RegistrySpec.xml&quot; id=&quot;RegistrySpec.xml&quot;/&gt;
+     &lt;/resources&gt;
+ 
+     &lt;!-- The panels in a classic order --&gt;
+     &lt;panels&gt;
+-        &lt;panel classname=&quot;HelloPanel&quot;/&gt;
++        &lt;panel classname=&quot;CheckedHelloPanel&quot;/&gt;
+         &lt;panel classname=&quot;HTMLInfoPanel&quot;/&gt;
+         &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+         &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+@@ -132,6 +141,9 @@
+     &lt;!-- The listeners section for CustomActions --&gt;
+     &lt;listeners&gt;
+         &lt;listener installer=&quot;SummaryLoggerInstallerListener&quot;/&gt;
++        &lt;listener installer=&quot;RegistryInstallerListener&quot; uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
++            &lt;os family=&quot;windows&quot;/&gt;
++        &lt;/listener&gt;
+     &lt;/listeners&gt;
+ 
+     &lt;!-- The packs section --&gt;
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node5.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node5.html	2006-09-04 01:15:41 UTC (rev 1558)
++++ izpack-src/trunk/src/doc-ng/XHTML/node5.html	2006-09-04 15:46:18 UTC (rev 1559)
+@@ -298,48 +298,104 @@
+       &lt;li&gt;
+         &lt;tt&gt;layoutAnchor&lt;/tt&gt;:&lt;br /&gt;
+         layout anchor for IzPanels. Valid are &quot;NORTH&quot;, &quot;NORTHWEST&quot;, &quot;SOUTHWEST&quot;, &quot;SOUTH&quot; and
+-        &quot;CENTER&quot;. Only panels which are using the GridBagLayout helper methods of IzPanels are
+-        supported. These are not all standard panels.
++        &quot;CENTER&quot;. Only panels which are using the layout helper of IzPanels are
++        supported. These are not all standard panels. At developing custom panels it is
++		recommended to use the layout helper with an IzPanelLayout.
+       &lt;/li&gt;
+-
+       &lt;li&gt;
+-        &lt;tt&gt;noGap&lt;/tt&gt;:&lt;br /&gt;
+-        used by some panels as distance between the panel top border and the first control.
++	    &lt;tt&gt;Gaps&lt;/tt&gt;:&lt;br /&gt;
++		there are defined different gaps between different components of a IzPanel if
++		using IzPanelLayout. The gaps can be set also via the element &amp;lt;modifier&amp;gt; of
++		&lt;a href=&quot;node4.html#SECTION00434000000000000000&quot;&gt;&amp;lt;guprefs&amp;gt;&lt;/a&gt;. It is
++		possible to declare different values for X and Y axis. This will be determined
++		in the key word name. X Gaps are insert after Y gaps under the control for which
++		the gap was declared.  
++		  
++		Following key words are defined:
++		&lt;ul&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;labelXGap&lt;/tt&gt; | &lt;tt&gt;labelYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between two labels in X or Y direction.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;textXGap&lt;/tt&gt; | &lt;tt&gt;textYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between two text fields.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;controlXGap&lt;/tt&gt; | &lt;tt&gt;controlYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between two controls other than label or textfield.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;paragraphYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel for a pragraph. A paragraph will be created in the panel
++			source for controls which should be separated. paragraphXGap is
++			declared, but not used.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;labelToTextXGap&lt;/tt&gt; | &lt;tt&gt;labelToTextYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between a label (left or top) and a text field (right or bottom).
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;labelToControlXGap&lt;/tt&gt; | &lt;tt&gt;labelToControlYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between a label (left or top) and a control other than a label or a textfield.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;textToLabelXGap&lt;/tt&gt; | &lt;tt&gt;textToLabelYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between a text field (left or top) and a label.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;controlToLabelXGap&lt;/tt&gt; | &lt;tt&gt;controlToLabelYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between a control other than a label or a text field and a label.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;controlToTextXGap&lt;/tt&gt; | &lt;tt&gt;controlToTextYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between  a control other than a label or a text field and a text field.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;textToControlXGap&lt;/tt&gt; | &lt;tt&gt;textToControlYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between a text field and a control other than a label or a text field .
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;firstYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between the top border and the first control.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;filler[N]XGap&lt;/tt&gt; | &lt;tt&gt;filler[N]YGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel created by the layout manager. Filler are used by some panels.
++			[N] is a number between 1 and 5 to allow to use different filler e.g.
++			filler3XGap or filler1YGap.
++		  &lt;/li&gt;
++		  &lt;li&gt;
++		    &lt;tt&gt;allXGap&lt;/tt&gt; | &lt;tt&gt;allYGap&lt;/tt&gt;:&lt;br /&gt;
++			gap in pixel between all controls in X or Y direction. If this is declared
++			all gaps for which no own declaration exists gets this value. If a gap
++			has an own declaration this will be used instead. 
++		  &lt;/li&gt;
++		&lt;/ul&gt;
+       &lt;/li&gt;
+-
+-      &lt;li&gt;
+-        &lt;tt&gt;labelGap&lt;/tt&gt;:&lt;br /&gt;
+-        standard gap between labels (in reality this will be a header over the label). Only panels
+-        which are using the IzPack factory for labels are supported. These are not all standard
+-        panels.
+-      &lt;/li&gt;
+-
+-      &lt;li&gt;
+-        &lt;tt&gt;paragraphGap&lt;/tt&gt;:&lt;br /&gt;
+-        used by some panels as distance between paragraphs or controls which should have
+-		more gap as normal labels.
+-      &lt;/li&gt;
+-
+-      &lt;li&gt;
+-        &lt;tt&gt;labelToTextGap&lt;/tt&gt;:&lt;br /&gt;
+-        used by some panels as distance between labels and text fields.
+-      &lt;/li&gt;
+-
+-      &lt;li&gt;
+-        &lt;tt&gt;labelToControlGap&lt;/tt&gt;:&lt;br /&gt;
+-        used by some panels as distance between labels and controls like combo boxes,
+-		radio buttons, check boxes.
+-      &lt;/li&gt;
+-
+-      &lt;li&gt;
+-        &lt;tt&gt;textToLabelGap&lt;/tt&gt;:&lt;br /&gt;
+-        used by some panels as distance between text fields and labels.
+-      &lt;/li&gt;
+-
+-      &lt;li&gt;
+-        &lt;tt&gt;controlToLabelGap&lt;/tt&gt;:&lt;br /&gt;
+-        used by some panels as distance between controls and labels.
+-      &lt;/li&gt;
++	  &lt;li&gt;
++	    &lt;a name=&quot;layoutStretchType&quot;&gt;&lt;/a&gt;&lt;tt&gt;layoutYStretchType&lt;/tt&gt; | &lt;tt&gt;layoutXStretchType&lt;/tt&gt;:&lt;br /&gt;
++		The IzPanelLayout manager allows to declare stretch factors for controls.
++		This means, that a control will be stratched if there is place in the line.
++		The amount of stretching will be determined by the stretch factor. But 
++		what todo if the hole stretch factor for a line or column is not 1.0?
++		To determine this these settings are exist. Valid values are &quot;RELATIVE&quot;,
++		&quot;ABSOLUTE&quot; and &quot;NO&quot;. With &quot;NO&quot; no stretch will be performed. with 
++		&quot;RELATIVE&quot; the values are normalized, with &quot;ABSOLUTE&quot; the values will be
++		used as they are (may be a part will be clipped if the sum is greater
++		than 1.0). 
++	  &lt;/li&gt;
++	  &lt;li&gt;
++	    &lt;tt&gt;layoutFullLineStretch&lt;/tt&gt; | &lt;tt&gt;layoutFullColumnStretch&lt;/tt&gt;:&lt;br /&gt;
++		As &lt;a href=&quot;#layoutStretchType&quot;&gt;described&lt;/a&gt; there are controls which 
++		should be stretched. Beside fixed values there are the symbolic values
++		FULL_LINE_STRETCH and FULL_COLUMN_STRETCH which are computed at layouting.
++		E.g. MultiLineLabels has this stretch factor for x direction. But what
++		todo if a centered layout is chosen? With a control like this the lines
++		will be stretch to the hole size. With this settings it can be changed.
++		E.g. a factor of 0.7 creates a nice centered layout. The default is 1.0,
++		valid are 0.0 upto 1.0.
++	  &lt;/li&gt;
+     &lt;/ul&gt;
+ 	&lt;p&gt;It is possible to use an alternatively frame title. Normaly the title has the aspect
+ 	&quot;IzPack - Installation of &quot; + $APP_NAME. If the langpack key &lt;tt&gt;installer.reversetitle&lt;/tt&gt;
+@@ -384,7 +440,12 @@
+         generell switch for heading. If this key does not exist or does not have the value &quot;yes&quot; no
+         heading panel will be shown.
+       &lt;/li&gt;
+-
++	  &lt;li&gt;
++        &lt;tt&gt;useHeadingForSummary&lt;/tt&gt;:&lt;br /&gt;
++		in the language files there are entries for the heading text ([Panel name].headline)
++		and the summary caption ([Panel name].summaryCaption). If this modifier is set to &quot;yes&quot;,
++		the text of the heading will be also used for the summary caption.
++	  &lt;/li&gt;
+       &lt;li&gt;
+         &lt;tt&gt;headingLineCount&lt;/tt&gt;:&lt;br /&gt;
+         number of heading lines. If no info lines should be shown the value should be one (not
+@@ -410,7 +471,8 @@
+       &lt;li&gt;
+         &lt;tt&gt;headingPanelCounterPos&lt;/tt&gt;:&lt;br /&gt;
+         declares where the counter will be shown. Possible are &quot;inHeading&quot; or
+-        &quot;inNavigationPanel&quot;.
++        &quot;inNavigationPanel&quot;. If &quot;inNavigationPanel&quot; is chosen, the panel counter can be
++		used also no heading was selected. 
+       &lt;/li&gt;
+     &lt;/ul&gt;
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-09-04 01:15:41 UTC (rev 1558)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-09-04 15:46:18 UTC (rev 1559)
+@@ -567,6 +567,7 @@
+                 }
+             }
+             performHeading(panel);
++            performHeadingCounter(panel);
+             panel.panelActivate();
+             panelsContainer.setVisible(true);
+             loadAndShowImage(((Integer) visiblePanelMapping.get(installdata.curPanelNumber))
+@@ -1258,6 +1259,8 @@
+         String counterPos = &quot;inHeading&quot;;
+         if (installdata.guiPrefs.modifier.containsKey(&quot;headingPanelCounterPos&quot;))
+             counterPos = (String) installdata.guiPrefs.modifier.get(&quot;headingPanelCounterPos&quot;);
++        // Do not create counter if it should be in the heading, but no heading should be used.
++        if (leftHeadingPanel == null &amp;&amp; &quot;inHeading&quot;.equalsIgnoreCase(counterPos)) return;
+         if (installdata.guiPrefs.modifier.containsKey(&quot;headingPanelCounter&quot;))
+         {
+             headingCounterComponent = null;
+@@ -1325,7 +1328,6 @@
+     private void createHeading(JPanel navPanel)
+     {
+         headingPanel = null;
+-        if (!isHeading(null)) return;
+         int headingLines = 1;
+         // The number of lines can be determined in the config xml file.
+         // The first is the header, additonals are descriptions for the header.
+@@ -1338,7 +1340,13 @@
+         if (installdata.guiPrefs.modifier.containsKey(&quot;headingBackgroundColor&quot;))
+             back = Color.decode((String) installdata.guiPrefs.modifier
+                     .get(&quot;headingBackgroundColor&quot;));
+-
++        // Try to create counter if no heading should be used.
++        if (!isHeading(null)) 
++        { 
++            createHeadingCounter(back, navPanel, null);
++            return; 
++        }
++        
+         // We create the text labels and the needed panels. From inner to outer.
+         // Labels
+         createHeadingLabels(headingLines, back);
+@@ -1425,8 +1433,20 @@
+         headingLabels[0].setText(headline);
+         headingLabels[0].setVisible(true);
+         int curPanelNo = ((Integer) visiblePanelMapping.get(installdata.curPanelNumber)).intValue();
++        if (headingLabels[headingLines] != null)
++        {
++            loadAndShowImage(headingLabels[headingLines], HEADING_ICON_RESOURCE, curPanelNo);
++            headingLabels[headingLines].setVisible(true);
++        }
++        headingPanel.setVisible(true);
++
++    }
++    private void performHeadingCounter(IzPanel panel)
++    {
+         if (headingCounterComponent != null)
+         {
++            int curPanelNo = ((Integer) visiblePanelMapping.get(installdata.curPanelNumber))
++                    .intValue();
+             int visPanelsCount = ((Integer) visiblePanelMapping.get(((Integer) visiblePanelMapping
+                     .get(installdata.panels.size())).intValue())).intValue();
+ 
+@@ -1444,12 +1464,5 @@
+             else
+                 ((JLabel) headingCounterComponent).setText(buf.toString());
+         }
+-        if (headingLabels[headingLines] != null)
+-        {
+-            loadAndShowImage(headingLabels[headingLines], HEADING_ICON_RESOURCE, curPanelNo);
+-            headingLabels[headingLines].setVisible(true);
+-        }
+-        headingPanel.setVisible(true);
+-
+     }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000303.html">[izpack-changes] r1558 - in izpack-src/trunk: . src src/dist-files
+</A></li>
+	<LI>Next message: <A HREF="000305.html">[izpack-changes] r1560 - in izpack-src/trunk: . src/dist-files	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

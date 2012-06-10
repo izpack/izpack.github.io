@@ -1,0 +1,3667 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1695 - in izpack-src/trunk: . src	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer src/lib/com/izforge/izpack/io	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1695%20-%20in%20izpack-src/trunk%3A%20.%20src%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer%20src/lib/com/izforge/izpack/io%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000439.html">
+   <LINK REL="Next"  HREF="000441.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1695 - in izpack-src/trunk: . src	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer src/lib/com/izforge/izpack/io	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1695%20-%20in%20izpack-src/trunk%3A%20.%20src%0A%09src/lib/com/izforge/izpack%20src/lib/com/izforge/izpack/compiler%0A%09src/lib/com/izforge/izpack/installer%20src/lib/com/izforge/izpack/io%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1695 - in izpack-src/trunk: . src	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer src/lib/com/izforge/izpack/io	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Tue Jan  9 12:35:58 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000439.html">[izpack-changes] r1694 - izpack-src/trunk/src/native/win/COIOSHelper
+</A></li>
+        <LI>Next message: <A HREF="000441.html">[izpack-changes] r1696 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#440">[ date ]</a>
+              <a href="thread.html#440">[ thread ]</a>
+              <a href="subject.html#440">[ subject ]</a>
+              <a href="author.html#440">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-09 12:35:48 +0100 (Tue, 09 Jan 2007)
+New Revision: 1695
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/XPackFile.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeInstaller.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/io/
+   izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningInputStream.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningOutputStream.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/io/VolumeNotFoundException.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/NextMediaDialog.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/NextMediaFileFilter.java
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/build.xml
+Log:
+Added support for splitting the installer on many disks
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/Versions.txt	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -44,6 +44,7 @@
+   (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ - PathInputPanel: logged a stacktrace on Linux systems when no defaultInstallDir was specified and
+   no TargetPanel.dir.x resource was present (Stefan Wachter via Julien Ponge)
++- Added MultiVolumePackager, MultiVolumeUnpacker, MultiVolumeInstaller to support splitting the installer (Dennis Reil)
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/build.xml	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -274,6 +274,7 @@
+                debug=&quot;${debug}&quot;
+                debuglevel=&quot;${debuglevel}&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/*.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/io/*.java&quot;/&gt;
+             &lt;include name=&quot;com/izforge/izpack/compiler/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/compressor/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/ant/*.java&quot; /&gt;
+@@ -297,6 +298,7 @@
+             &lt;/manifest&gt;
+             &lt;fileset dir=&quot;${build.dir}&quot;&gt;
+                 &lt;include name=&quot;com/izforge/izpack/*.class&quot; /&gt;
++                &lt;include name=&quot;com/izforge/izpack/io/*.class&quot;/&gt;
+                 &lt;include name=&quot;com/izforge/izpack/compiler/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/compressor/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/util/OsConstraint.class&quot; /&gt;
+@@ -366,10 +368,13 @@
+             &lt;include name=&quot;com/izforge/izpack/panels/PathSelectionPanel.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/gui/*.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/io/*.java&quot; /&gt;          
+             &lt;include name=&quot;com/izforge/izpack/installer/*.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/panels/NextMedia*.java&quot;/&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/os/*.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/rules/*.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/uninstaller/SelfModifier*.java&quot;/&gt;
+             &lt;include name=&quot;net/n3/nanoxml/*.java&quot; /&gt;
+         &lt;/javac&gt;
+     &lt;/target&gt;
+@@ -386,10 +391,13 @@
+                 &lt;include name=&quot;com/izforge/izpack/panels/PathSelectionPanel.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/gui/*.class&quot; /&gt;
++                &lt;include name=&quot;com/izforge/izpack/io/*.class&quot;/&gt;
+                 &lt;include name=&quot;com/izforge/izpack/installer/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/util/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/util/**/*.class&quot; /&gt;
++                &lt;include name=&quot;com/izforge/izpack/panels/NextMedia*.class&quot;/&gt;
+                 &lt;include name=&quot;com/izforge/izpack/rules/*.class&quot; /&gt;
++                &lt;include name=&quot;com/izforge/izpack/uninstaller/SelfModifier*.class&quot;/&gt;
+                 &lt;include name=&quot;net/n3/nanoxml/*.class&quot; /&gt;
+             &lt;/fileset&gt;
+             &lt;zipfileset src=&quot;${basedir}/lib/jakarta-regexp-1.3.jar&quot;&gt;
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/XPackFile.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/XPackFile.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/XPackFile.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,99 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack;
++
++import java.io.File;
++import java.io.FileNotFoundException;
++import java.util.List;
++import java.util.Map;
++
++import com.izforge.izpack.PackFile;
++
++/**
++ * Extends the packfile by the information at which file position an entry is stored
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * 
++ */
++public class XPackFile extends PackFile
++{
++
++    private static final long serialVersionUID = 5875050264763504283L;
++
++    protected long archivefileposition;
++
++    protected PackFile packfile;
++
++    /**
++     * @param src
++     * @param target
++     * @param osList
++     * @param override
++     * @throws FileNotFoundException
++     */
++    public XPackFile(File src, String target, List osList, int override)
++            throws FileNotFoundException
++    {
++        super(src, target, osList, override);
++        this.archivefileposition = 0;
++    }
++
++    /**
++     * @param src
++     * @param target
++     * @param osList
++     * @param override
++     * @param additionals
++     * @throws FileNotFoundException
++     */
++    public XPackFile(File src, String target, List osList, int override, Map additionals)
++            throws FileNotFoundException
++    {
++        super(src, target, osList, override, additionals);
++        this.archivefileposition = 0;
++    }
++
++    public XPackFile(PackFile packf) throws FileNotFoundException
++    {
++        super(new File(packf.sourcePath), packf.getTargetPath(), packf.osConstraints(), packf
++                .override(), packf.getAdditionals());
++        this.archivefileposition = 0;
++        this.packfile = packf;
++    }
++
++    public long getArchivefileposition()
++    {
++        return archivefileposition;
++    }
++
++    public void setArchivefileposition(long archivefileposition)
++    {
++        this.archivefileposition = archivefileposition;
++    }
++
++    public PackFile getPackfile()
++    {
++        return packfile;
++    }
++
++    public void setPackfile(PackFile packfile)
++    {
++        this.packfile = packfile;
++    }
++
++}
+\ No newline at end of file
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/MultiVolumePackager.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,938 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.compiler;
++
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.ObjectOutputStream;
++import java.io.OutputStream;
++import java.io.StringReader;
++import java.net.URL;
++import java.util.ArrayList;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Map;
++import java.util.Properties;
++import java.util.Set;
++import java.util.zip.Deflater;
++import java.util.zip.ZipEntry;
++import java.util.zip.ZipException;
++import java.util.zip.ZipFile;
++import java.util.zip.ZipInputStream;
++import java.util.zip.ZipOutputStream;
++
++import net.n3.nanoxml.XMLElement;
++
++import com.izforge.izpack.CustomData;
++import com.izforge.izpack.GUIPrefs;
++import com.izforge.izpack.Info;
++import com.izforge.izpack.Pack;
++import com.izforge.izpack.PackFile;
++import com.izforge.izpack.Panel;
++import com.izforge.izpack.XPackFile;
++import com.izforge.izpack.compressor.PackCompressor;
++import com.izforge.izpack.compressor.PackCompressorFactory;
++import com.izforge.izpack.io.FileSpanningInputStream;
++import com.izforge.izpack.io.FileSpanningOutputStream;
++import com.izforge.izpack.util.Debug;
++
++/**
++ * The packager class. The packager is used by the compiler to put files into an installer, and
++ * create the actual installer files.
++ * 
++ * This is a packager, which packs everything into multi volumes.
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ */
++public class MultiVolumePackager implements IPackager
++{
++
++    public static final String INSTALLER_PAK_NAME = &quot;installer&quot;;
++
++    /** Path to the skeleton installer. */
++    public static final String SKELETON_SUBPATH = &quot;lib/installer.jar&quot;;
++
++    /** Base file name of all jar files. This has no &quot;.jar&quot; suffix. */
++    private File baseFile = null;
++
++    /** Executable zipped output stream. First to open, last to close. */
++    private ZipOutputStream primaryJarStream;
++
++    /** Basic installer info. */
++    private Info info = null;
++
++    /** Gui preferences of instatller. */
++    private GUIPrefs guiPrefs = null;
++
++    /** The variables used in the project */
++    private Properties variables = new Properties();
++
++    /** The ordered panels informations. */
++    private List panelList = new ArrayList();
++
++    /** The ordered packs informations (as PackInfo objects). */
++    private List packsList = new ArrayList();
++
++    /** The ordered langpack ISO3 names. */
++    private List langpackNameList = new ArrayList();
++
++    /** The ordered custom actions informations. */
++    private List customDataList = new ArrayList();
++
++    /** The langpack URLs keyed by ISO3 name. */
++    private Map installerResourceURLMap = new HashMap();
++
++    /** Jar file URLs who's contents will be copied into the installer. */
++    private Set includedJarURLs = new HashSet();
++
++    /** Each pack is created in a separte jar if webDirURL is non-null. */
++    private boolean packJarsSeparate = false;
++
++    /** The listeners. */
++    private PackagerListener listener;
++
++    /** The compression format to be used for pack compression */
++    private PackCompressor compressor;
++
++    /** Files which are always written into the container file */
++    private HashMap alreadyWrittenFiles = new HashMap();
++    
++    private XMLElement configdata = null;
++
++    /**
++     * The constructor.
++     * 
++     * @throws CompilerException
++     */
++    public MultiVolumePackager() throws CompilerException
++    {
++        this(&quot;default&quot;);
++    }
++
++    /**
++     * Extended constructor.
++     * 
++     * @param compr_format Compression format to be used for packs compression format (if supported)
++     * @throws CompilerException
++     */
++    public MultiVolumePackager(String compr_format) throws CompilerException
++    {
++        this(compr_format, -1);
++    }
++
++    /**
++     * Extended constructor.
++     * 
++     * @param compr_format Compression format to be used for packs
++     * @param compr_level Compression level to be used with the chosen compression format (if
++     * supported)
++     * @throws CompilerException
++     */
++    public MultiVolumePackager(String compr_format, int compr_level) throws CompilerException
++    {
++        setCompressorOptions(compr_format, compr_level);
++    }
++
++    /**
++     * Create the installer, beginning with the specified jar. If the name specified does not end in
++     * &quot;.jar&quot;, it is appended. If secondary jars are created for packs (if the Info object added has
++     * a webDirURL set), they are created in the same directory, named sequentially by inserting
++     * &quot;.pack#&quot; (where '#' is the pack number) &quot;.jar&quot; suffix: e.g. &quot;foo.pack1.jar&quot;. If any file
++     * exists, it is overwritten.
++     */
++    public void createInstaller(File primaryFile) throws Exception
++    {
++        // first analyze the configuration
++        this.analyzeConfigurationInformation();
++        
++        // preliminary work
++        String baseName = primaryFile.getName();
++        if (baseName.endsWith(&quot;.jar&quot;))
++        {
++            baseName = baseName.substring(0, baseName.length() - 4);
++            baseFile = new File(primaryFile.getParentFile(), baseName);
++        }
++        else
++            baseFile = primaryFile;
++
++        info.setInstallerBase(baseFile.getName());
++        packJarsSeparate = (info.getWebDirURL() != null);
++
++        // primary (possibly only) jar. -1 indicates primary
++        primaryJarStream = getJarOutputStream(baseFile.getName() + &quot;.jar&quot;);
++
++        sendStart();
++
++        // write the primary jar. MUST be first so manifest is not overwritten
++        // by
++        // an included jar
++        System.out.println(&quot;Writing skeleton installer.&quot;);
++        writeSkeletonInstaller();
++        writeInstallerObject(&quot;info&quot;, info);
++        writeInstallerObject(&quot;vars&quot;, variables);
++        writeInstallerObject(&quot;GUIPrefs&quot;, guiPrefs);
++        writeInstallerObject(&quot;panelsOrder&quot;, panelList);
++        writeInstallerObject(&quot;customData&quot;, customDataList);
++        writeInstallerObject(&quot;langpacks.info&quot;, langpackNameList);
++        writeInstallerResources();
++        writeIncludedJars();
++
++        // Pack File Data may be written to separate jars
++        String packfile = baseFile.getParent() + File.separator + INSTALLER_PAK_NAME;
++        writePacks(new File(packfile));
++
++        // Finish up. closeAlways is a hack for pack compressions other than
++        // default. Some of it (e.g. BZip2) closes the slave of it also.
++        // But this should not be because the jar stream should be open
++        // for the next pack. Therefore an own JarOutputStream will be used
++        // which close method will be blocked.
++        // primaryJarStream.closeAlways();
++        primaryJarStream.close();
++
++        sendStop();
++    }
++
++    /***********************************************************************************************
++     * Listener assistance
++     **********************************************************************************************/
++
++    private void analyzeConfigurationInformation()
++    {
++        String classname = this.getClass().getName();
++        String sizeprop = classname + &quot;.volumesize&quot;;
++        String freespaceprop = classname + &quot;.firstvolumefreespace&quot;;        
++        if (this.configdata == null){
++            // no configdata given, set default values
++            this.variables.setProperty(sizeprop, Long.toString(FileSpanningOutputStream.DEFAULT_VOLUME_SIZE));
++            this.variables.setProperty(freespaceprop, Long.toString(FileSpanningOutputStream.DEFAULT_ADDITIONAL_FIRST_VOLUME_FREE_SPACE_SIZE));            
++        }
++        else {            
++            // configdata was set
++            String volumesize = configdata.getAttribute(&quot;volumesize&quot;, Long.toString(FileSpanningOutputStream.DEFAULT_VOLUME_SIZE));
++            String freespace = configdata.getAttribute(&quot;firstvolumefreespace&quot;, Long.toString(FileSpanningOutputStream.DEFAULT_ADDITIONAL_FIRST_VOLUME_FREE_SPACE_SIZE));
++            this.variables.setProperty(sizeprop, volumesize);
++            this.variables.setProperty(freespaceprop, freespace);
++        }         
++    }
++
++    /**
++     * Get the PackagerListener.
++     * 
++     * @return the current PackagerListener
++     */
++    public PackagerListener getPackagerListener()
++    {
++        return listener;
++    }
++
++    /**
++     * Adds a listener.
++     * 
++     * @param listener The listener.
++     */
++    public void setPackagerListener(PackagerListener listener)
++    {
++        this.listener = listener;
++    }
++
++    /**
++     * Dispatches a message to the listeners.
++     * 
++     * @param job The job description.
++     */
++    private void sendMsg(String job)
++    {
++        sendMsg(job, PackagerListener.MSG_INFO);
++    }
++
++    /**
++     * Dispatches a message to the listeners at specified priority.
++     * 
++     * @param job The job description.
++     * @param priority The message priority.
++     */
++    private void sendMsg(String job, int priority)
++    {
++        Debug.trace(job);
++        if (listener != null) listener.packagerMsg(job, priority);
++    }
++
++    /** Dispatches a start event to the listeners. */
++    private void sendStart()
++    {
++        if (listener != null) listener.packagerStart();
++    }
++
++    /** Dispatches a stop event to the listeners. */
++    private void sendStop()
++    {
++        if (listener != null) listener.packagerStop();
++    }
++
++    /***********************************************************************************************
++     * Public methods to add data to the Installer being packed
++     **********************************************************************************************/
++
++    /**
++     * Sets the informations related to this installation.
++     * 
++     * @param info The info section.
++     * @exception Exception Description of the Exception
++     */
++    public void setInfo(Info info) throws Exception
++    {
++        sendMsg(&quot;Setting the installer information&quot;, PackagerListener.MSG_VERBOSE);
++        this.info = info;
++        if (!getCompressor().useStandardCompression()
++                &amp;&amp; getCompressor().getDecoderMapperName() != null)
++        {
++            this.info.setPackDecoderClassName(getCompressor().getDecoderMapperName());
++        }
++    }
++
++    /**
++     * Sets the GUI preferences.
++     * 
++     * @param prefs The new gUIPrefs value
++     */
++    public void setGUIPrefs(GUIPrefs prefs)
++    {
++        sendMsg(&quot;Setting the GUI preferences&quot;, PackagerListener.MSG_VERBOSE);
++        guiPrefs = prefs;
++    }
++
++    /**
++     * Allows access to add, remove and update the variables for the project, which are maintained
++     * in the packager.
++     * 
++     * @return map of variable names to values
++     */
++    public Properties getVariables()
++    {
++        return variables;
++    }
++
++    /**
++     * Add a panel, where order is important. Only one copy of the class files neeed are inserted in
++     * the installer.
++     */
++    public void addPanelJar(Panel panel, URL jarURL)
++    {
++        panelList.add(panel); // serialized to keep order/variables correct
++        addJarContent(jarURL); // each included once, no matter how many times
++        // added
++    }
++
++    /**
++     * Add a custom data like custom actions, where order is important. Only one copy of the class
++     * files neeed are inserted in the installer.
++     * 
++     * @param ca custom action object
++     * @param url the URL to include once
++     */
++    public void addCustomJar(CustomData ca, URL url)
++    {
++        customDataList.add(ca); // serialized to keep order/variables correct
++        addJarContent(url); // each included once, no matter how many times
++        // added
++    }
++
++    /**
++     * Adds a pack, order is mostly irrelevant.
++     * 
++     * @param pack contains all the files and items that go with a pack
++     */
++    public void addPack(PackInfo pack)
++    {
++        packsList.add(pack);
++    }
++
++    /**
++     * Gets the packages list
++     */
++    public List getPacksList()
++    {
++        return packsList;
++    }
++
++    /**
++     * Adds a language pack.
++     * 
++     * @param iso3 The ISO3 code.
++     * @param xmlURL The location of the xml local info
++     * @param flagURL The location of the flag image resource
++     */
++    public void addLangPack(String iso3, URL xmlURL, URL flagURL)
++    {
++        sendMsg(&quot;Adding langpack: &quot; + iso3, PackagerListener.MSG_VERBOSE);
++        // put data &amp; flag as entries in installer, and keep array of iso3's
++        // names
++        langpackNameList.add(iso3);
++        addResource(&quot;flag.&quot; + iso3, flagURL);
++        installerResourceURLMap.put(&quot;langpacks/&quot; + iso3 + &quot;.xml&quot;, xmlURL);
++    }
++
++    /**
++     * Adds a resource.
++     * 
++     * @param resId The resource Id.
++     * @param url The location of the data
++     */
++    public void addResource(String resId, URL url)
++    {
++        sendMsg(&quot;Adding resource: &quot; + resId, PackagerListener.MSG_VERBOSE);
++        installerResourceURLMap.put(&quot;res/&quot; + resId, url);
++    }
++
++    /**
++     * Adds a native library.
++     * 
++     * @param name The native library name.
++     * @param url The url to get the data from.
++     * @exception Exception Description of the Exception
++     */
++    public void addNativeLibrary(String name, URL url) throws Exception
++    {
++        sendMsg(&quot;Adding native library: &quot; + name, PackagerListener.MSG_VERBOSE);
++        installerResourceURLMap.put(&quot;native/&quot; + name, url);
++    }
++
++    /**
++     * Adds a jar file content to the installer. Package structure is maintained. Need mechanism to
++     * copy over signed entry information.
++     * 
++     * @param jarURL The url of the jar to add to the installer. We use a URL so the jar may be
++     * nested within another.
++     */
++    public void addJarContent(URL jarURL)
++    {
++        addJarContent(jarURL, null);
++    }
++
++    /**
++     * Adds a jar file content to the installer. Package structure is maintained. Need mechanism to
++     * copy over signed entry information.
++     * 
++     * @param jarURL The url of the jar to add to the installer. We use a URL so the jar may be
++     * nested within another.
++     */
++    public void addJarContent(URL jarURL, List files)
++    {
++        Object[] cont = { jarURL, files};
++        sendMsg(&quot;Adding content of jar: &quot; + jarURL.getFile(), PackagerListener.MSG_VERBOSE);
++        includedJarURLs.add(cont);
++    }
++
++    /**
++     * Marks a native library to be added to the uninstaller.
++     * 
++     * @param data the describing custom action data object
++     */
++    public void addNativeUninstallerLibrary(CustomData data)
++    {
++        customDataList.add(data); // serialized to keep order/variables
++        // correct
++
++    }
++
++    /***********************************************************************************************
++     * Private methods used when writing out the installer to jar files.
++     **********************************************************************************************/
++
++    /**
++     * Write skeleton installer to primary jar. It is just an included jar, except that we copy the
++     * META-INF as well.
++     */
++    private void writeSkeletonInstaller() throws IOException
++    {
++        sendMsg(&quot;Copying the skeleton installer&quot;, PackagerListener.MSG_VERBOSE);
++        
++        
++        InputStream is = MultiVolumePackager.class.getResourceAsStream(&quot;/&quot; + SKELETON_SUBPATH);
++        if (is == null)
++        {
++            File skeleton = new File(Compiler.IZPACK_HOME, SKELETON_SUBPATH);
++            is = new FileInputStream(skeleton);
++        }
++        ZipInputStream inJarStream = new ZipInputStream(is);
++        
++        // copy anything except the manifest.mf
++        List excludes = new ArrayList();
++        excludes.add(&quot;META-INF.MANIFEST.MF&quot;);
++        copyZipWithoutExcludes(inJarStream, primaryJarStream,excludes);
++
++        // ugly code to modify the manifest-file to set MultiVolumeInstaller as main class
++        // reopen Stream
++        is = MultiVolumePackager.class.getResourceAsStream(&quot;/&quot; + SKELETON_SUBPATH);
++        if (is == null)
++        {
++            File skeleton = new File(Compiler.IZPACK_HOME, SKELETON_SUBPATH);
++            is = new FileInputStream(skeleton);
++        }
++        inJarStream = new ZipInputStream(is);                
++        boolean found = false;
++        ZipEntry ze = null;
++        String modifiedmanifest = null;
++        while (((ze = inJarStream.getNextEntry()) != null) &amp;&amp; !found){            
++            if (&quot;META-INF/MANIFEST.MF&quot;.equals(ze.getName())){
++                long size = ze.getSize();
++                byte[] buffer = new byte[4096];
++                int readbytes = 0;
++                int totalreadbytes = 0;
++                StringBuffer manifest = new StringBuffer();
++                while (((readbytes = inJarStream.read(buffer)) &gt; 0) &amp;&amp; (totalreadbytes &lt; size)){
++                    totalreadbytes += readbytes;
++                    String tmp = new String(buffer,0,readbytes,&quot;utf-8&quot;);
++                    manifest.append(tmp);
++                }
++                
++                
++                StringReader stringreader = new StringReader(manifest.toString());
++                BufferedReader reader = new BufferedReader(stringreader);
++                String line = null;
++                StringBuffer modified = new StringBuffer();
++                while ((line = reader.readLine()) != null){
++                    if (line.startsWith(&quot;Main-Class:&quot;)){
++                        line = &quot;Main-Class: com.izforge.izpack.installer.MultiVolumeInstaller&quot;;
++                    }
++                    modified.append(line);
++                    modified.append(&quot;\r\n&quot;);
++                }                
++                reader.close();
++                modifiedmanifest = modified.toString();
++                /*
++                System.out.println(&quot;Manifest:&quot;);
++                System.out.println(manifest.toString());
++                System.out.println(&quot;Modified Manifest:&quot;);
++                System.out.println(modified.toString());
++                */
++                break;
++            }
++        }
++        
++        primaryJarStream.putNextEntry(new ZipEntry(&quot;META-INF/MANIFEST.MF&quot;));        
++        primaryJarStream.write(modifiedmanifest.getBytes());
++        primaryJarStream.closeEntry();
++    }
++
++    /**
++     * Write an arbitrary object to primary jar.
++     */
++    private void writeInstallerObject(String entryName, Object object) throws IOException
++    {
++        primaryJarStream.putNextEntry(new ZipEntry(entryName));
++        ObjectOutputStream out = new ObjectOutputStream(primaryJarStream);
++        out.writeObject(object);
++        out.flush();
++        primaryJarStream.closeEntry();
++    }
++
++    /** Write the data referenced by URL to primary jar. */
++    private void writeInstallerResources() throws IOException
++    {
++        sendMsg(&quot;Copying &quot; + installerResourceURLMap.size() + &quot; files into installer&quot;);
++
++        Iterator i = installerResourceURLMap.keySet().iterator();
++        while (i.hasNext())
++        {
++            String name = (String) i.next();
++            InputStream in = ((URL) installerResourceURLMap.get(name)).openStream();
++            primaryJarStream.putNextEntry(new ZipEntry(name));
++            copyStream(in, primaryJarStream);
++            primaryJarStream.closeEntry();
++            in.close();
++        }
++    }
++
++    /** Copy included jars to primary jar. */
++    private void writeIncludedJars() throws IOException
++    {
++        sendMsg(&quot;Merging &quot; + includedJarURLs.size() + &quot; jars into installer&quot;);
++
++        Iterator i = includedJarURLs.iterator();
++        while (i.hasNext())
++        {
++            Object[] current = (Object[]) i.next();
++            InputStream is = ((URL) current[0]).openStream();
++            ZipInputStream inJarStream = new ZipInputStream(is);
++            copyZip(inJarStream, primaryJarStream, (List) current[1]);
++        }
++    }
++
++    /**
++     * Write Packs to primary jar or each to a separate jar.
++     */
++    private void writePacks(File primaryfile) throws Exception
++    {
++
++        final int num = packsList.size();
++        sendMsg(&quot;Writing &quot; + num + &quot; Pack&quot; + (num &gt; 1 ? &quot;s&quot; : &quot;&quot;) + &quot; into installer&quot;);
++        Debug.trace(&quot;Writing &quot; + num + &quot; Pack&quot; + (num &gt; 1 ? &quot;s&quot; : &quot;&quot;) + &quot; into installer&quot;);
++        // Map to remember pack number and bytes offsets of back references
++        Map storedFiles = new HashMap();
++
++        // First write the serialized files and file metadata data for each pack
++        // while counting bytes.
++
++        String classname = this.getClass().getName();
++        String volumesize = this.getVariables().getProperty(classname + &quot;.volumesize&quot;);
++        String extraspace = this.getVariables().getProperty(classname + &quot;.firstvolumefreespace&quot;);
++
++        long volumesizel = FileSpanningOutputStream.DEFAULT_VOLUME_SIZE;
++        long extraspacel = FileSpanningOutputStream.DEFAULT_ADDITIONAL_FIRST_VOLUME_FREE_SPACE_SIZE;
++
++        if (volumesize != null)
++        {
++            volumesizel = Long.parseLong(volumesize);
++        }
++        if (extraspace != null)
++        {
++            extraspacel = Long.parseLong(extraspace);
++        }
++        Debug.trace(&quot;Volumesize: &quot; + volumesizel);
++        Debug.trace(&quot;Extra space on first volume: &quot; + extraspacel);
++        FileSpanningOutputStream fout = new FileSpanningOutputStream(primaryfile.getParent()
++                + File.separator + primaryfile.getName() + &quot;.pak&quot;, volumesizel);
++        fout.setFirstvolumefreespacesize(extraspacel);
++
++        int packNumber = 0;
++        Iterator packIter = packsList.iterator();
++        while (packIter.hasNext())
++        {
++            PackInfo packInfo = (PackInfo) packIter.next();
++            Pack pack = packInfo.getPack();
++            pack.nbytes = 0;
++
++            sendMsg(&quot;Writing Pack &quot; + packNumber + &quot;: &quot; + pack.name, PackagerListener.MSG_VERBOSE);
++            Debug.trace(&quot;Writing Pack &quot; + packNumber + &quot;: &quot; + pack.name);
++            ZipEntry entry = new ZipEntry(&quot;packs/pack&quot; + packNumber);
++            // write the metadata as uncompressed object stream to primaryJarStream
++            // ByteCountingOutputStream dos = new
++            // ByteCountingOutputStream(comprStream);
++            // ByteCountingOutputStream dos = new
++            // ByteCountingOutputStream(primaryJarStream);
++            // first write a packs entry
++
++            primaryJarStream.putNextEntry(entry);
++            ObjectOutputStream objOut = new ObjectOutputStream(primaryJarStream);
++
++            // We write the actual pack files
++            objOut.writeInt(packInfo.getPackFiles().size());
++
++            Iterator iter = packInfo.getPackFiles().iterator();
++            while (iter.hasNext())
++            {
++                boolean addFile = !pack.loose;
++                XPackFile pf = new XPackFile((PackFile) iter.next());
++                File file = packInfo.getFile(pf.getPackfile());
++                Debug.trace(&quot;Next file: &quot; + file.getAbsolutePath());
++                // use a back reference if file was in previous pack, and in
++                // same jar
++                long[] info = (long[]) storedFiles.get(file);
++                if (info != null &amp;&amp; !packJarsSeparate)
++                {
++                    Debug.trace(&quot;File already included in other pack&quot;);
++                    pf.setPreviousPackFileRef((int) info[0], info[1]);
++                    addFile = false;
++                }
++
++                if (addFile &amp;&amp; !pf.isDirectory())
++                {
++                    long pos = fout.getFilepointer();
++
++                    pf.setArchivefileposition(pos);
++
++                    // write out the filepointer
++                    int volumecountbeforewrite = fout.getVolumeCount();
++
++                    FileInputStream inStream = new FileInputStream(file);
++                    long bytesWritten = copyStream(inStream, fout);
++                    fout.flush();
++
++                    long posafterwrite = fout.getFilepointer();
++                    Debug.trace(&quot;File (&quot; + pf.sourcePath + &quot;) &quot; + pos + &quot; &lt;-&gt; &quot; + posafterwrite);
++
++                    if (fout.getFilepointer() != (pos + bytesWritten))
++                    {
++                        Debug.trace(&quot;file: &quot; + file.getName());
++                        Debug.trace(&quot;(Filepos/BytesWritten/ExpectedNewFilePos/NewFilePointer) (&quot;
++                                        + pos + &quot;/&quot; + bytesWritten + &quot;/&quot; + (pos + bytesWritten)
++                                        + &quot;/&quot; + fout.getFilepointer() + &quot;)&quot;);
++                        Debug.trace(&quot;Volumecount (before/after) (&quot;
++                                + volumecountbeforewrite + &quot;/&quot; + fout.getVolumeCount() + &quot;)&quot;);
++                        throw new IOException(&quot;Error new filepointer is illegal&quot;);
++                    }
++
++                    if (bytesWritten != pf.length()) { throw new IOException(
++                            &quot;File size mismatch when reading &quot; + file); }
++                    inStream.close();
++                    // keine backreferences m&#246;glich
++                    // storedFiles.put(file, new long[] { packNumber, pos});
++                }
++
++                objOut.writeObject(pf); // base info
++                objOut.flush(); // make sure it is written
++                // even if not written, it counts towards pack size
++                pack.nbytes += pf.length();
++            }
++            // Write out information about parsable files
++            objOut.writeInt(packInfo.getParsables().size());
++            iter = packInfo.getParsables().iterator();
++            while (iter.hasNext())
++                objOut.writeObject(iter.next());
++
++            // Write out information about executable files
++            objOut.writeInt(packInfo.getExecutables().size());
++            iter = packInfo.getExecutables().iterator();
++            while (iter.hasNext())
++                objOut.writeObject(iter.next());
++
++            // Write out information about updatecheck files
++            objOut.writeInt(packInfo.getUpdateChecks().size());
++            iter = packInfo.getUpdateChecks().iterator();
++            while (iter.hasNext())
++                objOut.writeObject(iter.next());
++
++            // Cleanup
++            objOut.flush();
++            packNumber++;
++        }
++
++        // write metadata for reading in volumes
++        int volumes = fout.getVolumeCount();
++        Debug.trace(&quot;Written &quot; + volumes + &quot; volumes&quot;);
++        String volumename = primaryfile.getName() + &quot;.pak&quot;;
++
++        fout.flush();
++        fout.close();
++
++        primaryJarStream.putNextEntry(new ZipEntry(&quot;volumes.info&quot;));
++        ObjectOutputStream out = new ObjectOutputStream(primaryJarStream);
++        out.writeInt(volumes);
++        out.writeUTF(volumename);
++        out.flush();
++        primaryJarStream.closeEntry();
++
++        // Now that we know sizes, write pack metadata to primary jar.
++        primaryJarStream.putNextEntry(new ZipEntry(&quot;packs.info&quot;));
++        out = new ObjectOutputStream(primaryJarStream);
++        out.writeInt(packsList.size());
++
++        Iterator i = packsList.iterator();
++        while (i.hasNext())
++        {
++            PackInfo pack = (PackInfo) i.next();
++            out.writeObject(pack.getPack());
++        }
++        out.flush();
++        primaryJarStream.closeEntry();
++    }
++
++    /***********************************************************************************************
++     * Stream utilites for creation of the installer.
++     **********************************************************************************************/
++
++    /** Return a stream for the next jar. */
++    private ZipOutputStream getJarOutputStream(String name) throws IOException
++    {
++        File file = new File(baseFile.getParentFile(), name);
++        sendMsg(&quot;Building installer jar: &quot; + file.getAbsolutePath());
++        Debug.trace(&quot;Building installer jar: &quot; + file.getAbsolutePath());
++        ZipOutputStream jar = new ZipOutputStream(new FileOutputStream(file));
++        jar.setLevel(Deflater.BEST_COMPRESSION);
++        // jar.setPreventClose(true); // Needed at using FilterOutputStreams which
++        // calls close
++        // of the slave at finalizing.
++
++        return jar;
++    }
++
++    /**
++     * Copies contents of one jar to another.
++     * 
++     * &lt;p&gt;
++     * TODO: it would be useful to be able to keep signature information from signed jar files, can
++     * we combine manifests and still have their content signed?
++     * 
++     * @see #copyStream(InputStream, OutputStream)
++     */
++    private void copyZip(ZipInputStream zin, ZipOutputStream out) throws IOException
++    {
++        copyZip(zin, out, null);
++    }
++
++    /**
++     * Copies specified contents of one jar to another.
++     * 
++     * &lt;p&gt;
++     * TODO: it would be useful to be able to keep signature information from signed jar files, can
++     * we combine manifests and still have their content signed?
++     * 
++     * @see #copyStream(InputStream, OutputStream)
++     */
++    private void copyZip(ZipInputStream zin, ZipOutputStream out, List files) throws IOException
++    {
++        java.util.zip.ZipEntry zentry;
++        if (!alreadyWrittenFiles.containsKey(out)) alreadyWrittenFiles.put(out, new HashSet());
++        HashSet currentSet = (HashSet) alreadyWrittenFiles.get(out);
++        while ((zentry = zin.getNextEntry()) != null)
++        {
++            String currentName = zentry.getName();
++            String testName = currentName.replace('/', '.');
++            testName = testName.replace('\\', '.');
++            if (files != null)
++            {
++                Iterator i = files.iterator();
++                boolean founded = false;
++                while (i.hasNext())
++                { // Make &quot;includes&quot; self to support regex.
++                    String doInclude = (String) i.next();
++                    if (testName.matches(doInclude))
++                    {
++                        founded = true;
++                        break;
++                    }
++                }
++                if (!founded) continue;
++            }
++            if (currentSet.contains(currentName)) continue;
++            try
++            {
++                out.putNextEntry(new ZipEntry(currentName));
++                copyStream(zin, out);
++                out.closeEntry();
++                zin.closeEntry();
++                currentSet.add(currentName);
++            }
++            catch (ZipException x)
++            {
++                // This avoids any problem that can occur with duplicate
++                // directories. for instance all META-INF data in jars
++                // unfortunately this do not work with the apache ZipOutputStream...
++            }
++        }
++    }
++    
++    /**
++     * Copies specified contents of one jar to another without the specified files
++     * 
++     * &lt;p&gt;
++     * TODO: it would be useful to be able to keep signature information from signed jar files, can
++     * we combine manifests and still have their content signed?
++     * 
++     * @see #copyStream(InputStream, OutputStream)
++     */
++    private void copyZipWithoutExcludes(ZipInputStream zin, ZipOutputStream out, List excludes) throws IOException
++    {
++        java.util.zip.ZipEntry zentry;
++        if (!alreadyWrittenFiles.containsKey(out)) alreadyWrittenFiles.put(out, new HashSet());
++        HashSet currentSet = (HashSet) alreadyWrittenFiles.get(out);
++        while ((zentry = zin.getNextEntry()) != null)
++        {
++            String currentName = zentry.getName();
++            String testName = currentName.replace('/', '.');
++            testName = testName.replace('\\', '.');
++            if (excludes != null)
++            {
++                Iterator i = excludes.iterator();
++                boolean skip = false;
++                while (i.hasNext())
++                { 
++                    // Make &quot;excludes&quot; self to support regex.
++                    String doExclude = (String) i.next();                    
++                    if (testName.matches(doExclude))
++                    {                        
++                        skip = true;
++                        break;
++                    }
++                }           
++                if (skip){
++                    continue;
++                }
++            }
++            if (currentSet.contains(currentName)) continue;
++            try
++            {
++                out.putNextEntry(new ZipEntry(currentName));
++                copyStream(zin, out);
++                out.closeEntry();
++                zin.closeEntry();
++                currentSet.add(currentName);
++            }
++            catch (ZipException x)
++            {
++                // This avoids any problem that can occur with duplicate
++                // directories. for instance all META-INF data in jars
++                // unfortunately this do not work with the apache ZipOutputStream...
++            }
++        }
++    }
++
++    /**
++     * Copies all the data from the specified input stream to the specified output stream.
++     * 
++     * @param in the input stream to read
++     * @param out the output stream to write
++     * @return the total number of bytes copied
++     * @exception IOException if an I/O error occurs
++     */
++    private long copyStream(InputStream in, OutputStream out) throws IOException
++    {
++        byte[] buffer = new byte[5120];
++        long bytesCopied = 0;
++        int bytesInBuffer;
++        while ((bytesInBuffer = in.read(buffer)) != -1)
++        {
++            out.write(buffer, 0, bytesInBuffer);
++            bytesCopied += bytesInBuffer;
++        }
++        return bytesCopied;
++    }
++
++    /**
++     * Returns the current pack compressor
++     * 
++     * @return Returns the current pack compressor.
++     */
++    public PackCompressor getCompressor()
++    {
++        return compressor;
++    }
++
++    public void setCompressorOptions(String compr_format, int compr_level) throws CompilerException
++    {
++        compressor = PackCompressorFactory.get(compr_format);
++        compressor.setCompressionLevel(compr_level);
++    }
++
++    public void addConfigurationInformation(XMLElement data)
++    {
++       this.configdata = data;        
++    }
++
++    public void initPackCompressor(String compr_format, int compr_level) throws CompilerException
++    {       
++        this.setCompressorOptions(compr_format, compr_level);        
++    }
++}
+\ No newline at end of file
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeInstaller.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeInstaller.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,117 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.installer;
++
++import java.io.File;
++import java.lang.reflect.Method;
++
++import com.izforge.izpack.uninstaller.SelfModifier;
++import com.izforge.izpack.util.Debug;
++
++/**
++ * Main class, for starting the installer if it was build to support more than one volume.
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ * 
++ */
++public class MultiVolumeInstaller
++{
++
++    // where is the installer looking for media files
++    protected static String mediadirectory;
++
++    /**
++     * @param args
++     */
++    public static void main(String[] args)
++    {
++        // default is to look in the current directory
++        MultiVolumeInstaller.setMediadirectory(new File(&quot;.&quot;).getParent());
++        if ((args.length &gt; 0) &amp;&amp; (&quot;-direct&quot;.equals(args[0])))
++        {
++            String[] newargs;
++            if (args.length &gt; 1)
++            {
++                // cut out the direct parameter
++                newargs = new String[args.length - 1];
++                System.arraycopy(args, 1, newargs, 0, args.length - 1);
++            }
++            else
++            {
++                // set arguments to empty string array
++                newargs = new String[0];
++            }
++            MultiVolumeInstaller.install(newargs);
++        }
++        else
++        {
++            try
++            {
++                Class clazz = MultiVolumeInstaller.class;
++                Method target = clazz.getMethod(&quot;install&quot;, new Class[] { String[].class});
++                String[] newargs = new String[args.length + 2];
++
++                System.arraycopy(args, 0, newargs, 2, args.length);
++                // try to find the directory, where the jar file is located, this class was loaded
++                // from
++                newargs[0] = &quot;-mediadir&quot;;
++                newargs[1] = SelfModifier.findJarFile(clazz).getParent();
++                System.out.println(&quot;Setting mediadir: &quot; + newargs[1]);
++                MultiVolumeInstaller.setMediadirectory(SelfModifier.findJarFile(clazz).getParent());
++                new SelfModifier(target).invoke(newargs);
++            }
++            catch (Exception e)
++            {
++                Debug.trace(e);
++            }
++        }
++    }
++
++    public static String getMediadirectory()
++    {
++        return MultiVolumeInstaller.mediadirectory;
++    }
++
++    public static void setMediadirectory(String mediadirectory)
++    {
++        MultiVolumeInstaller.mediadirectory = mediadirectory;
++    }
++
++    public static void install(String[] args)
++    {
++        if ((args.length &gt;= 2) &amp;&amp; (&quot;-mediadir&quot;.equals(args[0])))
++        {
++            // mediadir option given
++            MultiVolumeInstaller.setMediadirectory(args[1]);
++            if (args.length &gt; 2)
++            {
++                // cut out this option
++                String[] newargs = new String[args.length - 2];
++                System.arraycopy(args, 2, newargs, 0, args.length - 2);
++                args = newargs;
++            }
++            else
++            {
++                // put in an empty string array
++                args = new String[0];
++            }
++        }
++        // just call the izpack installer
++        Installer.main(args);
++    }
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/MultiVolumeUnpacker.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,1327 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.installer;
++
++import java.io.BufferedOutputStream;
++import java.io.EOFException;
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.ObjectInputStream;
++import java.io.PrintWriter;
++import java.util.ArrayList;
++import java.util.Enumeration;
++import java.util.HashMap;
++import java.util.HashSet;
++import java.util.Iterator;
++import java.util.List;
++import java.util.Properties;
++import java.util.Stack;
++import java.util.TreeSet;
++import java.util.zip.ZipEntry;
++import java.util.zip.ZipInputStream;
++import java.util.zip.ZipOutputStream;
++
++import org.apache.regexp.RE;
++import org.apache.regexp.RECompiler;
++import org.apache.regexp.RESyntaxException;
++
++import com.izforge.izpack.ExecutableFile;
++import com.izforge.izpack.LocaleDatabase;
++import com.izforge.izpack.Pack;
++import com.izforge.izpack.PackFile;
++import com.izforge.izpack.ParsableFile;
++import com.izforge.izpack.UpdateCheck;
++import com.izforge.izpack.XPackFile;
++import com.izforge.izpack.event.InstallerListener;
++import com.izforge.izpack.installer.AutomatedInstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++import com.izforge.izpack.installer.IzPanel;
++import com.izforge.izpack.installer.ResourceManager;
++import com.izforge.izpack.installer.ScriptParser;
++import com.izforge.izpack.installer.UninstallData;
++import com.izforge.izpack.io.FileSpanningInputStream;
++import com.izforge.izpack.io.FileSpanningOutputStream;
++import com.izforge.izpack.io.VolumeNotFoundException;
++import com.izforge.izpack.panels.NextMediaDialog;
++import com.izforge.izpack.util.AbstractUIHandler;
++import com.izforge.izpack.util.AbstractUIProgressHandler;
++import com.izforge.izpack.util.Debug;
++import com.izforge.izpack.util.FileExecutor;
++import com.izforge.izpack.util.IoHelper;
++import com.izforge.izpack.util.OsConstraint;
++import com.izforge.izpack.util.VariableSubstitutor;
++
++/**
++ * Unpacker class.
++ * 
++ * @author Dennis Reil
++ */
++public class MultiVolumeUnpacker implements IUnpacker
++{
++
++    /** The installdata. */
++    private AutomatedInstallData idata;
++
++    /** The installer listener. */
++    private AbstractUIProgressHandler handler;
++
++    /** The uninstallation data. */
++    private UninstallData udata;
++
++    /** The variables substitutor. */
++    private VariableSubstitutor vs;
++
++    /** The instances of the unpacker objects. */
++    private static HashMap instances = new HashMap();
++
++    /** The absolute path of the installation. (NOT the canonical!) */
++    private File absolute_installpath;
++
++    /** The packs locale database. */
++    private LocaleDatabase langpack = null;
++
++    /** Interrupt flag if global interrupt is desired. */
++    private static boolean interruptDesired = false;
++
++    /** Do not perform a interrupt call. */
++    private static boolean discardInterrupt = false;
++
++    /** The name of the XML file that specifies the panel langpack */
++    private static final String LANG_FILE_NAME = &quot;packsLang.xml&quot;;
++
++    public static final String ALIVE = &quot;alive&quot;;
++
++    public static final String INTERRUPT = &quot;doInterrupt&quot;;
++
++    public static final String INTERRUPTED = &quot;interruppted&quot;;
++
++    /** The result of the operation. */
++    private boolean result = true;
++
++    /**
++     * The constructor.
++     * 
++     * @param idata The installation data.
++     * @param handler The installation progress handler.
++     */
++    public MultiVolumeUnpacker(AutomatedInstallData idata, AbstractUIProgressHandler handler)
++    {        
++        try
++        {
++            String resource = LANG_FILE_NAME + &quot;_&quot; + idata.localeISO3;
++            this.langpack = new LocaleDatabase(ResourceManager.getInstance().getInputStream(
++                    resource));
++        }
++        catch (Throwable exception)
++        {}
++
++        this.idata = idata;
++        this.handler = handler;
++
++        // Initialize the variable substitutor
++        vs = new VariableSubstitutor(idata.getVariables());
++    }
++
++    /**
++     * Returns a copy of the active unpacker instances.
++     * 
++     * @return a copy of active unpacker instances
++     */
++    public static HashMap getRunningInstances()
++    {
++        synchronized (instances)
++        { // Return a shallow copy to prevent a
++            // ConcurrentModificationException.
++            return (HashMap) (instances.clone());
++        }
++    }
++
++    /**
++     * Adds this to the map of all existent instances of Unpacker.
++     */
++    private void addToInstances()
++    {
++        synchronized (instances)
++        {
++            instances.put(this, ALIVE);
++        }
++    }
++
++    /**
++     * Removes this from the map of all existent instances of Unpacker.
++     */
++    private void removeFromInstances()
++    {
++        synchronized (instances)
++        {
++            instances.remove(this);
++        }
++    }
++
++    /**
++     * Initiate interrupt of all alive Unpacker. This method does not interrupt the Unpacker objects
++     * else it sets only the interrupt flag for the Unpacker objects. The dispatching of interrupt
++     * will be performed by the Unpacker objects self.
++     */
++    private static void setInterruptAll()
++    {
++        synchronized (instances)
++        {
++            Iterator iter = instances.keySet().iterator();
++            while (iter.hasNext())
++            {
++                Object key = iter.next();
++                if (instances.get(key).equals(ALIVE))
++                {
++                    instances.put(key, INTERRUPT);
++                }
++            }
++            // Set global flag to allow detection of it in other classes.
++            // Do not set it to thread because an exec will then be stoped.
++            setInterruptDesired(true);
++        }
++    }
++
++    /**
++     * Initiate interrupt of all alive Unpacker and waits until all Unpacker are interrupted or the
++     * wait time has arrived. If the doNotInterrupt flag in InstallerListener is set to true, the
++     * interrupt will be discarded.
++     * 
++     * @param waitTime wait time in millisecounds
++     * @return true if the interrupt will be performed, false if the interrupt will be discarded
++     */
++    public static boolean interruptAll(long waitTime)
++    {
++        long t0 = System.currentTimeMillis();
++        if (isDiscardInterrupt()) return (false);
++        setInterruptAll();
++        while (!isInterruptReady())
++        {
++            if (System.currentTimeMillis() - t0 &gt; waitTime) return (true);
++            try
++            {
++                Thread.sleep(100);
++            }
++            catch (InterruptedException e)
++            {}
++        }
++        return (true);
++    }
++
++    private static boolean isInterruptReady()
++    {
++        synchronized (instances)
++        {
++            Iterator iter = instances.keySet().iterator();
++            while (iter.hasNext())
++            {
++                Object key = iter.next();
++                if (!instances.get(key).equals(INTERRUPTED)) return (false);
++            }
++            return (true);
++        }
++
++    }
++
++    /**
++     * Sets the interrupt flag for this Unpacker to INTERRUPTED if the previos state was INTERRUPT
++     * or INTERRUPTED and returns whether interrupt was initiate or not.
++     * 
++     * @return whether interrupt was initiate or not
++     */
++    private boolean performInterrupted()
++    {
++        synchronized (instances)
++        {
++            Object doIt = instances.get(this);
++            if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED)))
++            {
++                instances.put(this, INTERRUPTED);
++                this.result = false;
++                return (true);
++            }
++            return (false);
++        }
++    }
++
++    /**
++     * Returns whether interrupt was initiate or not for this Unpacker.
++     * 
++     * @return whether interrupt was initiate or not
++     */
++    private boolean shouldInterrupt()
++    {
++        synchronized (instances)
++        {
++            Object doIt = instances.get(this);
++            if (doIt != null &amp;&amp; (doIt.equals(INTERRUPT) || doIt.equals(INTERRUPTED))) { return (true); }
++            return (false);
++        }
++
++    }
++
++    protected File enterNextMediaMessage(String volumename)
++    {
++        Debug.trace(&quot;Enter next media: &quot; + volumename);
++        StackTraceElement[] el = (new Exception()).getStackTrace();
++        for (int i = 0; i &lt; el.length; i++)
++        {
++            StackTraceElement element = el[i];
++            Debug.trace(element.toString());
++        }
++
++        File nextvolume = new File(volumename);
++        NextMediaDialog nmd = null;
++        while (!nextvolume.exists())
++        {
++            if ((this.handler != null) &amp;&amp; (this.handler instanceof IzPanel))
++            {
++                InstallerFrame installframe = ((IzPanel) this.handler).getInstallerFrame();
++                nmd = new NextMediaDialog(installframe, idata, volumename);
++            }
++            else
++            {
++                nmd = new NextMediaDialog(null, idata, volumename);
++            }
++            nmd.setVisible(true);
++            String nextmediainput = nmd.getNextMedia();
++            if (nextmediainput != null)
++            {
++                nextvolume = new File(nextmediainput);
++            }
++            else
++            {
++                Debug.trace(&quot;Input from NextMediaDialog was null&quot;);
++                nextvolume = new File(volumename);
++            }
++        }
++        return nextvolume;
++    }
++
++    /** The run method. */
++    public void run()
++    {
++        addToInstances();
++        try
++        {
++            //
++            // Initialisations
++            FileOutputStream out = null;
++            ArrayList parsables = new ArrayList();
++            ArrayList executables = new ArrayList();
++            ArrayList updatechecks = new ArrayList();
++            List packs = idata.selectedPacks;
++            int npacks = packs.size();
++            Debug.trace(&quot;Unpacker starting&quot;);
++            handler.startAction(&quot;Unpacking&quot;, npacks);
++            udata = UninstallData.getInstance();
++            // Custom action listener stuff --- load listeners ----
++            List[] customActions = getCustomActions();
++            // Custom action listener stuff --- beforePacks ----
++            informListeners(customActions, InstallerListener.BEFORE_PACKS, idata, new Integer(
++                    npacks), handler);
++            // vs = new VariableSubstitutor(idata.getVariables());
++            packs = idata.selectedPacks;
++            npacks = packs.size();
++            if (npacks == 0)
++            {
++                if (performInterrupted())
++                { // Interrupt was initiated; perform it.
++                    return;
++                }
++
++                // Custom action listener stuff --- afterPacks ----
++                informListeners(customActions, InstallerListener.AFTER_PACKS, idata, handler, null);
++                if (performInterrupted())
++                { // Interrupt was initiated; perform it.
++                    return;
++                }
++
++                // The end :-)
++                handler.stopAction();
++                return;
++            }
++            InputStream in = MultiVolumeUnpacker.class
++                    .getResourceAsStream(FileSpanningOutputStream.VOLUMES_INFO);
++            // get volumes metadata
++            ObjectInputStream metadataobj = new ObjectInputStream(in);
++            // TODO: create MetadataObject
++            int volumes = metadataobj.readInt();
++            String volumename = metadataobj.readUTF();
++            Debug.trace(&quot;Reading from &quot; + volumes + &quot; volumes with basename &quot; + volumename + &quot; &quot;);
++            metadataobj.close();
++            String mediadirectory = MultiVolumeInstaller.getMediadirectory();
++            if ((mediadirectory == null) || (mediadirectory.length() &lt;= 0))
++            {
++                Debug.trace(&quot;Mediadirectory wasn't set.&quot;);
++                mediadirectory = System.getProperty(&quot;java.io.tmpdir&quot;); // try the temporary
++                // directory
++            }
++            Debug.trace(&quot;Using mediadirectory = &quot; + mediadirectory);
++            File volume = new File(mediadirectory + File.separator + volumename);
++            if (!volume.exists())
++            {
++                volume = enterNextMediaMessage(volume.getAbsolutePath());
++            }
++            FileSpanningInputStream fin = new FileSpanningInputStream(volume, volumes);
++
++            // We unpack the selected packs
++            for (int i = 0; i &lt; npacks; i++)
++            {
++                // We get the pack stream
++                int n = idata.allPacks.indexOf(packs.get(i));
++
++                in = MultiVolumeUnpacker.class.getResourceAsStream(&quot;/packs/pack&quot; + n);
++
++                // Custom action listener stuff --- beforePack ----
++                informListeners(customActions, InstallerListener.BEFORE_PACK, packs.get(i),
++                        new Integer(npacks), handler);
++                // find next Entry
++                ObjectInputStream objIn = new ObjectInputStream(in);
++                // We unpack the files
++                int nfiles = objIn.readInt();
++
++                // We get the internationalized name of the pack
++                final Pack pack = ((Pack) packs.get(i));
++                String stepname = pack.name;// the message to be passed to the
++                // installpanel
++                if (langpack != null &amp;&amp; !(pack.id == null || &quot;&quot;.equals(pack.id)))
++                {
++
++                    final String name = langpack.getString(pack.id);
++                    if (name != null &amp;&amp; !&quot;&quot;.equals(name))
++                    {
++                        stepname = name;
++                    }
++                }
++                handler.nextStep(stepname, i + 1, nfiles);
++                for (int j = 0; j &lt; nfiles; j++)
++                {
++                    // We read the header
++                    XPackFile pf = (XPackFile) objIn.readObject();
++
++                    if (OsConstraint.oneMatchesCurrentSystem(pf.osConstraints()))
++                    {
++                        // We translate &amp; build the path
++                        String path = IoHelper.translatePath(pf.getTargetPath(), vs);
++                        File pathFile = new File(path);
++                        File dest = pathFile;
++                        if (!pf.isDirectory()) dest = pathFile.getParentFile();
++
++                        if (!dest.exists())
++                        {
++                            // If there are custom actions which would be called
++                            // at
++                            // creating a directory, create it recursively.
++                            List fileListeners = customActions[customActions.length - 1];
++                            if (fileListeners != null &amp;&amp; fileListeners.size() &gt; 0)
++                                mkDirsWithEnhancement(dest, pf, customActions);
++                            else
++                            // Create it in on step.
++                            {
++                                if (!dest.mkdirs())
++                                {
++                                    handler.emitError(&quot;Error creating directories&quot;,
++                                            &quot;Could not create directory\n&quot; + dest.getPath());
++                                    handler.stopAction();
++                                    this.result = false;
++                                    return;
++                                }
++                            }
++                        }
++
++                        if (pf.isDirectory()) continue;
++
++                        // Custom action listener stuff --- beforeFile ----
++                        informListeners(customActions, InstallerListener.BEFORE_FILE, pathFile, pf,
++                                null);
++                        // We add the path to the log,
++                        udata.addFile(path);
++
++                        handler.progress(j, path);
++
++                        // if this file exists and should not be overwritten,
++                        // check
++                        // what to do
++                        if ((pathFile.exists()) &amp;&amp; (pf.override() != PackFile.OVERRIDE_TRUE))
++                        {
++                            boolean overwritefile = false;
++
++                            // don't overwrite file if the user said so
++                            if (pf.override() != PackFile.OVERRIDE_FALSE)
++                            {
++                                if (pf.override() == PackFile.OVERRIDE_TRUE)
++                                {
++                                    overwritefile = true;
++                                }
++                                else if (pf.override() == PackFile.OVERRIDE_UPDATE)
++                                {
++                                    // check mtime of involved files
++                                    // (this is not 100% perfect, because the
++                                    // already existing file might
++                                    // still be modified but the new installed
++                                    // is just a bit newer; we would
++                                    // need the creation time of the existing
++                                    // file or record with which mtime
++                                    // it was installed...)
++                                    overwritefile = (pathFile.lastModified() &lt; pf.lastModified());
++                                }
++                                else
++                                {
++                                    int def_choice = -1;
++
++                                    if (pf.override() == PackFile.OVERRIDE_ASK_FALSE)
++                                        def_choice = AbstractUIHandler.ANSWER_NO;
++                                    if (pf.override() == PackFile.OVERRIDE_ASK_TRUE)
++                                        def_choice = AbstractUIHandler.ANSWER_YES;
++
++                                    int answer = handler.askQuestion(idata.langpack
++                                            .getString(&quot;InstallPanel.overwrite.title&quot;)
++                                            + &quot; - &quot; + pathFile.getName(), idata.langpack
++                                            .getString(&quot;InstallPanel.overwrite.question&quot;)
++                                            + pathFile.getAbsolutePath(),
++                                            AbstractUIHandler.CHOICES_YES_NO, def_choice);
++
++                                    overwritefile = (answer == AbstractUIHandler.ANSWER_YES);
++                                }
++
++                            }
++
++                            if (!overwritefile)
++                            {
++                                if (!pf.isBackReference() &amp;&amp; !((Pack) packs.get(i)).loose)
++                                {
++                                    // objIn.skip(pf.length());
++                                }
++                                continue;
++                            }
++
++                        }
++
++                        // We copy the file
++                        out = new FileOutputStream(pathFile);
++                        byte[] buffer = new byte[5120];
++                        long bytesCopied = 0;
++                        // InputStream pis = objIn;
++                        InputStream pis = fin;
++
++                        if (((Pack) packs.get(i)).loose)
++                        {
++                            pis = new FileInputStream(pf.sourcePath);
++                        }
++
++                        // read in the position of this file
++                        // long fileposition = objIn.readLong();
++                        long fileposition = pf.getArchivefileposition();
++
++                        while (fin.getFilepointer() &lt; fileposition)
++                        {
++                            // we have to skip some bytes
++                            Debug.trace(&quot;Skipping bytes to get to file &quot; + pathFile.getName()
++                                    + &quot; (&quot; + fin.getFilepointer() + &quot;&lt;&quot; + fileposition
++                                    + &quot;) target is: &quot; + (fileposition - fin.getFilepointer()));
++                            try
++                            {
++                                fin.skip(fileposition - fin.getFilepointer());
++                                break;
++                            }
++                            catch (VolumeNotFoundException vnfe)
++                            {
++                                File nextmedia = enterNextMediaMessage(vnfe.getVolumename());
++                                fin.setVolumename(nextmedia.getAbsolutePath());
++                            }
++                        }
++
++                        if (fin.getFilepointer() &gt; fileposition)
++                        {
++                            Debug.trace(&quot;Error, can't access file in pack.&quot;);
++                        }
++
++                        while (bytesCopied &lt; pf.length())
++                        {
++                            try
++                            {
++                                if (performInterrupted())
++                                { // Interrupt was initiated; perform it.
++                                    out.close();
++                                    if (pis != objIn) pis.close();
++                                    return;
++                                }
++                                int maxBytes = (int) Math.min(pf.length() - bytesCopied,
++                                        buffer.length);
++
++                                int bytesInBuffer = pis.read(buffer, 0, maxBytes);
++                                if (bytesInBuffer == -1)
++                                {
++                                    Debug.trace(&quot;Unexpected end of stream (installer corrupted?)&quot;);
++                                    throw new IOException(
++                                            &quot;Unexpected end of stream (installer corrupted?)&quot;);
++                                }
++
++                                out.write(buffer, 0, bytesInBuffer);
++
++                                bytesCopied += bytesInBuffer;
++                            }
++                            catch (VolumeNotFoundException vnfe)
++                            {
++                                File nextmedia = enterNextMediaMessage(vnfe.getVolumename());
++                                fin.setVolumename(nextmedia.getAbsolutePath());
++                            }
++                        }
++                        // Cleanings
++                        out.close();
++                        // if (pis != objIn) pis.close();
++
++                        // Set file modification time if specified
++                        if (pf.lastModified() &gt;= 0) pathFile.setLastModified(pf.lastModified());
++                        // Custom action listener stuff --- afterFile ----
++                        informListeners(customActions, InstallerListener.AFTER_FILE, pathFile, pf,
++                                null);
++                    }
++                    else
++                    {
++                        if (!pf.isBackReference())
++                        {
++                            // objIn.skip(pf.length());
++                        }
++                    }
++                }
++                // Load information about parsable files
++                int numParsables = objIn.readInt();
++                Debug.trace(&quot;Looking for parsables&quot;);
++                for (int k = 0; k &lt; numParsables; k++)
++                {
++                    ParsableFile pf = null;
++                    while (true)
++                    {
++                        try
++                        {
++                            pf = (ParsableFile) objIn.readObject();
++                            break;
++                        }
++                        catch (VolumeNotFoundException vnfe)
++                        {
++                            File nextmedia = enterNextMediaMessage(vnfe.getVolumename());
++                            fin.setVolumename(nextmedia.getAbsolutePath());
++                        }
++                        catch (EOFException eofe)
++                        {
++                            File nextmedia = enterNextMediaMessage(&quot;&quot;);
++                            fin.setVolumename(nextmedia.getAbsolutePath());
++                        }
++                    }
++                    pf.path = IoHelper.translatePath(pf.path, vs);
++                    Debug.trace(&quot;Found parsable: &quot; + pf.path);
++                    parsables.add(pf);
++                }
++
++                // Load information about executable files
++                int numExecutables = objIn.readInt();
++                Debug.trace(&quot;Looking for executables...&quot;);
++                for (int k = 0; k &lt; numExecutables; k++)
++                {
++                    ExecutableFile ef = (ExecutableFile) objIn.readObject();
++
++                    ef.path = IoHelper.translatePath(ef.path, vs);
++                    if (null != ef.argList &amp;&amp; !ef.argList.isEmpty())
++                    {
++                        String arg = null;
++                        for (int j = 0; j &lt; ef.argList.size(); j++)
++                        {
++                            arg = (String) ef.argList.get(j);
++                            arg = IoHelper.translatePath(arg, vs);
++                            ef.argList.set(j, arg);
++                        }
++                    }
++                    Debug.trace(&quot;Found executable: &quot; + ef.path);
++                    executables.add(ef);
++                    if (ef.executionStage == ExecutableFile.UNINSTALL)
++                    {
++                        udata.addExecutable(ef);
++                    }
++                }
++                // Custom action listener stuff --- uninstall data ----
++                handleAdditionalUninstallData(udata, customActions);
++
++                // Load information about updatechecks
++                int numUpdateChecks = objIn.readInt();
++                Debug.trace(&quot;Looking for updatechecks&quot;);
++                for (int k = 0; k &lt; numUpdateChecks; k++)
++                {
++                    UpdateCheck uc = (UpdateCheck) objIn.readObject();
++                    Debug.trace(&quot;found updatecheck&quot;);
++                    updatechecks.add(uc);
++                }
++
++                // objIn.close();
++
++                if (performInterrupted())
++                { // Interrupt was initiated; perform it.
++                    return;
++                }
++
++                // Custom action listener stuff --- afterPack ----
++                informListeners(customActions, InstallerListener.AFTER_PACK, packs.get(i),
++                        new Integer(i), handler);
++            }
++            Debug.trace(&quot;Trying to parse files&quot;);
++            // We use the scripts parser
++            ScriptParser parser = new ScriptParser(parsables, vs);
++            parser.parseFiles();
++            Debug.trace(&quot;parsed files&quot;);
++            if (performInterrupted())
++            { // Interrupt was initiated; perform it.
++                return;
++            }
++            Debug.trace(&quot;Trying to execute files&quot;);
++            // We use the file executor
++            FileExecutor executor = new FileExecutor(executables);
++            if (executor.executeFiles(ExecutableFile.POSTINSTALL, handler) != 0)
++            {
++                handler.emitError(&quot;File execution failed&quot;, &quot;The installation was not completed&quot;);
++                this.result = false;
++                Debug.trace(&quot;File execution failed&quot;);
++            }
++
++            if (performInterrupted())
++            { // Interrupt was initiated; perform it.
++                return;
++            }
++            Debug.trace(&quot;Create uninstaller&quot;);
++            // We put the uninstaller (it's not yet complete...)
++            putUninstaller();
++            Debug.trace(&quot;Uninstaller created&quot;);
++            // update checks _after_ uninstaller was put, so we don't delete it
++            Debug.trace(&quot;Perform updateChecks&quot;);
++            performUpdateChecks(updatechecks);
++            Debug.trace(&quot;updatechecks performed.&quot;);
++            if (performInterrupted())
++            { // Interrupt was initiated; perform it.
++                return;
++            }
++
++            // Custom action listener stuff --- afterPacks ----
++            informListeners(customActions, InstallerListener.AFTER_PACKS, idata, handler, null);
++            if (performInterrupted())
++            { // Interrupt was initiated; perform it.
++                return;
++            }
++            this.writeConfigInformation();
++            // The end :-)
++            handler.stopAction();
++            Debug.trace(&quot;Installation complete&quot;);
++        }
++        catch (Exception err)
++        {
++            // TODO: finer grained error handling with useful error messages
++            handler.stopAction();
++            handler.emitError(&quot;An error occured&quot;, err.toString());
++            err.printStackTrace();
++            Debug.trace(&quot;Error while installing: &quot; + err.toString());
++            this.result = false;
++        }
++        finally
++        {
++            removeFromInstances();
++        }
++    }
++
++    protected void writeConfigInformation()
++    {
++        // save the variables
++        Properties installerproperties = idata.getVariables();
++        Enumeration installerpropertieskeys = installerproperties.keys();
++        try
++        {
++            String installpath = idata.getVariable(&quot;INSTALL_PATH&quot;);
++            PrintWriter pw = new PrintWriter(new FileOutputStream(installpath + File.separator
++                    + &quot;installer.properties&quot;));
++            pw.println(&quot;# Installer properties, written by MultiVolumeUnpacker.&quot;);
++            while (installerpropertieskeys.hasMoreElements())
++            {
++                String key = (String) installerpropertieskeys.nextElement();
++                if (key.startsWith(&quot;SYSTEM_&quot;))
++                {
++                    // skip
++                    continue;
++                }
++                else if (key.startsWith(&quot;password_&quot;))
++                {
++                    // skip
++                    continue;
++                }
++                pw.println(key + &quot;=&quot; + installerproperties.getProperty(key));
++            }
++            pw.flush();
++            pw.close();
++        }
++        catch (Exception e)
++        {
++            Debug.trace(&quot;Error while writing config information in MultiVolumeUnpacker: &quot;
++                    + e.getMessage());
++        }
++    }
++
++    /**
++     * Return the state of the operation.
++     * 
++     * @return true if the operation was successful, false otherwise.
++     */
++    public boolean getResult()
++    {
++        return this.result;
++    }
++
++    /**
++     * @param updatechecks
++     */
++    private void performUpdateChecks(ArrayList updatechecks)
++    {
++        ArrayList include_patterns = new ArrayList();
++        ArrayList exclude_patterns = new ArrayList();
++
++        RECompiler recompiler = new RECompiler();
++
++        this.absolute_installpath = new File(idata.getInstallPath()).getAbsoluteFile();
++
++        // at first, collect all patterns
++        for (Iterator iter = updatechecks.iterator(); iter.hasNext();)
++        {
++            UpdateCheck uc = (UpdateCheck) iter.next();
++
++            if (uc.includesList != null)
++                include_patterns.addAll(preparePatterns(uc.includesList, recompiler));
++
++            if (uc.excludesList != null)
++                exclude_patterns.addAll(preparePatterns(uc.excludesList, recompiler));
++        }
++
++        // do nothing if no update checks were specified
++        if (include_patterns.size() == 0) return;
++
++        // now collect all files in the installation directory and figure
++        // out files to check for deletion
++
++        // use a treeset for fast access
++        TreeSet installed_files = new TreeSet();
++
++        for (Iterator if_it = this.udata.getFilesList().iterator(); if_it.hasNext();)
++        {
++            String fname = (String) if_it.next();
++
++            File f = new File(fname);
++
++            if (!f.isAbsolute())
++            {
++                f = new File(this.absolute_installpath, fname);
++            }
++
++            installed_files.add(f.getAbsolutePath());
++        }
++
++        // now scan installation directory (breadth first), contains Files of
++        // directories to scan
++        // (note: we'll recurse infinitely if there are circular links or
++        // similar nasty things)
++        Stack scanstack = new Stack();
++
++        // contains File objects determined for deletion
++        ArrayList files_to_delete = new ArrayList();
++
++        try
++        {
++            scanstack.add(absolute_installpath);
++
++            while (!scanstack.empty())
++            {
++                File f = (File) scanstack.pop();
++
++                File[] files = f.listFiles();
++
++                if (files == null) { throw new IOException(f.getPath() + &quot;is not a directory!&quot;); }
++
++                for (int i = 0; i &lt; files.length; i++)
++                {
++                    File newf = files[i];
++
++                    String newfname = newf.getPath();
++
++                    // skip files we just installed
++                    if (installed_files.contains(newfname)) continue;
++
++                    if (fileMatchesOnePattern(newfname, include_patterns)
++                            &amp;&amp; (!fileMatchesOnePattern(newfname, exclude_patterns)))
++                    {
++                        files_to_delete.add(newf);
++                    }
++
++                    if (newf.isDirectory())
++                    {
++                        scanstack.push(newf);
++                    }
++
++                }
++            }
++        }
++        catch (IOException e)
++        {
++            this.handler.emitError(&quot;error while performing update checks&quot;, e.toString());
++        }
++
++        for (Iterator f_it = files_to_delete.iterator(); f_it.hasNext();)
++        {
++            File f = (File) f_it.next();
++
++            if (!f.isDirectory())
++            // skip directories - they cannot be removed safely yet
++            {
++                this.handler.emitNotification(&quot;deleting &quot; + f.getPath());
++                f.delete();
++            }
++
++        }
++
++    }
++
++    /**
++     * @param filename
++     * @param patterns
++     * 
++     * @return true if the file matched one pattern, false if it did not
++     */
++    private boolean fileMatchesOnePattern(String filename, ArrayList patterns)
++    {
++        // first check whether any include matches
++        for (Iterator inc_it = patterns.iterator(); inc_it.hasNext();)
++        {
++            RE pattern = (RE) inc_it.next();
++
++            if (pattern.match(filename)) { return true; }
++        }
++
++        return false;
++    }
++
++    /**
++     * @param list A list of file name patterns (in ant fileset syntax)
++     * @param recompiler The regular expression compiler (used to speed up RE compiling).
++     * 
++     * @return List of org.apache.regexp.RE
++     */
++    private List preparePatterns(ArrayList list, RECompiler recompiler)
++    {
++        ArrayList result = new ArrayList();
++
++        for (Iterator iter = list.iterator(); iter.hasNext();)
++        {
++            String element = (String) iter.next();
++
++            if ((element != null) &amp;&amp; (element.length() &gt; 0))
++            {
++                // substitute variables in the pattern
++                element = this.vs.substitute(element, &quot;plain&quot;);
++
++                // check whether the pattern is absolute or relative
++                File f = new File(element);
++
++                // if it is relative, make it absolute and prepend the
++                // installation path
++                // (this is a bit dangerous...)
++                if (!f.isAbsolute())
++                {
++                    element = new File(this.absolute_installpath, element).toString();
++                }
++
++                // now parse the element and construct a regular expression from
++                // it
++                // (we have to parse it one character after the next because
++                // every
++                // character should only be processed once - it's not possible
++                // to get this
++                // correct using regular expression replacing)
++                StringBuffer element_re = new StringBuffer();
++
++                int lookahead = -1;
++
++                int pos = 0;
++
++                while (pos &lt; element.length())
++                {
++                    char c;
++
++                    if (lookahead != -1)
++                    {
++                        c = (char) lookahead;
++                        lookahead = -1;
++                    }
++                    else
++                        c = element.charAt(pos++);
++
++                    switch (c)
++                    {
++                    case '/': {
++                        element_re.append(File.separator);
++                        break;
++                    }
++                        // escape backslash and dot
++                    case '\\':
++                    case '.': {
++                        element_re.append(&quot;\\&quot;);
++                        element_re.append(c);
++                        break;
++                    }
++                    case '*': {
++                        if (pos == element.length())
++                        {
++                            element_re.append(&quot;[^&quot;).append(File.separator).append(&quot;]*&quot;);
++                            break;
++                        }
++
++                        lookahead = element.charAt(pos++);
++
++                        // check for &quot;**&quot;
++                        if (lookahead == '*')
++                        {
++                            element_re.append(&quot;.*&quot;);
++                            // consume second star
++                            lookahead = -1;
++                        }
++                        else
++                        {
++                            element_re.append(&quot;[^&quot;).append(File.separator).append(&quot;]*&quot;);
++                            // lookahead stays there
++                        }
++                        break;
++                    }
++                    default: {
++                        element_re.append(c);
++                        break;
++                    }
++                    } // switch
++
++                }
++
++                // make sure that the whole expression is matched
++                element_re.append('$');
++
++                // replace \ by \\ and create a RE from the result
++                try
++                {
++                    result.add(new RE(recompiler.compile(element_re.toString())));
++                }
++                catch (RESyntaxException e)
++                {
++                    this.handler.emitNotification(&quot;internal error: pattern \&quot;&quot; + element
++                            + &quot;\&quot; produced invalid RE \&quot;&quot; + f.getPath() + &quot;\&quot;&quot;);
++                }
++
++            }
++        }
++
++        return result;
++    }
++
++    /**
++     * Puts the uninstaller.
++     * 
++     * @exception Exception Description of the Exception
++     */
++    private void putUninstaller() throws Exception
++    {
++        // get the uninstaller base, returning if not found so that
++        // idata.uninstallOutJar remains null
++        InputStream[] in = new InputStream[2];
++        in[0] = MultiVolumeUnpacker.class.getResourceAsStream(&quot;/res/IzPack.uninstaller&quot;);
++        if (in[0] == null) return;
++        // The uninstaller extension is facultative; it will be exist only
++        // if a native library was marked for uninstallation.
++        in[1] = MultiVolumeUnpacker.class.getResourceAsStream(&quot;/res/IzPack.uninstaller-ext&quot;);
++
++        // Me make the .uninstaller directory
++        String dest = IoHelper.translatePath(&quot;$INSTALL_PATH&quot;, vs) + File.separator + &quot;Uninstaller&quot;;
++        String jar = dest + File.separator + idata.info.getUninstallerName();
++        File pathMaker = new File(dest);
++        pathMaker.mkdirs();
++
++        // We log the uninstaller deletion information
++        udata.setUninstallerJarFilename(jar);
++        udata.setUninstallerPath(dest);
++
++        // We open our final jar file
++        FileOutputStream out = new FileOutputStream(jar);
++        // Intersect a buffer else byte for byte will be written to the file.
++        BufferedOutputStream bos = new BufferedOutputStream(out);
++        ZipOutputStream outJar = new ZipOutputStream(bos);
++        idata.uninstallOutJar = outJar;
++        outJar.setLevel(9);
++        udata.addFile(jar);
++
++        // We copy the uninstallers
++        HashSet doubles = new HashSet();
++
++        for (int i = 0; i &lt; in.length; ++i)
++        {
++            if (in[i] == null) continue;
++            ZipInputStream inRes = new ZipInputStream(in[i]);
++            ZipEntry zentry = inRes.getNextEntry();
++            while (zentry != null)
++            {
++                // Puts a new entry, but not twice like META-INF
++                if (!doubles.contains(zentry.getName()))
++                {
++                    doubles.add(zentry.getName());
++                    outJar.putNextEntry(new ZipEntry(zentry.getName()));
++
++                    // Byte to byte copy
++                    int unc = inRes.read();
++                    while (unc != -1)
++                    {
++                        outJar.write(unc);
++                        unc = inRes.read();
++                    }
++
++                    // Next one please
++                    inRes.closeEntry();
++                    outJar.closeEntry();
++                }
++                zentry = inRes.getNextEntry();
++            }
++            inRes.close();
++        }
++
++        // We put the langpack
++        InputStream in2 = MultiVolumeUnpacker.class.getResourceAsStream(&quot;/langpacks/&quot;
++                + idata.localeISO3 + &quot;.xml&quot;);
++        outJar.putNextEntry(new ZipEntry(&quot;langpack.xml&quot;));
++        int read = in2.read();
++        while (read != -1)
++        {
++            outJar.write(read);
++            read = in2.read();
++        }
++        outJar.closeEntry();
++    }
++
++    // CUSTOM ACTION STUFF -------------- start -----------------
++
++    /**
++     * Informs all listeners which would be informed at the given action type.
++     * 
++     * @param customActions array of lists with the custom action objects
++     * @param action identifier for which callback should be called
++     * @param firstParam first parameter for the call
++     * @param secondParam second parameter for the call
++     * @param thirdParam third parameter for the call
++     */
++    private void informListeners(List[] customActions, int action, Object firstParam,
++            Object secondParam, Object thirdParam) throws Exception
++    {
++        List listener = null;
++        // select the right action list.
++        switch (action)
++        {
++        case InstallerListener.BEFORE_FILE:
++        case InstallerListener.AFTER_FILE:
++        case InstallerListener.BEFORE_DIR:
++        case InstallerListener.AFTER_DIR:
++            listener = customActions[customActions.length - 1];
++            break;
++        default:
++            listener = customActions[0];
++            break;
++        }
++        if (listener == null) return;
++        // Iterate the action list.
++        Iterator iter = listener.iterator();
++        while (iter.hasNext())
++        {
++            if (shouldInterrupt()) return;
++            InstallerListener il = (InstallerListener) iter.next();
++            switch (action)
++            {
++            case InstallerListener.BEFORE_FILE:
++                il.beforeFile((File) firstParam, (PackFile) secondParam);
++                break;
++            case InstallerListener.AFTER_FILE:
++                il.afterFile((File) firstParam, (PackFile) secondParam);
++                break;
++            case InstallerListener.BEFORE_DIR:
++                il.beforeDir((File) firstParam, (PackFile) secondParam);
++                break;
++            case InstallerListener.AFTER_DIR:
++                il.afterDir((File) firstParam, (PackFile) secondParam);
++                break;
++            case InstallerListener.BEFORE_PACK:
++                il.beforePack((Pack) firstParam, (Integer) secondParam,
++                        (AbstractUIProgressHandler) thirdParam);
++                break;
++            case InstallerListener.AFTER_PACK:
++                il.afterPack((Pack) firstParam, (Integer) secondParam,
++                        (AbstractUIProgressHandler) thirdParam);
++                break;
++            case InstallerListener.BEFORE_PACKS:
++                il.beforePacks((AutomatedInstallData) firstParam, (Integer) secondParam,
++                        (AbstractUIProgressHandler) thirdParam);
++                break;
++            case InstallerListener.AFTER_PACKS:
++                il.afterPacks((AutomatedInstallData) firstParam,
++                        (AbstractUIProgressHandler) secondParam);
++                break;
++
++            }
++        }
++    }
++
++    /**
++     * Returns the defined custom actions split into types including a constructed type for the file
++     * related installer listeners.
++     * 
++     * @return array of lists of custom action data like listeners
++     */
++    private List[] getCustomActions()
++    {
++        String[] listenerNames = AutomatedInstallData.CUSTOM_ACTION_TYPES;
++        List[] retval = new List[listenerNames.length + 1];
++        int i;
++        for (i = 0; i &lt; listenerNames.length; ++i)
++        {
++            retval[i] = (List) idata.customData.get(listenerNames[i]);
++            if (retval[i] == null)
++            // Make a dummy list, then iterator is ever callable.
++                retval[i] = new ArrayList();
++        }
++        if (retval[AutomatedInstallData.INSTALLER_LISTENER_INDEX].size() &gt; 0)
++        { // Installer listeners exist
++            // Create file related installer listener list in the last
++            // element of custom action array.
++            i = retval.length - 1; // Should be so, but safe is safe ...
++            retval[i] = new ArrayList();
++            Iterator iter = ((List) retval[AutomatedInstallData.INSTALLER_LISTENER_INDEX])
++                    .iterator();
++            while (iter.hasNext())
++            {
++                // If we get a class cast exception many is wrong and
++                // we must fix it.
++                InstallerListener li = (InstallerListener) iter.next();
++                if (li.isFileListener()) retval[i].add(li);
++            }
++
++        }
++        return (retval);
++    }
++
++    /**
++     * Adds additional unistall data to the uninstall data object.
++     * 
++     * @param udata unistall data
++     * @param customData array of lists of custom action data like uninstaller listeners
++     */
++    private void handleAdditionalUninstallData(UninstallData udata, List[] customData)
++    {
++        // Handle uninstall libs
++        udata.addAdditionalData(&quot;__uninstallLibs__&quot;,
++                customData[AutomatedInstallData.UNINSTALLER_LIBS_INDEX]);
++        // Handle uninstaller listeners
++        udata.addAdditionalData(&quot;uninstallerListeners&quot;,
++                customData[AutomatedInstallData.UNINSTALLER_LISTENER_INDEX]);
++        // Handle uninstaller jars
++        udata.addAdditionalData(&quot;uninstallerJars&quot;,
++                customData[AutomatedInstallData.UNINSTALLER_JARS_INDEX]);
++    }
++
++    // This method is only used if a file related custom action exist.
++    /**
++     * Creates the given directory recursive and calls the method &quot;afterDir&quot; of each listener with
++     * the current file object and the pack file object. On error an exception is raised.
++     * 
++     * @param dest the directory which should be created
++     * @param pf current pack file object
++     * @param customActions all defined custom actions
++     * @return false on error, true else
++     * @throws Exception
++     */
++
++    private boolean mkDirsWithEnhancement(File dest, PackFile pf, List[] customActions)
++            throws Exception
++    {
++        String path = &quot;unknown&quot;;
++        if (dest != null) path = dest.getAbsolutePath();
++        if (dest != null &amp;&amp; !dest.exists() &amp;&amp; dest.getParentFile() != null)
++        {
++            if (dest.getParentFile().exists())
++                informListeners(customActions, InstallerListener.BEFORE_DIR, dest, pf, null);
++            if (!dest.mkdir())
++            {
++                mkDirsWithEnhancement(dest.getParentFile(), pf, customActions);
++                if (!dest.mkdir()) dest = null;
++            }
++            informListeners(customActions, InstallerListener.AFTER_DIR, dest, pf, null);
++        }
++        if (dest == null)
++        {
++            handler.emitError(&quot;Error creating directories&quot;, &quot;Could not create directory\n&quot; + path);
++            handler.stopAction();
++            return (false);
++        }
++        return (true);
++    }
++
++    // CUSTOM ACTION STUFF -------------- end -----------------
++
++    /**
++     * Returns whether an interrupt request should be discarded or not.
++     * 
++     * @return Returns the discard interrupt flag
++     */
++    public static synchronized boolean isDiscardInterrupt()
++    {
++        return discardInterrupt;
++    }
++
++    /**
++     * Sets the discard interrupt flag.
++     * 
++     * @param di the discard interrupt flag to set
++     */
++    public static synchronized void setDiscardInterrupt(boolean di)
++    {
++        discardInterrupt = di;
++        setInterruptDesired(false);
++    }
++
++    /**
++     * Returns the interrupt desired state.
++     * 
++     * @return the interrupt desired state
++     */
++    public static boolean isInterruptDesired()
++    {
++        return interruptDesired;
++    }
++
++    /**
++     * @param interruptDesired The interrupt desired flag to set
++     */
++    private static void setInterruptDesired(boolean interruptDesired)
++    {
++        MultiVolumeUnpacker.interruptDesired = interruptDesired;
++    }
++}
+\ No newline at end of file
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningInputStream.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningInputStream.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningInputStream.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,301 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.io;
++
++import java.io.File;
++import java.io.FileInputStream;
++import java.io.IOException;
++import java.io.InputStream;
++import java.util.zip.GZIPInputStream;
++
++import com.izforge.izpack.util.Debug;
++
++/**
++ * An inputstream which transparently spans over multiple volumes. The amount of volumes has to be
++ * specified
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ */
++public class FileSpanningInputStream extends InputStream
++{
++
++    private static final int EOF = -1;
++
++    protected FileInputStream fileinputstream;
++
++    protected String volumename;
++
++    protected int currentvolumeindex;
++
++    protected int volumestotal;
++
++    protected static boolean nextvolumenotfound = false;
++
++    protected long filepointer;
++
++    protected GZIPInputStream zippedinputstream;
++
++    public FileSpanningInputStream(File volume, int volumestotal) throws IOException
++    {
++        fileinputstream = new FileInputStream(volume);
++        zippedinputstream = new GZIPInputStream(fileinputstream);
++        currentvolumeindex = 0;
++        volumename = volume.getAbsolutePath();
++        this.volumestotal = volumestotal;
++        filepointer = 0;
++        Debug.trace(&quot;Opening stream to &quot; + volume);
++    }
++
++    public FileSpanningInputStream(String volumename, int volumestotal) throws IOException
++    {
++        this(new File(volumename), volumestotal);
++    }
++
++    /**
++     * creates an inputstream to the next volume
++     * 
++     * @return true - an inputstream to the next volume has been created false - the last volume was
++     * reached
++     * @throws IOException
++     */
++    private boolean createInputStreamToNextVolume() throws IOException
++    {
++        currentvolumeindex++;
++        // have we reached the last volume?
++        if (currentvolumeindex &gt;= volumestotal)
++        {
++            Debug.error(&quot;last volume reached.&quot;);
++            return false;
++        }
++        // the next volume name
++        String nextvolumename = volumename + &quot;.&quot; + currentvolumeindex;
++        Debug.trace(&quot;Trying to use next volume: &quot; + nextvolumename);
++        File nextvolumefile = new File(nextvolumename);
++        if (!nextvolumefile.exists())
++        {
++            currentvolumeindex--;
++            nextvolumenotfound = true;
++            Debug.trace(&quot;volume not found&quot;);
++            throw new VolumeNotFoundException(nextvolumename + &quot;was not found.&quot;, nextvolumename);
++        }
++        Debug.trace(&quot;next volume found.&quot;);
++        // try to open new stream to next volume
++        fileinputstream = new FileInputStream(nextvolumefile);
++        zippedinputstream = new GZIPInputStream(fileinputstream);
++        // everything fine
++        nextvolumenotfound = false;
++        return true;
++    }
++
++    /*
++     * (non-Javadoc)
++     * 
++     * @see java.io.InputStream#available()
++     */
++    public int available() throws IOException
++    {
++        if (nextvolumenotfound)
++        {
++            createInputStreamToNextVolume();
++        }
++        // return fileinputstream.available();
++        return zippedinputstream.available();
++    }
++
++    /*
++     * (non-Javadoc)
++     * 
++     * @see java.io.InputStream#close()
++     */
++    public void close() throws IOException
++    {
++        zippedinputstream.close();
++        fileinputstream.close();
++    }
++
++    /*
++     * (non-Javadoc)
++     * 
++     * @see java.io.InputStream#read()
++     */
++    public int read() throws IOException
++    {
++        if (nextvolumenotfound)
++        {
++            // the next volume was not found, so try to create a new input stream to next volume
++            createInputStreamToNextVolume();
++        }
++        int nextbyte = zippedinputstream.read();
++        filepointer++;
++        if (nextbyte == EOF)
++        {
++            // if end of file is reached, try to open InputStream to next volume
++            // close the inputstream
++            try
++            {
++                zippedinputstream.close();
++            }
++            catch (Exception e)
++            {
++                // do nothing
++            }
++
++            if (createInputStreamToNextVolume())
++            {
++                // try to read next byte
++                nextbyte = zippedinputstream.read();
++                filepointer++;
++            }
++        }
++        return nextbyte;
++    }
++
++    /*
++     * (non-Javadoc)
++     * 
++     * @see java.io.InputStream#read(byte[], int, int)
++     */
++    public int read(byte[] b, int off, int len) throws IOException
++    {
++        if (nextvolumenotfound)
++        {
++            // the next volume was not found, so try to create a new input stream to next volume
++            createInputStreamToNextVolume();
++        }
++        int bytesread = zippedinputstream.read(b, off, len);
++        filepointer += bytesread;
++        if (bytesread == EOF)
++        {
++            filepointer++; // bytesread was -1;
++            System.out.println(&quot;EOF reached.&quot;);
++            // close the inputstream
++            try
++            {
++                zippedinputstream.close();
++            }
++            catch (Exception e)
++            {
++                // do nothing
++            }
++            // try to open next volume
++            if (createInputStreamToNextVolume())
++            {
++                // try to read next bytes
++                Debug.trace(&quot;next volume opened, continuing read&quot;);
++                bytesread = zippedinputstream.read(b, off, len);
++                filepointer += bytesread;
++                // System.out.println(&quot;read into buffer: &quot; + bytesread + &quot; Bytes&quot;);
++            }
++        }
++        // System.out.println(&quot;return from read into buffer: &quot; + bytesread + &quot; Bytes&quot;);
++        return bytesread;
++    }
++
++    /*
++     * (non-Javadoc)
++     * 
++     * @see java.io.InputStream#read(byte[])
++     */
++    public int read(byte[] b) throws IOException
++    {
++        return this.read(b, 0, b.length);
++    }
++
++    /*
++     * (non-Javadoc)
++     * 
++     * @see java.io.InputStream#skip(long)
++     */
++    public long skip(long n) throws IOException
++    {
++        if (nextvolumenotfound)
++        {
++            // the next volume was not found, so try to create a new input stream to next volume
++            createInputStreamToNextVolume();
++        }
++        long bytesskipped = 0;
++        byte[] buffer = new byte[4096];
++        try
++        {
++            while (bytesskipped &lt; n)
++            {
++                int maxBytes = (int) Math.min(n - bytesskipped, buffer.length);
++
++                int bytesInBuffer = this.read(buffer, 0, maxBytes);
++                if (bytesInBuffer == -1)
++                    throw new IOException(&quot;Unexpected end of stream (installer corrupted?)&quot;);
++
++                bytesskipped += bytesInBuffer;
++            }
++        }
++        catch (VolumeNotFoundException vnfe)
++        {
++            vnfe.setAlreadyskippedbytes(bytesskipped);
++            throw vnfe;
++        }
++        return bytesskipped;
++    }
++
++    /**
++     * Returns the name of the volume
++     * 
++     * @return the name of the volume
++     */
++    public String getVolumename()
++    {
++        return volumename;
++    }
++
++    /**
++     * Sets the volumename
++     * 
++     * @param volumename
++     */
++    public void setVolumename(String volumename)
++    {
++        Debug.trace(&quot;new volumename: &quot; + volumename);
++        // try to get the volumename from the given volume file
++        // the first volume has no suffix, additional volumes have a .INDEX# suffix
++        String volumesuffix = &quot;.&quot; + currentvolumeindex;
++        String nextvolumesuffix = &quot;.&quot; + (currentvolumeindex + 1);
++        if (volumename.endsWith(volumesuffix))
++        {
++            this.volumename = volumename.substring(0, volumename.lastIndexOf(volumesuffix));
++        }
++        else if (volumename.endsWith(nextvolumesuffix))
++        {
++            this.volumename = volumename.substring(0, volumename.lastIndexOf(nextvolumesuffix));
++        }
++        else
++        {
++            this.volumename = volumename;
++        }
++        Debug.trace(&quot;Set volumename to: &quot; + this.volumename);
++    }
++
++    /**
++     * Returns the current position in the file. Notice: this is the global position in all volumes.
++     * 
++     * @return the current position in file.
++     */
++    public long getFilepointer()
++    {
++        return filepointer;
++    }
++
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningOutputStream.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningOutputStream.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/io/FileSpanningOutputStream.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,353 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.io;
++
++import java.io.File;
++import java.io.FileOutputStream;
++import java.io.IOException;
++import java.io.OutputStream;
++import java.util.zip.GZIPOutputStream;
++
++import com.izforge.izpack.util.Debug;
++
++/**
++ * An outputstream which transparently spans over multiple volumes. The size of the volumes and an
++ * additonal space for the first volume can be specified.
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ */
++public class FileSpanningOutputStream extends OutputStream
++{
++
++    public static final long KB = 1024;
++
++    public static final long MB = 1024 * KB;
++
++    // the default size of a volume
++    public static final long DEFAULT_VOLUME_SIZE = 650 * MB;
++
++    // free space on first volume
++    // may be used for placing additional files on cd beside the pack files
++    // default is 0, so there's no additional space
++    public static final long DEFAULT_ADDITIONAL_FIRST_VOLUME_FREE_SPACE_SIZE = 0;
++
++    // the default volume name
++    protected static final String DEFAULT_VOLUME_NAME = &quot;installer&quot;;
++
++    protected static final long FILE_NOT_AVAILABLE = -1;
++
++    // the maximum size of a volume
++    protected long maxvolumesize = DEFAULT_VOLUME_SIZE;
++
++    // the addition free space of volume 0
++    protected long firstvolumefreespacesize = DEFAULT_ADDITIONAL_FIRST_VOLUME_FREE_SPACE_SIZE;
++    
++    public static final String VOLUMES_INFO = &quot;/volumes.info&quot;;  
++
++    // the current file this stream writes to
++    protected File currentfile;
++
++    // the name of the volumes
++    protected String volumename;
++
++    // the current index of the volume, the stream writes to
++    protected int currentvolumeindex;
++
++    // a normal file outputstream for writting to the current volume
++    private FileOutputStream fileoutputstream;
++
++    private GZIPOutputStream zippedoutputstream;
++
++    // the current position in the open file
++    protected long filepointer;
++
++    protected long totalbytesofpreviousvolumes;
++
++    /**
++     * Creates a new spanning output stream with specified volume names and a maximum volume size
++     * 
++     * @param volumename - the name of the volumes
++     * @param maxvolumesize - the maximum volume size
++     * @throws IOException
++     */
++    public FileSpanningOutputStream(String volumename, long maxvolumesize) throws IOException
++    {
++        this(new File(volumename), maxvolumesize);
++    }
++
++    /**
++     * Creates a new spanning output stream with specified volume names and a maximum volume size
++     * 
++     * @param volume - the first volume
++     * @param maxvolumesize - the maximum volume size
++     * @throws IOException
++     */
++    public FileSpanningOutputStream(File volume, long maxvolumesize) throws IOException
++    {
++        this(volume, maxvolumesize, 0);
++    }
++
++    /**
++     * Creates a new spanning output stream with specified volume names and a maximum volume size
++     * 
++     * @param volume - the first volume
++     * @param maxvolumesize - the maximum volume size
++     * @param currentvolume - the current volume
++     * @throws IOException
++     */
++    protected FileSpanningOutputStream(File volume, long maxvolumesize, int currentvolume)
++            throws IOException
++    {
++        this.createVolumeOutputStream(volume, maxvolumesize, currentvolume);
++    }
++
++    /**
++     * Actually creates the outputstream for writing a volume with index currentvolume and a maximum
++     * of maxvolumesize
++     * 
++     * @param volume - the volume to write to
++     * @param maxvolumesize - the maximum volume size
++     * @param currentvolume - the currentvolume index
++     * @throws IOException
++     */
++    private void createVolumeOutputStream(File volume, long maxvolumesize, int currentvolume)
++            throws IOException
++    {
++        fileoutputstream = new FileOutputStream(volume);
++        zippedoutputstream = new GZIPOutputStream(fileoutputstream, 256);
++        currentfile = volume;
++        this.currentvolumeindex = currentvolume;
++        this.maxvolumesize = maxvolumesize;
++        // try to get the volumename from the given volume file
++        // the first volume has no suffix, additional volumes have a .INDEX# suffix
++        String volumesuffix = &quot;.&quot; + currentvolume;
++        String volabsolutePath = volume.getAbsolutePath();
++        if (volabsolutePath.endsWith(volumesuffix))
++        {
++            volumename = volabsolutePath.substring(0, volabsolutePath.indexOf(volumesuffix));
++        }
++        else
++        {
++            volumename = volabsolutePath;
++        }
++    }
++
++    /**
++     * 
++     * @param volume
++     * @throws IOException
++     */
++    public FileSpanningOutputStream(File volume) throws IOException
++    {
++        this(volume.getAbsolutePath(), DEFAULT_VOLUME_SIZE);
++    }
++
++    /**
++     * 
++     * @param volumename
++     * @throws IOException
++     */
++    public FileSpanningOutputStream(String volumename) throws IOException
++    {
++        this(volumename, DEFAULT_VOLUME_SIZE);
++    }
++
++    /**
++     * 
++     * @throws IOException
++     */
++    public FileSpanningOutputStream() throws IOException
++    {
++        this(DEFAULT_VOLUME_NAME, DEFAULT_VOLUME_SIZE);
++    }
++
++    /**
++     * Returns the size of the current volume
++     * 
++     * @return the size of the current volume FILE_NOT_AVAILABLE, if there's no current volume
++     */
++    protected long getCurrentVolumeSize()
++    {
++        if (currentfile == null) { return FILE_NOT_AVAILABLE; }
++        try
++        {
++            flush();
++        }
++        catch (IOException e)
++        {
++            e.printStackTrace();
++        }
++        // create a new instance
++        currentfile = new File(currentfile.getAbsolutePath());
++        if (currentvolumeindex == 0)
++        {
++            // this is the first volume, add the additional free space
++            // and add a reserve for overhead and not yet written data
++            return currentfile.length() + this.firstvolumefreespacesize
++                    + Math.round(0.001 * currentfile.length());
++        }
++        else
++        {
++            // not the first volume, just return the actual length
++            // and add a reserve for overhead and not yet written data
++            return currentfile.length() + Math.round(0.001 * currentfile.length());
++        }
++    }
++
++    /**
++     * Closes the stream to the current volume and reopens to the next volume
++     * 
++     * @throws IOException
++     */
++    protected void createStreamToNextVolume() throws IOException
++    {
++        // close current stream
++        close();
++        totalbytesofpreviousvolumes = currentfile.length();
++        currentvolumeindex++;
++        // get the name of the next volume
++        String nextvolumename = volumename + &quot;.&quot; + currentvolumeindex;
++        // does the creation
++        this.createVolumeOutputStream(new File(nextvolumename), this.maxvolumesize,
++                this.currentvolumeindex);
++    }
++
++    /**
++     * @see java.io.OutputStream#close()
++     */
++    public void close() throws IOException
++    {
++        this.flush();
++        zippedoutputstream.close();
++        fileoutputstream.close();
++        // reset the filepointer
++        // filepointer = 0;
++    }
++
++    /**
++     * @see java.io.OutputStream#write(byte[], int, int)
++     */
++    public void write(byte[] b, int off, int len) throws IOException
++    {
++        if (len &gt; maxvolumesize) { throw new IOException(
++                &quot;file can't be written. buffer length exceeded maxvolumesize (&quot; + &quot; &gt; &quot;
++                        + maxvolumesize + &quot;)&quot;); }
++        // get the current size of this file
++        long currentsize = getCurrentVolumeSize();
++        // calculate the available bytes
++        long available = maxvolumesize - currentsize;
++
++        if (available &lt; len)
++        {
++            Debug.trace(&quot;Not enough space left on volume. available: &quot; + available);
++            Debug.trace(&quot;current size is: &quot; + currentsize);
++            // there's not enough space available
++            // create the next volume
++            this.createStreamToNextVolume();
++        }
++        // enough space available, just write to the outputstream
++        zippedoutputstream.write(b, off, len);
++        // increase filepointer by written bytes
++        filepointer += len;
++    }
++
++    /**
++     * @see java.io.OutputStream#write(byte[])
++     */
++    public void write(byte[] b) throws IOException
++    {
++        this.write(b, 0, b.length);
++    }
++
++    /**
++     * @see java.io.OutputStream#write(int)
++     */
++    public void write(int b) throws IOException
++    {
++        long availablebytes = maxvolumesize - getCurrentVolumeSize();
++        if (availablebytes &gt;= 1)
++        {
++            zippedoutputstream.write(b);
++            // increase filepointer by written byte
++            filepointer++;
++        }
++        else
++        {
++            // create next volume
++            this.createStreamToNextVolume();
++            zippedoutputstream.write(b);
++            // increase filepointer by written byte
++            filepointer++;
++        }
++    }
++
++    /**
++     * @see java.io.OutputStream#flush()
++     */
++    public void flush() throws IOException
++    {
++        zippedoutputstream.flush();
++        fileoutputstream.flush();
++    }
++
++    /**
++     * Returns the amount of currently created volumes
++     * 
++     * @return the amount of created volumes
++     */
++    public int getVolumeCount()
++    {
++        return this.currentvolumeindex + 1;
++    }
++
++    /**
++     * 
++     * @return
++     */
++    public long getFirstvolumefreespacesize()
++    {
++        return firstvolumefreespacesize;
++    }
++
++    /**
++     * 
++     * @param firstvolumefreespacesize
++     */
++    public void setFirstvolumefreespacesize(long firstvolumefreespacesize)
++    {
++        this.firstvolumefreespacesize = firstvolumefreespacesize;
++    }
++
++    /**
++     * Returns the current position in this file
++     * 
++     * @return the position in this file
++     * @throws IOException
++     */
++    public long getCompressedFilepointer() throws IOException
++    {
++        this.flush();
++        // return filepointer;
++        return totalbytesofpreviousvolumes + currentfile.length();
++    }
++
++    public long getFilepointer()
++    {
++        return filepointer;
++    }
++}
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/io/VolumeNotFoundException.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/io/VolumeNotFoundException.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/io/VolumeNotFoundException.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,76 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.io;
++
++import java.io.IOException;
++
++/**
++ * Exception, indicating, that a volume was not found.
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ */
++public class VolumeNotFoundException extends IOException
++{
++
++    protected String volumename;
++
++    protected long alreadyskippedbytes;
++
++    private static final long serialVersionUID = 9062182895972373707L;
++
++    public VolumeNotFoundException()
++    {
++        super();
++    }
++
++    public VolumeNotFoundException(String message, String volumename)
++    {
++        super(message);
++        this.volumename = volumename;
++    }
++
++    /**
++     * Returns the name of the volume, which couldn't be found
++     * 
++     * @return the name of the volume
++     */
++    public String getVolumename()
++    {
++        return volumename;
++    }
++
++    /**
++     * Returns the amount of skipped bytes, if a skip-operation was in progress
++     * 
++     * @return the amount of skipped bytes
++     */
++    public long getAlreadyskippedbytes()
++    {
++        return alreadyskippedbytes;
++    }
++
++    /**
++     * Sets the amount of already skipped bytes.
++     * 
++     * @param alreadyskippedbytes
++     */
++    public void setAlreadyskippedbytes(long alreadyskippedbytes)
++    {
++        this.alreadyskippedbytes = alreadyskippedbytes;
++    }
++}
+\ No newline at end of file
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/NextMediaDialog.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/NextMediaDialog.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/NextMediaDialog.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,197 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.panels;
++
++import java.awt.BorderLayout;
++import java.awt.Color;
++import java.awt.Dimension;
++import java.awt.Frame;
++import java.awt.HeadlessException;
++import java.awt.Point;
++import java.awt.event.ActionEvent;
++import java.awt.event.ActionListener;
++import java.io.File;
++
++import javax.swing.Box;
++import javax.swing.BoxLayout;
++import javax.swing.JButton;
++import javax.swing.JDialog;
++import javax.swing.JFileChooser;
++import javax.swing.JLabel;
++import javax.swing.JOptionPane;
++import javax.swing.JPanel;
++import javax.swing.JTextField;
++
++import com.izforge.izpack.LocaleDatabase;
++import com.izforge.izpack.gui.ButtonFactory;
++import com.izforge.izpack.gui.IconsDatabase;
++import com.izforge.izpack.gui.LabelFactory;
++import com.izforge.izpack.installer.AutomatedInstallData;
++import com.izforge.izpack.installer.InstallerFrame;
++
++
++/**
++ * Dialog for choosing the next volume.
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ */
++public class NextMediaDialog extends JDialog implements ActionListener{
++  private static final String NEXTMEDIA_MSG_ID = &quot;nextmedia.msg&quot;;
++  private static final String NEXTMEDIA_TITLE_ID = &quot;nextmedia.title&quot;;
++  private static final String BROWSEBTN_ID = &quot;nextmedia.browsebtn&quot;;
++  private static final String OKBTN_ID = &quot;nextmedia.okbtn&quot;;
++  private static final String CANCELBTN_ID = &quot;nextmedia.cancelbtn&quot;;
++  
++  
++  private static final long serialVersionUID = -2551719029962051020L;
++  
++  protected JLabel msg;
++  protected JTextField path;
++  protected JButton browsebtn;
++  protected JButton okbtn;
++  protected JButton cancelbtn;
++    
++  protected String nextmedianame;
++  protected String nextmediapath;
++  protected String nextmediainput;
++  protected LocaleDatabase langpack;
++  protected IconsDatabase icons;
++  
++  protected Frame owner;
++  /**
++   * @throws HeadlessException
++   */
++  public NextMediaDialog(InstallerFrame main, String nextmedia) throws HeadlessException {
++    this(null,main,nextmedia);    
++  }
++
++  /**
++   * @param owner
++   * @throws HeadlessException
++   */
++  public NextMediaDialog(Frame owner,InstallerFrame main, String nextmedia) throws HeadlessException {
++    this(owner,main.langpack,main.icons,nextmedia);    
++  }
++  
++  public NextMediaDialog(Frame owner, LocaleDatabase languagepack, IconsDatabase icons, String nextmedia) throws HeadlessException {
++    super(owner,languagepack.getString(NEXTMEDIA_TITLE_ID),true);
++    this.owner = owner;
++    this.langpack = languagepack;
++    this.icons = icons;
++    this.nextmediapath = nextmedia;
++    File nextmediafile = new File(this.nextmediapath);    
++    this.nextmedianame = nextmediafile.getName();
++    this.initUI();
++  }
++  
++  public NextMediaDialog(Frame owner, AutomatedInstallData idata, String nextmedia) throws HeadlessException {
++    this(owner,idata.langpack,null,nextmedia);            
++  }
++  
++  protected void initUI() {
++    if (this.icons != null) {
++      this.msg = LabelFactory.create(this.langpack.getString(NEXTMEDIA_MSG_ID), this.icons.getImageIcon(&quot;warning&quot;), JLabel.LEFT);
++      this.browsebtn = ButtonFactory.createButton(this.langpack.getString(BROWSEBTN_ID), this.icons.getImageIcon(&quot;open&quot;), new Color(230, 230, 230));
++      this.okbtn = ButtonFactory.createButton(this.langpack.getString(OKBTN_ID), this.icons.getImageIcon(&quot;ok&quot;), new Color(230, 230, 230));      
++      this.cancelbtn = ButtonFactory.createButton(this.langpack.getString(CANCELBTN_ID), this.icons.getImageIcon(&quot;cancel&quot;), new Color(230, 230, 230));      
++    }
++    else {
++      this.msg = new JLabel(this.langpack.getString(NEXTMEDIA_MSG_ID),JLabel.LEFT);
++      this.browsebtn = new JButton(this.langpack.getString(BROWSEBTN_ID));
++      this.okbtn = new JButton(this.langpack.getString(OKBTN_ID));
++      this.cancelbtn = new JButton(this.langpack.getString(CANCELBTN_ID));      
++    }
++    this.path = new JTextField(this.nextmediapath); 
++    this.path.setColumns(40);
++    
++    this.browsebtn.addActionListener(this);
++    this.okbtn.addActionListener(this);
++    this.cancelbtn.addActionListener(this);
++    
++    JPanel mainpanel = new JPanel();
++    mainpanel.setLayout(new BoxLayout(mainpanel,BoxLayout.PAGE_AXIS));
++    mainpanel.add(this.msg);
++    
++    JPanel pathpanel = new JPanel();
++    pathpanel.setLayout(new BoxLayout(pathpanel,BoxLayout.LINE_AXIS));
++    pathpanel.add(this.path);
++    pathpanel.add(this.browsebtn);
++    pathpanel.add(Box.createHorizontalGlue());
++    mainpanel.add(pathpanel);
++    
++    JPanel okpanel = new JPanel();
++    okpanel.setLayout(new BoxLayout(okpanel,BoxLayout.LINE_AXIS));
++    okpanel.add(Box.createHorizontalGlue());
++    okpanel.add(this.okbtn);
++    okpanel.add(this.cancelbtn);
++    okpanel.add(Box.createHorizontalGlue());
++    mainpanel.add(okpanel);
++    mainpanel.add(Box.createVerticalGlue());
++    
++    this.getContentPane().setLayout(new BorderLayout());
++    this.getContentPane().add(mainpanel,BorderLayout.CENTER);        
++    
++    this.pack();
++    // set location    
++    if (this.owner != null) {
++      Dimension mysize = this.getSize();
++      Dimension ownersize = this.owner.getSize();
++      Point position = this.owner.getLocationOnScreen();
++      Point centerposition = new Point();
++      centerposition.setLocation(position.getX()+ 0.5 * ownersize.getWidth(),position.getY() + 0.5 * ownersize.getHeight());
++      Point myposition = new Point();
++      myposition.setLocation(centerposition.getX() - 0.5 * mysize.getWidth(), centerposition.getY() - 0.5 * mysize.getHeight());
++      this.setLocation(myposition);
++    }
++  }
++  
++  public String getNextMedia() {    
++    return this.nextmediainput;
++  }
++  
++  public void actionPerformed(ActionEvent e) {
++    if (e.getSource() == this.browsebtn){           
++      JFileChooser jfc;      
++      if (this.path.getText() != null){
++         jfc = new JFileChooser(this.path.getText());
++      }
++      else {
++        jfc = new JFileChooser();
++      }
++      jfc.setFileFilter(new NextMediaFileFilter(this.nextmedianame, this.langpack));
++      jfc.setDialogTitle(this.langpack.getString(&quot;nextmedia.choosertitle&quot;));
++      jfc.setDialogType(JFileChooser.OPEN_DIALOG);
++      jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
++      if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
++        this.nextmediainput = jfc.getSelectedFile().getAbsolutePath();
++        this.path.setText(this.nextmediainput);       
++      }
++    }
++    else if (e.getSource() == this.okbtn) {
++      this.nextmediainput = this.path.getText();
++      // close this dialog
++      this.setVisible(false);
++    }
++    else if (e.getSource() == this.cancelbtn) {
++      int option = JOptionPane.showConfirmDialog(this, this.langpack.getString(&quot;installer.quit.message&quot;) , this.langpack.getString(&quot;installer.quit.title&quot;), JOptionPane.YES_NO_OPTION);
++      if (option == JOptionPane.YES_OPTION){
++        // exit 
++        System.exit(-1);
++      }
++    }
++  }
++}
+\ No newline at end of file
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/panels/NextMediaFileFilter.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/NextMediaFileFilter.java	2007-01-09 11:17:58 UTC (rev 1694)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/NextMediaFileFilter.java	2007-01-09 11:35:48 UTC (rev 1695)
+@@ -0,0 +1,61 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.panels;
++
++import java.io.File;
++
++import javax.swing.filechooser.FileFilter;
++
++import com.izforge.izpack.LocaleDatabase;
++
++/**
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ *
++ */
++public class NextMediaFileFilter extends FileFilter {
++  protected String volumename;
++  protected LocaleDatabase langpack;
++  
++  public NextMediaFileFilter(String volumename, LocaleDatabase langpack) {
++    this.volumename = volumename;
++    this.langpack = langpack;
++  }
++  
++  /* (non-Javadoc)
++   * @see javax.swing.filechooser.FileFilter#accept(java.io.File)
++   */
++  public boolean accept(File f) {
++    if (f.isDirectory()) {
++      return true;
++    }
++    String filepath = f.getAbsolutePath();
++    if (filepath.endsWith(this.volumename)) {
++      return true;
++    }
++    else {
++      return false;
++    }
++  }
++
++  /* (non-Javadoc)
++   * @see javax.swing.filechooser.FileFilter#getDescription()
++   */
++  public String getDescription() {
++    return this.langpack.getString(&quot;nextmedia.filedesc&quot;);
++  }
++}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000439.html">[izpack-changes] r1694 - izpack-src/trunk/src/native/win/COIOSHelper
+</A></li>
+	<LI>Next message: <A HREF="000441.html">[izpack-changes] r1696 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#440">[ date ]</a>
+              <a href="thread.html#440">[ thread ]</a>
+              <a href="subject.html#440">[ subject ]</a>
+              <a href="author.html#440">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

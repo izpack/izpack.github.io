@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Heading panel, panels counter
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Heading%20panel%2C%20panels%20counter&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000303.html">
+   <LINK REL="Next"  HREF="000308.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Heading panel, panels counter</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Heading%20panel%2C%20panels%20counter&In-Reply-To="
+       TITLE="[izpack-devel] Heading panel, panels counter">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Jul  5 14:25:25 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000303.html">[izpack-devel] Pages are back ... as a wiki!
+</A></li>
+        <LI>Next message: <A HREF="000308.html">[izpack-devel] Heading panel, panels counter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Fabrice,
+
+&gt;&gt;<i> A false written key will be create runtime errors.
+</I>
+oops, this is sometimes (or most?) not correct. Only some
+keys creats runtime errors (my error).
+
+&lt;snip&gt;
+&gt;<i>
+</I>&gt;<i>I agree with you that the compatibility aspect, but regarding 
+</I>&gt;<i>validation
+</I>&gt;<i>it's quite important to have one.
+</I>&gt;<i>Couldn't we add maybe an error message specific to this 
+</I>&gt;<i>situation in order
+</I>&gt;<i>to be able to understand the reason of the error rather than 
+</I>&gt;<i>having a global
+</I>&gt;<i>runtime error which for most of the people doesn't make any sense...
+</I>&gt;<i>
+</I>
+Let us speak about &lt;modifier&gt; under &lt;guipref&gt;:
+I think we have to differ between some possibilities:
+
+1) There are keys which are used as switch: In the moment I test 
+
+if( !((String) installdata.guiPrefs.modifier.get(&lt;key name&gt;))
+                        .equalsIgnoreCase(&quot;yes&quot;)))
+  do_nothing();
+
+Possible to test also for &quot;no&quot; and throw an exception if the
+key is defined but no allowed value is set.
+
+2) After the principle switch is done, existent of keys has a meaning
+if( caller.getI18nStringForClass(&lt;key name&gt;, null) == null) 
+  do_nothing();
+
+At this point I cannot throw an exception because the key self is
+used as switch.
+
+3) A wrong key triggers an runtime error. Example:
+headingLines = Integer.parseInt((String) installdata.guiPrefs.modifier
+  .get(&quot;headingLineCount&quot;));
+If the value is not an 	integer a NumberFormatException will be
+thrown. I think this is OK. All installer builder should test
+there installation. Then they see that there is a wrong number in
+createHeading.
+
+OK, it will be possible to add as comment the key name to an exception.
+
+
+Also other participants of this list are invited at such a discussion :-)
+IzPack can only be better with it.
+
+Cheers
+
+Klaus
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000303.html">[izpack-devel] Pages are back ... as a wiki!
+</A></li>
+	<LI>Next message: <A HREF="000308.html">[izpack-devel] Heading panel, panels counter
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

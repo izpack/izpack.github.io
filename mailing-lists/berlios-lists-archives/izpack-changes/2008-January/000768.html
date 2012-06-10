@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2022 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2022%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels%20src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000767.html">
+   <LINK REL="Next"  HREF="000769.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2022 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2022%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels%20src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r2022 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Sat Jan 26 16:52:26 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000767.html">[izpack-changes] r2021 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000769.html">[izpack-changes] r2023 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#768">[ date ]</a>
+              <a href="thread.html#768">[ thread ]</a>
+              <a href="subject.html#768">[ subject ]</a>
+              <a href="author.html#768">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-01-26 16:52:21 +0100 (Sat, 26 Jan 2008)
+New Revision: 2022
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/Log.java
+Log:
+PacksPanelBase: the packs would be selected / deselected on any list event (e.g., by navigating using the keys). This funky behavior has been fixed (Julien Ponge).
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2008-01-25 22:27:53 UTC (rev 2021)
++++ izpack-src/trunk/Versions.txt	2008-01-26 15:52:21 UTC (rev 2022)
+@@ -101,6 +101,8 @@
+ - eng.xml: Grammatical corrections, added UserPathPanel headline, messages, and captions,
+   added UserInputPanel.dir.* messages and captions, added UserInputPanel.file.* messages and captions.
+   (Need to add/test with alternative lang packs)  (Jeff Gordon)
++- PacksPanelBase: the packs would be selected / deselected on any list event (e.g., by navigating using the keys).
++  This funky behavior has been fixed (Julien Ponge).
+ 
+ 
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2008-01-25 22:27:53 UTC (rev 2021)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksPanelBase.java	2008-01-26 15:52:21 UTC (rev 2022)
+@@ -280,16 +280,14 @@
+     public void valueChanged(ListSelectionEvent e)
+     {
+         VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+-
+         int i = packsTable.getSelectedRow();
+         if (i &lt; 0) return;
+         
+         // toggle the value stored in the packsModel
+-        Integer checked = (Integer)packsModel.getValueAt(i, 0);
+-        if (checked.intValue() == 0) {
+-          packsModel.setValueAt(new Integer(1), i, 0);
+-        } else if (checked.intValue() == 1) {
+-          packsModel.setValueAt(new Integer(0), i, 0);
++        if (e.getValueIsAdjusting())
++        {
++            Integer checked = (Integer) packsModel.getValueAt(i, 0);
++            packsModel.setValueAt(checked, i, 0);
+         }
+         
+         // Operations for the description
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java	2008-01-25 22:27:53 UTC (rev 2021)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java	2008-01-26 15:52:21 UTC (rev 2022)
+@@ -595,7 +595,6 @@
+    /**
+     * Updates a value for pack in PacksModel with data from a checkbox node
+     * 
+-    * @param id pack id
+     * @param cbnode This is the checkbox node which contains model values
+     */
+    public void setModelValue(CheckBoxNode cbnode)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/Log.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/Log.java	2008-01-25 22:27:53 UTC (rev 2021)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/Log.java	2008-01-26 15:52:21 UTC (rev 2022)
+@@ -205,7 +205,6 @@
+         // get the debug setting
+         // ----------------------------------------------------
+         String temp = System.getProperty(DEBUG_SWITCH);
+-        System.out.println(&quot;temp: &quot; + temp);
+         if ((temp != null) &amp;&amp; (temp.toUpperCase().equals(&quot;ON&quot;)))
+         {
+             debugActive = true;
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000767.html">[izpack-changes] r2021 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000769.html">[izpack-changes] r2023 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#768">[ date ]</a>
+              <a href="thread.html#768">[ thread ]</a>
+              <a href="subject.html#768">[ subject ]</a>
+              <a href="author.html#768">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

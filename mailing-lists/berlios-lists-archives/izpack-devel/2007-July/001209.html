@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] RegistryDefaultHandler problem
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20RegistryDefaultHandler%20problem&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001211.html">
+   <LINK REL="Next"  HREF="001210.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] RegistryDefaultHandler problem</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20RegistryDefaultHandler%20problem&In-Reply-To="
+       TITLE="[izpack-devel] RegistryDefaultHandler problem">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Mon Jul 23 13:17:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001211.html">[izpack-devel] RegistryDefaultHandler problem
+</A></li>
+        <LI>Next message: <A HREF="001210.html">[izpack-devel] RegistryDefaultHandler problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1209">[ date ]</a>
+              <a href="thread.html#1209">[ thread ]</a>
+              <a href="subject.html#1209">[ subject ]</a>
+              <a href="author.html#1209">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi &quot;fxa&quot;,
+you should not call RegistryDefaultHandler.getInstance() in the
+constructor
+else in the method beforePacks (see RegistryInstallerListener) because
+you
+need the AutomatedInstallData object which you gets in beforePacks.
+After
+getInstance you have also to call verify(idata) with the idata object
+(see
+RegistryInstallerListener.initializeRegistryHandler.
+
+Without verify(idata) the default handler do not work right, but he have
+to exist. Therefore there is also an other problem in your installation.
+Do you have add the dll into your jar file via 
+
+	&lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+		&lt;os family=&quot;windows&quot;/&gt;
+	&lt;/native&gt;
+
+?
+call
+java -DTRACE=TRUE -jar &lt;Your Install&gt;.jar
+After language dialog there should be a line like 
+
+Ctor OSClassHelper for com.coi.tools.os.izpack.Registry is good: true
+
+If not good: true, most you have forgotten the dll.
+
+Hope it helps
+
+Klaus
+
+&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A> 
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of fxa
+</I>&gt;<i> Sent: Sunday, July 22, 2007 7:29 PM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-devel] RegistryDefaultHandler problem
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> I am using 3.10.3 and I have written a listener that needs 
+</I>&gt;<i> some information from Registry so it tries to get an instance 
+</I>&gt;<i> of RegistryDefaultHandler through getInstance method.  At the 
+</I>&gt;<i> same time I am using RegistryInstallerListener.  Problem is 
+</I>&gt;<i> RegistryDefaultHandler.getInstance()
+</I>&gt;<i> which returns null.  
+</I>&gt;<i> It seems on first access to handler its initialized flag has 
+</I>&gt;<i> been set and somehow the work object gets null so 
+</I>&gt;<i> registryHandler.good() return false.  
+</I>&gt;<i> 
+</I>&gt;<i> How can I resolve this problem?  Here is the some snippet:
+</I>&gt;<i> 
+</I>&gt;<i> public class SomeInstallerListener extends SimpleInstallerListener {
+</I>&gt;<i>    
+</I>&gt;<i>     RegistryHandler registryHandler = null;
+</I>&gt;<i> 
+</I>&gt;<i>     public SomeInstallerListener(){
+</I>&gt;<i>         super(true);
+</I>&gt;<i>         registryHandler = RegistryDefaultHandler.getInstance();
+</I>&gt;<i>     } 
+</I>&gt;<i> -- 
+</I>&gt;<i> View this message in context: 
+</I>&gt;<i> <A HREF="http://www.nabble.com/RegistryDefaultHandler-problem-tf4125717">http://www.nabble.com/RegistryDefaultHandler-problem-tf4125717</A>
+</I>.html#a11732705
+Sent from the izpack devel mailing list archive at Nabble.com.
+
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001211.html">[izpack-devel] RegistryDefaultHandler problem
+</A></li>
+	<LI>Next message: <A HREF="001210.html">[izpack-devel] RegistryDefaultHandler problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1209">[ date ]</a>
+              <a href="thread.html#1209">[ thread ]</a>
+              <a href="subject.html#1209">[ subject ]</a>
+              <a href="author.html#1209">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

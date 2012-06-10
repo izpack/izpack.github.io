@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] OT: Java Imports in IzPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20OT%3A%20Java%20Imports%20in%20IzPack&In-Reply-To=op.s58sbbapnznptk%40hase2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000106.html">
+   <LINK REL="Next"  HREF="000109.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] OT: Java Imports in IzPack</H1>
+    <B>Elmar Grom</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20OT%3A%20Java%20Imports%20in%20IzPack&In-Reply-To=op.s58sbbapnznptk%40hase2"
+       TITLE="[izpack-devel] OT: Java Imports in IzPack">elmar at grom.net
+       </A><BR>
+    <I>Sat Mar 11 18:49:58 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000106.html">[izpack-devel] OT: Java Imports in IzPack
+</A></li>
+        <LI>Next message: <A HREF="000109.html">[izpack-devel] OT: Java Imports in IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi folks,
+
+yes this one of the widely recommended best practice rules, though I have
+yet to fathom the advantages. As Klaus mentions, occasionally an ambiguity
+arises if two (or more) imported packages contain a class with the same
+name. However this is not a problem, just a minor annoyance that is easily
+fixed by specific imports. The compiler will never make a pick on its own
+(which might be wrong) and thus cause a problem. It will always produce an
+error and stop compiling.
+
+Actually the only way to get the wrong class is be USING specific imports
+and making a mistake there. But even that is a very remote possibility,
+since most likely the API of the two classes will differ enough to cause
+problems.
+
+The best benefit that I can see is the fact that you naturally build an
+inventory of all the external classes that are used in your code (though I
+have yet to make use of this information). This is of course only true it
+you are very diligent in also deleting all imports for classes that you have
+removed while making changes. Otherwise it only represents a mess.
+
+	Elmar
+
+
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-admin at berlios.de</A>]On Behalf Of Klaus Bartz
+Sent: Saturday, March 11, 2006 1:22 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at berlios.de</A>
+Subject: Re: [izpack-devel] OT: Java Imports in IzPack
+
+
+Hi Hal,
+hope no checked in file imports a hole package.
+It is one of the &quot;best practice&quot; rules. Sometimes you
+will get problems with importing a hole package; if a class
+name exist in more than one package.
+I (may be the other developer of IzPack also) develop
+with eclipse. There it is common to use the proposal from eclipse
+for the import statement which will be qualified (until 99 imports
+for the same package will be used).
+Beginning with this rule it seems stupid, but for me it has these
+days a sense. Using unknown a wrong class can be really curious...
+
+Cheers
+
+Klaus
+
+P.S.
+For eclipse there is a format description file with
+$IzHome/src/eclipse-code-formatter.xml
+If you use it, your classes will be have the same outfit as the
+common IzPack sources. It's made for old people which are unable
+to change formating every source file :-)
+
+
+Am 11.03.2006, 08:10 Uhr, schrieb Hal Vaughan &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">hal at thresholddigital.com</A>&gt;:
+
+&gt;<i> This is basically a curiosity thing, but I've noticed that in pretty
+</I>&gt;<i> much every class I've looked at in IzPack, the imports are very
+</I>&gt;<i> specific, like:
+</I>&gt;<i>
+</I>&gt;<i> import javax.swing.JButton;
+</I>&gt;<i>
+</I>&gt;<i> instead of something like:
+</I>&gt;<i>
+</I>&gt;<i> import javax.swing.*;
+</I>&gt;<i>
+</I>&gt;<i> which is what I've seen in most examples in tutorials and howto
+</I>&gt;<i> articles, including many demos and examples on Sun's own Java sites.
+</I>&gt;<i>
+</I>&gt;<i> Is there a reason for such specific imports in IzPack?  I ran a few
+</I>&gt;<i> tests on a class or two of my own, and there doesn't seem to be any
+</I>&gt;<i> difference in class size.  The compile time difference, at least on my
+</I>&gt;<i> tests, was within a normal variance, allowing for different test runs
+</I>&gt;<i> and different results within each run.
+</I>&gt;<i>
+</I>&gt;<i> It's not a critical question, but I was just wondering what the
+</I>&gt;<i> reasoning was for this or if it's just one coder's habit that has
+</I>&gt;<i> caught on.
+</I>&gt;<i>
+</I>&gt;<i> Hal
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> __________ NOD32 1.1422 (20060301) Information __________
+</I>&gt;<i>
+</I>&gt;<i> Diese E-Mail wurde vom NOD32 Antivirus System gepr&#252;ft
+</I>&gt;<i> <A HREF="http://www.nod32.com">http://www.nod32.com</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+
+--
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="http://lists.berlios.de/mailman/listinfo/izpack-devel">http://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000106.html">[izpack-devel] OT: Java Imports in IzPack
+</A></li>
+	<LI>Next message: <A HREF="000109.html">[izpack-devel] OT: Java Imports in IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#107">[ date ]</a>
+              <a href="thread.html#107">[ thread ]</a>
+              <a href="subject.html#107">[ subject ]</a>
+              <a href="author.html#107">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark	breaksIzPackoperation
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20shortcutSpec.xml%20UTF-8%20Byte%20Order%20Mark%0A%09breaksIzPackoperation&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000989.html">
+   <LINK REL="Next"  HREF="000998.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark	breaksIzPackoperation</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20shortcutSpec.xml%20UTF-8%20Byte%20Order%20Mark%0A%09breaksIzPackoperation&In-Reply-To="
+       TITLE="[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark	breaksIzPackoperation">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue Oct 17 17:37:56 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000989.html">[izpack-users] 3.9.0: textXGap and layoutAnchor question
+</A></li>
+        <LI>Next message: <A HREF="000998.html">[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark	breaksIzPackoperation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#990">[ date ]</a>
+              <a href="thread.html#990">[ thread ]</a>
+              <a href="subject.html#990">[ subject ]</a>
+              <a href="author.html#990">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Hans-Georg,
+the COIOSHelper.dll do nothing about shortcuts. In the common
+version only the native part of registry support is in it.
+The ShellLink.dll makes the native part for creating shortcuts.
+
+I have not written the shortcut part of IzPack, but if I look
+into the sources it seems for me, that the parsing of the xml
+file will be performed in the java part of the shortcut stuff 
+(see ...panels.ShortcutPanel.readShortcutSpec).
+OK, but why only a crash with the shortcutSpec.xml???
+
+Really good question. The shortcutSpec will be parsed also by
+nanoxml, what else? In opposite to other specs this will be
+directly substituted by the VariableSubstitutor. This uses a
+InputStreamReader which uses StreamDecoder$CharsetSD. 
+If a BOM is there, this will not consumed else read returns
+65259 as first character. I do not know why and I do not know
+whether this is a bug in the VM or not. I have the impression
+that you like to write bug reports. Therefore retrace the bug
+and write a report to sunsoft.
+
+Cheers
+
+Klaus
+
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Hans-Georg
+</I>&gt;<i>Michna
+</I>&gt;<i>Sent: Monday, October 16, 2006 3:46 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: Re: [izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark
+</I>&gt;<i>breaksIzPackoperation
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>On Tue, 10 Oct 2006 14:07:11 +0200, Bartz, Klaus wrote:
+</I>&gt;<i>
+</I>&gt;&gt;<i>byte order for UTF-8... it is matter of opinion whether a
+</I>&gt;&gt;<i>silent add of a BOM is clever or not. May be you should
+</I>&gt;&gt;<i>send a bug report to the developer of the editor.
+</I>&gt;<i>
+</I>&gt;<i>Klaus,
+</I>&gt;<i>
+</I>&gt;<i>thanks again for your reply! The editor is probably
+</I>&gt;<i>configurable, but my problem was that I didn't even think of the
+</I>&gt;<i>Byte Order Mark at first.
+</I>&gt;<i>
+</I>&gt;<i>As far as I can see, nanoxml doesn't have any problems with the
+</I>&gt;<i>BOM, because the other XML files never had any such problem.
+</I>&gt;<i>Paradoxically, only the DLL that makes the shortcuts for Windows
+</I>&gt;<i>(COIOSHelper.dll) seems to have it, but I haven't done any
+</I>&gt;<i>thorough tests. Perhaps that DLL doesn't use nanoxml?
+</I>&gt;<i>
+</I>&gt;<i>I think, the quickest solution for now would be to write a
+</I>&gt;<i>warning into the documentation. If it is true that only the
+</I>&gt;<i>shortcut generation is affected, then such a warning should go
+</I>&gt;<i>into the shortcut chapter.
+</I>&gt;<i>
+</I>&gt;<i>Maybe we have the problem that nobody finds the time to do some
+</I>&gt;<i>work on the documentation.
+</I>&gt;<i>
+</I>&gt;<i>Hans-Georg
+</I>&gt;<i>
+</I>&gt;<i>-- 
+</I>&gt;<i>No mail, please.
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000989.html">[izpack-users] 3.9.0: textXGap and layoutAnchor question
+</A></li>
+	<LI>Next message: <A HREF="000998.html">[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark	breaksIzPackoperation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#990">[ date ]</a>
+              <a href="thread.html#990">[ thread ]</a>
+              <a href="subject.html#990">[ subject ]</a>
+              <a href="author.html#990">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

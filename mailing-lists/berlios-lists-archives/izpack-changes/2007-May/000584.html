@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1838 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1838%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000583.html">
+   <LINK REL="Next"  HREF="000585.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1838 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1838%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1838 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Wed May 16 15:58:28 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000583.html">[izpack-changes] r1837 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+        <LI>Next message: <A HREF="000585.html">[izpack-changes] r1839 - in izpack-src/trunk/src: . doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#584">[ date ]</a>
+              <a href="thread.html#584">[ thread ]</a>
+              <a href="subject.html#584">[ subject ]</a>
+              <a href="author.html#584">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2007-05-16 15:58:27 +0200 (Wed, 16 May 2007)
+New Revision: 1838
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+Log:
+iso3 names changed to locale; bracket moved to prevent
+a theoretically possible null pointer exception.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-05-15 14:33:22 UTC (rev 1837)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Compiler.java	2007-05-16 13:58:27 UTC (rev 1838)
+@@ -26,7 +26,6 @@
+ package com.izforge.izpack.compiler;
+ 
+ import java.io.File;
+-import java.io.IOException;
+ import java.net.MalformedURLException;
+ import java.net.URL;
+ import java.util.ArrayList;
+@@ -418,14 +417,15 @@
+     }
+     /**
+      * Add a lang pack to the installation.
+-     * @param iso3
+-     * @param iso3xmlURL
+-     * @param iso3FlagURL
++     * 
++     * @param locale
++     * @param localeURL
++     * @param flagURL
+      */
+-    public void addLangPack(String iso3, URL iso3xmlURL, URL iso3FlagURL)
+-    {
+-        packager.addLangPack(iso3, iso3xmlURL, iso3FlagURL);
+-    }
++    public void addLangPack(String locale, URL localeURL, URL flagURL)
++   {
++       packager.addLangPack(locale, localeURL, flagURL);
++   }
+     /**
+      * Add a native library to the installation.
+      * @param name
+@@ -788,13 +788,13 @@
+             if (className != null)
+             {
+                 pos = name.indexOf(className);
++                if (name.length() == pos + className.length() + 6) // &quot;Main&quot; class
++                // found
++                {
++                    jis.close();
++                    return (name.substring(0, lastPos));
++                }
+             }
+-            if (name.length() == pos + className.length() + 6) // &quot;Main&quot; class
+-            // found
+-            {
+-                jis.close();
+-                return (name.substring(0, lastPos));
+-            }
+         }
+         jis.close();
+         return (null);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000583.html">[izpack-changes] r1837 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+</A></li>
+	<LI>Next message: <A HREF="000585.html">[izpack-changes] r1839 - in izpack-src/trunk/src: . doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#584">[ date ]</a>
+              <a href="thread.html#584">[ thread ]</a>
+              <a href="subject.html#584">[ subject ]</a>
+              <a href="author.html#584">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

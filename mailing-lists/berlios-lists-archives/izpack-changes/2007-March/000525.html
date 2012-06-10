@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1779 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1779%20-%20in%20izpack-src/branches/3.10%3A%20.%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000524.html">
+   <LINK REL="Next"  HREF="000526.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1779 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1779%20-%20in%20izpack-src/branches/3.10%3A%20.%0A%09src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1779 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon Mar 12 18:40:33 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000524.html">[izpack-changes] r1778 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000526.html">[izpack-changes] r1780 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#525">[ date ]</a>
+              <a href="thread.html#525">[ thread ]</a>
+              <a href="subject.html#525">[ subject ]</a>
+              <a href="author.html#525">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: vralev
+Date: 2007-03-12 18:40:19 +0100 (Mon, 12 Mar 2007)
+New Revision: 1779
+
+Modified:
+   izpack-src/branches/3.10/Versions.txt
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+Log:
+Fix: Variables assigned by UserInputPanel are not available when the next page
+  nagivations rules are evaluated. <A HREF="http://jira.jboss.com/jira/browse/JBINSTALL-248">http://jira.jboss.com/jira/browse/JBINSTALL-248</A>
+
+Modified: izpack-src/branches/3.10/Versions.txt
+===================================================================
+--- izpack-src/branches/3.10/Versions.txt	2007-03-11 16:06:56 UTC (rev 1778)
++++ izpack-src/branches/3.10/Versions.txt	2007-03-12 17:40:19 UTC (rev 1779)
+@@ -15,6 +15,9 @@
+ - Added localization support for column names in InstallationGroupPanel
+   (Markus Schlegel via Vladimir Ralev)
+ - Finnish langpack update (Ari Voutilainen via Julien Ponge)
++- Fix: Variables assigned by UserInputPanel are not available when the next page
++  nagivations rules are evaluated. <A HREF="http://jira.jboss.com/jira/browse/JBINSTALL-248">http://jira.jboss.com/jira/browse/JBINSTALL-248</A>
++  (Vladimir Ralev)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-03-11 16:06:56 UTC (rev 1778)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-03-12 17:40:19 UTC (rev 1779)
+@@ -1422,6 +1422,11 @@
+     {
+         if ((installdata.curPanelNumber &lt; installdata.panels.size() - 1))
+         {
++            // We must trasfer all fields into the variables before
++            // panelconditions try to resolve the rules based on unassigned vars.
++            boolean isValid = 
++              ((IzPanel) installdata.panels.get(last)).isValidated();
++          
+             installdata.curPanelNumber++;
+             if (!canShow(installdata.curPanelNumber))
+             {
+@@ -1430,7 +1435,7 @@
+             }
+             else
+             {
+-                if (((IzPanel) installdata.panels.get(last)).isValidated())
++                if (isValid)
+                 {
+                     switchPanel(last);
+                 }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000524.html">[izpack-changes] r1778 - in izpack-src/trunk: .	bin/langpacks/installer src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000526.html">[izpack-changes] r1780 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#525">[ date ]</a>
+              <a href="thread.html#525">[ thread ]</a>
+              <a href="subject.html#525">[ subject ]</a>
+              <a href="author.html#525">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

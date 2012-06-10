@@ -1,0 +1,371 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1666 - in izpack-src/trunk: . src/doc-ng/XHTML	src/lib/com/coi/tools/os/win src/native/win/COIOSHelper/Release	src/native/win/COIOSHelper/Release_Unicode
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1666%20-%20in%20izpack-src/trunk%3A%20.%20src/doc-ng/XHTML%0A%09src/lib/com/coi/tools/os/win%20src/native/win/COIOSHelper/Release%0A%09src/native/win/COIOSHelper/Release_Unicode&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000410.html">
+   <LINK REL="Next"  HREF="000412.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1666 - in izpack-src/trunk: . src/doc-ng/XHTML	src/lib/com/coi/tools/os/win src/native/win/COIOSHelper/Release	src/native/win/COIOSHelper/Release_Unicode</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1666%20-%20in%20izpack-src/trunk%3A%20.%20src/doc-ng/XHTML%0A%09src/lib/com/coi/tools/os/win%20src/native/win/COIOSHelper/Release%0A%09src/native/win/COIOSHelper/Release_Unicode&In-Reply-To="
+       TITLE="[izpack-changes] r1666 - in izpack-src/trunk: . src/doc-ng/XHTML	src/lib/com/coi/tools/os/win src/native/win/COIOSHelper/Release	src/native/win/COIOSHelper/Release_Unicode">noreply at berlios.de
+       </A><BR>
+    <I>Wed Dec 13 18:09:51 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000410.html">[izpack-changes] r1665 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000412.html">[izpack-changes] r1667 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#411">[ date ]</a>
+              <a href="thread.html#411">[ thread ]</a>
+              <a href="subject.html#411">[ subject ]</a>
+              <a href="author.html#411">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-12-13 18:09:51 +0100 (Wed, 13 Dec 2006)
+New Revision: 1666
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/doc-ng/XHTML/izpack-doc.html
+   izpack-src/trunk/src/doc-ng/XHTML/node4.html
+   izpack-src/trunk/src/doc-ng/XHTML/node9.html
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryImpl.java
+   izpack-src/trunk/src/native/win/COIOSHelper/Release/COIOSHelper.dll
+   izpack-src/trunk/src/native/win/COIOSHelper/Release_Unicode/COIOSHelper.dll
+Log:
+Handling of keys and values directly under a root implemented.
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2006-12-07 11:04:26 UTC (rev 1665)
++++ izpack-src/trunk/Versions.txt	2006-12-13 17:09:51 UTC (rev 1666)
+@@ -12,6 +12,8 @@
+ - Added conditions to UserInputPanel-fields (Dennis Reil)
+ - Heading panel strings can be depend on the panelid (Klaus Bartz, thanks
+   to Stefan Wachter).
++- Registry access extended to keys and values directly under a root key
++  (Klaus Bartz, thanks to Markus Schlegel).
+ - Added dtd for conditions (Dennis Reil)
+ - Added support for panelid in InstallerImage-Definition (Dennis Reil)
+ - Added support for customicons (Dennis Reil)
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/izpack-doc.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/izpack-doc.html	2006-12-07 11:04:26 UTC (rev 1665)
++++ izpack-src/trunk/src/doc-ng/XHTML/izpack-doc.html	2006-12-13 17:09:51 UTC (rev 1666)
+@@ -275,6 +275,10 @@
+               &lt;li&gt;
+                 &lt;a name=&quot;tex2html84&quot; href=&quot;node4.html#SECTION00441000000000000000&quot;&gt;HelloPanel&lt;/a&gt;
+               &lt;/li&gt;
++			  &lt;li&gt;
++			    &lt;a name=&quot;tex2html84a&quot; href=&quot;node4.html#SECTION00441000000000000000a&quot;&gt;CheckedHelloPanel&lt;/a&gt;
++			  &lt;/li&gt;
++
+               &lt;li&gt;
+                 &lt;a name=&quot;tex2html85&quot; href=&quot;node4.html#SECTION00442000000000000000&quot;&gt;InfoPanel and htmlInfoPanel&lt;/a&gt;
+               &lt;/li&gt;
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node4.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node4.html	2006-12-07 11:04:26 UTC (rev 1665)
++++ izpack-src/trunk/src/doc-ng/XHTML/node4.html	2006-12-13 17:09:51 UTC (rev 1666)
+@@ -129,6 +129,8 @@
+ &lt;ul&gt;
+ &lt;li&gt;&lt;a name=&quot;tex2html400&quot; href=&quot;node4.html#SECTION00441000000000000000&quot;&gt;HelloPanel&lt;/a&gt;&lt;/li&gt;
+ 
++&lt;li&gt;&lt;a name=&quot;tex2html400a&quot; href=&quot;node4.html#SECTION00441000000000000000a&quot;&gt;CheckedHelloPanel&lt;/a&gt;&lt;/li&gt;
++
+ &lt;li&gt;&lt;a name=&quot;tex2html401&quot; href=&quot;node4.html#SECTION00442000000000000000&quot;&gt;InfoPanel and HTMLInfoPanel&lt;/a&gt;&lt;/li&gt;
+ 
+ &lt;li&gt;&lt;a name=&quot;tex2html402&quot; href=&quot;node4.html#SECTION00443000000000000000&quot;&gt;LicencePanel and HTMLLicencePanel&lt;/a&gt;&lt;/li&gt;
+@@ -1048,6 +1050,14 @@
+ &lt;p&gt;This panel welcomes the user by displaying the project name, the version, the URL as well as the authors.&lt;br /&gt;
+ &lt;/p&gt;
+ 
++&lt;h2&gt;&lt;a name=&quot;SECTION00441000000000000000a&quot;&gt;CheckedHelloPanel&lt;/a&gt;&lt;/h2&gt;
++
++&lt;p&gt;This panel welcomes the user also by displaying the project name, the version, the URL as well as the authors.&lt;br /&gt;
++&lt;p&gt;Additonal on windows the registry will be scanned for an entry which determines that the product is already installed.
++If so, a dialog will be shown which ask whether to install a second version of the product or not. If you use this
++panel do not forget to add the &lt;a href=&quot;./node9.html#RegistryListener&quot;&gt;registry feature&lt;/a&gt; into your installation.&lt;/p&gt;
++&lt;/p&gt;
++
+ &lt;h2&gt;&lt;a name=&quot;SECTION00442000000000000000&quot;&gt;InfoPanel and HTMLInfoPanel&lt;/a&gt;&lt;/h2&gt;
+ 
+ &lt;p&gt;This is a kind of 'README' panel. It presents text of any length. The text is specified by the &lt;tt&gt;(HTML)InfoPanel.info&lt;/tt&gt; resource. Starting from IzPack 3.7.0, variables substitution is
+
+Modified: izpack-src/trunk/src/doc-ng/XHTML/node9.html
+===================================================================
+--- izpack-src/trunk/src/doc-ng/XHTML/node9.html	2006-12-07 11:04:26 UTC (rev 1665)
++++ izpack-src/trunk/src/doc-ng/XHTML/node9.html	2006-12-13 17:09:51 UTC (rev 1666)
+@@ -702,7 +702,9 @@
+ 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND&lt;/p&gt;
+ 	&lt;p&gt;The listeners themselves are only able to write into the Windows registry at installation and
+ 	delet the writing at uninstall time. But it is also possible to use the registry 
+-	handler as a registry reader in custom panels or costum actions.&lt;/p&gt;
++	handler as a registry reader in custom panels or costum actions. 
++	The &lt;a href=&quot;./node4.html#SECTION00441000000000000000a&quot;&gt;CheckedHelloPanel&lt;/a&gt; reads the registry and
++	can be used as example for it.&lt;/p&gt;
+ 	&lt;p&gt;To add registry support to an installation some changes in the installation definition
+ 	file (often called&lt;tt&gt;install.xml&lt;/tt&gt;) are to be made. First the declaration of the listener 
+ 	themselves:&lt;/p&gt;
+@@ -768,6 +770,17 @@
+     structure in install.xml (for more information see also installation.dtd). Only the &quot;things&quot;
+     included in the &lt;tt&gt;&amp;lt;pack&amp;gt;&lt;/tt&gt; are performed, if a pack with the same name was chosen to
+     be installed. Valid &quot;things&quot; are &amp;lt;key&amp;gt; &amp;lt;value&amp;gt;.&lt;/p&gt;
++	&lt;p&gt;&lt;a name=&quot;RegRootEntry&quot;&gt;&lt;/a&gt; The registry stuff self allows to create keys and values directly under a registry root.
++	But Windows self allows this not on &quot;real&quot; roots like HKEY_LOCAL_MACHINE or HKEY_USERS. Only link like
++	roots as HKEY_CLASSES_ROOT are writeable. A try e.g. on HKLM will be cause an exception and the installation
++	fails. The error number in this case normally will be 87 with the meaning &quot;wrong parameter&quot;, not 
++	&quot;permission denied&quot;.&lt;/p&gt;
++	&lt;p&gt;We do NOT recommend to create a key or a value directly on a registry root. IzPack
++	allows it now as a result of some user requests about it.
++	Most it is not needed. E.g. an extension entry under HKEY_CLASSES_ROOT is really an entry on
++	HKEY_LOCAL_MACHINE\Software\Classes. Why not write directly there?Reading is in opposite to writing
++	no problem.&lt;/p&gt;
++	
+ 
+     &lt;h3&gt;&lt;a name=&quot;RegListKeyElm&quot;&gt;&lt;/a&gt;&lt;tt&gt;&amp;lt;key&amp;gt;&lt;/tt&gt;: define a key&lt;/h3&gt;
+ 
+@@ -775,7 +788,9 @@
+ 
+     &lt;ul&gt;
+       &lt;li&gt;
+-        &lt;tt&gt;keypath&lt;/tt&gt; : required. The path of the key in Windows syntax without the root.
++        &lt;tt&gt;keypath&lt;/tt&gt; : required. The path of the key in Windows syntax without the root.&lt;br&gt;
++		If the key should be placed directly under a registry root (&lt;a href=&quot;#RegRootEntry&quot;&gt;not recommended; 
++		often not possible)&lt;/a&gt;) write the key name without any backslash.
+       &lt;/li&gt;
+ 
+       &lt;li&gt;
+@@ -790,11 +805,16 @@
+ 
+     &lt;ul&gt;
+       &lt;li&gt;
+-        &lt;tt&gt;name&lt;/tt&gt; : required. The name of the value to be set or modified without a path.
++        &lt;tt&gt;name&lt;/tt&gt; : required. The name of the value to be set or modified without a path.&lt;br&gt;
++		The default value will be written as the empty string &amp;quot;&amp;quot;.
+       &lt;/li&gt;
+       &lt;li&gt;
+         &lt;tt&gt;keypath&lt;/tt&gt; : required. The key path under which the value should be placed 
+                  in Windows syntax without the root and value name.
++		If the key of the value should be placed directly under a registry root (if not exist,  
++		&lt;a href=&quot;#RegRootEntry&quot;&gt;not recommended; often not possible)&lt;/a&gt;) write the key name without any backslash.&lt;br&gt;
++		If the value should be placed directly under a registry root (also not recommended and
++		often not possible) write as keypath the empty string &amp;quot;&amp;quot;.
+       &lt;/li&gt;
+ 
+       &lt;li&gt;
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryImpl.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryImpl.java	2006-12-07 11:04:26 UTC (rev 1665)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryImpl.java	2006-12-13 17:09:51 UTC (rev 1666)
+@@ -83,6 +83,8 @@
+      */
+     public RegDataContainer getValue(String key, String value) throws NativeLibException
+     {
++        if( key == null)
++            key = &quot;&quot;;
+         return (getValue(currentRoot, key, value));
+     }
+ 
+@@ -97,6 +99,8 @@
+      */
+     public Object getValueAsObject(String key, String value) throws NativeLibException
+     {
++        if( key == null)
++            key = &quot;&quot;;
+         return (getValue(currentRoot, key, value).getDataAsObject());
+     }
+ 
+@@ -109,6 +113,8 @@
+      */
+     public String[] getSubkeys(String key) throws NativeLibException
+     {
++        if( key == null)
++            key = &quot;&quot;;
+         return (getSubkeyNames(currentRoot, key));
+     }
+ 
+@@ -121,6 +127,8 @@
+      */
+     public String[] getValueNames(String key) throws NativeLibException
+     {
++        if( key == null)
++            key = &quot;&quot;;
+         return (getValueNames(currentRoot, key));
+     }
+ 
+@@ -136,7 +144,13 @@
+     }
+ 
+     /**
+-     * Creates the given key under the given root.
++     * Creates the given key under the given root. 
++     * It is possible to declare keys without a sub path.
++     * This is only possible on roots which are no real roots
++     * (e.g. HKEY_CURRENT_USER which is a link to
++     * HKEY_USERS\GUID of current user). Therefore this method
++     * will be raise an exception if root is a real root and
++     * key contains no sub path.
+      * 
+      * @param root to be used
+      * @param key key to be created
+@@ -145,12 +159,13 @@
+     public void createKey(int root, String key) throws NativeLibException
+     {
+         int pathEnd = key.lastIndexOf('\\');
+-        if (pathEnd &lt; 0)
+-            throw new NativeLibException(&quot;Keys directly under the root are not allowed!&quot;);
+-        String subkey = key.substring(0, pathEnd);
+-        if (!exist(root, subkey))
+-        { // Create missing sub keys
+-            createKey(root, subkey);
++        if( pathEnd &gt; 0 )
++        {
++            String subkey = key.substring(0, pathEnd);
++            if (!exist(root, subkey))
++            { // Create missing sub keys
++                createKey(root, subkey);
++            }
+         }
+         // Create key
+         createKeyN(root, key);
+@@ -204,6 +219,8 @@
+      */
+     public boolean valueExist(String key, String value) throws NativeLibException
+     {
++        if( key == null)
++            key = &quot;&quot;;
+         try
+         {
+             this.getValue(currentRoot, key, value);
+@@ -309,6 +326,10 @@
+     {
+         RegDataContainer oldContents = null;
+         String localValue = value;
++        if( key == null)
++            key = &quot;&quot;;
++        if(value == null)   // We allow it for the default value...
++            value = &quot;&quot;;
+         // May be someone do not like backslashes ...
+         key = key.replace('/', '\\');
+ 
+@@ -414,6 +435,8 @@
+      */
+     private void deleteValueL(int root, String key, String value) throws NativeLibException
+     {
++        if( key == null)
++            key = &quot;&quot;;
+         RegDataContainer oldContents = getValue(currentRoot, key, value);
+         RegistryLogItem rli = new RegistryLogItem(RegistryLogItem.REMOVED_VALUE, root, key, value,
+                 null, oldContents);
+@@ -437,6 +460,8 @@
+             while (iter.hasNext())
+             {
+                 RegistryLogItem rli = (RegistryLogItem) iter.next();
++                String rliValueName = (DEFAULT_PLACEHOLDER.equals(rli.getValueName())) ? &quot;&quot; : rli
++                        .getValueName();
+                 switch (rli.getType())
+                 {
+                 case RegistryLogItem.CREATED_KEY:
+@@ -447,12 +472,10 @@
+                     break;
+                 case RegistryLogItem.CREATED_VALUE:
+                     RegDataContainer currentContents = null;
+-                    // Delete value only if reg entry exists and equal to the
+-                    // stored
+-                    // value.
++                    // Delete value only if reg entry exists and is equal to the stored value.
+                     try
+                     {
+-                        currentContents = getValue(rli.getRoot(), rli.getKey(), rli.getValueName());
++                        currentContents = getValue(rli.getRoot(), rli.getKey(), rliValueName);
+                     }
+                     catch (NativeLibException nle)
+                     {
+@@ -460,7 +483,7 @@
+                     }
+                     if (currentContents.equals(rli.getNewValue()))
+                     {
+-                        deleteValueN(rli.getRoot(), rli.getKey(), rli.getValueName());
++                        deleteValueN(rli.getRoot(), rli.getKey(), rliValueName);
+                     }
+                     // TODO: what todo if value has changed?
+                     break;
+@@ -468,11 +491,11 @@
+                     // Set old value only if reg entry not exists.
+                     try
+                     {
+-                        getValue(rli.getRoot(), rli.getKey(), rli.getValueName());
++                        getValue(rli.getRoot(), rli.getKey(), rliValueName);
+                     }
+                     catch (NativeLibException nle)
+                     {
+-                        setValueN(rli.getRoot(), rli.getKey(), rli.getValueName(), rli
++                        setValueN(rli.getRoot(), rli.getKey(), rliValueName, rli
+                                 .getOldValue());
+                     }
+                     break;
+@@ -482,7 +505,7 @@
+                     // stored value.
+                     try
+                     {
+-                        currentContents = getValue(rli.getRoot(), rli.getKey(), rli.getValueName());
++                        currentContents = getValue(rli.getRoot(), rli.getKey(), rliValueName);
+                     }
+                     catch (NativeLibException nle)
+                     {
+@@ -490,7 +513,7 @@
+                     }
+                     if (currentContents.equals(rli.getNewValue()))
+                     {
+-                        setValueN(rli.getRoot(), rli.getKey(), rli.getValueName(), rli
++                        setValueN(rli.getRoot(), rli.getKey(), rliValueName, rli
+                                 .getOldValue());
+                     }
+                     break;
+
+Modified: izpack-src/trunk/src/native/win/COIOSHelper/Release/COIOSHelper.dll
+===================================================================
+(Binary files differ)
+
+Modified: izpack-src/trunk/src/native/win/COIOSHelper/Release_Unicode/COIOSHelper.dll
+===================================================================
+(Binary files differ)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000410.html">[izpack-changes] r1665 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000412.html">[izpack-changes] r1667 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#411">[ date ]</a>
+              <a href="thread.html#411">[ thread ]</a>
+              <a href="subject.html#411">[ subject ]</a>
+              <a href="author.html#411">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Multi-Panel Panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Multi-Panel%20Panels&In-Reply-To=op.s24ltch3nznptk%40hase2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000020.html">
+   <LINK REL="Next"  HREF="000022.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Multi-Panel Panels</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Multi-Panel%20Panels&In-Reply-To=op.s24ltch3nznptk%40hase2"
+       TITLE="[izpack-devel] Multi-Panel Panels">hal at thresholddigital.com
+       </A><BR>
+    <I>Mon Jan  9 20:59:52 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000020.html">[izpack-devel] Multi-Panel Panels
+</A></li>
+        <LI>Next message: <A HREF="000022.html">[izpack-devel] Multi-Panel Panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Monday 09 January 2006 02:30 pm, Klaus Bartz wrote:
+
+...
+&gt;<i> &gt;&gt; Or look (on windows) into the registry. There are all regular installed
+</I>&gt;<i> &gt;&gt; version registered. For Unix you can do an other way, may be search the
+</I>&gt;<i> &gt;&gt; common dirs for applications.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; That's one way.  I haven't gotten into that much detail yet.  But are all
+</I>&gt;<i> &gt; programs installed with IzPack in the registry?
+</I>&gt;<i>
+</I>&gt;<i> Most not because this feature is only available since 3.8.0 :-)
+</I>&gt;<i> But for your problem I have looked into my registry and there are both
+</I>&gt;<i> programms registered.
+</I>
+I'm also using RealVNC, and haven't checked yet.  It's one of those things 
+Windows developers would be much more aware of than others.  I may write the 
+code for the directory search (I think there's one in UserInput that I can 
+copy) and let a Windows person write the registry code, if someone would 
+like.  That's a ways off.  The first step is to get it working!  ;-)  Then 
+it's time to figure out things like that.
+
+...
+&gt;<i> &gt; I was thinking of something close to that, but I've seen programs change
+</I>&gt;<i> &gt; their
+</I>&gt;<i> &gt; version messages from one version to another (other than just updating
+</I>&gt;<i> &gt; the
+</I>&gt;<i> &gt; version number).  It'd be more work, but more accurate, to specify a
+</I>&gt;<i> &gt; command
+</I>&gt;<i> &gt; (and parameters) and a list of acceptable or unacceptable strings to
+</I>&gt;<i> &gt; search
+</I>&gt;<i> &gt; for in the output.  For example:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; $ bigapp --version
+</I>&gt;<i> &gt; BigApp, (C) 2005 by Megalithic Corporation
+</I>&gt;<i> &gt; Version 2.1.9
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; $bigapp --version
+</I>&gt;<i> &gt; Monolithic Corporation, a Megalithic subsidary
+</I>&gt;<i> &gt; BigApp 1.9.2
+</I>&gt;<i> &gt; (C) 2005
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Since we're dealing with all programs out there, this would allow the
+</I>&gt;<i> &gt; developer to specify strings to match all acceptable (and some non
+</I>&gt;<i> &gt; acceptable) verisons.  A little more work, but it provides much more in
+</I>&gt;<i> &gt; terms
+</I>&gt;<i> &gt; of ability and accuracy.
+</I>&gt;<i>
+</I>&gt;<i> I agree. Because this behavior of real programms I have implemented a
+</I>&gt;<i> version
+</I>&gt;<i> scanner in JDKPathPanel (line 167ff).
+</I>
+I'll have to look at that.  I think I remember having that problem at one 
+point a few years back when I had to figure out what version of Java a system 
+was using.
+
+...
+&gt;<i> &gt; I prefer the simpler panels.  I experimentend, though, and found just
+</I>&gt;<i> &gt; the code
+</I>&gt;<i> &gt; for multiple panels was not hard.  There are some custom panels I'm using
+</I>&gt;<i> &gt; that I need several times, and I found it easy to set that up.  But
+</I>&gt;<i> &gt; UserInput
+</I>&gt;<i> &gt; is definitely a complex panel.  I have no desire to write anything that
+</I>&gt;<i> &gt; complex -- which is why I was thinking of doing this as a series of
+</I>&gt;<i> &gt; panels.
+</I>&gt;<i>
+</I>&gt;<i> I have accepted this rule of IzPack (a panel is like a singelton) long
+</I>&gt;<i> time ago.
+</I>&gt;<i> What I do is to write a base or intermediaer class which is configurable
+</I>&gt;<i> and
+</I>&gt;<i> the derived classes are most only configure the base class. That was the
+</I>&gt;<i> primary idea of splitting TargetPanel into a base class (PathInputPanel)
+</I>&gt;<i> and
+</I>&gt;<i> a really short derived TargetPanel. I think, I have ~ 6 panels derived
+</I>&gt;<i>  from it.
+</I>&gt;<i> OK, JDKPathPanel is not so short...
+</I>
+I've looked at those panels in passing.  I am not sure yet, but I think I can 
+use PathInputPanel as part of what I'm doing.  It's easier to figure out what 
+3 panels of 200-400 lines are doing, if each handles separate tasks, then 
+trying to read 600-1200 lines of code.  (And, the part I like is that it's 
+easier to debug!)
+
+&gt;<i> We have in our server installation a customized JBoss installation. In my
+</I>&gt;<i> JBossPathPanel I ask with a Dialog triggert in the
+</I>&gt;<i> JBossPathPanel.panelActivate()
+</I>&gt;<i> the user whether he/she would install the customized JBoss or use an
+</I>&gt;<i> allready
+</I>&gt;<i> installed JBoss. Dependant on the return value of the Dialog I configure
+</I>&gt;<i> the
+</I>&gt;<i> JBossPathPanel whether it should handle a path for the new customized
+</I>&gt;<i> installation
+</I>&gt;<i> or a allready existent product. Late configure of PathInputPanel is
+</I>&gt;<i> possible.
+</I>&gt;<i>
+</I>&gt;<i> OK, I tend to resolve problems via inheritance. You can do it in your way,
+</I>&gt;<i> that's
+</I>&gt;<i> one of the big benefit of IzPack I think.
+</I>
+I think I'd use inheritance more if I understood it or was more used to it.  
+I'm self taught, especially in Java, and I learned what I have needed to 
+write the programs I needed.  I'm learning more about using inheritance in 
+IzPack than I've learned before (and some of that is through the path panels 
+you wrote and mentioned here -- so thanks!)
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000020.html">[izpack-devel] Multi-Panel Panels
+</A></li>
+	<LI>Next message: <A HREF="000022.html">[izpack-devel] Multi-Panel Panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Custom Actions NPE, patch
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Custom%20Actions%20NPE%2C%20patch&In-Reply-To=45F2F3EF.40905%40insightsys.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000931.html">
+   <LINK REL="Next"  HREF="000924.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Custom Actions NPE, patch</H1>
+    <B>Scott Plante</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Custom%20Actions%20NPE%2C%20patch&In-Reply-To=45F2F3EF.40905%40insightsys.com"
+       TITLE="[izpack-devel] Custom Actions NPE, patch">splante at insightsys.com
+       </A><BR>
+    <I>Sat Mar 10 19:27:56 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000931.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+        <LI>Next message: <A HREF="000924.html">[izpack-devel] [RFC] Proposal for a web-server based installation	model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#932">[ date ]</a>
+              <a href="thread.html#932">[ thread ]</a>
+              <a href="subject.html#932">[ subject ]</a>
+              <a href="author.html#932">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Oops, try this one instead. I didn't close my tt tag in one spot before.
+
+Index: doc-ng/XHTML/node9.html
+===================================================================
+--- doc-ng/XHTML/node9.html     (revision 1753)
++++ doc-ng/XHTML/node9.html     (working copy)
+@@ -450,20 +450,26 @@
+         [IzPackRoot]/src/lib/[MyPackagePath]/MyCompilerListener.java&lt;/tt&gt;.
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Add a &quot;compile.simple&quot; antcall in to 
+&lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
++        Add a &quot;&lt;tt&gt;build-compiler-listener&lt;/tt&gt;&quot; macro call in to the
++        &lt;tt&gt;build.listeners&lt;/tt&gt; target in 
+&lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
++        Note that the name attribute value in the build-instealler-listener
++        must match &lt;tt&gt;CompilerListener&lt;/tt&gt; implementation class name (not
++        including the package). You should include the actual Listener
++        implementation, as well as any other classes required by the 
+listener.
+ &lt;pre&gt;
+-&amp;lt;antcall target=&quot;compile.listener.simple&quot;&amp;gt;
+-  &amp;lt;param name=&quot;listener&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+-  &amp;lt;param name=&quot;listener-dir&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+-  &amp;lt;param name=&quot;listener-include&quot; value=&quot;[MyPackagePath]&quot;/&amp;gt;
+-&amp;lt;/antcall&amp;gt;
++        &amp;lt;build-compiler-listener name=&quot;MyCompilerListener&quot;&amp;gt;
++            &amp;lt;include name=&quot;[MyPackagePath]/MyCompilerListener.java&quot;/&amp;gt;
++            &amp;lt;include 
+name=&quot;[MyPackagePath]/SomeOtherHelperClass.java&quot;/&amp;gt;
++        &amp;lt;/build-compiler-listener&amp;gt;
+ &lt;/pre&gt;
+       &lt;/li&gt;
+       &lt;li&gt;
+         Run &lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
++        An &lt;tt&gt;ant&lt;/tt&gt; alone will execute the required targets.
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Add a &quot;listeners&quot; ELEMENT with a &quot;listener&quot; ELEMENT with a 
+&quot;compiler&quot; attribute in to [MyProjectPath]/install.xml
++        Add a &quot;listeners&quot; ELEMENT with a &quot;listener&quot; ELEMENT with a 
+&quot;compiler&quot;
++        attribute in to [MyProjectPath]/install.xml
+ &lt;pre&gt;
+   &amp;lt;listeners&amp;gt;
+     &amp;lt;listener compiler=&quot;MyCompilerListener&quot; /&amp;gt;
+@@ -471,7 +477,7 @@
+ &lt;/pre&gt;
+       &lt;/li&gt;
+       &lt;li&gt;
+-        Compile with
++        Compile with the following command, or an ant task you have set up.
+ &lt;pre&gt;
+ java -jar [IzPackRoot]/lib/compiler.jar -HOME [IzPackRoot]
+   [MyProjectPath]/install.xml -b [MyProductPath] -o
+
+
+Scott Plante wrote:
+&gt;<i> Hi Klaus,
+</I>&gt;<i>
+</I>&gt;<i>  I updated the documentation as we discussed. Here is the patch. By 
+</I>&gt;<i> the way, we just distributed our first application packaged with 
+</I>&gt;<i> IzPack. We converted from InstallAnywhere, which wouldn't work with 
+</I>&gt;<i> the updated version of Java required for the new US Daylight Savings 
+</I>&gt;<i> Time date change, which goes into effect tomorrow night. I had some 
+</I>&gt;<i> trouble and the docs could certainly use some improvement, but the 
+</I>&gt;<i> beauty of open source is that the answers were all there with a little 
+</I>&gt;<i> digging in the source code. Perhaps as time goes on I will have a 
+</I>&gt;<i> chance to learn more about IzPack and submit some more documentation 
+</I>&gt;<i> (and other) patches to help make a great package even better. I also 
+</I>&gt;<i> wrote this wiki page a while back:
+</I>&gt;<i>
+</I>&gt;<i> <A HREF="http://www.izforge.com/izpack/wiki/native_launcher_and_alternatives#creating_a_native_launcher_that_installs_a_jre">http://www.izforge.com/izpack/wiki/native_launcher_and_alternatives#creating_a_native_launcher_that_installs_a_jre</A> 
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>  Thanks for your help.
+</I>&gt;<i>
+</I>&gt;<i> Scott
+</I>&gt;<i>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">splante at guinness</A>:~/dev/izpack/src/&gt; svn diff doc-ng/XHTML/node9.html
+</I>&gt;<i> Index: doc-ng/XHTML/node9.html
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- doc-ng/XHTML/node9.html     (revision 1753)
+</I>&gt;<i> +++ doc-ng/XHTML/node9.html     (working copy)
+</I>&gt;<i> @@ -450,20 +450,26 @@
+</I>&gt;<i>         
+</I>&gt;<i> [IzPackRoot]/src/lib/[MyPackagePath]/MyCompilerListener.java&lt;/tt&gt;.
+</I>&gt;<i>       &lt;/li&gt;
+</I>&gt;<i>       &lt;li&gt;
+</I>&gt;<i> -        Add a &quot;compile.simple&quot; antcall in to 
+</I>&gt;<i> &lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
+</I>&gt;<i> +        Add a &quot;&lt;tt&gt;build-compiler-listener&lt;/tt&gt;&quot; macro call in to the
+</I>&gt;<i> +        &lt;tt&gt;build.listeners&lt;/tt&gt; target in 
+</I>&gt;<i> &lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
+</I>&gt;<i> +        Note that the name attribute value in the 
+</I>&gt;<i> build-instealler-listener
+</I>&gt;<i> +        must match &lt;tt&gt;CompilerListener&lt;/tt&gt; implementation class 
+</I>&gt;<i> name (not
+</I>&gt;<i> +        including the package). You should include the actual Listener
+</I>&gt;<i> +        implementation, as well as any other classes required by the 
+</I>&gt;<i> listener.
+</I>&gt;<i> &lt;pre&gt;
+</I>&gt;<i> -&amp;lt;antcall target=&quot;compile.listener.simple&quot;&amp;gt;
+</I>&gt;<i> -  &amp;lt;param name=&quot;listener&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+</I>&gt;<i> -  &amp;lt;param name=&quot;listener-dir&quot; value=&quot;MyCompilerListener&quot;/&amp;gt;
+</I>&gt;<i> -  &amp;lt;param name=&quot;listener-include&quot; value=&quot;[MyPackagePath]&quot;/&amp;gt;
+</I>&gt;<i> -&amp;lt;/antcall&amp;gt;
+</I>&gt;<i> +        &amp;lt;build-compiler-listener name=&quot;MyCompilerListener&quot;&amp;gt;
+</I>&gt;<i> +            &amp;lt;include 
+</I>&gt;<i> name=&quot;[MyPackagePath]/MyCompilerListener.java&quot;/&amp;gt;
+</I>&gt;<i> +            &amp;lt;include 
+</I>&gt;<i> name=&quot;[MyPackagePath]/SomeOtherHelperClass.java&quot;/&amp;gt;
+</I>&gt;<i> +        &amp;lt;/build-compiler-listener&amp;gt;
+</I>&gt;<i> &lt;/pre&gt;
+</I>&gt;<i>       &lt;/li&gt;
+</I>&gt;<i>       &lt;li&gt;
+</I>&gt;<i>         Run &lt;tt&gt;[IzPackRoot]/src/build.xml&lt;/tt&gt;.
+</I>&gt;<i> +        An &lt;tt&gt;ant&lt;/a&gt; alone will execute the required targets.
+</I>&gt;<i>       &lt;/li&gt;
+</I>&gt;<i>       &lt;li&gt;
+</I>&gt;<i> -        Add a &quot;listeners&quot; ELEMENT with a &quot;listener&quot; ELEMENT with a 
+</I>&gt;<i> &quot;compiler&quot; attribute in to [MyProjectPath]/install.xml
+</I>&gt;<i> +        Add a &quot;listeners&quot; ELEMENT with a &quot;listener&quot; ELEMENT with a 
+</I>&gt;<i> &quot;compiler&quot;
+</I>&gt;<i> +        attribute in to [MyProjectPath]/install.xml
+</I>&gt;<i> &lt;pre&gt;
+</I>&gt;<i>   &amp;lt;listeners&amp;gt;
+</I>&gt;<i>     &amp;lt;listener compiler=&quot;MyCompilerListener&quot; /&amp;gt;
+</I>&gt;<i> @@ -471,7 +477,7 @@
+</I>&gt;<i> &lt;/pre&gt;
+</I>&gt;<i>       &lt;/li&gt;
+</I>&gt;<i>       &lt;li&gt;
+</I>&gt;<i> -        Compile with
+</I>&gt;<i> +        Compile with the following command, or an ant task you have 
+</I>&gt;<i> set up.
+</I>&gt;<i> &lt;pre&gt;
+</I>&gt;<i> java -jar [IzPackRoot]/lib/compiler.jar -HOME [IzPackRoot]
+</I>&gt;<i>   [MyProjectPath]/install.xml -b [MyProductPath] -o
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Bartz, Klaus wrote:
+</I>&gt;&gt;<i> Hi Scott,
+</I>&gt;&gt;<i> will be nice if you addapt the docu to the current
+</I>&gt;&gt;<i> &quot;reality&quot; (I hate to write docu :-( ).
+</I>&gt;&gt;<i> I am always writing docu in the html file. The xml files
+</I>&gt;&gt;<i> will be administered by an other developer (Fabrice).
+</I>&gt;&gt;<i> Some time ago our docu was converted from latex to html.
+</I>&gt;&gt;<i> Therefore some curios anchors.
+</I>&gt;&gt;<i> If you can do the changes, send me the svn diff of
+</I>&gt;&gt;<i> src/doc-ng/XHTML/node9.html.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Cheers
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Klaus
+</I>&gt;&gt;<i>  
+</I>&gt;<i>
+</I>
+-- 
+Scott Plante, CTO
+Insight Systems, Inc.
+(+1) 404 873 0058 x104
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">splante at insightsys.com</A>
+<A HREF="http://zyross.com">http://zyross.com</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000931.html">[izpack-devel] Custom Actions NPE, patch
+</A></li>
+	<LI>Next message: <A HREF="000924.html">[izpack-devel] [RFC] Proposal for a web-server based installation	model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#932">[ date ]</a>
+              <a href="thread.html#932">[ thread ]</a>
+              <a href="subject.html#932">[ subject ]</a>
+              <a href="author.html#932">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark breaks	IzPackoperation
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20shortcutSpec.xml%20UTF-8%20Byte%20Order%20Mark%20breaks%0A%09IzPackoperation&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000938.html">
+   <LINK REL="Next"  HREF="000971.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark breaks	IzPackoperation</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20shortcutSpec.xml%20UTF-8%20Byte%20Order%20Mark%20breaks%0A%09IzPackoperation&In-Reply-To="
+       TITLE="[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark breaks	IzPackoperation">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Tue Oct 10 14:07:11 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000938.html">[izpack-users] Problems with search field in UserInputPanel
+</A></li>
+        <LI>Next message: <A HREF="000971.html">[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark breaks	IzPackoperation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#939">[ date ]</a>
+              <a href="thread.html#939">[ thread ]</a>
+              <a href="subject.html#939">[ subject ]</a>
+              <a href="author.html#939">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Hans-Georg,
+byte order for UTF-8... it is matter of opinion whether a
+silent add of a BOM is clever or not. May be you should
+send a bug report to the developer of the editor.
+
+IzPack is an OS independent installer which uses some third
+party tools. Nobody of us have to delve into the problem to 
+find the reason of the problem. If you look into the docu you
+will see, that IzPack uses a really little XML parser called
+nanoxml. This parser has some restriction e.g. it breaks on 
+BOMs. Additional it cannot validate. And the error messages
+are also restricted. But if you write no unreadable chars in
+the file you can use UTF-8. We do it in some language files
+(e.g. rus.xml).
+We have discussed more than one time to switch to the  
+xml parser which is in the VM since some releases.
+But until jet nobody has made the needed work. 
+
+If I look into wikipedia for BOMs
+(<A HREF="http://en.wikipedia.org/wiki/Byte_Order_Mark">http://en.wikipedia.org/wiki/Byte_Order_Mark</A>) there is an
+explicit warning to use BOMs on Unix-like systems. We use in
+our sources unix like coding rules...
+
+Klaus
+
+
+&gt;<i>-----Original Message-----
+</I>&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Hans-Georg
+</I>&gt;<i>Michna
+</I>&gt;<i>Sent: Tuesday, October 10, 2006 12:32 PM
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i>Subject: [izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark breaks
+</I>&gt;<i>IzPackoperation
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Just stumbled over a grotesque problem that took me hours to
+</I>&gt;<i>identify.
+</I>&gt;<i>
+</I>&gt;<i>I had mistakenly declared the Win_shortcutSpec.xml file as
+</I>&gt;<i>UTF-8, but actually stored it as ANSI code, i.e. it had no Byte
+</I>&gt;<i>Order Mark (BOM).
+</I>&gt;<i>
+</I>&gt;<i>For a long time I didn't notice my mistake, and everything
+</I>&gt;<i>worked, particularly since the file did not contain any
+</I>&gt;<i>characters that required UTF-8 multi-byte encoding, i.e. the
+</I>&gt;<i>file was actually correct, except for the missing BOM.
+</I>&gt;<i>
+</I>&gt;<i>Now I made a little change to the file and used an editor that
+</I>&gt;<i>was clever enough to recognize the UTF-8 encoding and add the
+</I>&gt;<i>missing BOM. From that moment IzPack no longer showed the
+</I>&gt;<i>shortcut pane. Imagine my frantic searching, because I could not
+</I>&gt;<i>see any error in the file or in any other. As I wrote, it took
+</I>&gt;<i>me hours to find the inconspicuous and correct BOM and the fact
+</I>&gt;<i>that its absence made IzPack work again.
+</I>&gt;<i>
+</I>&gt;<i>We have a problem here. Even if we tell users that they should
+</I>&gt;<i>use some other encoding, like ISO-8859-1, proper XML should be
+</I>&gt;<i>encoded in UTF-8, and many editors, including Windows Notepad,
+</I>&gt;<i>will add the BOM, rendering IzPack unworkable.
+</I>&gt;<i>
+</I>&gt;<i>Could any of the developers delve into this and remove this
+</I>&gt;<i>insidious stumbling block? It is no longer a problem for me, but
+</I>&gt;<i>it will surely cause endless grief to others.
+</I>&gt;<i>
+</I>&gt;<i>I'm actually surprised that this topic hasn't come up yet, or
+</I>&gt;<i>has it?
+</I>&gt;<i>
+</I>&gt;<i>Hans-Georg
+</I>&gt;<i>
+</I>&gt;<i>-- 
+</I>&gt;<i>No mail, please.
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>izpack-users mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000938.html">[izpack-users] Problems with search field in UserInputPanel
+</A></li>
+	<LI>Next message: <A HREF="000971.html">[izpack-users] shortcutSpec.xml UTF-8 Byte Order Mark breaks	IzPackoperation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#939">[ date ]</a>
+              <a href="thread.html#939">[ thread ]</a>
+              <a href="subject.html#939">[ subject ]</a>
+              <a href="author.html#939">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

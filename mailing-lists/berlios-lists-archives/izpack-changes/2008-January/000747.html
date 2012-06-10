@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r2001 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2001%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000746.html">
+   <LINK REL="Next"  HREF="000748.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r2001 -	izpack-src/trunk/src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r2001%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r2001 -	izpack-src/trunk/src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Thu Jan 24 20:14:34 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000746.html">[izpack-changes] r2000 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000748.html">[izpack-changes] r2002 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#747">[ date ]</a>
+              <a href="thread.html#747">[ thread ]</a>
+              <a href="subject.html#747">[ subject ]</a>
+              <a href="author.html#747">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jgordon
+Date: 2008-01-24 20:14:29 +0100 (Thu, 24 Jan 2008)
+New Revision: 2001
+
+Added:
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/PasswordEqualityValidator.java
+Log:
+Implementation of sample validator for use in any installer. Shows how to get at validator parameters as well.
+
+Added: izpack-src/trunk/src/lib/com/izforge/izpack/util/PasswordEqualityValidator.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/PasswordEqualityValidator.java	2008-01-24 19:11:16 UTC (rev 2000)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/PasswordEqualityValidator.java	2008-01-24 19:14:29 UTC (rev 2001)
+@@ -0,0 +1,98 @@
++/*
++ * IzPack - Copyright 2001-2007 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://izpack.org/">http://izpack.org/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2003 Elmar Grom
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package com.izforge.izpack.util;
++
++import com.izforge.izpack.panels.PasswordGroup;
++import com.izforge.izpack.panels.ProcessingClient;
++import com.izforge.izpack.panels.Validator;
++import java.util.Map;
++
++
++/**
++ * This class represents a simple validator for passwords to test equality.  It is 
++ * based on the example implementation of a password validator that cooperates with the
++ * password field in the &lt;code&gt;UserInputPanel&lt;/code&gt;. Additional validation may
++ * be done by utilizing the params added to the password field.
++ *
++ * @author   Elmar Grom
++ * @author   Jeff Gordon
++ */
++public class PasswordEqualityValidator implements Validator {
++
++  /**PasswordEqualityValidator
++   * Validates the contend of multiple password fields. The test 
++   *
++   * @param     client   the client object using the services of this validator.
++   *
++   * @return    &lt;code&gt;true&lt;/code&gt; if the validation passes, otherwise &lt;code&gt;false&lt;/code&gt;.
++   */
++  public boolean validate(ProcessingClient client) {
++    boolean returnValue = false;
++    Map params = getParams(client);
++    try {
++      returnValue = fieldsMatch(client);
++      if (returnValue) {
++        // Additional checking if params passed...
++        if (params!=null) {
++          System.out.println(&quot;Additional &quot;+params.size()+&quot; params not evaluated&quot;);
++        }
++      }
++    } catch (Exception e) {
++      System.out.println(&quot;validate() Failed: &quot;+e);
++    }
++    return (returnValue);
++  }
++  
++  private Map getParams(ProcessingClient client) {
++    PasswordGroup group = null;
++    Map params = null;
++    try {
++      group = (PasswordGroup)client;
++      if (group.hasParams()) {
++        params = group.getValidatorParams();
++      }
++    } catch (Exception e) {
++      System.out.println(&quot;getParams() Failed: &quot;+e);
++    }
++    return (params);
++  }
++  
++  private boolean fieldsMatch(ProcessingClient client) {
++    boolean returnValue = true;
++    int numFields = client.getNumFields();
++    // ----------------------------------------------------
++    // verify that there is more than one field. If there
++    // is only one field we have to return true.
++    // ----------------------------------------------------
++    if (numFields &lt; 2) {
++      returnValue = true;
++    } else {
++      String content = client.getFieldContents(0);
++      for (int i = 1; i &lt; numFields; i++) {
++        if (!content.equals(client.getFieldContents(i))) {
++          returnValue = false;
++        }
++      }
++    }
++    return returnValue;
++  }
++  
++}
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000746.html">[izpack-changes] r2000 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000748.html">[izpack-changes] r2002 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#747">[ date ]</a>
+              <a href="thread.html#747">[ thread ]</a>
+              <a href="subject.html#747">[ subject ]</a>
+              <a href="author.html#747">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

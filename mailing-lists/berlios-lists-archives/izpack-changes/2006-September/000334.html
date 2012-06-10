@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1589 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1589%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000333.html">
+   <LINK REL="Next"  HREF="000335.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1589 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1589%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller&In-Reply-To="
+       TITLE="[izpack-changes] r1589 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller">noreply at berlios.de
+       </A><BR>
+    <I>Tue Sep 12 22:40:02 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000333.html">[izpack-changes] r1588 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000335.html">[izpack-changes] r1590 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#334">[ date ]</a>
+              <a href="thread.html#334">[ thread ]</a>
+              <a href="subject.html#334">[ subject ]</a>
+              <a href="author.html#334">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-12 22:40:01 +0200 (Tue, 12 Sep 2006)
+New Revision: 1589
+
+Modified:
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller/Destroyer.java
+Log:
+Optimized/Fixed UnixRootShortcutShellscript: 
+Here: execute only the stored RootScript content
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller/Destroyer.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller/Destroyer.java	2006-09-12 20:38:42 UTC (rev 1588)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller/Destroyer.java	2006-09-12 20:40:01 UTC (rev 1589)
+@@ -38,10 +38,11 @@
+ import com.izforge.izpack.util.AbstractUIProgressHandler;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.FileExecutor;
++import com.izforge.izpack.util.StringTool;
+ import com.izforge.izpack.util.os.unix.ShellScript;
+ import com.izforge.izpack.util.os.unix.UnixHelper;
+-import com.izforge.izpack.util.os.unix.UnixUser;
+ 
++
+ /**
+  * The files destroyer class.
+  * 
+@@ -114,7 +115,7 @@
+             // Custem action listener stuff --- afterDeletion ----
+             informListeners(listeners[0], UninstallerListener.AFTER_DELETION, files, handler);
+ 
+-            removeRootFiles(getRootFiles());
++            execRootScript(getRootScript());
+ 
+             // We make a complementary cleanup
+             handler.progress(size, &quot;[ cleanups ]&quot;);
+@@ -179,6 +180,11 @@
+         return new ArrayList(files);
+     }
+ 
++    /**
++     * Gets the List of all Executables
++     * @return The ArrayList of the Executables
++     * @throws Exception
++     */
+     private ArrayList getExecutablesList() throws Exception
+     {
+         ArrayList executables = new ArrayList();
+@@ -199,59 +205,31 @@
+      * @return The files which should remove by root for another user
+      * @throws Exception
+      */
+-    private Hashtable getRootFiles() throws Exception
++    private String getRootScript() throws Exception
+     {
+-        Hashtable result = new Hashtable();
++        //String rootScript = new String();
+         ObjectInputStream in = new ObjectInputStream(Destroyer.class.getResourceAsStream(&quot;/&quot;
+-                + UninstallData.RootFiles));
+-        int num = in.readInt();
+-        for (int i = 0; i &lt; num; i++)
+-        {
+-            String file = (String) in.readObject();
++                + UninstallData.ROOTSCRIPT));
++        
++        String result = in.readUTF();
+ 
+-            UnixUser user = (UnixUser) in.readObject();
+-            result.put(file, user);
+-        }
++        
+         return result;
+     }
+ 
+     /**
+      * Removes the given files as root for the given Users
+      * 
+-     * @param entries The files to reomove for the users
++     * @param aRootScript The Script to exec as uninstall time by root. 
+      */
+-    private void removeRootFiles(Hashtable entries)
++    private void execRootScript(String aRootScript)
+     {
+-        Enumeration e = entries.keys();
++        
++            Debug.log(&quot;Will Execute: &quot; + aRootScript.toString());
+ 
+-        String su = UnixHelper.getSuCommand();
+-        String rm = UnixHelper.getCustomCommand(&quot;rm&quot;);
+-        String S = &quot; &quot;;
+-
+-        while (e.hasMoreElements())
+-        {
+-            String filename = (String) e.nextElement();
+-            UnixUser user = (UnixUser) entries.get(filename);
+-
+-            StringBuffer script = new StringBuffer();
+-
+-            script.append(su);
+-            script.append(S);
+-            script.append(user.getName());
+-            script.append(S);
+-            script.append(&quot;-c&quot;);
+-            script.append(S);
+-            script.append('&quot;');
+-            script.append(rm);
+-            script.append(S);
+-            script.append(filename);
+-            script.append('&quot;');
+-
+-            Debug.log(&quot;Executes: &quot; + script.toString());
+-
+             try
+             {
+-                String result = ShellScript.execAndDelete(script, File.createTempFile(
++                String result = ShellScript.execAndDelete(new StringBuffer( aRootScript ), File.createTempFile(
+                         this.getClass().getName(),
+                         Long.toString(System.currentTimeMillis()) + &quot;.sh&quot;).toString());
+                 Debug.log(&quot;Result: &quot; + result);
+@@ -260,8 +238,6 @@
+             {
+                 Debug.log(&quot;Exeption during su remove: &quot; + ex.getMessage());
+             }
+-
+-        }
+     }
+ 
+     /**
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000333.html">[izpack-changes] r1588 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000335.html">[izpack-changes] r1590 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#334">[ date ]</a>
+              <a href="thread.html#334">[ thread ]</a>
+              <a href="subject.html#334">[ subject ]</a>
+              <a href="author.html#334">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] FW:  Logging -&gt; need feedback (API included)
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20FW%3A%20%20Logging%20-%3E%20need%20feedback%20%28API%20included%29&In-Reply-To=HPEKIFMJKCAJHFKEPLIHIEMACMAA.elmar%40grom.net">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000696.html">
+   <LINK REL="Next"  HREF="000697.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] FW:  Logging -&gt; need feedback (API included)</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20FW%3A%20%20Logging%20-%3E%20need%20feedback%20%28API%20included%29&In-Reply-To=HPEKIFMJKCAJHFKEPLIHIEMACMAA.elmar%40grom.net"
+       TITLE="[izpack-devel] FW:  Logging -&gt; need feedback (API included)">bartzkau at gmx.net
+       </A><BR>
+    <I>Wed Dec 13 19:42:53 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000696.html">[izpack-devel] FW:  Logging -&gt; need feedback (API included)
+</A></li>
+        <LI>Next message: <A HREF="000697.html">[izpack-devel] Bugs resolved by my patch submissions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#698">[ date ]</a>
+              <a href="thread.html#698">[ thread ]</a>
+              <a href="subject.html#698">[ subject ]</a>
+              <a href="author.html#698">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Elmar,
+today morning I have looked a little bit into the sources. Seems
+nice. But I have had no time to make something with it.
+Am I right that you have no line to IzPacks svn? If so, should I
+check in the sources? Will be better if I add the stuff to
+FinishPanel etc.
+
+Cheers
+
+Klaus
+
+
+Am 12.12.2006, 18:59 Uhr, schrieb Elmar Grom &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>&gt;:
+
+&gt;<i> Hi Klaus,
+</I>&gt;<i>
+</I>&gt;<i> for reference I have included the code, so that you can have a look at  
+</I>&gt;<i> the
+</I>&gt;<i> API.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;&gt;<i> 4) it can build a localized text report and provides the
+</I>&gt;&gt;&gt;<i> necessary UI to save the report to a file of the users choice.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> May be configurable. Other installer writes logging also without
+</I>&gt;&gt;<i> asking the user. May be we can declare central a support directory
+</I>&gt;&gt;<i> where also other loggings can be stored (e.g. the summary).
+</I>&gt;<i>
+</I>&gt;<i> Yes that could be done. Are you thinking about a fixed location and  
+</I>&gt;<i> name, so
+</I>&gt;<i> that the configuration just turns this on/off or rather about specifying  
+</I>&gt;<i> a
+</I>&gt;<i> path and name in the configuration?
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;&gt;<i> 5) there is special handling support for use of (4) in an automated
+</I>&gt;&gt;&gt;<i> installer. In this case a message dialog is popped up that
+</I>&gt;&gt;&gt;<i> also allows the
+</I>&gt;&gt;&gt;<i> user to save the report if there are any warning or error
+</I>&gt;&gt;&gt;<i> messages recorded.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Have to be configurable because there are installations without
+</I>&gt;&gt;<i> user interaction.
+</I>&gt;<i>
+</I>&gt;<i> Same as above.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;&gt;<i> 1) the two finish panels need to be upgraded to display a
+</I>&gt;&gt;&gt;<i> generic message
+</I>&gt;&gt;&gt;<i> 2) the two finish panels need to be upgraded to provide a
+</I>&gt;&gt;&gt;<i> button for saving
+</I>&gt;&gt;&gt;<i> the report
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I have to see the impl or the docu to see whether I understand
+</I>&gt;&gt;<i> the usage or not :-) If so, I can do 1) and 2).
+</I>&gt;<i>
+</I>&gt;<i> OK, the code is included. Have a look at
+</I>&gt;<i>
+</I>&gt;<i> warningsRecorded ()
+</I>&gt;<i> errorsRecorded ()
+</I>&gt;<i>
+</I>&gt;<i> The finish panel would call these methods and display an appropriate  
+</I>&gt;<i> message
+</I>&gt;<i> if either one returns true. This would also be the signal to make a  
+</I>&gt;<i> button
+</I>&gt;<i> available for writing the report. If the button is clicked just call
+</I>&gt;<i>
+</I>&gt;<i> writeReport ()
+</I>&gt;<i>
+</I>&gt;<i> The complete user interface is already provided.
+</I>&gt;<i>
+</I>&gt;<i> The automated installer would simply call
+</I>&gt;<i>
+</I>&gt;<i> informUser ()
+</I>&gt;<i>
+</I>&gt;<i> This method also verifies if there are any error or warning messages. It
+</I>&gt;<i> provides the complete UI (pops up a dialog with a button to write the log
+</I>&gt;<i> etc.).
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;&gt;<i> 5) what should be done if the developer decides not to use a
+</I>&gt;&gt;&gt;<i> finish panel or
+</I>&gt;&gt;&gt;<i> wants to write his own?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> If some one will not say good by, he has bad luck. We should not
+</I>&gt;&gt;<i> support discourteousness with a hack from us for it :-)
+</I>&gt;<i>
+</I>&gt;<i> Well, you are probably right. This would have to be made really clear in  
+</I>&gt;<i> the
+</I>&gt;<i> documentation though.
+</I>&gt;<i>
+</I>&gt;&gt;<i> May be this is a good reason to bring together FinishPPanel and
+</I>&gt;&gt;<i> SimpleFinishPanel. At upgrading the two panels create a base class
+</I>&gt;&gt;<i> which makes all common stuff. A developer which needs an own
+</I>&gt;&gt;<i> finish panel should be used then this base. If not, he has also bad  
+</I>&gt;&gt;<i> luck...
+</I>&gt;<i>
+</I>&gt;<i> I think this is a really good idea.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;&gt;<i> 7) there are LOTS of messages to be translated ~:o)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I assume that you make the English and the German. Therefore there is
+</I>&gt;&gt;<i> no part for me :-)
+</I>&gt;<i>
+</I>&gt;<i> Well, up to a point. There is quite some text for the dialogs etc. and  
+</I>&gt;<i> then
+</I>&gt;<i> there are headings and generic messages for the report. I have done all  
+</I>&gt;<i> of
+</I>&gt;<i> those in English and German. Then there will be all the specific messages
+</I>&gt;<i> that folks will implement. Those are a different matter of course.
+</I>&gt;<i>
+</I>&gt;<i> There is a complete explanation on how to implement new messages in the
+</I>&gt;<i> documentation header for the Log class.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;<i> If system exist, I will do it in my stuff.
+</I>&gt;&gt;<i> What about to publish the panel list where developer will be insert
+</I>&gt;&gt;<i> his mnemonic.
+</I>&gt;<i>
+</I>&gt;<i> This is my only worry at this point, that we have the log system but  
+</I>&gt;<i> actual
+</I>&gt;<i> logging is only spotty. We should make sure that at least all the  
+</I>&gt;<i> critical
+</I>&gt;<i> stuff has logging.
+</I>&gt;<i>
+</I>&gt;<i> I am not sure what you mean with the list. Can you please elaborate?
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> 	Elmar
+</I>&gt;<i>
+</I>&gt;<i> -----Original Message-----
+</I>&gt;<i> From: Bartz, Klaus [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">Klaus.Bartz at coi.de</A>]
+</I>&gt;<i> Sent: Tuesday, December 12, 2006 12:37 AM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">elmar at grom.net</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Subject: RE: [izpack-devel] Logging -&gt; need feedback
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Hi Elmar,
+</I>&gt;<i> I am waiting for it :-)
+</I>&gt;<i> You know, I think it will be nice if there are &quot;slots&quot;
+</I>&gt;<i> additional to types of events to keep track of if there are
+</I>&gt;<i> many logs of type message. You know the situation where a
+</I>&gt;<i> log file containts a MB informations.
+</I>&gt;<i> But it is only a wish of me.
+</I>&gt;<i> Rest context related.
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Elmar Grom
+</I>&gt;&gt;<i> Sent: Tuesday, December 12, 2006 6:27 AM
+</I>&gt;&gt;<i> To: Izpack
+</I>&gt;&gt;<i> Subject: [izpack-devel] Logging -&gt; need feedback
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Hi everybody,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> sorry, I was spaced out for a bit, wanted to send this earlier
+</I>&gt;&gt;<i> but a lot was
+</I>&gt;&gt;<i> going on in my world... anyway, here we continue with logging
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Please send comments, proposals etc. and let me know if you can help a
+</I>&gt;&gt;<i> little with this project. There is still some work to be done on many
+</I>&gt;&gt;<i> fronts, though none of it should be a major amount.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> What has happened and what is implemented so far?
+</I>&gt;&gt;<i> =================================================
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> So far I have implemented a logger class and modified it
+</I>&gt;&gt;<i> according to some
+</I>&gt;&gt;<i> feedback I received. This class can do the following:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 1) it can be used to log any event of interest during an installation
+</I>&gt;&gt;<i> 2) depending on the types of events recorded
+</I>&gt;&gt;<i> (message/warning/error) the
+</I>&gt;&gt;<i> class provides flags for the GUI to present an appropriate
+</I>&gt;&gt;<i> generic message
+</I>&gt;&gt;<i> 3) an exception can be attached to warning and error messages
+</I>&gt;&gt;<i> 4) it can build a localized text report and provides the
+</I>&gt;&gt;<i> necessary UI to
+</I>&gt;&gt;<i> save the report to a file of the users choice.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> May be configurable. Other installer writes logging also without
+</I>&gt;<i> asking the user. May be we can declare central a support directory
+</I>&gt;<i> where also other loggings can be stored (e.g. the summary).
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;<i> 5) there is special handling support for use of (4) in an automated
+</I>&gt;&gt;<i> installer. In this case a message dialog is popped up that
+</I>&gt;&gt;<i> also allows the
+</I>&gt;&gt;<i> user to save the report if there are any warning or error
+</I>&gt;&gt;<i> messages recorded.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Have to be configurable because there are installations without
+</I>&gt;<i> user interaction.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> What needs to be decided and what is yet to be implemented?
+</I>&gt;&gt;<i> ===========================================================
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 1) the two finish panels need to be upgraded to display a
+</I>&gt;&gt;<i> generic message
+</I>&gt;&gt;<i> indicating installation success
+</I>&gt;&gt;<i> 2) the two finish panels need to be upgraded to provide a
+</I>&gt;&gt;<i> button for saving
+</I>&gt;&gt;<i> the report
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> I have to see the impl or the docu to see whether I understand
+</I>&gt;<i> the usage or not :-) If so, I can do 1) and 2).
+</I>&gt;<i>
+</I>&gt;&gt;<i> 3) Log needs to integrated with the project (who can check the
+</I>&gt;&gt;<i> code in for
+</I>&gt;&gt;<i> me?)
+</I>&gt;&gt;<i> 4) Julien has proposed to add a GUI element to the installer frame that
+</I>&gt;&gt;<i> displays a message if a warning or error was recorded. This
+</I>&gt;&gt;<i> would have to be
+</I>&gt;&gt;<i> implemented and wired with the logger for updating.
+</I>&gt;&gt;<i> 5) what should be done if the developer decides not to use a
+</I>&gt;&gt;<i> finish panel or
+</I>&gt;&gt;<i> wants to write his own?
+</I>&gt;<i>
+</I>&gt;<i> If some one will not say good by, he has bad luck. We should not
+</I>&gt;<i> support discourteousness with a hack from us for it :-)
+</I>&gt;<i>
+</I>&gt;<i> May be this is a good reason to bring together FinishPPanel and
+</I>&gt;<i> SimpleFinishPanel. At upgrading the two panels create a base class
+</I>&gt;<i> which makes all common stuff. A developer which needs an own
+</I>&gt;<i> finish panel should be used then this base. If not, he has also bad  
+</I>&gt;<i> luck...
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;&gt;<i> 6) some re-factoring work is required surrounding InstallData
+</I>&gt;&gt;<i> 7) there are LOTS of messages to be translated ~:o)
+</I>&gt;<i>
+</I>&gt;<i> I assume that you make the English and the German. Therefore there is
+</I>&gt;<i> no part for me :-)
+</I>&gt;<i>
+</I>&gt;&gt;<i> 8) logging should be used -&gt; implement lots of logging all
+</I>&gt;&gt;<i> over the code!
+</I>&gt;&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> If system exist, I will do it in my stuff.
+</I>&gt;<i> What about to publish the panel list where developer will be insert
+</I>&gt;<i> his mnemonic.
+</I>&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>       Elmar
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> __________ NOD32 1.1392 (20060202) Information __________
+</I>&gt;<i>
+</I>&gt;<i> Diese E-Mail wurde vom NOD32 Antivirus System gepr&#252;ft
+</I>&gt;<i> <A HREF="http://www.nod32.com">http://www.nod32.com</A>
+</I>&gt;<i>
+</I>
+
+
+-- 
+Erstellt mit Operas revolution&#228;rem E-Mail-Modul: <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000696.html">[izpack-devel] FW:  Logging -&gt; need feedback (API included)
+</A></li>
+	<LI>Next message: <A HREF="000697.html">[izpack-devel] Bugs resolved by my patch submissions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#698">[ date ]</a>
+              <a href="thread.html#698">[ thread ]</a>
+              <a href="subject.html#698">[ subject ]</a>
+              <a href="author.html#698">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

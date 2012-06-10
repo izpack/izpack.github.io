@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Using Compression in Packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Using%20Compression%20in%20Packs&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889165F%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000503.html">
+   <LINK REL="Next"  HREF="000505.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Using Compression in Packs</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Using%20Compression%20in%20Packs&In-Reply-To=591E33C080D2E5449BB1791B70D66B2889165F%40coi11.coi.com"
+       TITLE="[izpack-users] Using Compression in Packs">hal at thresholddigital.com
+       </A><BR>
+    <I>Thu May  4 16:45:22 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000503.html">[izpack-users] Using Compression in Packs
+</A></li>
+        <LI>Next message: <A HREF="000505.html">[izpack-users] Using Compression in Packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#504">[ date ]</a>
+              <a href="thread.html#504">[ thread ]</a>
+              <a href="subject.html#504">[ subject ]</a>
+              <a href="author.html#504">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Thursday 04 May 2006 05:39, Bartz, Klaus wrote:
+&gt;<i> Hi,
+</I>&gt;<i> last year I have implemented the compressor stuff.
+</I>&gt;<i> At default we use the &quot;normal&quot; deflate compression of a jar file.
+</I>&gt;<i> Our server installation will be compressed from ~700 MB to ~350 MB.
+</I>&gt;<i> If nothing compresses, there is something wrong.
+</I>
+By server installation, I take it you mean a web install?  Before I 
+asked this, I went to the xhtml doc directory and typed &quot;grep -R 
+compress *&quot; and got nothing about compiling.  This is on 3.8.1, the 
+same version Fabrice and I have been developing SimpleConfig and that 
+I've been developing some other panels on.
+
+I don't think I'm seeing compression, but I'll double check my figures.  
+I've been operating on very little sleep lately, so it's possible I 
+mis-calculated while trying to work it out.  I thought my numbers were 
+accurate, but I'm the first to admit I could have messed up.
+
+&gt;<i> I have also seen at implementation time, that bzip2 is not much
+</I>&gt;<i> better as deflate; 3 - 5 %. I do not know why. May be this is related
+</I>&gt;<i> to the point that IzPack often used for java appls which contains
+</I>&gt;<i> already comprest jar files.
+</I>
+I'm not worried about that small an increase.  At this point, I'm 
+concerned about a 90 MB pack
+
+&gt;<i> I had played a little bit with LZMA (7zip); it was ~ 25 % better as
+</I>&gt;<i> deflate. But up to know I have had no time to write a filter output
+</I>&gt;<i> stream which compresses with LZMA.
+</I>
+That's what I did for pack encryption -- I wrote another class that 
+handles the encryption/decryption work and it only took a few lines in 
+the packager and unpacker to call that class and wrap another io stream 
+around the existing ones.  If a pack is not encrypted, it doesn't add 
+the extra stream.
+
+&gt;<i> The java impl of LZMA self is not filter output stream orientated.
+</I>&gt;<i> In the current design of pack compression we cannot use the 7zip
+</I>&gt;<i> classes. May be it will be possible to write a wrapper around the
+</I>&gt;<i> classes which wrappes it to an filter output stream. LZMA will be
+</I>&gt;<i> sometimes very slow (much slower as bzip2) at encoding...
+</I>&gt;<i> If some one will do the work - to write an encoder as filter output
+</I>&gt;<i> stream and an decoder as filter input stream using
+</I>&gt;<i> interface com.izforge.izpack.compressor.PackCompressor
+</I>&gt;<i> as integration wrapper - I will be very happy.
+</I>
+I'd be interesting in taking a look at that later, but for now I *have* 
+to get my program so it's working and so it can be easily installed.  
+Then I get my first break in several years and after a few days, I have 
+to start on my last big project (I figure it'll take 2-8 weeks, 
+depending on a few factors).  When that's done and I've had time to 
+rest, I'll be able to look at a few other things.
+
+&gt;<i> Never heard of a compression which is reproducable 60% better as
+</I>&gt;<i> deflate. Means not only for special cases used; e.g. CCITT T.6 is
+</I>&gt;<i> better as deflate, (can be more than 60 %) if you compress a BW image
+</I>&gt;<i> without noise, but at halftone images CCITT T.6 will compress
+</I>&gt;<i> nothing. And an exe you cannot compress with CCITT T.6.
+</I>&gt;<i> Will be very nice if some one can send me the sources or a link to
+</I>&gt;<i> the description of the (non patent) algorithm.
+</I>&gt;<i>
+</I>&gt;<i> On the other hand, it is possible that I have made a mistake at
+</I>&gt;<i> implementation. Please look into package
+</I>&gt;<i> com.izforge.izpack.compressor. There are the related classes.
+</I>
+I'll check my figs first.  Like I said, I could have made a mistake.  
+I'll see.
+
+And, while I'm at it, I've never used Jar files on Windows before.  Is 
+it just me, or are then not double clickable by default?  I'm going 
+have to add a batch file with the download for my clients since most of 
+them get confused with right clicking or other methods that aren't just 
+a double click to run something.  I'm also willing to bet this is a 
+Microsoft thing connected with the Sun/Microsoft feud.
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000503.html">[izpack-users] Using Compression in Packs
+</A></li>
+	<LI>Next message: <A HREF="000505.html">[izpack-users] Using Compression in Packs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#504">[ date ]</a>
+              <a href="thread.html#504">[ thread ]</a>
+              <a href="subject.html#504">[ subject ]</a>
+              <a href="author.html#504">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

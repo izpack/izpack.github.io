@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] custom panel cont'd
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20custom%20panel%20cont%27d&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000958.html">
+   <LINK REL="Next"  HREF="000960.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] custom panel cont'd</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20custom%20panel%20cont%27d&In-Reply-To="
+       TITLE="[izpack-users] custom panel cont'd">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Wed Oct 11 17:36:27 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000958.html">[izpack-users] custom panel cont'd
+</A></li>
+        <LI>Next message: <A HREF="000960.html">[izpack-users] Common interfaces for GNOME and KDE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#959">[ date ]</a>
+              <a href="thread.html#959">[ thread ]</a>
+              <a href="subject.html#959">[ subject ]</a>
+              <a href="author.html#959">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi le dinh,
+seems so, that classes are in install.jar (else no of your classes can be
+listed in the stack).
+It seems so, that the null pointer exception will be triggert in
+ at com.izforge.izpack.installer.PingPanelWorker.readChoices(PingPanelWorker.java:363)
+ 
+Additional it seems so that your panel worker will be called in the constructor of your panel.
+All constructors of panels are called just after language dialog. May be this is to early for
+your worker, e.g. the file (or what else) from which the choices should be readed do not exist.
+Or the spec is not at the right place?? Should be a resource. Or the names differ;
+e.g. in the res tag the id &quot;PingPanel.Spec.xml&quot;, in the reader (PingPanelWorker.java?)
+&quot;PingPanelSpec.xml&quot; or &quot;pingPanel.Spec.xml&quot; or what else.
+You see, many possibilities.
+Therfore I recommend to develop a custom panel in an IDE like eclipse. If you do it,
+you can simple set a break point at PingPanelWorker.java:363 and see what happend.
+In the docu there is a description how to make an installer project in eclipse 
+(there are some little pitfalls).
+ 
+Cheers
+ 
+Klaus
+ 
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of le dinh
+Sent: Wednesday, October 11, 2006 5:04 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-request at lists.berlios.de</A>
+Subject: [izpack-users] custom panel cont'd
+
+
+Hi Klaus,
+
+The error occurs just after the display of the langage selection panel. Here below is the stack dump. OK, i was too brief, let me tell you the way that i understand how to create my own PingPanel whose aim is to select the license system ,the server to ping to and finally to launch a 'ping script'. 
+
+First of all, I found inspiration from an existing class CompilePanel and wrote a new class PingPanel that extends IzPanel. In the void makeXMLData, I replaced compiler and arguments by my stfuff in my PingPanel.Spec.xml ( prot,flex...). As noticed on the izforge wiki, I had to create a PingPanelAutomationHelper class( again CompilePanelAutomationHelper is used as example ). Last, my PingPanelWorker thread is inspired from a mixing CompileWorker and ProcessPanelWorker 
+
+Just a few midifications in build.xml to launch ant and the compilation has been done. To complete, I insert my PingPanel in the resources and panels section of my install xml and create a new jar file.
+
+Thanks a lot to give me a quick response. I do appreciate your explanatory statements.
+
+Cheers,
+
+ 
+
+this=com.izforge.izpack.panels.PingPanel[,0,0,0x0,invalid,layout=java.awt.FlowLayout,alignmentX=0.0,alignmentY=0.0,border=,flags=9,maximumSize=,minimumSize=,preferredSize=]
+
+input=PingPanel.Spec.xml protspec=null protlist=null
+
+- Error -
+
+java.lang.reflect.InvocationTargetException
+
+java.lang.reflect.InvocationTargetException
+
+at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+
+at sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
+
+at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
+
+at java.lang.reflect.Constructor.newInstance(Unknown Source)
+
+at com.izforge.izpack.installer.InstallerFrame.loadPanels(InstallerFrame.java:202)
+
+at com.izforge.izpack.installer.InstallerFrame.&lt;init&gt;(InstallerFrame.java:159)
+
+at com.izforge.izpack.installer.GUIInstaller.loadGUI(GUIInstaller.java:389)
+
+at com.izforge.izpack.installer.GUIInstaller.&lt;init&gt;(GUIInstaller.java:126)
+
+at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+
+at sun.reflect.NativeConstructorAccessorImpl.newInstance(Unknown Source)
+
+at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(Unknown Source)
+
+at java.lang.reflect.Constructor.newInstance(Unknown Source)
+
+at java.lang.Class.newInstance0(Unknown Source)
+
+at java.lang.Class.newInstance(Unknown Source)
+
+at com.izforge.izpack.installer.Installer.main(Installer.java:62)
+
+Caused by: java.lang.NullPointerException
+
+at com.izforge.izpack.installer.PingPanelWorker.readChoices(PingPanelWorker.java:363)
+
+at com.izforge.izpack.installer.PingPanelWorker.getAvailableProt(PingPanelWorker.java:136)
+
+at com.izforge.izpack.panels.PingPanel.&lt;init&gt;(PingPanel.java:193)
+
+... 15 more
+
+
+-- 
+This message has been scanned for viruses and 
+dangerous content by  &lt;<A HREF="http://www.mailscanner.info/">http://www.mailscanner.info/</A>&gt; MailScanner, and is 
+believed to be clean. 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20061011/7b631549/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20061011/7b631549/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000958.html">[izpack-users] custom panel cont'd
+</A></li>
+	<LI>Next message: <A HREF="000960.html">[izpack-users] Common interfaces for GNOME and KDE
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#959">[ date ]</a>
+              <a href="thread.html#959">[ thread ]</a>
+              <a href="subject.html#959">[ subject ]</a>
+              <a href="author.html#959">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Some Issues with IzPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Some%20Issues%20with%20IzPack&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001615.html">
+   <LINK REL="Next"  HREF="001619.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Some Issues with IzPack</H1>
+    <B>yj</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Some%20Issues%20with%20IzPack&In-Reply-To="
+       TITLE="[izpack-users] Some Issues with IzPack">yj at m-itc.net
+       </A><BR>
+    <I>Wed Jul 25 07:47:22 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001615.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+        <LI>Next message: <A HREF="001619.html">[izpack-users] Some Issues with IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1616">[ date ]</a>
+              <a href="thread.html#1616">[ thread ]</a>
+              <a href="subject.html#1616">[ subject ]</a>
+              <a href="author.html#1616">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+I am trying to build an installer for a web application which will be 
+used across europe by enforcement agencies. The installer should perform 
+the following tasks:
+
+- Deploy a web application into jboss
+- Add and upgrade certain libraries of jboss (such as hibernate, 
+javassist ...etc)
+- Modify certain config files
+- Create a DS file in the server/default/deploy directory describing the 
+datasource to be used by the web application
+
+
+I have the following issues and badly need these to be resolved as i 
+have to release this by the end of this week end.
+
+
+Issue 1 : Cannot find Resource for HTMLLicencePanel.licence and 
+HTMLInfoPanel
+
+I define the resources like that in the resource section of the install file
+
+    &lt;res id=&quot;HTMLLicencePanel.licence&quot; src=&quot;txt/Licence.html&quot;/&gt;
+    &lt;res id=&quot;HTMLInfoPanel.info&quot; src=&quot;txt/Readme.txt&quot;/&gt;       
+
+but it gives me the following error:
+
+-&gt; Fatal error :
+   C:\Installer\install.xml:48: Resource not found: 
+C:\Installer\txt\Licence.html
+com.izforge.izpack.compiler.CompilerException: 
+C:\Installer\install.xml:48: Resource not found: 
+C:\Installer\txt\Licence.html
+        at 
+com.izforge.izpack.compiler.CompilerConfig.parseError(CompilerConfig.java:1619)
+        at 
+com.izforge.izpack.compiler.CompilerConfig.findProjectResource(CompilerConfig.java:1548)
+        at 
+com.izforge.izpack.compiler.CompilerConfig.addResources(CompilerConfig.java:1142)
+        at 
+com.izforge.izpack.compiler.CompilerConfig.executeCompiler(CompilerConfig.java:322)
+        at 
+com.izforge.izpack.compiler.CompilerConfig.main(CompilerConfig.java:1950)
+        at com.izforge.izpack.compiler.Compiler.main(Compiler.java:709)
+(tip : use -? to get the commmand line parameters)
+
+
+The same error is obtained if i use the simple License and Info Panels
+
+
+
+Issue 2:
+
+I have swing application which should be executed at post install. This 
+swing app is an executable jar file which generates a data source 
+configuration file in the server/default/deploy directory of jboss.
+
+I launch the application using the following
+
+        &lt;pack name=&quot;utils&quot; required=&quot;yes&quot;&gt;
+           &lt;description&gt;The utility files&lt;/description&gt;          
+                     
+
+           &lt;!-- utils --&gt;
+           &lt;fileset dir=&quot;utils&quot; targetdir=&quot;$INSTALL_PATH/utils&quot; 
+override=&quot;true&quot;&gt;           
+                &lt;include name=&quot;*.*&quot;/&gt;
+           &lt;/fileset&gt;                                   
+
+          &lt;executable 
+targetfile=&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot; type=&quot;jar&quot; 
+failure=&quot;ask&quot; stage=&quot;postinstall&quot; keep=&quot;true&quot;/&gt;          
+          
+        &lt;/pack&gt;           
+
+
+While the swing app is correctly launched and no error occurs. It is not 
+able to create the file in the desired directory in the INSTALL_PATH. If 
+i launch the same executable jar file after installation, it correctly 
+creates the datasource file. Is there some kind of lock on the 
+INSTALL_PATH by the installer which prevents the swing application to 
+create files in this directory
+
+
+I tried using the ProcessPanel with the following
+
+Defined the resource as :
+    &lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;ProcessPanel.Spec.xml&quot;/&gt;       
+
+
+The ProcessPanelSpec.xml is as follows:
+
+&lt;processing&gt;
+
+  &lt;job name=&quot;DS Install&gt;
+    &lt;os family=&quot;windows&quot; /&gt; 
+    &lt;executable targetfile=&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot; 
+type=&quot;jar&quot; failure=&quot;ask&quot; stage=&quot;postinstall&quot; keep=&quot;true&quot;/&gt; 
+   
+  &lt;/job&gt;
+&lt;/processing&gt;
+
+
+Defined the panel after the install Panel
+
+    &lt;panel classname=&quot;InstallPanel&quot;/&gt;   
+    &lt;panel classname=&quot;ProcessPanel&quot;/&gt;                
+    &lt;panel classname=&quot;FinishPanel&quot;/&gt;       
+
+
+While the ProcessPanel does appear, it does not perform anything and get 
+stuck at 0%. I also doubt that this is what i need.
+
+
+I have just started using IzPack after finding that Jboss uses it for 
+its JEMS installer and only know the basics. Could you please tell me 
+what am i doing wrong and if possible suggest work arounds.
+
+
+Loads of thnx in advance.
+
+
+Regards,
+
+-- 
+Jankee Yogesh
+Team Leader
+M-ITC LTD
+<A HREF="http://www.m-itc.net">http://www.m-itc.net</A>
+
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001615.html">[izpack-users] Windows XP Registry Entries cleaning up
+</A></li>
+	<LI>Next message: <A HREF="001619.html">[izpack-users] Some Issues with IzPack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1616">[ date ]</a>
+              <a href="thread.html#1616">[ thread ]</a>
+              <a href="subject.html#1616">[ subject ]</a>
+              <a href="author.html#1616">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

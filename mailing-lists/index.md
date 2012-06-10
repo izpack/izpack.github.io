@@ -18,4 +18,12 @@ You can subscribe to them [from Codehaus](http://xircles.codehaus.org/projects/i
 
 The lists are also [archived on MarkMail](http://izpack.markmail.org/) and mirrored on Google Groups: [announce](http://groups.google.com/group/izpack-announce), [user](http://groups.google.com/group/izpack-user), [dev](http://groups.google.com/group/izpack-dev) and [scm](http://groups.google.com/group/izpack-scm).
 
-We also have [an archive of the BerliOS-time lists](berlios-lists-archives/) where you may dig some useful informations.
+## Attic
+
+We also have an archive of the BerliOS-time lists where you may dig some useful informations between 2006 and 2008:
+
+* [izpack-users](berlios-lists-archives/izpack-users/) used to be our user-support list,
+* [izpack-devel](berlios-lists-archives/izpack-devel/) used to be our development list,
+* [izpack-changes](berlios-lists-archives/izpack-changes/) used to be our SCM notification list.
+
+No known archive remains before we moved from TuxFamily to BerliOS in 2006.

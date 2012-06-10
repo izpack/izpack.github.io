@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How can I create a panel and not display it?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20can%20I%20create%20a%20panel%20and%20not%20display%20it%3F&In-Reply-To=368C3CD47F40D043B5DD553E9035B49423CE59%40ex1.eldat.local">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000212.html">
+   <LINK REL="Next"  HREF="000214.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How can I create a panel and not display it?</H1>
+    <B>Klaus Bartz</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20can%20I%20create%20a%20panel%20and%20not%20display%20it%3F&In-Reply-To=368C3CD47F40D043B5DD553E9035B49423CE59%40ex1.eldat.local"
+       TITLE="[izpack-users] How can I create a panel and not display it?">bartzkau at gmx.net
+       </A><BR>
+    <I>Mon Feb 20 13:06:29 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000212.html">[izpack-users] How can I create a panel and not display it?
+</A></li>
+        <LI>Next message: <A HREF="000214.html">[izpack-users] How can I create a panel and not display it?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Yossi,
+you can perform your actions in a custom action or a custom panel.
+The right place for such actions are &quot;custom actions&quot;, but may
+be it will be more easy for you to use a custom panel for it, if you
+have already written some.
+Additional custom actions current are only possible during installation
+(before or after Pack(s)).
+
+In IzPanels you have access to all InstallData via the class variable
+&quot;idata&quot; e.g. for the install path
+idata.getInstallPath();
+If you would do something in an IzPanel but nothing see, do your work in
+the method
+   public void panelActivate()
+   {
+     // Do your work
+     parent.skipPanel();
+     return;
+   }
+
+and skip the panel after the work. You know, some one will say this is
+a hack...
+Be aware that the time your work need the panel will block. May be
+use an other thread in your work.
+If you use skipPanel in method panelActivate, never forget the
+following return also you do not need in this special case.
+
+As an example for a simple custom action one of my &quot;private&quot; with which
+I generate path variables for Unix and Windows script files.
+Most work will be to understand how to add a custom action to the  
+installation
+(see the docu).
+------------------------------------------------------------
+package com.coi.tools.install.listener;
+
+import com.izforge.izpack.event.SimpleInstallerListener;
+import com.izforge.izpack.installer.AutomatedInstallData;
+import com.izforge.izpack.util.AbstractUIProgressHandler;
+import com.izforge.izpack.util.IoHelper;
+
+/**
+  * Installer custom action for modifying IzPack variables
+  * before packs will be installed at client installations.
+  * This is used to create some IzPack variables which are
+  * used at installation.
+  * This custom action needs no resource file.
+  * @author  Klaus Bartz
+  * @version @(#) $Revision: 1.3 $ $Date: 2005/03/10 10:52:17 $
+  *
+  */
+public class ClVariableModifierInstallerListener
+   extends SimpleInstallerListener
+{
+
+   /**
+    * Default constructor.
+    */
+   public ClVariableModifierInstallerListener()
+   {
+     super(false);
+   }
+   /* (non-Javadoc)
+    * @see  
+com.izforge.izpack.event.InstallerListener#beforePacks(com.izforge.izpack.installer.AutomatedInstallData,  
+java.lang.Integer, com.izforge.izpack.util.AbstractUIProgressHandler)
+    */
+   public void beforePacks(AutomatedInstallData idata, Integer npacks,
+           AbstractUIProgressHandler handler) throws Exception
+   {
+     super.beforePacks(idata, npacks, handler);
+     // Create path vars with a fixed notation.
+     String tmp = idata.getInstallPath();
+     tmp  = IoHelper.replaceString(tmp,&quot;\\&quot;, &quot;/&quot;);
+     idata.setVariable(&quot;InstallPathUNIX&quot;,tmp);
+     tmp  = IoHelper.replaceString(tmp,&quot;/&quot;, &quot;\\&quot;);
+     idata.setVariable(&quot;InstallPathDOS&quot;,tmp);
+
+   }
+
+
+
+}
+------------------------------------------------------------
+
+
+Cheers
+
+Klaus
+
+
+Am 20.02.2006, 09:05 Uhr, schrieb Yossi Baram &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">yossiba at eldat.com</A>&gt;:
+
+&gt;<i> Hi,
+</I>&gt;<i> I need to perform some actions after TargetPanel is activated.
+</I>&gt;<i> My code (creating a file) is currently added to TargetPanel class (I
+</I>&gt;<i> need InstallData object to retrieve Install_Path value) but I dont want
+</I>&gt;<i> it to be that way.
+</I>&gt;<i> I can create a new panel but for that I need to retrieve InstallData
+</I>&gt;<i> object and not to display it.
+</I>&gt;<i> Can I do it?
+</I>&gt;<i> Is it better to create a custom panel? but then again, I need to have
+</I>&gt;<i> the InstallData with Install_Path value and not display it.
+</I>&gt;<i> Please advise
+</I>&gt;<i> Thanks
+</I>&gt;<i> Yossi
+</I>&gt;<i>
+</I>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000212.html">[izpack-users] How can I create a panel and not display it?
+</A></li>
+	<LI>Next message: <A HREF="000214.html">[izpack-users] How can I create a panel and not display it?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#213">[ date ]</a>
+              <a href="thread.html#213">[ thread ]</a>
+              <a href="subject.html#213">[ subject ]</a>
+              <a href="author.html#213">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

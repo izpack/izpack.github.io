@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Informations about ProcessPanel? How does it	work?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Informations%20about%20ProcessPanel%3F%20How%20does%20it%0A%09work%3F&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000813.html">
+   <LINK REL="Next"  HREF="000815.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Informations about ProcessPanel? How does it	work?</H1>
+    <B>Miraodb</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Informations%20about%20ProcessPanel%3F%20How%20does%20it%0A%09work%3F&In-Reply-To="
+       TITLE="[izpack-users] Informations about ProcessPanel? How does it	work?">miraodb at hotmail.com
+       </A><BR>
+    <I>Tue Aug 22 14:46:14 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000813.html">[izpack-users] Informations about ProcessPanel? How does it work?
+</A></li>
+        <LI>Next message: <A HREF="000815.html">[izpack-users] RE : Re: Informations about ProcessPanel? How does	it work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#814">[ date ]</a>
+              <a href="thread.html#814">[ thread ]</a>
+              <a href="subject.html#814">[ subject ]</a>
+              <a href="author.html#814">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+That's really easy to do.
+
+ProcessPanel.Spec.xml:
+------------------------
+&lt;processing&gt;
+ &lt;logfiledir&gt;$INSTALL_PATH&lt;/logfiledir&gt;
+ &lt;job name=&quot;Renaming Client's files&quot;&gt;
+  &lt;executeForPack name=&quot;Client&quot;/&gt;
+  &lt;executeForPack name=&quot;ClientBatchs&quot;/&gt;
+  &lt;os family=&quot;windows&quot; /&gt;
+  &lt;executefile name=&quot;$INSTALL_PATH\batch\ClientRename.bat&quot; /&gt;
+ &lt;/job&gt;
+&lt;/processing&gt;
+
+$INSTALL_PATH\batch\ClientRename.bat:
+---------------------------------------------
+
+@echo off
+echo &quot;Client Rename&quot;
+move $INSTALL_PATH\axiom_batch\Client_Axiom.bat
+$INSTALL_PATH\axiom_batch\Client_Axiom_$srvnamesc.bat
+
+Install.xml:
+-----------
+&lt;ressources&gt;
+.........
+    &lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;ProcessPanel.Spec.xml&quot;/&gt;
+.........
+&lt;/ressources&gt;
+
+&lt;panels&gt;
+..........
+    &lt;panel classname=&quot;ProcessPanel&quot;/&gt;
+........
+&lt;/panels&gt;
+
+&lt;pack............&gt;
+..........
+      &lt;singlefile src=&quot;axiom_batch/ClientRename.bat&quot;
+target=&quot;$INSTALL_PATH\axiom_batch\ClientRename.bat&quot;/&gt;
+      &lt;parsable targetfile=&quot;$INSTALL_PATH\axiom_batch\ClientRename.bat&quot;/&gt;
+..........
+&lt;/pack&gt;
+
+As you can see the parsable is needed otherwise the variable won't be
+parsed.
+
+This should do the job.
+
+Cheers,
+Fabrice
+
+
+----- Original Message ----- 
+From: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">lasof11-spam at yahoo.fr</A>&gt;
+To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt;
+Sent: Tuesday, August 22, 2006 2:24 PM
+Subject: [izpack-users] Informations about ProcessPanel? How does it work?
+
+
+&gt;<i> Hi,
+</I>&gt;<i>
+</I>&gt;<i>   I want to use ProcessPanel, but I don't know how to do with it. I
+</I>create a ProcessPanel.Spec.xml, with the *.bat to execute. But I want  this
+bat to rename or copy some files eg.
+&gt;<i>   Is it possible, and how?
+</I>&gt;<i>   I tried to write the $INSTALL_PATH variable in my *.bat but it doesn't
+</I>work.
+&gt;<i>   can u help me please? thanks a lot
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> ---------------------------------
+</I>&gt;<i>  D&#233;couvrez un nouveau moyen de poser toutes vos questions quelque soit le
+</I>sujet ! Yahoo! Questions/R&#233;ponses pour partager vos connaissances, vos
+opinions et vos exp&#233;riences. Cliquez ici.
+
+
+----------------------------------------------------------------------------
+----
+
+
+&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000813.html">[izpack-users] Informations about ProcessPanel? How does it work?
+</A></li>
+	<LI>Next message: <A HREF="000815.html">[izpack-users] RE : Re: Informations about ProcessPanel? How does	it work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#814">[ date ]</a>
+              <a href="thread.html#814">[ thread ]</a>
+              <a href="subject.html#814">[ subject ]</a>
+              <a href="author.html#814">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1884 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1884%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/util&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000629.html">
+   <LINK REL="Next"  HREF="000631.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1884 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1884%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/util&In-Reply-To="
+       TITLE="[izpack-changes] r1884 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/util">noreply at berlios.de
+       </A><BR>
+    <I>Sat Oct 20 19:11:51 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000629.html">[izpack-changes] r1883 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000631.html">[izpack-changes] r1885 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#630">[ date ]</a>
+              <a href="thread.html#630">[ thread ]</a>
+              <a href="subject.html#630">[ subject ]</a>
+              <a href="author.html#630">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-10-20 19:11:41 +0200 (Sat, 20 Oct 2007)
+New Revision: 1884
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/FileUtil.java
+Log:
+FileExecutor: allow Java classpath specification in targetfile attribute using
+  either : or ; delimiter, and support classpath loading of all jar files within a given folder,
+  e.g. targetfile=&quot;$INSTALL_PATH/lib/allMyJars (Andreas Guenther via Julien Ponge)
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-10-14 10:02:49 UTC (rev 1883)
++++ izpack-src/trunk/Versions.txt	2007-10-20 17:11:41 UTC (rev 1884)
+@@ -42,6 +42,9 @@
+   (Vladimir Ralev)
+ - Updated installation listener interface (Vladimir Ralev)
+ - Re-entrant ShortcutPanel (WALLEM Pascal, AWL-T&amp;P via Vladimir Ralev)
++- FileExecutor: allow Java classpath specification in targetfile attribute using
++  either : or ; delimiter, and support classpath loading of all jar files within a given folder,
++  e.g. targetfile=&quot;$INSTALL_PATH/lib/allMyJars (Andreas Guenther via Julien Ponge)
+   
+   &gt; 3.10.2 (build 2007.05.11)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java	2007-10-14 10:02:49 UTC (rev 1883)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/FileExecutor.java	2007-10-20 17:11:41 UTC (rev 1884)
+@@ -22,6 +22,7 @@
+ package com.izforge.izpack.util;
+ 
+ import java.io.File;
++import java.io.FilenameFilter;
+ import java.io.IOException;
+ import java.io.InputStreamReader;
+ import java.io.StringWriter;
+@@ -42,7 +43,8 @@
+  */
+ public class FileExecutor
+ {
+-
++    private static final String JAR_FILE_SUFFIX = &quot;.jar&quot;;
++    
+     private boolean stopThread(Thread t, MonitorInputStream m)
+     {
+         m.doStop();
+@@ -288,7 +290,15 @@
+                 {
+                     paramList.add(System.getProperty(&quot;java.home&quot;) + &quot;/bin/java&quot;);
+                     paramList.add(&quot;-cp&quot;);
+-                    paramList.add(file.toString());
++                    try
++                    {
++                        paramList.add(buildClassPath(file.toString()));
++                    }
++                    catch (Exception e)
++                    {
++                        exitStatus = -1;
++                        Debug.error(e);
++                    }
+                     paramList.add(efile.mainClass);
+                 }
+ 
+@@ -344,6 +354,61 @@
+         }
+         return exitStatus;
+     }
++    
++    /**
++     * Transform classpath as specified in targetFile attribute into 
++     * OS specific classpath. This method also resolves directories
++     * containing jar files. ';' and ':' are valid delimiters allowed
++     * in targetFile attribute.
++     * 
++     * @param targetFile
++     * @return valid Java classpath
++     * @throws Exception
++     */
++    private String buildClassPath(String targetFile) throws Exception
++    {
++        StringBuffer classPath = new StringBuffer();
++        List jars = new ArrayList();
++        String rawClassPath = targetFile.replace(':', File.pathSeparatorChar).replace(';', File.pathSeparatorChar);
++        String[] rawJars = rawClassPath.split(&quot;&quot; + File.pathSeparatorChar);
++        for (int i = 0; i &lt; rawJars.length; i++)
++        {
++            File file = new File(rawJars[i]);
++            jars.add(rawJars[i]);
++            
++            if (file.isDirectory())
++            {
++                String[] subDirJars = FileUtil.getFileNames(rawJars[i], 
++                        new FilenameFilter() 
++                        {
++                            public boolean accept(File dir, String name)
++                            {
++                                return name.toLowerCase().endsWith(JAR_FILE_SUFFIX);
++                            }
++                            
++                        });
++                if (subDirJars != null)
++                {
++                    for (int j = 0; j &lt; subDirJars.length; j++)
++                    {
++                        jars.add(rawJars[i] + File.separator + subDirJars[j]);
++                    }
++                }
++            }
++        }
++        
++        Iterator iter = jars.iterator();
++        if (iter.hasNext())
++        {
++            classPath.append(iter.next());
++        }
++        while (iter.hasNext())
++        {
++            classPath.append(File.pathSeparatorChar).append(iter.next());
++        }
++        
++        return classPath.toString();
++    }
+ 
+     /** The files to execute. */
+     private Collection files;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/FileUtil.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/FileUtil.java	2007-10-14 10:02:49 UTC (rev 1883)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/FileUtil.java	2007-10-20 17:11:41 UTC (rev 1884)
+@@ -24,6 +24,7 @@
+ import java.io.File;
+ import java.io.FileNotFoundException;
+ import java.io.FileReader;
++import java.io.FilenameFilter;
+ import java.io.IOException;
+ 
+ import java.util.ArrayList;
+@@ -195,6 +196,29 @@
+           return -1;
+       }
+   }
++  
++  public static String[] getFileNames(String dirPath) throws Exception
++  {
++      return getFileNames(dirPath, null);
++  }
++  
++  public static String[] getFileNames(String dirPath, FilenameFilter fileNameFilter) throws Exception
++  {
++      String fileNames[] = null;
++      File dir = new File(dirPath);
++      if (dir.isDirectory())
++      {
++          if (fileNameFilter != null)
++          {
++              fileNames = dir.list(fileNameFilter);
++          }
++          else
++          {
++              fileNames = dir.list();
++          }
++      }
++      return fileNames;
++  }
+ 
+   /** 
+    * Test main
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000629.html">[izpack-changes] r1883 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000631.html">[izpack-changes] r1885 - in izpack-src/trunk: . src/dtd	src/lib/com/izforge/izpack src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels	src/lib/com/izforge/izpack/uninstaller	src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#630">[ date ]</a>
+              <a href="thread.html#630">[ thread ]</a>
+              <a href="subject.html#630">[ subject ]</a>
+              <a href="author.html#630">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

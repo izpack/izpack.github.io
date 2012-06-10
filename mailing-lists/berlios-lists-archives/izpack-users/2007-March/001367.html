@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Izpack custom panels  With Maven2
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Izpack%20custom%20panels%20%20With%20Maven2&In-Reply-To=45D1C468.8050202%40dante.org.uk">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001366.html">
+   <LINK REL="Next"  HREF="001375.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Izpack custom panels  With Maven2</H1>
+    <B>Eric Rose</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Izpack%20custom%20panels%20%20With%20Maven2&In-Reply-To=45D1C468.8050202%40dante.org.uk"
+       TITLE="[izpack-users] Izpack custom panels  With Maven2">eric at forge.com.au
+       </A><BR>
+    <I>Tue Mar 13 00:15:13 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001366.html">[izpack-users] Langpack
+</A></li>
+        <LI>Next message: <A HREF="001375.html">[izpack-users] Izpack custom panels  With Maven2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1367">[ date ]</a>
+              <a href="thread.html#1367">[ thread ]</a>
+              <a href="subject.html#1367">[ subject ]</a>
+              <a href="author.html#1367">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Wednesday 14 February 2007 01:00, Mandeep Saini wrote:
+&gt;<i> Hi all,
+</I>&gt;<i>
+</I>&gt;<i> I am trying to use Izpack with maven2. I have tried to use the maven-
+</I>&gt;<i> izpack-plugin but its not working for me. It would be very nice if any
+</I>&gt;<i> one of you can provide me a working example for this. I have already
+</I>&gt;<i> checked the mail on the forum related to this topic but even the blog
+</I>&gt;<i> link posted in those mails is not solving my problem.
+</I>
+Mandeep,
+
+I have been moving all our projects to use maven2, and have created a custom 
+archetype that I'm testing for creation of installers. It's all a bit of a 
+hack, IMO, but it seems to work.
+
+&gt;<i>
+</I>&gt;<i> Along with this, I am writing few custom panels for my installer. Is
+</I>&gt;<i> there any way to make jar file of those panels and move it to bin/panels
+</I>&gt;<i> directory by using the maven izpack plugin. If not what is the right way
+</I>&gt;<i> to incorporate the custom panels using maven2.
+</I>&gt;<i>
+</I>&gt;<i> In order to write custom panels I am importing few panel classes like
+</I>&gt;<i> com.izforge.izpack.panels.UserInputPanel in my panel classes. I have
+</I>&gt;<i> defined the dependency on standalone-compiler.jar file but because this
+</I>&gt;<i> jar file does not contain the panel classes so not able to compile the
+</I>&gt;<i> code. Please suggest me how can I define dependency on these panel jar
+</I>&gt;<i> files. Should I deploy jar file of each panel on my remote repository.
+</I>&gt;<i> Or there is another way to deal with it.
+</I>
+
+My setup is to create a multiproject hierarchy with one panel per subproject. 
+I've found it sufficient (but maybe not necessary) to add 4 artifacts from 
+IzPack to my internal repository:
+
+* InstallPanel 
+* UserInputPanel 
+* izevent 
+* standalone-compiler
+
+Each of my custom panels depends on some of these artifacts and is then 
+deployed to the company repository. Once they're in there, I can use them in 
+any installer as necessary.
+
+The hacky bit really kicks in when I create the installer. I have a structure 
+as follows
+
+src
+ /-main
+  /-izpack
+    /-lang
+    /-en
+    /-...
+
+where the main izpack configuration files live in src/main/izpack whch is 
+treated as a resource directory and filtered so I can have parameters like 
+${pom.version} and the resources plugin looks in target/izpack for the output 
+of the filtering process.
+
+Some properties from my settings define where Izpack lives
+
+  &lt;properties&gt;
+    &lt;izpack.native&gt;/usr/local/IzPack-3.9.0-patched//bin/native&lt;/izpack.native&gt;
+    &lt;izpack.basedir&gt;/usr/local/IzPack-3.9.0-patched/&lt;/izpack.basedir&gt;
+    &lt;izpack.panels&gt;/usr/local/IzPack-3.9.0-patched//bin/panels&lt;/izpack.panels&gt;
+
+and I use the dependency plugin for the panels I need (defined in the 
+dependencies section) to copy the artifacts created by the subprojects from 
+my repository into bin/panels.
+
+Really, this should all be put into a custom plugin with a couple of mojos for 
+panels, native code, etc. The archetype I created is a POM skeleton  for the 
+plugin invocations. It  has the basic outline for jogging the memory of me or 
+coworkers as to what needs to be done in creating a new installer (which 
+should be rare enough that our memories will need jogging). It certainly 
+wouldn't create a valid installer out of the box :(
+
+What I have cobbled together seems to work so far for our needs. I just need 
+to get time to refine it. If you want I can send you copy of what I've done.
+
+The more I use  maven, the more I like it as a project development model, and 
+it'd be nice if there was momentum to make IzPack a maven project. I fear 
+that it's a lot of work, however.
+
+Eric
+
+-- 
+Eric Rose              | &quot;Sed quis custodiet ipsos custodes?&quot;
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">eric at integeo.com</A>       |         Juvenal (Satires, VI.347-8)
+
+***********************************************************************
+This message contains privileged and confidential information intended
+only for the use of the addressee named above.  If you are not the
+intended recipient of this message you must not disseminate, copy or
+take any action in reliance on it.  If you have received this message
+in error please notify the sender immediately.  Any views expressed in
+this message are those of the individual sender, except where the
+sender specifically states them to be the views of another (including
+a Body Corporate).
+
+If you wish to opt out from future messages, send an email to
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">unsubscribe at integeo.com</A> with the subject UNSUBSCRIBE
+************************************************************************
+
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: not available
+Type: application/pgp-signature
+Size: 189 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070313/dbb584ff/attachment.pgp">https://lists.berlios.de/pipermail/izpack-users/attachments/20070313/dbb584ff/attachment.pgp</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001366.html">[izpack-users] Langpack
+</A></li>
+	<LI>Next message: <A HREF="001375.html">[izpack-users] Izpack custom panels  With Maven2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1367">[ date ]</a>
+              <a href="thread.html#1367">[ thread ]</a>
+              <a href="subject.html#1367">[ subject ]</a>
+              <a href="author.html#1367">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

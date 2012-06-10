@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Execute Java Class
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Execute%20Java%20Class&In-Reply-To=7221525.post%40talk.nabble.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001084.html">
+   <LINK REL="Next"  HREF="001086.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Execute Java Class</H1>
+    <B>macke</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Execute%20Java%20Class&In-Reply-To=7221525.post%40talk.nabble.com"
+       TITLE="[izpack-users] Execute Java Class">maier at isys.uni-klu.ac.at
+       </A><BR>
+    <I>Tue Nov  7 18:33:27 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001084.html">[izpack-users] Execute Java Class
+</A></li>
+        <LI>Next message: <A HREF="001086.html">[izpack-users] Execute Java Class
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1085">[ date ]</a>
+              <a href="thread.html#1085">[ thread ]</a>
+              <a href="subject.html#1085">[ subject ]</a>
+              <a href="author.html#1085">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Hi!
+
+First you have to specify in your install.xml, that you want to use the
+ProcessPanel: 
+&lt;panels&gt;
+...
+&lt;panel classname=&quot;ProcessPanel&quot;/&gt;
+...
+&lt;/panels&gt;
+
+In the resources section of install.xml you have to tell where the xml for
+it is:
+
+    	&lt;resources&gt;
+                .....
+		&lt;!-- what has the ProcessPanel to do --&gt;
+		&lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;PATH/TO/ProcessPanel.Spec.xml&quot;/&gt;
+    	&lt;/resources&gt;
+
+And you have to include your class. Easiest way is to generate a JAR file
+including your class. In the install.xml you have then to add the line, e.g.
+&lt;jar src=&quot;PATH/TO/WriteProperties.jar&quot;/&gt;
+
+In the ProcessPanel.Spec.xml you have to write:
+&lt;processing&gt;
+&lt;job name=&quot;name of teh job&quot;&gt;
+&lt;os family=&quot;windows&quot; /&gt;
+&lt;executeclass name=&quot;com.izforge.izpack.util.WriteProperties&quot;&gt; &lt;!-- this is
+an example! as you see you have to write the package path to your class. If
+you don't use packages, only write WriteProperties  --&gt;
+&lt;arg&gt;arg1&lt;/arg&gt;
+...
+&lt;/executeclass&gt;
+&lt;/processing&gt;
+
+Hope this helps. 
+
+regards,
+Macke
+
+
+
+
+Mandeep wrote:
+&gt;<i> 
+</I>&gt;<i> I want to execute (during or after the installation process) java class
+</I>&gt;<i> which creates a properties file . I am trying to do this with ProcessPanel
+</I>&gt;<i> and writing the following ProcessPanel.Spec.xml for the same:
+</I>&gt;<i> &lt;processing&gt;
+</I>&gt;<i> &lt;job name=&quot;any&quot;&gt;
+</I>&gt;<i> 	&lt;os family=&quot;windows&quot;/&gt;
+</I>&gt;<i> 	&lt;executableclass name=&quot;$INSTALL_PATH/src/WriteProperties.class&quot;/&gt;	
+</I>&gt;<i> &lt;/job&gt;
+</I>&gt;<i> &lt;/processing&gt;
+</I>&gt;<i> is this the right way to do it...or should I so something else? Please
+</I>&gt;<i> suggest me.....I am new to IzPack.
+</I>&gt;<i> 
+</I>
+-- 
+View this message in context: <A HREF="http://www.nabble.com/Execute-Java-Class-tf2589791.html#a7222992">http://www.nabble.com/Execute-Java-Class-tf2589791.html#a7222992</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001084.html">[izpack-users] Execute Java Class
+</A></li>
+	<LI>Next message: <A HREF="001086.html">[izpack-users] Execute Java Class
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1085">[ date ]</a>
+              <a href="thread.html#1085">[ thread ]</a>
+              <a href="subject.html#1085">[ subject ]</a>
+              <a href="author.html#1085">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

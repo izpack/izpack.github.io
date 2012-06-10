@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1640 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1640%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20installer%20rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000384.html">
+   <LINK REL="Next"  HREF="000386.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1640 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1640%20-%20in%0A%09izpack-src/trunk/src/lib/com/izforge/izpack%3A%20installer%20rules&In-Reply-To="
+       TITLE="[izpack-changes] r1640 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer rules">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 14 08:12:42 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000384.html">[izpack-changes] r1639 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . rules
+</A></li>
+        <LI>Next message: <A HREF="000386.html">[izpack-changes] r1641 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#385">[ date ]</a>
+              <a href="thread.html#385">[ thread ]</a>
+              <a href="subject.html#385">[ subject ]</a>
+              <a href="author.html#385">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2006-11-14 08:12:40 +0100 (Tue, 14 Nov 2006)
+New Revision: 1640
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+Log:
+fixed: can't get to next panel if no conditions.xml-resource was specified
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-11-13 08:17:10 UTC (rev 1639)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2006-11-14 07:12:40 UTC (rev 1640)
+@@ -228,7 +228,7 @@
+      * @throws Exception Description of the Exception
+      */
+     public InstallerFrame(String title, InstallData installdata) throws Exception {
+-        super(title);
++        super(title);       
+         guiListener = new ArrayList();
+         visiblePanelMapping = new ArrayList();
+         this.installdata = installdata;
+@@ -254,13 +254,13 @@
+     /**
+      *  Reads the conditions specification file and initializes the rules engine.
+      */
+-    protected void loadConditions() {
++    protected void loadConditions() {        
+         try {
+-            InputStream input = this.getResource(CONDITIONS_SPECRESOURCENAME);
+-
+-            if (input == null) {
+-                // there seem to be no conditions
+-                return;
++           InputStream input = null;
++           input  = this.getResource(CONDITIONS_SPECRESOURCENAME);
++           if (input == null) {
++               this.rules = new RulesEngine(null,installdata); 
++               return;
+             }
+ 
+             StdXMLParser parser = new StdXMLParser();
+@@ -273,8 +273,9 @@
+             this.rules = new RulesEngine(conditionsxml, installdata);
+         }
+         catch (Exception e) {
+-            Debug.log(e.getMessage());
+-            e.printStackTrace();
++            Debug.trace(&quot;Can not find optional resource &quot; + CONDITIONS_SPECRESOURCENAME);
++            // there seem to be no conditions
++            this.rules = new RulesEngine(null,installdata);            
+         }
+     }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2006-11-13 08:17:10 UTC (rev 1639)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2006-11-14 07:12:40 UTC (rev 1640)
+@@ -48,7 +48,7 @@
+         if ((val != null) &amp;&amp; (val.length() &gt; 0)) {
+             return true;
+         } else {
+-            Debug.log(&quot;Element &quot; + element + &quot; has to specify an attribute &quot; + attribute);
++            Debug.trace(&quot;Element &quot; + element + &quot; has to specify an attribute &quot; + attribute);
+             return false;
+         }
+     }
+@@ -68,11 +68,11 @@
+                 Class conditionclass = loader.loadClass(conditionclassname);
+                 result = (Condition) conditionclass.newInstance();
+             } catch (ClassNotFoundException e) {
+-                Debug.log(conditionclassname + &quot; not found.&quot;);
++                Debug.trace(conditionclassname + &quot; not found.&quot;);
+             } catch (InstantiationException e) {
+-                Debug.log(conditionclassname + &quot; couldn't be instantiated.&quot;);
++                Debug.trace(conditionclassname + &quot; couldn't be instantiated.&quot;);
+             } catch (IllegalAccessException e) {
+-                Debug.log(&quot;Illegal access to &quot; + conditionclassname);
++                Debug.trace(&quot;Illegal access to &quot; + conditionclassname);
+             }
+             result.readFromXML(condition);
+             result.setId(condid);
+@@ -85,6 +85,10 @@
+      * Read the spec for the conditions
+      */
+     protected void readConditions() {
++        if (this.conditionsspec == null){
++            Debug.trace(&quot;No specification for conditions found.&quot;);
++            return;
++        }
+         try {
+             if (this.conditionsspec.hasChildren()) {
+                 // read in the condition specs
+@@ -140,20 +144,20 @@
+     public boolean isConditionTrue(String id, Properties variables) {
+         Condition cond = (Condition) conditionsmap.get(id);
+         if (cond == null) {
+-            Debug.log(&quot;Condition (&quot; + id + &quot;) not found.&quot;);
++            Debug.trace(&quot;Condition (&quot; + id + &quot;) not found.&quot;);
+             return true;
+         } else {
+-            Debug.log(&quot;Checking condition&quot;);
++            Debug.trace(&quot;Checking condition&quot;);
+             return cond.isTrue(variables, this.installdata.selectedPacks);
+         }
+     }
+ 
+     public boolean isConditionTrue(Condition cond, Properties variables) {
+         if (cond == null) {
+-            Debug.log(&quot;Condition not found.&quot;);
++            Debug.trace(&quot;Condition not found.&quot;);
+             return true;
+         } else {
+-            Debug.log(&quot;Checking condition&quot;);
++            Debug.trace(&quot;Checking condition&quot;);
+             return cond.isTrue(variables, this.installdata.selectedPacks);
+         }
+     }
+@@ -167,12 +171,12 @@
+      *         false - there is a condition and the condition was not met
+      */
+     public boolean canShowPanel(String panelid, Properties variables) {
+-        Debug.log(&quot;can show panel with id &quot; + panelid + &quot; ?&quot;);
++        Debug.trace(&quot;can show panel with id &quot; + panelid + &quot; ?&quot;);
+         if (!this.panelconditions.containsKey(panelid)) {
+-            Debug.log(&quot;no condition, show panel&quot;);
++            Debug.trace(&quot;no condition, show panel&quot;);
+             return true;
+         }
+-        Debug.log(&quot;there is a condition&quot;);
++        Debug.trace(&quot;there is a condition&quot;);
+         Condition condition = (Condition) conditionsmap.get(this.panelconditions.get(panelid));
+         if (condition != null) {
+             return condition.isTrue(variables, this.installdata.selectedPacks);
+@@ -189,12 +193,12 @@
+      *         false - there is a condition and the condition was not met
+      */
+     public boolean canInstallPack(String packid, Properties variables) {
+-        Debug.log(&quot;can install pack with id &quot; + packid + &quot;?&quot;);
++        Debug.trace(&quot;can install pack with id &quot; + packid + &quot;?&quot;);
+         if (!this.packconditions.containsKey(packid)) {
+-            Debug.log(&quot;no condition, can install pack&quot;);
++            Debug.trace(&quot;no condition, can install pack&quot;);
+             return true;
+         }
+-        Debug.log(&quot;there is a condition&quot;);
++        Debug.trace(&quot;there is a condition&quot;);
+         Condition condition = (Condition) conditionsmap.get(this.packconditions.get(packid));
+         if (condition != null) {
+             return condition.isTrue(variables, this.installdata.selectedPacks);
+@@ -210,12 +214,12 @@
+      * @return
+      */
+     public boolean canInstallPackOptional(String packid, Properties variables) {
+-        Debug.log(&quot;can install pack optional with id &quot; + packid + &quot;?&quot;);
++        Debug.trace(&quot;can install pack optional with id &quot; + packid + &quot;?&quot;);
+         if (!this.optionalpackconditions.containsKey(packid)) {
+-            Debug.log(&quot;not in optionalpackconditions.&quot;);
++            Debug.trace(&quot;not in optionalpackconditions.&quot;);
+             return false;
+         } else {
+-            Debug.log(&quot;optional install possible&quot;);
++            Debug.trace(&quot;optional install possible&quot;);
+             return true;
+         }
+     }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000384.html">[izpack-changes] r1639 - in	izpack-src/trunk/src/lib/com/izforge/izpack: . rules
+</A></li>
+	<LI>Next message: <A HREF="000386.html">[izpack-changes] r1641 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#385">[ date ]</a>
+              <a href="thread.html#385">[ thread ]</a>
+              <a href="subject.html#385">[ subject ]</a>
+              <a href="author.html#385">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

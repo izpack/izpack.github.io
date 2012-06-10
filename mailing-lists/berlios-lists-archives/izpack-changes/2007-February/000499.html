@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1753 - in	izpack-src/trunk/src/tests/com/izforge/izpack: . installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1753%20-%20in%0A%09izpack-src/trunk/src/tests/com/izforge/izpack%3A%20.%20installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000498.html">
+   <LINK REL="Next"  HREF="000500.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1753 - in	izpack-src/trunk/src/tests/com/izforge/izpack: . installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1753%20-%20in%0A%09izpack-src/trunk/src/tests/com/izforge/izpack%3A%20.%20installer&In-Reply-To="
+       TITLE="[izpack-changes] r1753 - in	izpack-src/trunk/src/tests/com/izforge/izpack: . installer">noreply at berlios.de
+       </A><BR>
+    <I>Mon Feb 19 11:13:07 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000498.html">[izpack-changes] r1752 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000500.html">[izpack-changes] r1754 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#499">[ date ]</a>
+              <a href="thread.html#499">[ thread ]</a>
+              <a href="subject.html#499">[ subject ]</a>
+              <a href="author.html#499">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-02-19 11:13:03 +0100 (Mon, 19 Feb 2007)
+New Revision: 1753
+
+Added:
+   izpack-src/trunk/src/tests/com/izforge/izpack/installer/
+   izpack-src/trunk/src/tests/com/izforge/izpack/installer/ConditionTest.java
+Log:
+Added test cases for conditions
+
+
+Added: izpack-src/trunk/src/tests/com/izforge/izpack/installer/ConditionTest.java
+===================================================================
+--- izpack-src/trunk/src/tests/com/izforge/izpack/installer/ConditionTest.java	2007-02-19 10:12:11 UTC (rev 1752)
++++ izpack-src/trunk/src/tests/com/izforge/izpack/installer/ConditionTest.java	2007-02-19 10:13:03 UTC (rev 1753)
+@@ -0,0 +1,154 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2007 Dennis Reil
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
++ * 
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
++ */
++package com.izforge.izpack.installer;
++
++import net.n3.nanoxml.XMLElement;
++
++import com.izforge.izpack.installer.InstallData;
++import com.izforge.izpack.rules.Condition;
++import com.izforge.izpack.rules.RulesEngine;
++
++import junit.framework.TestCase;
++
++
++/**
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
++ *
++ */
++public class ConditionTest extends TestCase
++{
++
++    public final static String RDE_VCS_REVISION = &quot;$Revision: $&quot;;
++
++    public final static String RDE_VCS_NAME = &quot;$Name:  $&quot;;
++
++    protected static InstallData idata = new InstallData();
++    
++    protected RulesEngine rules;
++    
++    /**
++     * @param arg0
++     */
++    public ConditionTest(String arg0)
++    {
++        super(arg0);
++    }
++
++    /* (non-Javadoc)
++     * @see junit.framework.TestCase#setUp()
++     */
++    protected void setUp() throws Exception
++    {
++        super.setUp();
++        XMLElement conditionspec = new XMLElement();
++        conditionspec.setName(&quot;conditions&quot;);
++        
++        conditionspec.addChild(this.createVariableCondition(&quot;test.true&quot;, &quot;TEST&quot;, &quot;true&quot;));
++        conditionspec.addChild(this.createRefCondition(&quot;test.true2&quot;, &quot;test.true&quot;));
++        //conditionspec.addChild(createNotCondition(&quot;test.not.true&quot;, createVariableCondition(&quot;test.true&quot;, &quot;TEST&quot;, &quot;true&quot;)));
++        conditionspec.addChild(createNotCondition(&quot;test.not.true&quot;, createRefCondition(&quot;&quot;, &quot;test.true&quot;)));
++        rules = new RulesEngine(conditionspec,idata);                        
++    }
++
++    /* (non-Javadoc)
++     * @see junit.framework.TestCase#tearDown()
++     */
++    protected void tearDown() throws Exception
++    {
++        super.tearDown();
++        if (idata != null){
++            idata.variables.clear();
++        }
++    }
++    
++    protected XMLElement createNotCondition(String id, XMLElement condition){
++        XMLElement not = new XMLElement();
++        not.setName(&quot;condition&quot;);
++        not.setAttribute(&quot;type&quot;, &quot;not&quot;);
++        not.setAttribute(&quot;id&quot;, id);
++        not.addChild(condition);
++        
++        return not;
++    }
++    
++    protected XMLElement createVariableCondition(String id, String variable, String expvalue){
++        XMLElement variablecondition = new XMLElement();
++        variablecondition.setName(&quot;condition&quot;);
++        variablecondition.setAttribute(&quot;type&quot;, &quot;variable&quot;);
++        variablecondition.setAttribute(&quot;id&quot;,id);
++                
++        XMLElement name = new XMLElement();
++        name.setName(&quot;name&quot;);
++        name.setContent(variable);
++        
++        XMLElement value = new XMLElement();
++        value.setName(&quot;value&quot;);
++        value.setContent(expvalue);
++        
++        variablecondition.addChild(name);
++        variablecondition.addChild(value);
++        
++        return variablecondition;
++    }
++    
++    protected XMLElement createRefCondition(String id, String refid){
++        XMLElement refcondition = new XMLElement();
++        refcondition.setName(&quot;condition&quot;);
++        refcondition.setAttribute(&quot;type&quot;, &quot;ref&quot;);
++        refcondition.setAttribute(&quot;refid&quot;, refid);
++        refcondition.setAttribute(&quot;id&quot;, id);
++        
++        return refcondition;
++    }
++    
++    public void testNotCondition(){                      
++        assertNull(RulesEngine.getCondition(&quot;test.not&quot;));    
++        assertNotNull(RulesEngine.getCondition(&quot;test.not.true&quot;));
++        assertTrue(rules.isConditionTrue(&quot;test.not.true&quot;, idata.variables));        
++                
++        assertNotNull(RulesEngine.getCondition(&quot;!test.not.true&quot;));
++        
++        assertFalse(rules.isConditionTrue(&quot;!test.not.true&quot;, idata.variables));        
++    }
++    
++    public void testVariableCondition(){              
++        
++        assertNotNull(RulesEngine.getCondition(&quot;test.true&quot;));
++        assertNotNull(RulesEngine.getCondition(&quot;test.true2&quot;));
++        
++        assertFalse(rules.isConditionTrue(&quot;test.true&quot;, idata.variables));
++        assertFalse(rules.isConditionTrue(&quot;test.true2&quot;, idata.variables));
++        
++        idata.setVariable(&quot;TEST&quot;, &quot;true&quot;);
++        
++        assertTrue(rules.isConditionTrue(&quot;test.true&quot;, idata.variables));
++        assertTrue(rules.isConditionTrue(&quot;test.true2&quot;, idata.variables));
++        
++        assertFalse(rules.isConditionTrue(&quot;!test.true&quot;, idata.variables));
++        assertFalse(rules.isConditionTrue(&quot;!test.true2&quot;, idata.variables));
++        
++        assertTrue(rules.isConditionTrue(&quot;test.true+test.true2&quot;, idata.variables));
++        assertTrue(rules.isConditionTrue(&quot;test.true2+test.true&quot;, idata.variables));
++        
++        assertFalse(rules.isConditionTrue(&quot;!test.true2+test.true&quot;, idata.variables));
++        
++        assertTrue(rules.isConditionTrue(&quot;test.true2|test.true&quot;, idata.variables));
++        
++        assertFalse(rules.isConditionTrue(&quot;test.true2\\test.true&quot;, idata.variables));
++    }
++}
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000498.html">[izpack-changes] r1752 -	izpack-src/trunk/src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000500.html">[izpack-changes] r1754 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#499">[ date ]</a>
+              <a href="thread.html#499">[ thread ]</a>
+              <a href="subject.html#499">[ subject ]</a>
+              <a href="author.html#499">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

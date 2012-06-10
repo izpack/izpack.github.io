@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Feature Request - Scripting Languages for custom	actions
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Feature%20Request%20-%20Scripting%20Languages%20for%20custom%0A%09actions&In-Reply-To=6e1d61f50712281808q52ced25ic351fcbce1132d5%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001801.html">
+   <LINK REL="Next"  HREF="001806.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Feature Request - Scripting Languages for custom	actions</H1>
+    <B>Matthew Inger</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Feature%20Request%20-%20Scripting%20Languages%20for%20custom%0A%09actions&In-Reply-To=6e1d61f50712281808q52ced25ic351fcbce1132d5%40mail.gmail.com"
+       TITLE="[izpack-users] Feature Request - Scripting Languages for custom	actions">mattinger at gmail.com
+       </A><BR>
+    <I>Fri Jan  4 20:14:16 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001801.html">[izpack-users] NotEmptyValidator and PortValidator issue for input	field..
+</A></li>
+        <LI>Next message: <A HREF="001806.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1805">[ date ]</a>
+              <a href="thread.html#1805">[ thread ]</a>
+              <a href="subject.html#1805">[ subject ]</a>
+              <a href="author.html#1805">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Mark,
+
+The following code snipped for bsf reveals to me that it would be easy to do
+what is needed, given that the
+scripting languages support anonymous functions.
+
+BSFManager manager = new BSFManager();
+manager.declareBean(&quot;file&quot;, file File.class);
+manager.declareBean(&quot;pack&quot;, pack, PackFile.class);
+BSFEngine engine = manager.loadScriptingEngine(&quot;groovy&quot;);
+engine.iexec(srcFileName, 1, 1, scriptContent);
+engine.iexec(srcFileName, 1, 1, &quot;beforeFile(file, pack);&quot;);
+
+And the scriptContent would be a groovy closure, something like:
+
+beforeFile = {
+   print file;
+   print &quot;\n&quot;;
+   print pack;
+   print &quot;\n&quot;;
+};
+
+
+To see if a given function exists, we would have to lookup the function
+reference:
+
+// This throws an exception if the function is not defined
+// For groovy, it return the function closure.
+Object functionRef = engine.eval(&quot;&quot;, 1, 1, &quot;beforeFile&quot;);
+
+
+If this is reliable enough, I'm ok with that sort of implementation.
+
+Any input would be very helpful here.
+
+
+On Dec 28, 2007 9:08 PM, Mark Fortner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">phidias51 at yahoo.com</A>&gt; wrote:
+
+&gt;<i> I sent this to the list earlier, but it somehow didn't make it
+</I>&gt;<i> through.  You'll find more information on BSF at
+</I>&gt;<i> <A HREF="http://jakarta.apache.org/bsf">http://jakarta.apache.org/bsf</A>
+</I>&gt;<i>
+</I>&gt;<i> On Dec 22, 2007 8:38 AM, Mark Fortner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">phidias51 at gmail.com</A>&gt; wrote:
+</I>&gt;<i> &gt; The tags that you propose seem groovy-centric. I was wondering if you
+</I>&gt;<i> &gt; had any thoughts about how multiple languages would be supported?
+</I>&gt;<i> &gt; Would a general-purpose &lt;script&gt; tag work better -- along the lines of
+</I>&gt;<i> &gt; the Ant script tag.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;script language=&quot;text/javascript&quot; src=&quot;installer.js&quot; /&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;script language=&quot;text/groovy&quot;&gt;
+</I>&gt;<i> &gt; &lt;![CDATA[
+</I>&gt;<i> &gt;         void beforePacks(
+</I>&gt;<i> com.izforge.izpack.installer.AutomatedInstallData
+</I>&gt;<i> &gt; idata,
+</I>&gt;<i> &gt;                                   java.lang.Integer npacks,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; com.izforge.izpack.util.AbstractUIProgressHandler handler)
+</I>&gt;<i> &gt;         {
+</I>&gt;<i> &gt;            // do your groovy scripting here
+</I>&gt;<i> &gt;         }
+</I>&gt;<i> &gt;     ]]&gt;
+</I>&gt;<i> &gt; &lt;/script&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; The flexibility to be able to either embed or refer to a script (as
+</I>&gt;<i> &gt; Julien suggested)  would be useful.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Also, being able to support scripting through either BSF or Java 6's
+</I>&gt;<i> &gt; built-in support would be useful.  This would insure that the
+</I>&gt;<i> &gt; scripting functionality is available in both 1.4 and 1.5.  BSF
+</I>&gt;<i> &gt; supports JSR-223 scripting engines.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Regards,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Mark
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; On Dec 21, 2007 12:10 PM, Matthew Inger &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">mattinger at gmail.com</A>&gt; wrote:
+</I>&gt;<i> &gt;  [snip]
+</I>&gt;<i> &gt;
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20080104/7a6a587f/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20080104/7a6a587f/attachment.html</A> 
+</PRE>
+
+
+
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001801.html">[izpack-users] NotEmptyValidator and PortValidator issue for input	field..
+</A></li>
+	<LI>Next message: <A HREF="001806.html">[izpack-users] Feature Request - Scripting Languages for custom	actions
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1805">[ date ]</a>
+              <a href="thread.html#1805">[ thread ]</a>
+              <a href="subject.html#1805">[ subject ]</a>
+              <a href="author.html#1805">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

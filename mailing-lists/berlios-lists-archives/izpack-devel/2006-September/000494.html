@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Linux Shortcuts and Panel Updates for 3.9
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Linux%20Shortcuts%20and%20Panel%20Updates%20for%203.9&In-Reply-To=200609062247.28402.marc.eppelmann%40gmx.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000487.html">
+   <LINK REL="Next"  HREF="000496.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Linux Shortcuts and Panel Updates for 3.9</H1>
+    <B>Marc Eppelmann</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Linux%20Shortcuts%20and%20Panel%20Updates%20for%203.9&In-Reply-To=200609062247.28402.marc.eppelmann%40gmx.de"
+       TITLE="[izpack-devel] Linux Shortcuts and Panel Updates for 3.9">marc.eppelmann at gmx.de
+       </A><BR>
+    <I>Tue Sep 12 23:22:42 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000487.html">[izpack-devel] Linux Shortcuts and Panel Updates
+</A></li>
+        <LI>Next message: <A HREF="000496.html">[izpack-devel] Linux Shortcuts and Panel Updates for 3.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#494">[ date ]</a>
+              <a href="thread.html#494">[ thread ]</a>
+              <a href="subject.html#494">[ subject ]</a>
+              <a href="author.html#494">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi all,
+
+Desktop Shortcut Creation as root for all local and yellow page Users works 
+now correctly :-)
+The root user creates the shortcut.desktop on the users Desktops - even 
+if 'himself&quot; has no permission to look into, nor write in the users &quot;Desktop&quot; 
+folder - as root itself.
+==================================
+
+The previous implementation did not work as expected.
+The handling of the common templateShortcut file in the users-loop was wrong. 
+
+Now the double-loop works as described below in strong simplified and  
+pythonsyntax :)
+
+for shortcut in shortcuts:
+  templateShortcut.create()
+  for user in users:
+    rootScript.appendCopyLine( templateShortcut, user's.Deskop-file ) 
+    rootScript.appenChownLine( user, user's.Deskop-file )    
+    UnInstallScript.appendRemoveLine( user, user's.Deskop-file )
+  rootScript.appendRemoveLine( templateShortcut ) !
+execPostAction()
+
+def execPostAction()
+  exec( RootScript )
+
+Important Note: 
+Depend on the amount of defined Desktop Shortcuts and the count of local or 
+yellowpage-binded users - the creation of the Shortcuts can take several 
+seconds (30-40 or more). (The Installer seems to be hang - But 'he' returns 
+and with all work done :) I will search for another optimization possibility.
+I think maybe symlinks can be solve this, but in the next Version ;-) - 
+because this needs a complete rework.
+
+Cheers
+Marc
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000487.html">[izpack-devel] Linux Shortcuts and Panel Updates
+</A></li>
+	<LI>Next message: <A HREF="000496.html">[izpack-devel] Linux Shortcuts and Panel Updates for 3.9
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#494">[ date ]</a>
+              <a href="thread.html#494">[ thread ]</a>
+              <a href="subject.html#494">[ subject ]</a>
+              <a href="author.html#494">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

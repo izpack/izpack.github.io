@@ -1,0 +1,472 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1732 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1732%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000477.html">
+   <LINK REL="Next"  HREF="000479.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1732 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1732%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1732 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Fri Feb 16 09:35:17 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000477.html">[izpack-changes] r1731 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels	uninstaller util
+</A></li>
+        <LI>Next message: <A HREF="000479.html">[izpack-changes] r1733 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#478">[ date ]</a>
+              <a href="thread.html#478">[ thread ]</a>
+              <a href="subject.html#478">[ subject ]</a>
+              <a href="author.html#478">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-02-16 09:35:12 +0100 (Fri, 16 Feb 2007)
+New Revision: 1732
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+Log:
+Added conditional expressions 
+
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-02-13 13:52:02 UTC (rev 1731)
++++ izpack-src/trunk/Versions.txt	2007-02-16 08:35:12 UTC (rev 1732)
+@@ -1,8 +1,8 @@
+ [ The list of the different public versions of IzPack ]
+ 
+   &gt; Next release
+-
+ - Added ignore as possible value for failure argument in executables (Dennis Reil)
++- Added Conditional expressions (Dennis Reil)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-02-13 13:52:02 UTC (rev 1731)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-02-16 08:35:12 UTC (rev 1732)
+@@ -31,21 +31,30 @@
+ import net.n3.nanoxml.XMLElement;
+ 
+ /**
+- * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt;
+- *         created: 09.11.2006, 13:48:39
++ * The rules engine class is the central point for checking conditions
++ * 
++ * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt; created: 09.11.2006, 13:48:39
+  */
+-public class RulesEngine {
++public class RulesEngine
++{
++
+     protected Map panelconditions;
++
+     protected Map packconditions;
++
+     protected Map optionalpackconditions;
++
+     protected XMLElement conditionsspec;
++
+     protected static Map conditionsmap = new Hashtable();
++
+     protected InstallData installdata;
+ 
+     /**
+-     *
++     * 
+      */
+-    public RulesEngine(XMLElement conditionsspecxml, InstallData installdata) {
++    public RulesEngine(XMLElement conditionsspecxml, InstallData installdata)
++    {
+         this.conditionsspec = conditionsspecxml;
+         conditionsmap = new Hashtable();
+         this.panelconditions = new Hashtable();
+@@ -57,41 +66,55 @@
+ 
+     /**
+      * Checks if an attribute for an xmlelement is set.
+-     *
+-     * @param val       value of attribute to check
++     * 
++     * @param val value of attribute to check
+      * @param attribute the attribute which is checked
+-     * @param element   the element
+-     * @return true value was set
+-     *         false no value was set
++     * @param element the element
++     * @return true value was set false no value was set
+      */
+-    protected boolean checkAttribute(String val, String attribute, String element) {
+-        if ((val != null) &amp;&amp; (val.length() &gt; 0)) {
++    protected boolean checkAttribute(String val, String attribute, String element)
++    {
++        if ((val != null) &amp;&amp; (val.length() &gt; 0))
++        {
+             return true;
+-        } else {
++        }
++        else
++        {
+             Debug.trace(&quot;Element &quot; + element + &quot; has to specify an attribute &quot; + attribute);
+             return false;
+         }
+     }
+ 
+-    public static Condition analyzeCondition(XMLElement condition) {
++    public static Condition analyzeCondition(XMLElement condition)
++    {
+         String condid = condition.getAttribute(&quot;id&quot;);
+         String condtype = condition.getAttribute(&quot;type&quot;);
+         Condition result = null;
+-        if (condtype != null) {
++        if (condtype != null)
++        {
+ 
+             String conditiontype = condtype.toLowerCase();
+             // TODO: externalize package name
+-            String conditionclassname = &quot;com.izforge.izpack.rules.&quot; + conditiontype.substring(0, 1).toUpperCase() + conditiontype.substring(1, conditiontype.length());
++            String conditionclassname = &quot;com.izforge.izpack.rules.&quot;
++                    + conditiontype.substring(0, 1).toUpperCase()
++                    + conditiontype.substring(1, conditiontype.length());
+             conditionclassname += &quot;Condition&quot;;
+             ClassLoader loader = ClassLoader.getSystemClassLoader();
+-            try {
++            try
++            {
+                 Class conditionclass = loader.loadClass(conditionclassname);
+                 result = (Condition) conditionclass.newInstance();
+-            } catch (ClassNotFoundException e) {
++            }
++            catch (ClassNotFoundException e)
++            {
+                 Debug.trace(conditionclassname + &quot; not found.&quot;);
+-            } catch (InstantiationException e) {
++            }
++            catch (InstantiationException e)
++            {
+                 Debug.trace(conditionclassname + &quot; couldn't be instantiated.&quot;);
+-            } catch (IllegalAccessException e) {
++            }
++            catch (IllegalAccessException e)
++            {
+                 Debug.trace(&quot;Illegal access to &quot; + conditionclassname);
+             }
+             result.readFromXML(condition);
+@@ -100,35 +123,42 @@
+         return result;
+     }
+ 
+-
+     /**
+      * Read the spec for the conditions
+      */
+-    protected void readConditions() {
+-        if (this.conditionsspec == null){
++    protected void readConditions()
++    {
++        if (this.conditionsspec == null)
++        {
+             Debug.trace(&quot;No specification for conditions found.&quot;);
+             return;
+         }
+-        try {
+-            if (this.conditionsspec.hasChildren()) {
++        try
++        {
++            if (this.conditionsspec.hasChildren())
++            {
+                 // read in the condition specs
+                 Vector childs = this.conditionsspec.getChildrenNamed(&quot;condition&quot;);
+ 
+-                for (int i = 0; i &lt; childs.size(); i++) {
++                for (int i = 0; i &lt; childs.size(); i++)
++                {
+                     XMLElement condition = (XMLElement) childs.get(i);
+                     Condition cond = analyzeCondition(condition);
+-                    if (cond != null) {
++                    if (cond != null)
++                    {
+                         // this.conditionslist.add(cond);
+                         String condid = cond.getId();
+                         cond.setInstalldata(this.installdata);
+-                        if ((condid != null) &amp;&amp; !(&quot;UNKNOWN&quot;.equals(condid))) {                            
++                        if ((condid != null) &amp;&amp; !(&quot;UNKNOWN&quot;.equals(condid)))
++                        {
+                             conditionsmap.put(condid, cond);
+                         }
+                     }
+                 }
+ 
+                 Vector panelconditionels = this.conditionsspec.getChildrenNamed(&quot;panelcondition&quot;);
+-                for (int i = 0; i &lt; panelconditionels.size(); i++) {
++                for (int i = 0; i &lt; panelconditionels.size(); i++)
++                {
+                     XMLElement panelel = (XMLElement) panelconditionels.get(i);
+                     String panelid = panelel.getAttribute(&quot;panelid&quot;);
+                     String conditionid = panelel.getAttribute(&quot;conditionid&quot;);
+@@ -136,48 +166,119 @@
+                 }
+ 
+                 Vector packconditionels = this.conditionsspec.getChildrenNamed(&quot;packcondition&quot;);
+-                for (int i = 0; i &lt; packconditionels.size(); i++) {
++                for (int i = 0; i &lt; packconditionels.size(); i++)
++                {
+                     XMLElement panelel = (XMLElement) packconditionels.get(i);
+                     String panelid = panelel.getAttribute(&quot;packid&quot;);
+                     String conditionid = panelel.getAttribute(&quot;conditionid&quot;);
+                     this.packconditions.put(panelid, conditionid);
+                     // optional install allowed, if condition is not met?
+                     String optional = panelel.getAttribute(&quot;optional&quot;);
+-                    if (optional != null) {
++                    if (optional != null)
++                    {
+                         boolean optionalinstall = Boolean.valueOf(optional).booleanValue();
+-                        if (optionalinstall) {
++                        if (optionalinstall)
++                        {
+                             // optional installation is allowed
+                             this.optionalpackconditions.put(panelid, conditionid);
+                         }
+                     }
+                 }
+             }
+-        } catch (Exception e) {
++        }
++        catch (Exception e)
++        {
+             e.printStackTrace();
+         }
+     }
+ 
++    public static Condition getCondition(String id)
++    {
++        Condition result = (Condition) conditionsmap.get(id);
++        if (result == null)
++        {
++            result = getConditionByExpr(new StringBuffer(id));
++        }
++        return result;
++    }
+ 
+-    public static Condition getCondition(String id) {
+-        return (Condition) conditionsmap.get(id);
++    protected static Condition getConditionByExpr(StringBuffer conditionexpr)
++    {
++        Condition result = null;
++        int index = 0;
++        while (index &lt; conditionexpr.length())
++        {
++            char currentchar = conditionexpr.charAt(index);
++            switch (currentchar)
++            {
++            case '+':
++                // and-condition
++                Condition op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
++                conditionexpr.delete(0, index + 1);
++                result = new AndCondition(op1, getConditionByExpr(conditionexpr));
++                break;
++            case '|':
++                // or-condition
++                op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
++                conditionexpr.delete(0, index + 1);
++                result = new OrCondition(op1, getConditionByExpr(conditionexpr));
++                break;
++            case '\\':
++                // xor-condition
++                op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
++                conditionexpr.delete(0, index + 1);
++                result = new XOrCondition(op1, getConditionByExpr(conditionexpr));
++                break;
++            case '!':
++                // not-condition
++                if (index &gt; 0)
++                {
++                    Debug.trace(&quot;error: ! operator only allowed at position 0&quot;);
++                }
++                else
++                {
++                    // delete not symbol
++                    conditionexpr.deleteCharAt(index);
++                    result = new NotCondition(getConditionByExpr(conditionexpr));
++                }
++                break;
++            default:
++                // do nothing
++            }
++            index++;
++        }
++        if (conditionexpr.length() &gt; 0)
++        {
++            result = (Condition) conditionsmap.get(conditionexpr.toString());
++            conditionexpr.delete(0, conditionexpr.length());
++        }
++        return result;
+     }
+ 
+-    public boolean isConditionTrue(String id, Properties variables) {
+-        Condition cond = (Condition) conditionsmap.get(id);
+-        if (cond == null) {
++    public boolean isConditionTrue(String id, Properties variables)
++    {
++        Condition cond = (Condition) getCondition(id);
++        if (cond == null)
++        {
+             Debug.trace(&quot;Condition (&quot; + id + &quot;) not found.&quot;);
+             return true;
+-        } else {
++        }
++        else
++        {
+             Debug.trace(&quot;Checking condition&quot;);
+             return cond.isTrue();
+         }
+     }
+ 
+-    public boolean isConditionTrue(Condition cond, Properties variables) {
+-        if (cond == null) {
++    public boolean isConditionTrue(Condition cond, Properties variables)
++    {
++        if (cond == null)
++        {
+             Debug.trace(&quot;Condition not found.&quot;);
+             return true;
+-        } else {
++        }
++        else
++        {
+             Debug.trace(&quot;Checking condition&quot;);
+             return cond.isTrue();
+         }
+@@ -185,64 +286,66 @@
+ 
+     /**
+      * Can a panel be shown?
+-     *
+-     * @param panelid   - id of the panel, which should be shown
++     * 
++     * @param panelid - id of the panel, which should be shown
+      * @param variables - the variables
+-     * @return true - there is no condition or condition is met
+-     *         false - there is a condition and the condition was not met
++     * @return true - there is no condition or condition is met false - there is a condition and the
++     * condition was not met
+      */
+-    public boolean canShowPanel(String panelid, Properties variables) {
++    public boolean canShowPanel(String panelid, Properties variables)
++    {
+         Debug.trace(&quot;can show panel with id &quot; + panelid + &quot; ?&quot;);
+-        if (!this.panelconditions.containsKey(panelid)) {
++        if (!this.panelconditions.containsKey(panelid))
++        {
+             Debug.trace(&quot;no condition, show panel&quot;);
+             return true;
+         }
+         Debug.trace(&quot;there is a condition&quot;);
+-        Condition condition = (Condition) conditionsmap.get(this.panelconditions.get(panelid));
+-        if (condition != null) {
+-            return condition.isTrue();
+-        }
++        Condition condition = (Condition) getCondition((String) this.panelconditions.get(panelid));
++        if (condition != null) { return condition.isTrue(); }
+         return false;
+     }
+ 
+     /**
+      * Is the installation of a pack possible?
+-     *
++     * 
+      * @param packid
+      * @param variables
+-     * @return true - there is no condition or condition is met
+-     *         false - there is a condition and the condition was not met
++     * @return true - there is no condition or condition is met false - there is a condition and the
++     * condition was not met
+      */
+-    public boolean canInstallPack(String packid, Properties variables) {
+-        if (packid == null){
+-            return true;
+-        }
++    public boolean canInstallPack(String packid, Properties variables)
++    {
++        if (packid == null) { return true; }
+         Debug.trace(&quot;can install pack with id &quot; + packid + &quot;?&quot;);
+-        if (!this.packconditions.containsKey(packid)) {
++        if (!this.packconditions.containsKey(packid))
++        {
+             Debug.trace(&quot;no condition, can install pack&quot;);
+             return true;
+         }
+         Debug.trace(&quot;there is a condition&quot;);
+-        Condition condition = (Condition) conditionsmap.get(this.packconditions.get(packid));
+-        if (condition != null) {
+-            return condition.isTrue();
+-        }
++        Condition condition = (Condition) getCondition((String) this.packconditions.get(packid));
++        if (condition != null) { return condition.isTrue(); }
+         return false;
+     }
+ 
+     /**
+      * Is an optional installation of a pack possible if the condition is not met?
+-     *
++     * 
+      * @param packid
+      * @param variables
+      * @return
+      */
+-    public boolean canInstallPackOptional(String packid, Properties variables) {
++    public boolean canInstallPackOptional(String packid, Properties variables)
++    {
+         Debug.trace(&quot;can install pack optional with id &quot; + packid + &quot;?&quot;);
+-        if (!this.optionalpackconditions.containsKey(packid)) {
++        if (!this.optionalpackconditions.containsKey(packid))
++        {
+             Debug.trace(&quot;not in optionalpackconditions.&quot;);
+             return false;
+-        } else {
++        }
++        else
++        {
+             Debug.trace(&quot;optional install possible&quot;);
+             return true;
+         }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000477.html">[izpack-changes] r1731 - in	izpack-src/trunk/src/lib/com/izforge/izpack: installer panels	uninstaller util
+</A></li>
+	<LI>Next message: <A HREF="000479.html">[izpack-changes] r1733 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#478">[ date ]</a>
+              <a href="thread.html#478">[ thread ]</a>
+              <a href="subject.html#478">[ subject ]</a>
+              <a href="author.html#478">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

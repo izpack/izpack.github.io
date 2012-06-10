@@ -1,0 +1,549 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1945 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1945%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels%20src/lib/com/izforge/izpack/rules&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000690.html">
+   <LINK REL="Next"  HREF="000692.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1945 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1945%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels%20src/lib/com/izforge/izpack/rules&In-Reply-To="
+       TITLE="[izpack-changes] r1945 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules">noreply at berlios.de
+       </A><BR>
+    <I>Tue Dec 11 22:11:04 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000690.html">[izpack-changes] r1944 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules
+</A></li>
+        <LI>Next message: <A HREF="000692.html">[izpack-changes] r1946 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#691">[ date ]</a>
+              <a href="thread.html#691">[ thread ]</a>
+              <a href="subject.html#691">[ subject ]</a>
+              <a href="author.html#691">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-12-11 22:10:50 +0100 (Tue, 11 Dec 2007)
+New Revision: 1945
+
+Modified:
+   izpack-src/trunk/IzPack-head.iml
+   izpack-src/trunk/IzPack-head.ipr
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+Log:
+Refactorings:
+  * TreePacksPanel: a method was missing... returning null at the moment
+  * RulesEngine: code reformating and DRY (don't repeat yourself!)
+
+
+Modified: izpack-src/trunk/IzPack-head.iml
+===================================================================
+--- izpack-src/trunk/IzPack-head.iml	2007-12-11 15:39:08 UTC (rev 1944)
++++ izpack-src/trunk/IzPack-head.iml	2007-12-11 21:10:50 UTC (rev 1945)
+@@ -31,7 +31,15 @@
+         &lt;SOURCES /&gt;
+       &lt;/library&gt;
+     &lt;/orderEntry&gt;
+-    &lt;orderEntry type=&quot;library&quot; name=&quot;Junit&quot; level=&quot;application&quot; /&gt;
++    &lt;orderEntry type=&quot;module-library&quot;&gt;
++      &lt;library&gt;
++        &lt;CLASSES&gt;
++          &lt;root url=&quot;<A HREF="jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/&quot;">jar://$APPLICATION_HOME_DIR$/lib/junit.jar!/&quot;</A> /&gt;
++        &lt;/CLASSES&gt;
++        &lt;JAVADOC /&gt;
++        &lt;SOURCES /&gt;
++      &lt;/library&gt;
++    &lt;/orderEntry&gt;
+     &lt;orderEntryProperties /&gt;
+   &lt;/component&gt;
+ &lt;/module&gt;
+
+Modified: izpack-src/trunk/IzPack-head.ipr
+===================================================================
+--- izpack-src/trunk/IzPack-head.ipr	2007-12-11 15:39:08 UTC (rev 1944)
++++ izpack-src/trunk/IzPack-head.ipr	2007-12-11 21:10:50 UTC (rev 1945)
+@@ -272,10 +272,5 @@
+       &lt;/value&gt;
+     &lt;/option&gt;
+   &lt;/component&gt;
+-  &lt;component name=&quot;uidesigner-configuration&quot;&gt;
+-    &lt;option name=&quot;INSTRUMENT_CLASSES&quot; value=&quot;true&quot; /&gt;
+-    &lt;option name=&quot;COPY_FORMS_RUNTIME_TO_OUTPUT&quot; value=&quot;true&quot; /&gt;
+-    &lt;option name=&quot;DEFAULT_LAYOUT_MANAGER&quot; value=&quot;GridLayoutManager&quot; /&gt;
+-  &lt;/component&gt;
+ &lt;/project&gt;
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java	2007-12-11 15:39:08 UTC (rev 1944)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/TreePacksPanel.java	2007-12-11 21:10:50 UTC (rev 1945)
+@@ -41,11 +41,7 @@
+ import com.izforge.izpack.LocaleDatabase;
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.gui.LabelFactory;
+-import com.izforge.izpack.installer.InstallData;
+-import com.izforge.izpack.installer.InstallerFrame;
+-import com.izforge.izpack.installer.IzPanel;
+-import com.izforge.izpack.installer.ResourceManager;
+-import com.izforge.izpack.installer.WebAccessor;
++import com.izforge.izpack.installer.*;
+ import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.IoHelper;
+ import com.izforge.izpack.util.VariableSubstitutor;
+@@ -261,7 +257,12 @@
+       }
+    }
+ 
+-   /**
++    public Debugger getDebugger()
++    {
++        return null;
++    }
++
++    /**
+     * Indicates wether the panel has been validated or not.
+     * 
+     * @return true if the needed space is less than the free space, else false
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-12-11 15:39:08 UTC (rev 1944)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/rules/RulesEngine.java	2007-12-11 21:10:50 UTC (rev 1945)
+@@ -20,22 +20,16 @@
+  */
+ package com.izforge.izpack.rules;
+ 
+-import java.util.Arrays;
+-import java.util.Hashtable;
+-import java.util.Iterator;
+-import java.util.Map;
+-import java.util.Properties;
+-import java.util.Vector;
+-
+ import com.izforge.izpack.Pack;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.util.Debug;
+-
+ import net.n3.nanoxml.XMLElement;
+ 
++import java.util.*;
++
+ /**
+  * The rules engine class is the central point for checking conditions
+- * 
++ *
+  * @author Dennis Reil, &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-changes">Dennis.Reil at reddot.de</A>&gt; created: 09.11.2006, 13:48:39
+  */
+ public class RulesEngine
+@@ -53,52 +47,31 @@
+ 
+     protected static InstallData installdata;
+ 
+-    private RulesEngine() {
++    private RulesEngine()
++    {
+         conditionsmap = new Hashtable();
+         this.panelconditions = new Hashtable();
+         this.packconditions = new Hashtable();
+-        this.optionalpackconditions = new Hashtable();        
+-    }      
+-    
++        this.optionalpackconditions = new Hashtable();
++    }
++
+     /**
+      * initializes builtin conditions
+      */
+-    private void init() {
+-        JavaCondition installonwindows = new JavaCondition();
+-        installonwindows.setInstalldata(installdata);
+-        installonwindows.id = &quot;izpack.windowsinstall&quot;;
+-        installonwindows.classname = &quot;com.izforge.izpack.util.OsVersion&quot;;
+-        installonwindows.fieldname = &quot;IS_WINDOWS&quot;;
+-        installonwindows.returnvalue = &quot;true&quot;;
+-        installonwindows.returnvaluetype = &quot;boolean&quot;;
+-        installonwindows.complete = true;
+-        conditionsmap.put(installonwindows.id, installonwindows);
+-        
+-        JavaCondition installonlinux = new JavaCondition();
+-        installonlinux.setInstalldata(installdata);
+-        installonlinux.id = &quot;izpack.linuxinstall&quot;;
+-        installonlinux.classname = &quot;com.izforge.izpack.util.OsVersion&quot;;
+-        installonlinux.fieldname = &quot;IS_LINUX&quot;;
+-        installonlinux.returnvalue = &quot;true&quot;;
+-        installonlinux.returnvaluetype = &quot;boolean&quot;;
+-        installonlinux.complete = true;
+-        conditionsmap.put(installonlinux.id, installonlinux);
+-        
+-        JavaCondition installonsolaris = new JavaCondition();
+-        installonsolaris.setInstalldata(installdata);
+-        installonsolaris.id = &quot;izpack.solarisinstall&quot;;
+-        installonsolaris.classname = &quot;com.izforge.izpack.util.OsVersion&quot;;
+-        installonsolaris.fieldname = &quot;IS_SUNOS&quot;;
+-        installonsolaris.returnvalue = &quot;true&quot;;
+-        installonsolaris.returnvaluetype = &quot;boolean&quot;;
+-        installonsolaris.complete = true;
+-        conditionsmap.put(installonsolaris.id, installonsolaris);
+-        
+-        if ((installdata != null) &amp;&amp; (installdata.allPacks != null)) {
++    private void init()
++    {
++        createBuiltinOsCondition(&quot;IS_WINDOWS&quot;, &quot;izpack.windowsinstall&quot;);
++        createBuiltinOsCondition(&quot;IS_LINUX&quot;, &quot;izpack.linuxinstall&quot;);
++        createBuiltinOsCondition(&quot;IS_SUNOS&quot;, &quot;izpack.solarisinstall&quot;);
++        createBuiltinOsCondition(&quot;IS_MAC&quot;, &quot;izpack.macinstall&quot;);
++
++        if ((installdata != null) &amp;&amp; (installdata.allPacks != null))
++        {
+             for (Iterator iterator = installdata.allPacks.iterator(); iterator.hasNext();)
+             {
+                 Pack pack = (Pack) iterator.next();
+-                if (pack.id != null) {
++                if (pack.id != null)
++                {
+                     // automatically add packselection condition
+                     PackselectionCondition packselcond = new PackselectionCondition();
+                     packselcond.setInstalldata(installdata);
+@@ -109,37 +82,54 @@
+             }
+         }
+     }
+-    
++
++    private void createBuiltinOsCondition(String osVersionField, String conditionId)
++    {
++        JavaCondition condition = new JavaCondition();
++        condition.setInstalldata(installdata);
++        condition.id = conditionId;
++        condition.classname = &quot;com.izforge.izpack.util.OsVersion&quot;;
++        condition.fieldname = osVersionField;
++        condition.returnvalue = &quot;true&quot;;
++        condition.returnvaluetype = &quot;boolean&quot;;
++        condition.complete = true;
++        conditionsmap.put(condition.id, condition);
++    }
++
+     /**
+-     * 
++     *
+      */
+     public RulesEngine(XMLElement conditionsspecxml, InstallData installdata)
+     {
+         this();
+-        this.conditionsspec = conditionsspecxml;        
++        this.conditionsspec = conditionsspecxml;
+         RulesEngine.installdata = installdata;
+         this.readConditions();
+         init();
+     }
+-    
+-    public RulesEngine(Map rules, InstallData installdata) {
++
++    public RulesEngine(Map rules, InstallData installdata)
++    {
+         this();
+         RulesEngine.installdata = installdata;
+         conditionsmap = rules;
+         Iterator keyiter = conditionsmap.keySet().iterator();
+-        while (keyiter.hasNext()) {
++        while (keyiter.hasNext())
++        {
+             String key = (String) keyiter.next();
+             Condition condition = (Condition) conditionsmap.get(key);
+             condition.setInstalldata(installdata);
+         }
+         init();
+     }
+-    
++
+     /**
+      * Returns the current known condition ids.
++     *
+      * @return
+      */
+-    public String[] getKnownConditionIds() {
++    public String[] getKnownConditionIds()
++    {
+         String[] conditionids = (String[]) this.conditionsmap.keySet().toArray(new String[this.conditionsmap.size()]);
+         Arrays.sort(conditionids);
+         return conditionids;
+@@ -147,10 +137,10 @@
+ 
+     /**
+      * Checks if an attribute for an xmlelement is set.
+-     * 
+-     * @param val value of attribute to check
++     *
++     * @param val       value of attribute to check
+      * @param attribute the attribute which is checked
+-     * @param element the element
++     * @param element   the element
+      * @return true value was set false no value was set
+      */
+     protected boolean checkAttribute(String val, String attribute, String element)
+@@ -174,14 +164,16 @@
+         if (condtype != null)
+         {
+             String conditionclassname = &quot;&quot;;
+-            if (condtype.indexOf('.')&gt; -1){
++            if (condtype.indexOf('.') &gt; -1)
++            {
+                 conditionclassname = condtype;
+             }
+-            else {
++            else
++            {
+                 String conditiontype = condtype.toLowerCase();
+                 conditionclassname = &quot;com.izforge.izpack.rules.&quot;
+-                    + conditiontype.substring(0, 1).toUpperCase()
+-                    + conditiontype.substring(1, conditiontype.length());
++                        + conditiontype.substring(0, 1).toUpperCase()
++                        + conditiontype.substring(1, conditiontype.length());
+                 conditionclassname += &quot;Condition&quot;;
+             }
+             //ClassLoader loader = ClassLoader.getSystemClassLoader();
+@@ -196,16 +188,16 @@
+             }
+             catch (ClassNotFoundException e)
+             {
+-                Debug.trace(conditionclassname + &quot; not found.&quot;);                               
++                Debug.trace(conditionclassname + &quot; not found.&quot;);
+             }
+             catch (InstantiationException e)
+             {
+-                Debug.trace(conditionclassname + &quot; couldn't be instantiated.&quot;);                
++                Debug.trace(conditionclassname + &quot; couldn't be instantiated.&quot;);
+             }
+             catch (IllegalAccessException e)
+             {
+-                Debug.trace(&quot;Illegal access to &quot; + conditionclassname);                
+-            }            
++                Debug.trace(&quot;Illegal access to &quot; + conditionclassname);
++            }
+         }
+         return result;
+     }
+@@ -298,50 +290,51 @@
+             char currentchar = conditionexpr.charAt(index);
+             switch (currentchar)
+             {
+-            case '+':
+-                // and-condition
+-                Condition op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
+-                conditionexpr.delete(0, index + 1);
+-                result = new AndCondition(op1, getConditionByExpr(conditionexpr));
+-                result.setInstalldata(RulesEngine.installdata);
+-                break;
+-            case '|':
+-                // or-condition
+-                op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
+-                conditionexpr.delete(0, index + 1);
+-                result = new OrCondition(op1, getConditionByExpr(conditionexpr));
+-                result.setInstalldata(RulesEngine.installdata);
+-                break;
+-            case '\\':
+-                // xor-condition
+-                op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
+-                conditionexpr.delete(0, index + 1);
+-                result = new XOrCondition(op1, getConditionByExpr(conditionexpr));
+-                result.setInstalldata(RulesEngine.installdata);
+-                break;
+-            case '!':
+-                // not-condition
+-                if (index &gt; 0)
+-                {
+-                    Debug.trace(&quot;error: ! operator only allowed at position 0&quot;);
+-                }
+-                else
+-                {
+-                    // delete not symbol
+-                    conditionexpr.deleteCharAt(index);
+-                    result = new NotCondition(getConditionByExpr(conditionexpr));
++                case '+':
++                    // and-condition
++                    Condition op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
++                    conditionexpr.delete(0, index + 1);
++                    result = new AndCondition(op1, getConditionByExpr(conditionexpr));
+                     result.setInstalldata(RulesEngine.installdata);
+-                }
+-                break;
+-            default:
+-                // do nothing
++                    break;
++                case '|':
++                    // or-condition
++                    op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
++                    conditionexpr.delete(0, index + 1);
++                    result = new OrCondition(op1, getConditionByExpr(conditionexpr));
++                    result.setInstalldata(RulesEngine.installdata);
++                    break;
++                case '\\':
++                    // xor-condition
++                    op1 = (Condition) conditionsmap.get(conditionexpr.substring(0, index));
++                    conditionexpr.delete(0, index + 1);
++                    result = new XOrCondition(op1, getConditionByExpr(conditionexpr));
++                    result.setInstalldata(RulesEngine.installdata);
++                    break;
++                case '!':
++                    // not-condition
++                    if (index &gt; 0)
++                    {
++                        Debug.trace(&quot;error: ! operator only allowed at position 0&quot;);
++                    }
++                    else
++                    {
++                        // delete not symbol
++                        conditionexpr.deleteCharAt(index);
++                        result = new NotCondition(getConditionByExpr(conditionexpr));
++                        result.setInstalldata(RulesEngine.installdata);
++                    }
++                    break;
++                default:
++                    // do nothing
+             }
+             index++;
+         }
+         if (conditionexpr.length() &gt; 0)
+         {
+             result = (Condition) conditionsmap.get(conditionexpr.toString());
+-            if (result != null){
++            if (result != null)
++            {
+                 result.setInstalldata(RulesEngine.installdata);
+                 conditionexpr.delete(0, conditionexpr.length());
+             }
+@@ -360,10 +353,12 @@
+         else
+         {
+             Debug.trace(&quot;Checking condition&quot;);
+-            try {
++            try
++            {
+                 return cond.isTrue();
+             }
+-            catch (NullPointerException npe){
++            catch (NullPointerException npe)
++            {
+                 Debug.error(&quot;Nullpointerexception checking condition: &quot; + id);
+                 return false;
+             }
+@@ -383,14 +378,16 @@
+             return cond.isTrue();
+         }
+     }
+-    
++
+     public boolean isConditionTrue(String id)
+     {
+         Condition cond = RulesEngine.getCondition(id);
+-        if (cond != null) {
++        if (cond != null)
++        {
+             return this.isConditionTrue(cond);
+         }
+-        else {
++        else
++        {
+             return false;
+         }
+     }
+@@ -402,11 +399,11 @@
+ 
+     /**
+      * Can a panel be shown?
+-     * 
+-     * @param panelid - id of the panel, which should be shown
++     *
++     * @param panelid   - id of the panel, which should be shown
+      * @param variables - the variables
+      * @return true - there is no condition or condition is met false - there is a condition and the
+-     * condition was not met
++     *         condition was not met
+      */
+     public boolean canShowPanel(String panelid, Properties variables)
+     {
+@@ -418,21 +415,27 @@
+         }
+         Debug.trace(&quot;there is a condition&quot;);
+         Condition condition = getCondition((String) this.panelconditions.get(panelid));
+-        if (condition != null) { return condition.isTrue(); }
++        if (condition != null)
++        {
++            return condition.isTrue();
++        }
+         return false;
+     }
+ 
+     /**
+      * Is the installation of a pack possible?
+-     * 
++     *
+      * @param packid
+      * @param variables
+      * @return true - there is no condition or condition is met false - there is a condition and the
+-     * condition was not met
++     *         condition was not met
+      */
+     public boolean canInstallPack(String packid, Properties variables)
+     {
+-        if (packid == null) { return true; }
++        if (packid == null)
++        {
++            return true;
++        }
+         Debug.trace(&quot;can install pack with id &quot; + packid + &quot;?&quot;);
+         if (!this.packconditions.containsKey(packid))
+         {
+@@ -441,13 +444,16 @@
+         }
+         Debug.trace(&quot;there is a condition&quot;);
+         Condition condition = getCondition((String) this.packconditions.get(packid));
+-        if (condition != null) { return condition.isTrue(); }
++        if (condition != null)
++        {
++            return condition.isTrue();
++        }
+         return false;
+     }
+ 
+     /**
+      * Is an optional installation of a pack possible if the condition is not met?
+-     * 
++     *
+      * @param packid
+      * @param variables
+      * @return
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000690.html">[izpack-changes] r1944 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/rules
+</A></li>
+	<LI>Next message: <A HREF="000692.html">[izpack-changes] r1946 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#691">[ date ]</a>
+              <a href="thread.html#691">[ thread ]</a>
+              <a href="subject.html#691">[ subject ]</a>
+              <a href="author.html#691">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

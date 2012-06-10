@@ -1,0 +1,563 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1796 - in izpack-src/trunk: .	bin/langpacks/installer src src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1796%20-%20in%20izpack-src/trunk%3A%20.%0A%09bin/langpacks/installer%20src%20src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000541.html">
+   <LINK REL="Next"  HREF="000543.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1796 - in izpack-src/trunk: .	bin/langpacks/installer src src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1796%20-%20in%20izpack-src/trunk%3A%20.%0A%09bin/langpacks/installer%20src%20src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1796 - in izpack-src/trunk: .	bin/langpacks/installer src src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Wed Mar 28 15:45:02 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000541.html">[izpack-changes] r1795 - in izpack-src/branches/3.10: .	bin/langpacks/installer
+</A></li>
+        <LI>Next message: <A HREF="000543.html">[izpack-changes] r1797 - in izpack-src/branches/3.10: . src	src/dist-files src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#542">[ date ]</a>
+              <a href="thread.html#542">[ thread ]</a>
+              <a href="subject.html#542">[ subject ]</a>
+              <a href="author.html#542">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-03-28 15:44:58 +0200 (Wed, 28 Mar 2007)
+New Revision: 1796
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/bin/langpacks/installer/fin.xml
+   izpack-src/trunk/bin/langpacks/installer/fra.xml
+   izpack-src/trunk/bin/langpacks/installer/tur.xml
+   izpack-src/trunk/src/build.xml
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+Log:
+Merged -r1777:1795 from branches/3.10
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-03-28 13:38:15 UTC (rev 1795)
++++ izpack-src/trunk/Versions.txt	2007-03-28 13:44:58 UTC (rev 1796)
+@@ -29,7 +29,15 @@
+   as notes in the helper label. This change is only effective for UNIX. (Vladimir Ralev)
+ - Added localization support for column names in InstallationGroupPanel
+   (Markus Schlegel via Vladimir Ralev)
+-- Finnish langpack update (Ari Voutilainen via Julien Ponge)
++- Finnish langpack updates (Ari Voutilainen via Julien Ponge)
++- Fix: Variables assigned by UserInputPanel are not available when the next page
++  nagivations rules are evaluated. <A HREF="http://jira.jboss.com/jira/browse/JBINSTALL-248">http://jira.jboss.com/jira/browse/JBINSTALL-248</A>
++  (Vladimir Ralev)
++- Fixed an XML error in the French langpack. (Julien Ponge, reported by Ari Voutilainen).
++- Compile listeners are included in izevent.jar (Julien Ponge).
++- PacksModel: the number of required bytes could be wrong when selecting and deselecting
++  packs. (Stefan Wachter via Julien Ponge)
++- Turkish langpack updated (Melih Cetin vie Julien Ponge)
+ 
+   &gt; 3.10.0 (build 2007.01.29)
+ 
+
+Modified: izpack-src/trunk/bin/langpacks/installer/fin.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/fin.xml	2007-03-28 13:38:15 UTC (rev 1795)
++++ izpack-src/trunk/bin/langpacks/installer/fin.xml	2007-03-28 13:44:58 UTC (rev 1796)
+@@ -90,6 +90,7 @@
+     &lt;str id=&quot;JDKPathPanel.badVersion1&quot; txt=&quot;Valitun JDK:n versio on v&#228;&#228;r&#228; (valittavana on: &quot;/&gt;
+     &lt;str id=&quot;JDKPathPanel.badVersion2&quot; txt=&quot; vaadittu versio: &quot;/&gt;
+     &lt;str id=&quot;JDKPathPanel.badVersion3&quot; txt=&quot;) k&#228;ytet&#228;&#228;nk&#246; t&#228;t&#228; JDK:ta silti?&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.nonValidPathInReg&quot; txt=&quot;Windowsin rekisteriss&#228; on ep&#228;kelpo polku t&#228;lle JDK:lle. K&#228;ytet&#228;&#228;nk&#246; t&#228;t&#228; JDK:ta silti?&quot;/&gt;
+ 
+     &lt;str id=&quot;PacksPanel.info&quot; txt=&quot;Valitse paketit, jotka haluat asentaa:&quot;/&gt;
+     &lt;str id=&quot;PacksPanel.tip&quot; txt=&quot;Huomaa: harmaa valintaruutu tarkoittaa, ett&#228; paketti on pakollinen.&quot;/&gt;
+@@ -216,9 +217,45 @@
+     &lt;str id=&quot;nextmedia.choosertitle&quot; txt=&quot;Valitse asennusmedia&quot; /&gt;
+     &lt;str id=&quot;nextmedia.filedesc&quot; rdid=&quot;asennuspaketit (.pak*)&quot; /&gt;
+ 
++    &lt;!-- Strings for the loggin/reporting system (Messenger) --&gt;
++
++    &lt;!-- This string defines the time stamp format in the installation report.
++         The format details are documented in java.text.SimpleDateFormat --&gt;
++    &lt;str id=&quot;log.timeStamp&quot;               txt=&quot;d.M.yyyy [HH.mm.ss] Z&quot;/&gt;
++
++    &lt;!-- Strings for various purposes in the logging/reporting system  --&gt;
++    &lt;str id=&quot;log.reportHeading&quot;           txt=&quot;                           IzPack ASENNUSRAPORTTI&quot;/&gt;
++    &lt;str id=&quot;log.installFailed&quot;           txt=&quot;VAROITUS!!! Asennus ei onnistunut!&quot;/&gt;
++    &lt;str id=&quot;log.partialInstall&quot;          txt=&quot;VAROITUS!!! Asennus ei ole onnistunut kokonaan!&quot;/&gt;
++    &lt;str id=&quot;log.messageCount&quot;            txt=&quot;T&#228;m&#228; raportti sis&#228;lt&#228;&#228; {0} yleist&#228; viesti&#228;, {1} varoitusta ja {2} virhett&#228;&quot;/&gt;
++    &lt;str id=&quot;log.application&quot;             txt=&quot;Asennusraportti : {0} versio {1}&quot;/&gt;
++    &lt;str id=&quot;log.timePrefix&quot;              txt=&quot;Asennusaika     : {0}&quot;/&gt;
++    &lt;str id=&quot;log.pathPrefix&quot;              txt=&quot;Asennushakemisto: {0}&quot;/&gt;
++    &lt;str id=&quot;log.messageHeading&quot;          txt=&quot;                 --- Asennusviestit ---&quot;/&gt;
++    &lt;str id=&quot;log.warningHeading&quot;          txt=&quot;                   --- Varoitukset ---&quot;/&gt;
++    &lt;str id=&quot;log.errorHeading&quot;            txt=&quot;                     --- Virheet ---&quot;/&gt;
++    &lt;str id=&quot;log.exceptionPrefix&quot;         txt=&quot;                 &amp;gt;&amp;gt; Poikkeus: {0}&quot;/&gt;
++    &lt;str id=&quot;log.messagePrefix&quot;           txt=&quot;Viesti  [{0}] - &quot;/&gt;
++    &lt;str id=&quot;log.warningPrefix&quot;           txt=&quot;Varoitus [{0}] - &quot;/&gt;
++    &lt;str id=&quot;log.errorPrefix&quot;             txt=&quot;Virhe [{0}] - &quot;/&gt;
++    &lt;str id=&quot;log.reportWriteErrorTitle&quot;   txt=&quot;Virhe raportin kirjoituksessa&quot;/&gt;
++    &lt;str id=&quot;log.reportWriteError&quot;        txt=&quot;Asennusraporttia ei voi kirjoittaa: ''{0}''&quot;/&gt;
++    &lt;str id=&quot;log.informUserTitle&quot;         txt=&quot;Asennusongelmat&quot;/&gt;
++    &lt;str id=&quot;log.saveLogTitle&quot;            txt=&quot;Tallenna lokitiedosto&quot;/&gt;
++    &lt;str id=&quot;log.LogFileName&quot;             txt=&quot;installLog.txt&quot;/&gt;
++    &lt;str id=&quot;log.informUserFail&quot;          txt=&quot;&amp;lt;html&amp;gt;Asennus ei onnistunut!&amp;lt;br&amp;gt;Haluatko kirjoittaa lokitiedoston?&amp;lt;/html&amp;gt;&quot;/&gt;
++    &lt;str id=&quot;log.informUserPartial&quot;       txt=&quot;&amp;lt;html&amp;gt;Asennus ei ole onnistunut kokonaan!&amp;lt;br&amp;gt;Haluatko kirjoittaa lokitiedoston?&amp;lt;/html&amp;gt;&quot;/&gt;
++
++    &lt;!-- Strings for individual messages in the logging/reporting system.
++         Numbers for each category (message/warning/error) start at 0  --&gt;
++    &lt;str id=&quot;log.message_&quot;                txt=&quot;&quot;/&gt;
++
++    &lt;str id=&quot;log.warning_&quot;                txt=&quot;&quot;/&gt;
++
++    &lt;str id=&quot;log.error_0&quot;                 txt=&quot;ei voi kirjoittaa: ''{0}''&quot;/&gt;
++
+     &lt;str id=&quot;InstallationGroupPanel.colNameSelected&quot; txt=&quot;Valittu&quot; /&gt;
+     &lt;str id=&quot;InstallationGroupPanel.colNameInstallType&quot; txt=&quot;Asennustyyppi&quot; /&gt;
+     &lt;str id=&quot;InstallationGroupPanel.colNameSize&quot; txt=&quot;Koko&quot; /&gt;
+ 
+ &lt;/langpack&gt;
+-
+
+Modified: izpack-src/trunk/bin/langpacks/installer/fra.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/fra.xml	2007-03-28 13:38:15 UTC (rev 1795)
++++ izpack-src/trunk/bin/langpacks/installer/fra.xml	2007-03-28 13:44:58 UTC (rev 1796)
+@@ -56,7 +56,7 @@
+     &lt;str id=&quot;TargetPanel.warn&quot; txt=&quot;Le r&#233;pertoire existe d&#233;j&#224; ! Etes-vous sur de vouloir installer dans celui-ci ?&quot;/&gt;
+     &lt;str id=&quot;TargetPanel.nodir&quot; txt=&quot;Vous avez sp&#233;cifi&#233; le nom d'un fichier existant ! Veuillez choisir un autre chemin d'installation.&quot;/&gt;
+     &lt;str id=&quot;TargetPanel.notwritable&quot; txt=&quot;Le r&#233;pertoire que vous avez choisi n'autorise pas l'&#233;criture. Veuillez en choisir un autre.&quot; /&gt;
+-    &lt;str id=&quot;TargetPanel.empty_target&quot;txt=&quot;Vous avez sp&#233;cifi&#233; un nom de r&#233;pertoire vide ! Etes-vous s&#251;r(e) ?&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.empty_target&quot; txt=&quot;Vous avez sp&#233;cifi&#233; un nom de r&#233;pertoire vide ! Etes-vous s&#251;r(e) ?&quot;/&gt;
+     &lt;str id=&quot;TargetPanel.createdir&quot; txt=&quot;Le r&#233;pertoire de destination sera cr&#233;&#233; :&quot; /&gt;
+     
+     &lt;!-- JDKPathPanel strings --&gt;
+
+Modified: izpack-src/trunk/bin/langpacks/installer/tur.xml
+===================================================================
+--- izpack-src/trunk/bin/langpacks/installer/tur.xml	2007-03-28 13:38:15 UTC (rev 1795)
++++ izpack-src/trunk/bin/langpacks/installer/tur.xml	2007-03-28 13:44:58 UTC (rev 1796)
+@@ -1,158 +1,182 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-9&quot; standalone=&quot;yes&quot; ?&gt;
++&#239;&#187;&#191;&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; standalone=&quot;yes&quot; ?&gt;
+ 
+ &lt;!-- The Turkish langpack --&gt;
+ 
++&lt;!-- 
++	ATTENTION - Do not edit with an editor which can not handle UTF-8 properly !!
++	Modifying this file with a wrong editor can corrupt this file!
++    
++	D&#196;&#176;KKAT - l&#195;&#188;tfen UTF-8 dosyalar&#196;&#177;n&#196;&#177; do&#196;&#159;ru &#197;&#159;ekilde edit edemeyen editorler kullanarak
++	bu dosya &#195;&#188;zerinde &#195;&#167;al&#196;&#177;&#197;&#159;may&#196;&#177;n, dosyan&#196;&#177;n i&#195;&#167;eri&#196;&#159;ini bozabilir siniz.
++--&gt;
++
+ &lt;langpack&gt;
++    &lt;!-- Heading messages START --&gt;
++    &lt;str id=&quot;CheckedHelloPanel.headline&quot;         txt=&quot;Ho&#197;&#159;geldiniz&quot;/&gt;
++    &lt;str id=&quot;CompilePanel.headline&quot;              txt=&quot;Java Kaynak Kodlar&#196;&#177;n&#196;&#177; Derle&quot;/&gt;
++    &lt;str id=&quot;ConditionalUserInputPanel.headline&quot; txt=&quot;Kullan&#196;&#177;c&#196;&#177; Bilgileri&quot;/&gt;
++    &lt;str id=&quot;ExtendedInstallPanel.headline&quot;      txt=&quot;Kurulum ve Yap&#196;&#177;land&#196;&#177;rma&quot;/&gt;
++    &lt;str id=&quot;FinishPanel.headline&quot;               txt=&quot;Kurulum Tamamland&#196;&#177;&quot;/&gt;
++    &lt;str id=&quot;HelloPanel.headline&quot;                txt=&quot;Ho&#197;&#159;geldiniz&quot;/&gt;
++    &lt;str id=&quot;HTMLInfoPanel.headline&quot;             txt=&quot;Bilgiler&quot;/&gt;
++    &lt;str id=&quot;HTMLLicencePanel.headline&quot;          txt=&quot;Lisans Anla&#197;&#159;malar&#196;&#177;&quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.headline&quot;             txt=&quot;Kurmak &#196;&#176;stedi&#196;&#159;iniz Paketleri Se&#195;&#167;iniz&quot;/&gt;
++    &lt;str id=&quot;InfoPanel.headline&quot;                 txt=&quot;Bilgiler&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.headline&quot;              txt=&quot;Kurulum&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.headline&quot;              txt=&quot;JDK Path&quot;/&gt;
++    &lt;str id=&quot;LicencePanel.headline&quot;              txt=&quot;Lisans Anla&#197;&#159;malar&#196;&#177;&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.headline&quot;                txt=&quot;Kurmak &#196;&#176;stedi&#196;&#159;iniz Paketleri Se&#195;&#167;iniz&quot;/&gt;
++    &lt;str id=&quot;ProcessPanel.headline&quot;              txt=&quot;Harici &#196;&#176;&#197;&#159;lemleri Ger&#195;&#167;ekle&#197;&#159;tir&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.headline&quot;             txt=&quot;K&#196;&#177;sayollar&quot;/&gt;
++    &lt;str id=&quot;SimpleFinishPanel.headline&quot;         txt=&quot;Kurulum Tamamland&#196;&#177;&quot;/&gt;
++    &lt;str id=&quot;SummaryPanel.headline&quot;              txt=&quot;&#195;&#150;zet Kurulum Bilgileri&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.headline&quot;               txt=&quot;Hedef Dizin&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.headline&quot;            txt=&quot;Kullan&#196;&#177;c&#196;&#177; Bilgileri&quot;/&gt;
+ 
+     &lt;!-- Genel kurulum karakter dizileri --&gt;
+-    &lt;str id=&quot;installer.title&quot; txt=&quot;IzPack - Kurulum &quot;/&gt; 
+-    &lt;str id=&quot;installer.next&quot; txt=&quot;Sonraki&quot;/&gt;
+-    &lt;str id=&quot;installer.prev&quot; txt=&quot;&#195;&#150;nceki&quot;/&gt;
+-    &lt;str id=&quot;installer.quit&quot; txt=&quot;&#195;&#135;&#195;&#189;k&#195;&#189;&#195;&#190;&quot;/&gt;
+-    &lt;str id=&quot;installer.madewith&quot; txt=&quot;(IzPack ile yap&#195;&#189;ld&#195;&#189;- <A HREF="http://www.izforge.com/">http://www.izforge.com/</A>)&quot;/&gt;
+-    &lt;str id=&quot;installer.quit.title&quot; txt=&quot;&#195;&#135;&#195;&#189;kmak istedi&#195;&#176;inizden emin misiniz?&quot;/&gt;
+-    &lt;str id=&quot;installer.quit.message&quot; txt=&quot;Bu kurulumu iptal edecektir!&quot;/&gt;
+-    &lt;str id=&quot;installer.warning&quot; txt=&quot;Uyar&#195;&#189;!&quot;/&gt;
+-    &lt;str id=&quot;installer.yes&quot; txt=&quot;Evet&quot;/&gt;
+-    &lt;str id=&quot;installer.no&quot; txt=&quot;Hay&#195;&#189;r&quot;/&gt;
+-    &lt;str id=&quot;installer.cancel&quot; txt=&quot;&#195;&#157;ptal&quot;/&gt; 
+-    &lt;str id=&quot;installer.error&quot; txt=&quot;Hata&quot;/&gt;
++    &lt;str id=&quot;installer.title&quot;           txt=&quot;IzPack - Kurulum &quot;/&gt; 
++    &lt;str id=&quot;installer.next&quot;            txt=&quot;Sonraki&quot;/&gt;
++    &lt;str id=&quot;installer.prev&quot;            txt=&quot;&#195;&#150;nceki&quot;/&gt;
++    &lt;str id=&quot;installer.quit&quot;            txt=&quot;&#195;&#135;&#196;&#177;k&#196;&#177;&#197;&#159;&quot;/&gt;
++    &lt;str id=&quot;installer.madewith&quot;        txt=&quot;(IzPack ile haz&#196;&#177;rlanm&#196;&#177;&#197;&#159;t&#196;&#177;r - <A HREF="http://www.izforge.com/">http://www.izforge.com/</A>)&quot;/&gt;
++    &lt;str id=&quot;installer.quit.title&quot;      txt=&quot;&#195;&#135;&#196;&#177;kmak istedi&#196;&#159;inizden emin misiniz?&quot;/&gt;
++    &lt;str id=&quot;installer.quit.message&quot;    txt=&quot;Bu kurulumu iptal edecektir!&quot;/&gt;
++    &lt;str id=&quot;installer.warning&quot;         txt=&quot;Uyar&#196;&#177;!&quot;/&gt;
++    &lt;str id=&quot;installer.yes&quot;             txt=&quot;Evet&quot;/&gt;
++    &lt;str id=&quot;installer.no&quot;              txt=&quot;Hay&#196;&#177;r&quot;/&gt;
++    &lt;str id=&quot;installer.cancel&quot;          txt=&quot;&#196;&#176;ptal&quot;/&gt; 
++    &lt;str id=&quot;installer.error&quot;           txt=&quot;Hata&quot;/&gt;
+     
+     &lt;!-- Uninstaller specific strings --&gt;
+-    &lt;str id=&quot;uninstaller.warning&quot; txt=&quot;Bu kurulmu&#195;&#190; olan program(lar)&#195;&#189; kald&#195;&#189;racakt&#195;&#189;r!&quot;/&gt;
++    &lt;str id=&quot;uninstaller.warning&quot;       txt=&quot;Bu kurulmu&#197;&#159; olan program(lar)&#196;&#177; kald&#196;&#177;racakt&#196;&#177;r!&quot;/&gt;
+     &lt;str id=&quot;uninstaller.destroytarget&quot; txt=&quot; Zorla sil &quot;/&gt; 
+-    &lt;str id=&quot;uninstaller.uninstall&quot; txt=&quot;Kald&#195;&#189;r&quot;/&gt;
++    &lt;str id=&quot;uninstaller.uninstall&quot;     txt=&quot;Kald&#196;&#177;r&quot;/&gt;
+     
+     &lt;!-- The strings for the 'official' IzPack plugins --&gt;
+-    &lt;str id=&quot;HelloPanel.welcome1&quot; txt=&quot;Kuruluma ho&#195;&#190;geldiniz&quot;/&gt;
+-    &lt;str id=&quot;HelloPanel.welcome2&quot; txt=&quot;!&quot;/&gt;
+-    &lt;str id=&quot;HelloPanel.authors&quot; txt=&quot;Bu yaz&#195;&#189;l&#195;&#189;m&#195;&#189;n geli&#195;&#190;tiricileri: &quot;/&gt;
+-    &lt;str id=&quot;HelloPanel.url&quot; txt=&quot;Ev sayfas&#195;&#189;: &quot;/&gt;
++    &lt;str id=&quot;HelloPanel.welcome1&quot;       txt=&quot;Kuruluma ho&#197;&#159;geldiniz &quot;/&gt;
++    &lt;str id=&quot;HelloPanel.welcome2&quot;       txt=&quot;!&quot;/&gt;
++    &lt;str id=&quot;HelloPanel.authors&quot;        txt=&quot;Bu ya&#196;&#177;l&#196;&#177;m&#196;&#177;n geli&#197;&#159;tiricileri: &quot;/&gt;
++    &lt;str id=&quot;HelloPanel.url&quot;            txt=&quot;Ev sayfas&#196;&#177;: &quot;/&gt;
+     
+-    &lt;str id=&quot;LicencePanel.info&quot; txt=&quot;L&#195;&#188;tfen a&#195;&#190;a&#195;&#176;&#195;&#189;daki lisans s&#195;&#182;zle&#195;&#190;mesini dikkatlice okuyunuz:&quot;/&gt;
+-    &lt;str id=&quot;LicencePanel.agree&quot; txt=&quot;Lisans anla&#195;&#190;mas&#195;&#189;n&#195;&#189;n &#195;&#190;artlar&#195;&#189;n&#195;&#189; kabul ediyorum.&quot;/&gt;
+-    &lt;str id=&quot;LicencePanel.notagree&quot; txt=&quot;Lisans anla&#195;&#190;mas&#195;&#189;n&#195;&#189;n &#195;&#190;artlar&#195;&#189;n&#195;&#189; kabul etmiyorum.&quot;/&gt;
+-    &lt;str id=&quot;LicencePanel.yes&quot; txt=&quot;Evet&quot;/&gt;
+-    &lt;str id=&quot;LicencePanel.no&quot; txt=&quot;Hay&#195;&#189;r&quot;/&gt;
++    &lt;str id=&quot;LicencePanel.info&quot;         txt=&quot;L&#195;&#188;tfen a&#197;&#159;a&#196;&#159;&#196;&#177;daki lisans anla&#197;&#159;mas&#196;&#177;n&#196;&#177; dikkatlice okuyunuz:&quot;/&gt;
++    &lt;str id=&quot;LicencePanel.agree&quot;        txt=&quot;Lisans anla&#197;&#159;mas&#196;&#177;n&#196;&#177;n &#197;&#159;artlar&#196;&#177;n&#196;&#177; kabul ediyorum.&quot;/&gt;
++    &lt;str id=&quot;LicencePanel.notagree&quot;     txt=&quot;Lisans anla&#197;&#159;mas&#196;&#177;n&#196;&#177;n &#197;&#159;artlar&#196;&#177;n&#196;&#177; kabul etmiyorum.&quot;/&gt;
++    &lt;str id=&quot;LicencePanel.yes&quot;          txt=&quot;Evet&quot;/&gt;
++    &lt;str id=&quot;LicencePanel.no&quot;           txt=&quot;Hay&#196;&#177;r&quot;/&gt;
+     
+-    &lt;str id=&quot;InfoPanel.info&quot; txt=&quot;L&#195;&#188;tfen a&#195;&#190;a&#195;&#176;&#195;&#189;daki bilgileri okuyunuz: &quot;/&gt;
++    &lt;str id=&quot;InfoPanel.info&quot;            txt=&quot;L&#195;&#188;tfen a&#197;&#159;a&#196;&#159;&#196;&#177;daki bilgileri okuyunuz: &quot;/&gt;
+     
+-    &lt;str id=&quot;PathInputPanel.required&quot; txt=&quot;Se&#195;&#167;ilen dizin var olmal&#195;&#189;.&quot;/&gt;
+-    &lt;str id=&quot;PathInputPanel.notValid&quot; txt=&quot;Se&#195;&#167;ilen dizin gerek duyulan &#195;&#188;r&#195;&#188;n&#195;&#188; i&#195;&#167;ermemekte.&quot;/&gt;
++    &lt;str id=&quot;PathInputPanel.required&quot;   txt=&quot;Se&#195;&#167;ilen dizin var olmal&#196;&#177;.&quot;/&gt;
++    &lt;str id=&quot;PathInputPanel.notValid&quot;   txt=&quot;Se&#195;&#167;ilen dizin gerek duyulan &#195;&#188;r&#195;&#188;n&#195;&#188; i&#195;&#167;ermemekte.&quot;/&gt;
+ 
+-    &lt;str id=&quot;TargetPanel.info&quot; txt=&quot;Kurulum dizinini se&#195;&#167;in: &quot;/&gt;
+-    &lt;str id=&quot;TargetPanel.browse&quot; txt=&quot;G&#195;&#182;z at...&quot;/&gt;
+-    &lt;str id=&quot;TargetPanel.warn&quot; 
+-         txt=&quot;Dizin zaten var! Buraya kurmak ve belkide mevcut dosyalar&#195;&#189;n &#195;&#188;zerine yazmak istedi&#195;&#176;inizden emin misiniz?&quot;/&gt;
+-    &lt;str id=&quot;TargetPanel.empty_target&quot;
+-         txt=&quot;Hedef dizini belirtmediniz! Bu do&#195;&#176;ru mu?&quot;/&gt;
+-	&lt;str id=&quot;TargetPanel.createdir&quot; txt=&quot;Hedef dizin olu&#195;&#190;turulacak: &quot; /&gt;
+-    &lt;str id=&quot;TargetPanel.nodir&quot; 
+-         txt=&quot;Bu dosya bir dizin de&#195;&#176;il! L&#195;&#188;tfen bir dizin se&#195;&#167;in!&quot;/&gt;
+-    &lt;str id=&quot;TargetPanel.notwritable&quot; 
+-         txt=&quot;Bu dizine yaz&#195;&#189;lamaz! L&#195;&#188;tfen ba&#195;&#190;ka bir dizin se&#195;&#167;in!&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.info&quot;          txt=&quot;Kurulum dizinini se&#195;&#167;in: &quot;/&gt;
++    &lt;str id=&quot;TargetPanel.browse&quot;        txt=&quot;G&#195;&#182;z at...&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.warn&quot;          txt=&quot;Dizin zaten var! Buraya kurmak ve belkide mevcut dosyalar&#196;&#177;n &#195;&#188;zerine yazmak istedi&#196;&#159;inizden emin misiniz?&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.empty_target&quot;  txt=&quot;Hedef dizini belirtmediniz! Bu do&#196;&#159;ru mu?&quot;/&gt;
++	&lt;str id=&quot;TargetPanel.createdir&quot;     txt=&quot;Hedef dizin olu&#197;&#159;turulacak: &quot; /&gt;
++    &lt;str id=&quot;TargetPanel.nodir&quot;         txt=&quot;Bu dosya bir dizin de&#196;&#159;il! L&#195;&#188;tfen bir dizin se&#195;&#167;in!&quot;/&gt;
++    &lt;str id=&quot;TargetPanel.notwritable&quot;   txt=&quot;Bu dizine yaz&#196;&#177;lamaz! L&#195;&#188;tfen ba&#197;&#159;ka bir dizin se&#195;&#167;in!&quot;/&gt;
+     
+-    &lt;str id=&quot;JDKPathPanel.intro&quot; txt=&quot;Kurulan uygulama JDK gerektirmekte. Java &#195;&#167;al&#195;&#189;&#195;&#190;t&#195;&#189;rma ortam&#195;&#189; (JRE) yeterli olmayacak.&quot;/&gt;
+-    &lt;str id=&quot;JDKPathPanel.info&quot; txt=&quot;JDK yolunu se&#195;&#167;in:&quot;/&gt;
+-    &lt;str id=&quot;JDKPathPanel.badVersion1&quot; txt=&quot;Se&#195;&#167;ilen JDK yanl&#195;&#189;&#195;&#190; bir s&#195;&#188;r&#195;&#188;me sahip (var olan: &quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.intro&quot;       txt=&quot;Kurulan uygulama JDK gerektirmekte. Java &#195;&#167;al&#196;&#177;&#197;&#159;t&#196;&#177;rma ortam&#196;&#177; (JRE) yeterli olmayacak.&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.info&quot;        txt=&quot;JDK yolunu se&#195;&#167;in:&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.badVersion1&quot; txt=&quot;Se&#195;&#167;ilen JDK yanl&#196;&#177;&#197;&#159; bir s&#195;&#188;r&#195;&#188;me sahip (var olan: &quot;/&gt;
+     &lt;str id=&quot;JDKPathPanel.badVersion2&quot; txt=&quot; gereken: &quot;/&gt;
+-    &lt;str id=&quot;JDKPathPanel.badVersion3&quot; txt=&quot;) buna ra&#195;&#176;men bu JDK'y&#195;&#189; kullanmak istiyor musunuz?&quot;/&gt;
++    &lt;str id=&quot;JDKPathPanel.badVersion3&quot; txt=&quot;) buna ra&#196;&#159;men bu JDK'y&#196;&#177; kullanmak istiyor musunuz?&quot;/&gt;
+ 
+-    &lt;str id=&quot;PacksPanel.info&quot; txt=&quot;Kurmak istedi&#195;&#176;iniz paketleri se&#195;&#167;in:&quot;/&gt;
+-    &lt;str id=&quot;PacksPanel.tip&quot; txt=&quot;Not: Gri paketlerin kurulmas&#195;&#189; gereklidir.&quot;/&gt;
+-    &lt;str id=&quot;PacksPanel.space&quot; txt=&quot;Gereken toplam alan: &quot;/&gt;
+-    &lt;str id=&quot;PacksPanel.freespace&quot; txt=&quot;Kullan&#195;&#189;labilir alan: &quot;/&gt;
+-    &lt;str id=&quot;PacksPanel.description&quot; txt=&quot;A&#195;&#167;&#195;&#189;klama&quot;/&gt;
+-    &lt;str id=&quot;PacksPanel.dependencyList&quot; txt=&quot;Se&#195;&#167;ilen paket takip eden paketlerin kurulmas&#195;&#189;n&#195;&#189; gerektirmektedir&quot;/&gt;
+-    &lt;str id=&quot;ImgPacksPanel.dependencyList&quot; txt=&quot;Ba&#195;&#176;&#195;&#189;ml&#195;&#189;l&#195;&#189;klar&quot;/&gt;
+-	&lt;str id=&quot;PacksPanel.notEnoughSpace&quot; txt=&quot;Gereken toplam alan kullan&#195;&#189;labilir alan&#195;&#189; a&#195;&#190;&#195;&#189;yor.&quot;/&gt;
+-    &lt;str id=&quot;PacksPanel.notAscertainable&quot; txt=&quot;tahkik edilebilir de&#195;&#176;il&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.info&quot;                 txt=&quot;Kurmak istedi&#196;&#159;iniz paketleri se&#195;&#167;in:&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.tip&quot;                  txt=&quot;Not: Gri paketlerin kurulmas&#196;&#177; gereklidir.&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.space&quot;                txt=&quot;Gereken toplam alan: &quot;/&gt;
++    &lt;str id=&quot;PacksPanel.freespace&quot;            txt=&quot;Kullan&#196;&#177;labilir alan: &quot;/&gt;
++    &lt;str id=&quot;PacksPanel.description&quot;          txt=&quot;A&#195;&#167;&#196;&#177;klama&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.dependencyList&quot;       txt=&quot;Se&#195;&#167;ilen paket takip eden paketlerin kurulmas&#196;&#177;n&#196;&#177; gerektirmektedir&quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.dependencyList&quot;    txt=&quot;Ba&#196;&#159;&#196;&#177;ml&#196;&#177;l&#196;&#177;klar&quot;/&gt;
++	&lt;str id=&quot;PacksPanel.notEnoughSpace&quot;       txt=&quot;Gereken toplam alan kullan&#196;&#177;labilir alan&#196;&#177; a&#197;&#159;&#196;&#177;yor.&quot;/&gt;
++    &lt;str id=&quot;PacksPanel.notAscertainable&quot;     txt=&quot;tahkik edilebilir de&#196;&#159;il&quot;/&gt;
+     
+-    &lt;str id=&quot;InstallPanel.info&quot; txt=&quot;Kurulumu ba&#195;&#190;latmak i&#195;&#167;in 'Kur!' a t&#195;&#189;klay&#195;&#189;n.&quot;/&gt;
+-    &lt;str id=&quot;InstallPanel.install&quot; txt=&quot;Kur!&quot;/&gt;
+-    &lt;str id=&quot;InstallPanel.tip&quot; txt=&quot;Paket kurulum ilerleme durumu:&quot;/&gt;
+-    &lt;str id=&quot;InstallPanel.begin&quot; txt=&quot;[Hi&#195;&#167;bir &#195;&#190;ey]&quot;/&gt;
+-    &lt;str id=&quot;InstallPanel.finished&quot; txt=&quot;[Bitir]&quot;/&gt;
+-    &lt;str id=&quot;InstallPanel.progress&quot; txt=&quot;T&#195;&#188;m kurulumun ilerleme durumu:&quot;/&gt;
+-    &lt;str id=&quot;InstallPanel.overwrite.title&quot; txt=&quot;Dosya zaten var&quot;/&gt;
+-    &lt;str id=&quot;InstallPanel.overwrite.question&quot; txt=&quot;Takip eden dosya zaten var. Bu dosyan&#195;&#189;n &#195;&#188;zerine yaz&#195;&#189;lmal&#195;&#189; m&#195;&#189;?&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.info&quot;               txt=&quot;Kurulumu ba&#197;&#159;latmak i&#195;&#167;in 'Kur!' a t&#196;&#177;klay&#196;&#177;n.&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.install&quot;            txt=&quot;Kur!&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.tip&quot;                txt=&quot;Paket kurulum ilerleme durumu:&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.begin&quot;              txt=&quot;[Hi&#195;&#167;bir &#197;&#159;ey]&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.finished&quot;           txt=&quot;[Bitir]&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.progress&quot;           txt=&quot;T&#195;&#188;m kurulumun ilerleme durumu:&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.overwrite.title&quot;    txt=&quot;Dosya zaten var&quot;/&gt;
++    &lt;str id=&quot;InstallPanel.overwrite.question&quot; txt=&quot;Takip eden dosya zaten var. Bu dosyan&#196;&#177;n &#195;&#188;zerine yaz&#196;&#177;lmal&#196;&#177; m&#196;&#177;&quot;/&gt;
+     
+-    &lt;str id=&quot;FinishPanel.success&quot; txt=&quot;Kurulum ba&#195;&#190;ar&#195;&#189;l&#195;&#189; bir &#195;&#190;ekilde tamamland&#195;&#189;.&quot;/&gt;
+-    &lt;str id=&quot;FinishPanel.done&quot; txt=&quot;Bitti&quot;/&gt;
+-    &lt;str id=&quot;FinishPanel.fail&quot; txt=&quot;Kurulum ba&#195;&#190;ar&#195;&#189;lamad&#195;&#189;!&quot;/&gt;
+-    &lt;str id=&quot;FinishPanel.uninst.info&quot; txt=&quot;Bir kald&#195;&#189;rma(uninstaller) program&#195;&#189; takip eden dizinde olu&#195;&#190;turuldu: &quot;/&gt;
+-    &lt;str id=&quot;FinishPanel.auto&quot; txt=&quot;Bir otomatik kurulum senaryosu(script) olu&#195;&#190;tur&quot;/&gt;
+-    &lt;str id=&quot;FinishPanel.auto.tip&quot; 
+-         txt=&quot;Bu kurulum senaryosunu(script) kurulumu di&#195;&#176;er bilgisayarlarda tekrar edtmek i&#195;&#167;in kullan.&quot;/&gt;
++    &lt;str id=&quot;FinishPanel.success&quot;     txt=&quot;Kurulum ba&#197;&#159;ar&#196;&#177;l&#196;&#177; bir &#197;&#159;ekilde tamamland&#196;&#177;.&quot;/&gt;
++    &lt;str id=&quot;FinishPanel.done&quot;        txt=&quot;Bitti&quot;/&gt;
++    &lt;str id=&quot;FinishPanel.fail&quot;        txt=&quot;Kurulum ba&#197;&#159;ar&#196;&#177;lamad&#196;&#177;!&quot;/&gt;
++    &lt;str id=&quot;FinishPanel.uninst.info&quot; txt=&quot;Bir kald&#196;&#177;rma(uninstaller) program&#196;&#177; takip eden dizinde olu&#197;&#159;turuldu: &quot;/&gt;
++    &lt;str id=&quot;FinishPanel.auto&quot;        txt=&quot;Bir otomatik kurulum senaryosu(script) olu&#197;&#159;tur&quot;/&gt;
++    &lt;str id=&quot;FinishPanel.auto.tip&quot;    txt=&quot;Bu kurulum senaryosunu(script) kurulumu di&#196;&#159;er bilgisayarlarda tekrar edtmek i&#195;&#167;in kullan.&quot;/&gt;
+     
+-    &lt;str id=&quot;ImgPacksPanel.packs&quot; txt=&quot;Takip eden paketler kullan&#195;&#189;labilir:&quot;/&gt;
+-    &lt;str id=&quot;ImgPacksPanel.snap&quot; txt=&quot;Paket enstantenesi(snapshot):&quot;/&gt;
+-    &lt;str id=&quot;ImgPacksPanel.checkbox&quot; txt=&quot; Bu paketi kur&quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.packs&quot;     txt=&quot;Takip eden paketler kullan&#196;&#177;labilir:&quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.snap&quot;      txt=&quot;Paket enstantenesi(snapshot):&quot;/&gt;
++    &lt;str id=&quot;ImgPacksPanel.checkbox&quot;  txt=&quot; Bu paketi kur&quot;/&gt;
+     
+-    &lt;str id=&quot;ShortcutPanel.regular.list&quot; txt=&quot;K&#195;&#189;sayollar i&#195;&#167;in bir program grubu se&#195;&#167;:&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.default&quot; txt=&quot;Ilk duruma getir&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.desktop&quot; txt=&quot;K&#195;&#189;sayollar&#195;&#189; masa&#195;&#188;st&#195;&#188;nde yarat.&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.create&quot; txt=&quot;k&#195;&#189;sayollar&#195;&#189; Yarat&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.userIntro&quot; txt=&quot;yandaki i&#195;&#167;in k&#195;&#189;sayollar&#195;&#189; yarat:&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.currentUser&quot; txt=&quot;&#195;&#190;u anki kullan&#195;&#189;c&#195;&#189;&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.regular.allUsers&quot; txt=&quot;t&#195;&#188;m kullan&#195;&#189;c&#195;&#189;lar&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.list&quot;        txt=&quot;K&#196;&#177;sayollar i&#195;&#167;in bir program grubu se&#195;&#167;:&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.default&quot;     txt=&quot;&#196;&#176;lk duruma getir&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.desktop&quot;     txt=&quot;K&#196;&#177;sayollar&#196;&#177; masa&#195;&#188;st&#195;&#188;nde yarat.&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.create&quot;      txt=&quot;K&#196;&#177;sayollar&#196;&#177; Yarat&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.userIntro&quot;   txt=&quot;yandaki i&#195;&#167;in k&#196;&#177;sayollar&#196;&#177; yarat:&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.currentUser&quot; txt=&quot;&#197;&#159;u anki kullan&#196;&#177;c&#196;&#177;&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.regular.allUsers&quot;    txt=&quot;t&#195;&#188;m kullan&#196;&#177;c&#196;&#177;lar&quot;/&gt;
+ 
+-    &lt;str id=&quot;ShortcutPanel.alternate.apology&quot; txt=&quot;&#195;&#156;zg&#195;&#188;n&#195;&#188;z, ama IzPack bu i&#195;&#190;letim sistemi &#195;&#188;zerinde k&#195;&#189;sayol yaratmay&#195;&#189; desteklemiyor. K&#195;&#189;sayol olu&#195;&#190;turmak i&#195;&#167;in, l&#195;&#188;tfen i&#195;&#190;letim sisteminizin k&#195;&#189;lavuzuna ba&#195;&#190;vurun.&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.alternate.targetsLabel&quot; txt=&quot;Takip eden liste bu yaz&#195;&#189;l&#195;&#189;m &#195;&#188;r&#195;&#188;n&#195;&#188;n&#195;&#188;n sizin ula&#195;&#190;abilmenizi bekledi&#195;&#176;i hedefleri g&#195;&#182;stermektedir.&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.alternate.textFileExplanation&quot; txt=&quot;Uygulama hedefleri hakk&#195;&#189;nda detayl&#195;&#189; bilgiyi sonra kullanabilmek amac&#195;&#189;yla bir dosyaya kaydedebilirsiniz.&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.alternate.saveButton&quot; txt=&quot;Dosyaya Kaydet&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.alternate.apology&quot;             txt=&quot;&#195;&#156;zg&#195;&#188;n&#195;&#188;z, ama IzPack bu i&#197;&#159;letim sistemi &#195;&#188;zerinde k&#196;&#177;sayol yaratmay&#196;&#177; desteklemiyor. K&#196;&#177;sayol olu&#197;&#159;turmak i&#195;&#167;in, l&#195;&#188;tfen i&#197;&#159;letim sisteminizin k&#196;&#177;lavuzuna ba&#197;&#159;vurun.&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.alternate.targetsLabel&quot;        txt=&quot;Takip eden liste bu yaz&#196;&#177;l&#196;&#177;m &#195;&#188;r&#195;&#188;n&#195;&#188;n&#195;&#188;n sizin ula&#197;&#159;abilmenizi bekledi&#196;&#159;i hedefleri g&#195;&#182;stermektedir.&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.alternate.textFileExplanation&quot; txt=&quot;Uygulama hedefleri hakk&#196;&#177;nda detayl&#196;&#177; bilgiyi sonra kullanabilmek amac&#196;&#177;yla bir dosyaya kaydedebilirsiniz.&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.alternate.saveButton&quot;          txt=&quot;Dosyaya Kaydet&quot;/&gt;
+     
+-    &lt;str id=&quot;ShortcutPanel.textFile.header&quot; txt=&quot;K&#195;&#189;sayol Bilgileri\n====================\n\nA&#195;&#190;a&#195;&#176;&#195;&#189;daki liste planlanan k&#195;&#189;sayollarla ilgili t&#195;&#188;m bilgileri i&#195;&#167;ermektedir.\n Bu bilgiler k&#195;&#189;sayollar&#195;&#189; elle olu&#195;&#190;turabilmenizi sa&#195;&#176;layabilmelidir.\n&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.textFile.header&quot; 
++	     txt=&quot;K&#196;&#177;sayol Bilgileri\n====================\n\nA&#197;&#159;a&#196;&#159;&#196;&#177;daki liste planlanan k&#196;&#177;sayollarla ilgili t&#195;&#188;m bilgileri i&#195;&#167;ermektedir.\n Bu bilgiler k&#196;&#177;sayollar&#196;&#177; elle olu&#197;&#159;turabilmenizi sa&#196;&#159;layabilmelidir.\n&quot;/&gt;
+     
+-    &lt;str id=&quot;ShortcutPanel.textFile.name&quot;         txt=&quot;K&#195;&#189;sayol          : &quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.textFile.name&quot;         txt=&quot;K&#196;&#177;sayol          : &quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.textFile.location&quot;     txt=&quot;Planlanan Yer : &quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.textFile.description&quot;  txt=&quot;A&#195;&#167;&#195;&#189;klama       : &quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.textFile.target&quot;       txt=&quot;K&#195;&#189;sayol Hedefi   : &quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.textFile.command&quot;      txt=&quot;Komut Sat&#195;&#189;r&#195;&#189;      : &quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.textFile.iconName&quot;     txt=&quot;Ikon Dosyas&#195;&#189;         : &quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.textFile.description&quot;  txt=&quot;A&#195;&#167;&#196;&#177;klama       : &quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.textFile.target&quot;       txt=&quot;K&#196;&#177;sayol Hedefi   : &quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.textFile.command&quot;      txt=&quot;Komut Sat&#196;&#177;r&#196;&#177;      : &quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.textFile.iconName&quot;     txt=&quot;Ikon Dosyas&#196;&#177;         : &quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.textFile.iconIndex&quot;    txt=&quot;Ikon Dizini        : &quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.textFile.work&quot;         txt=&quot;&#195;&#135;al&#195;&#189;&#195;&#190;ma Dizini : &quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.textFile.work&quot;         txt=&quot;&#195;&#135;al&#196;&#177;&#197;&#159;ma Dizini : &quot;/&gt;
+ 
+     &lt;str id=&quot;ShortcutPanel.location.desktop&quot;      txt=&quot;Masa&#195;&#188;st&#195;&#188;&quot;/&gt;
+     &lt;str id=&quot;ShortcutPanel.location.applications&quot; txt=&quot;Uygulama Men&#195;&#188;s&#195;&#188;&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.location.startMenu&quot;    txt=&quot;Ba&#195;&#190;lang&#195;&#189;&#195;&#167; Men&#195;&#188;s&#195;&#188;&quot;/&gt;
+-    &lt;str id=&quot;ShortcutPanel.location.startup&quot;      txt=&quot;Ba&#195;&#190;lang&#195;&#189;&#195;&#167; Grubu&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.location.startMenu&quot;    txt=&quot;Ba&#197;&#159;lang&#196;&#177;&#195;&#167; Men&#195;&#188;s&#195;&#188;&quot;/&gt;
++    &lt;str id=&quot;ShortcutPanel.location.startup&quot;      txt=&quot;Ba&#197;&#159;lang&#196;&#177;&#195;&#167; Grubu&quot;/&gt;
+     
+-    &lt;str id=&quot;UserInputPanel.error.caption&quot;        txt=&quot;Giri&#195;&#190; Problemi&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.error.caption&quot;        txt=&quot;Giri&#197;&#159; Problemi&quot;/&gt;
+     &lt;str id=&quot;UserInputPanel.search.autodetect&quot;    txt=&quot;Otomatik tespit&quot;/&gt;
+ 
+     &lt;!-- more descriptive error message would be cool, like specifying what file we looked for --&gt;
+-    &lt;str id=&quot;UserInputPanel.search.autodetect.failed.message&quot;    txt=&quot;Otomatik tespit ba&#195;&#190;ar&#195;&#189;s&#195;&#189;z.&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.autodetect.failed.caption&quot;    txt=&quot;Otomatik tespit ba&#195;&#190;ar&#195;&#189;s&#195;&#189;z.&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.autodetect.tooltip&quot;           txt=&quot;Yukar&#195;&#189;da verilen yoldaki dizin veya dosyay&#195;&#189; kontrol edin.&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.location&quot;           txt=&quot;{0}'(n)in yerini girin.&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.location.checkedfile&quot; txt=&quot;{0} nun varl&#195;&#189;&#195;&#176;&#195;&#189; kontrol edildi.&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.browse&quot;           txt=&quot;G&#195;&#182;z at...&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.wrongselection.message&quot;   txt=&quot;Se&#195;&#167;ti&#195;&#176;iniz dosya ya da dizin  The file or directory you choose uygun de&#195;&#176;il veya mevut de&#195;&#176;il.&quot;/&gt;
+-    &lt;str id=&quot;UserInputPanel.search.wrongselection.caption&quot;   txt=&quot;Ge&#195;&#167;ersiz se&#195;&#167;im.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.autodetect.failed.message&quot; txt=&quot;Otomatik tespit ba&#197;&#159;ar&#196;&#177;s&#196;&#177;z.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.autodetect.failed.caption&quot; txt=&quot;Otomatik tespit ba&#197;&#159;ar&#196;&#177;s&#196;&#177;z.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.autodetect.tooltip&quot;        txt=&quot;Yukar&#196;&#177;da verilen yoldaki dizin veya dosyay&#196;&#177; kontrol edin.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.location&quot;                  txt=&quot;{0}'(n)in yerini girin.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.location.checkedfile&quot;      txt=&quot;{0} nun varl&#196;&#177;&#196;&#159;&#196;&#177; kontrol edildi.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.browse&quot;                    txt=&quot;G&#195;&#182;z at...&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.wrongselection.message&quot;    txt=&quot;Se&#195;&#167;ti&#196;&#159;iniz dosya ya da dizin uygun de&#196;&#159;il veya mevcut de&#196;&#159;il.&quot;/&gt;
++    &lt;str id=&quot;UserInputPanel.search.wrongselection.caption&quot;    txt=&quot;Ge&#195;&#167;ersiz se&#195;&#167;im.&quot;/&gt;
+ 
+-    &lt;str id=&quot;CompilePanel.heading&quot; txt=&quot;Derleme&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.tip&quot; txt=&quot;Derleme i&#195;&#190;lemi ilerleme durumu:&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.browse&quot; txt=&quot;G&#195;&#182;z at...&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.browse.approve&quot; txt=&quot;Derleyici olarak kullan&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.start&quot; txt=&quot;Ba&#195;&#190;la&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.progress.initial&quot; txt=&quot;[Ba&#195;&#190;la d&#195;&#188;&#195;&#176;mesine bas&#195;&#189;n]&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.progress.finished&quot; txt=&quot;[Bitir]&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.progress.overall&quot; txt=&quot;T&#195;&#188;m derlemenin ilerleme durumu::&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.error&quot; txt=&quot;Derleme ba&#195;&#190;ar&#195;&#189;s&#195;&#189;zl&#195;&#189;kla sonu&#195;&#167;land&#195;&#189;&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.error.reconfigure&quot; txt=&quot;Tekrar yap&#195;&#189;land&#195;&#189;r&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.error.ignore&quot; txt=&quot;Yoksay&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.error.abort&quot; txt=&quot;Iptal et&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.error.seebelow&quot; txt=&quot;Ba&#195;&#190;ar&#195;&#189;s&#195;&#189;z olan komutu ve &#195;&#167;&#195;&#189;kt&#195;&#189;s&#195;&#189;n&#195;&#189; g&#195;&#182;rmek i&#195;&#167;in a&#195;&#190;a&#195;&#176;&#195;&#189;ya bak&#195;&#189;n.&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.error.nofiles&quot; txt=&quot;Derleme i&#195;&#167;in gereken dosyalar&#195;&#189; tararken hata olu&#195;&#190;tu.&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.error.compilernotfound&quot; txt=&quot;The compiler could not be run.&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.heading&quot;                txt=&quot;Derleme&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.tip&quot;                    txt=&quot;Derleme i&#197;&#159;lemi ilerleme durumu:&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.browse&quot;                 txt=&quot;G&#195;&#182;z at...&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.browse.approve&quot;         txt=&quot;Derleyici olarak kullan&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.start&quot;                  txt=&quot;Ba&#197;&#159;la&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.progress.initial&quot;       txt=&quot;[Ba&#197;&#159;la d&#195;&#188;&#196;&#159;mesine bas&#196;&#177;n]&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.progress.finished&quot;      txt=&quot;[Bitir]&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.progress.overall&quot;       txt=&quot;T&#195;&#188;m derlemenin ilerleme durumu::&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.error&quot;                  txt=&quot;Derleme ba&#197;&#159;ar&#196;&#177;s&#196;&#177;zl&#196;&#177;kla sonu&#195;&#167;land&#196;&#177;&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.error.reconfigure&quot;      txt=&quot;Tekrar yap&#196;&#177;land&#196;&#177;r&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.error.ignore&quot;           txt=&quot;Yoksay&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.error.abort&quot;            txt=&quot;Iptal et&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.error.seebelow&quot;         txt=&quot;Ba&#197;&#159;ar&#196;&#177;s&#196;&#177;z olan komutu ve &#195;&#167;&#196;&#177;kt&#196;&#177;s&#196;&#177;n&#196;&#177; g&#195;&#182;rmek i&#195;&#167;in a&#197;&#159;a&#196;&#159;&#196;&#177;ya bak&#196;&#177;n.&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.error.nofiles&quot;          txt=&quot;Derleme i&#195;&#167;in gereken dosyalar&#196;&#177; tararken hata olu&#197;&#159;tu.&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.error.compilernotfound&quot; txt=&quot;Derleyici &#195;&#167;al&#196;&#177;&#197;&#159;t&#196;&#177;r&#196;&#177;lamad&#196;&#177;.&quot; /&gt;
+     &lt;str id=&quot;CompilePanel.error.invalidarguments&quot; txt=&quot;Derleyiciye ge&#195;&#167;ersiz parametreler verildi.&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.error.noclassfile&quot; txt=&quot;Derleyici kaynak dosya i&#195;&#167;in class dosyas&#195;&#189;n&#195;&#189; olu&#195;&#190;turamad&#195;&#189;. &quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.choose_compiler&quot; txt=&quot;Kullan&#195;&#189;lacak derleyici:&quot; /&gt;
+-    &lt;str id=&quot;CompilePanel.additional_arguments&quot; txt=&quot;&#195;&#157;lave derleyici parametreleri:&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.error.noclassfile&quot;      txt=&quot;Derleyici kaynak dosya i&#195;&#167;in class dosyas&#196;&#177;n&#196;&#177; olu&#197;&#159;turamad&#196;&#177;. &quot; /&gt;
++    &lt;str id=&quot;CompilePanel.choose_compiler&quot;        txt=&quot;Kullan&#196;&#177;lacak derleyici:&quot; /&gt;
++    &lt;str id=&quot;CompilePanel.additional_arguments&quot;   txt=&quot;&#196;&#176;lave derleyici parametreleri:&quot; /&gt;
++    &lt;str id=&quot;ProcessPanel.heading&quot;                txt=&quot;Derleniyor&quot; /&gt;
+ 
+-    &lt;str id=&quot;ProcessPanel.heading&quot; txt=&quot;&#195;&#157;&#195;&#190;leniyor&quot; /&gt;
+-
+     &lt;!-- Add your own panels specific strings here if you need --&gt;
+ 
+ &lt;/langpack&gt;
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2007-03-28 13:38:15 UTC (rev 1795)
++++ izpack-src/trunk/src/build.xml	2007-03-28 13:44:58 UTC (rev 1796)
+@@ -690,7 +690,9 @@
+                classpath=&quot;${installer.jar};${compiler.jar}&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/event/ActionBase.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/event/Simple*nstallerListener.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/event/SimpleCompilerListener.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/event/InstallerListener.java&quot; /&gt;
++            &lt;include name=&quot;com/izforge/izpack/event/CompilerListener.java&quot; /&gt; 
+             &lt;include name=&quot;com/izforge/izpack/event/UninstallerListener.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/util/IoHelper.java&quot; /&gt;
+         &lt;/javac&gt;
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-03-28 13:38:15 UTC (rev 1795)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/InstallerFrame.java	2007-03-28 13:44:58 UTC (rev 1796)
+@@ -1448,6 +1448,15 @@
+     {
+         if ((installdata.curPanelNumber &lt; installdata.panels.size() - 1))
+         {
++            // We must trasfer all fields into the variables before
++            // panelconditions try to resolve the rules based on unassigned vars.
++            boolean isValid = 
++              ((IzPanel) installdata.panels.get(last)).isValidated();
++          
++            // if this is not here, validation will
++            // occur mutilple times while skipping panels through the recursion
++            if(!isValid) return; 
++            
+             installdata.curPanelNumber++;
+             if (!canShow(installdata.curPanelNumber))
+             {
+@@ -1456,7 +1465,7 @@
+             }
+             else
+             {
+-                if (((IzPanel) installdata.panels.get(last)).isValidated())
++                if (isValid)
+                 {
+                     switchPanel(last);
+                 }
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-03-28 13:38:15 UTC (rev 1795)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-03-28 13:44:58 UTC (rev 1796)
+@@ -346,23 +346,15 @@
+                             checkValues[rowIndex] = 1;
+                         }
+                     }                    
+-                    updateExcludes(rowIndex);
+-                    updateDeps();
+-                    this.updateConditions();
+-                    int bytes = panel.getBytes();
+-                    bytes += pack.nbytes;
+-                    panel.setBytes(bytes);
+                 }                
+                 else
+                 {
+                     checkValues[rowIndex] = 0;
+-                    updateExcludes(rowIndex);
+-                    updateDeps();
+-                    this.updateConditions();
+-                    int bytes = panel.getBytes();
+-                    bytes -= pack.nbytes;
+-                    panel.setBytes(bytes);
+                 }
++                updateExcludes(rowIndex);
++                updateDeps();
++                updateConditions();
++                updateBytes();
+                 fireTableDataChanged();
+                 refreshPacksToInstall();
+                 panel.showSpaceRequired();
+@@ -456,10 +448,9 @@
+                 }
+             }
+         }
+-        this.UpdateBytes();
+     }
+ 
+-    private void UpdateBytes()
++    private void updateBytes()
+     {
+         int bytes = 0;
+         for (int q = 0; q &lt; packs.size(); q++)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000541.html">[izpack-changes] r1795 - in izpack-src/branches/3.10: .	bin/langpacks/installer
+</A></li>
+	<LI>Next message: <A HREF="000543.html">[izpack-changes] r1797 - in izpack-src/branches/3.10: . src	src/dist-files src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#542">[ date ]</a>
+              <a href="thread.html#542">[ thread ]</a>
+              <a href="subject.html#542">[ subject ]</a>
+              <a href="author.html#542">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

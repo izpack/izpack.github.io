@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Running the Installer twice without exit/launch ?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Running%20the%20Installer%20twice%20without%20exit/launch%20%3F&In-Reply-To=op.tte6n5dbnznptk%40hase2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001160.html">
+   <LINK REL="Next"  HREF="001162.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Running the Installer twice without exit/launch ?</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Running%20the%20Installer%20twice%20without%20exit/launch%20%3F&In-Reply-To=op.tte6n5dbnznptk%40hase2"
+       TITLE="[izpack-devel] Running the Installer twice without exit/launch ?">schlm3 at gmail.com
+       </A><BR>
+    <I>Tue Jun  5 08:24:06 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001160.html">[izpack-devel] Running the Installer twice without exit/launch ?
+</A></li>
+        <LI>Next message: <A HREF="001162.html">[izpack-devel] IzPack enhancements: a few panels and controls
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1161">[ date ]</a>
+              <a href="thread.html#1161">[ thread ]</a>
+              <a href="subject.html#1161">[ subject ]</a>
+              <a href="author.html#1161">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thanks for your insight, Klaus
+
+The &quot;problem&quot; is not the common things of the installer the three products
+share, it's the program code itself.
+All three programs will be installed with their own private JRE and all
+three programs do share that same libraries. Some of them share the same
+help (Server &amp; Admin). If I make 3 Installers, they have sizes of 70MB, 50MB
+and 45MB, means 165MB for Download. If I put them all together, I have only
+on 70MB File...
+
+All three Products will be installed in a seperate Folder, means no Product
+will overwrite each others Uninstaller.
+
+Also I agree, that the solution of installing a second product with the same
+installer instance is kind of a hack for  IzPack 3.10. If I could inject the
+language of the installer with a commandline flag, I could simply start a
+new Instance of the Installer when the User presses &quot;Install more Products&quot;
+at the end of the installation and the currently running installer could
+exit normally. I proposed such a change some months ago, but it has been
+declined. Any chance to integrate some language-flag now?
+
+Anyway, this would be a good feature too for &quot;Autorun&quot;-Programs on CD's
+(like we have), where the user already chooses his language of choice. It's
+still annoying, when he has to choose the language again in the Installer,
+then has to choose it again when he reruns the installer....
+
+Regards
+Markus
+
+2007/6/5, Klaus Bartz &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">bartzkau at gmx.net</A>&gt;:
+&gt;<i>
+</I>&gt;<i> Hi Markus,
+</I>&gt;<i> some years ago I have written an installation (with InstallShield 5.5)
+</I>&gt;<i> which contains the base server (product), the custom server data (project)
+</I>&gt;<i> and the client to write the common parts only once. During maintenance
+</I>&gt;<i> I have seen, that there was more work as in separated installations.
+</I>&gt;<i> Now we have three IzPack installations, one server, one admin client and
+</I>&gt;<i> one agent (the clients are installed with MSI).
+</I>&gt;<i> For common used custom panels or custom actions normaly I write a base
+</I>&gt;<i> class
+</I>&gt;<i> which do the most and the derived - type dependend - classes contains only
+</I>&gt;<i> the differences (sometimes empty classes because the needed different
+</I>&gt;<i> descriptions are automatically selected via the i18n stuff of IzPanel).
+</I>&gt;<i> I never rued to use different installations. No problems with
+</I>&gt;<i> uninstallation,
+</I>&gt;<i> no big installation for a admin client, no selection and dependencies
+</I>&gt;<i> overhead. One installation for one product is better, I mean. For me the
+</I>&gt;<i> problem begin at our admin clients because there are more than one, but
+</I>&gt;<i> that's
+</I>&gt;<i> no separated products else features (in MSI syntax, in other words
+</I>&gt;<i> sub-products).
+</I>&gt;<i> OK, that's my experience with a all-in-one device.
+</I>&gt;<i>
+</I>&gt;<i> In the moment I have not a good feeling about changing the place of
+</I>&gt;<i> writing uninstall data. And you have already the problem with one
+</I>&gt;<i> uninstaller.jar; means you cannot uninstall one of your products.
+</I>&gt;<i> It will be more or less a hack. If you use separated installation most you
+</I>&gt;<i> need one with less panels and only rare two or three (also less)
+</I>&gt;<i> installation
+</I>&gt;<i> which all can be handled (e.g. uninstalled) separatly.
+</I>&gt;<i>
+</I>&gt;<i> Long time I am missing maintenance with IzPack. At this point MSI is
+</I>&gt;<i> better
+</I>&gt;<i> than IzPack - nothing is perfect...
+</I>&gt;<i> I think with this a behavior you need will be easy to implement.
+</I>&gt;<i> But this implies some fundamental design changes. This will be needed much
+</I>&gt;<i> time.
+</I>&gt;<i> Until now I have nothad this time and no working group was found to share
+</I>&gt;<i> the work.
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i> Am 04.06.2007, 15:53 Uhr, schrieb Markus Schlegel &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">schlm3 at gmail.com</A>&gt;:
+</I>&gt;<i>
+</I>&gt;<i> &gt; Hi
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; A very special question, I know, but it's a requirement to my
+</I>&gt;<i> &gt; installer....
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; We have three parts of our product (Client, Server, Admin) packed into
+</I>&gt;<i> &gt; one
+</I>&gt;<i> &gt; installer (because they have a lot in common). The User can choose one
+</I>&gt;<i> on
+</I>&gt;<i> &gt; the first panel. In most cases, a user has to install only one product
+</I>&gt;<i> on
+</I>&gt;<i> &gt; each machine, but sometimes they have to install two (Server&amp;Admin,
+</I>&gt;<i> &gt; Client&amp;Admin) or even all three products.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; What we wanted to do is to provide a Button on a &quot;CustomFinishPanel&quot;
+</I>&gt;<i> &gt; which
+</I>&gt;<i> &gt; when pressed returns to the first Page, so that the user can proceed
+</I>&gt;<i> with
+</I>&gt;<i> &gt; the next Product installation directly. So far so good, that part worked
+</I>&gt;<i> &gt; (with some CustomActions).
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; What didn't work is the Uninstaller, because the uninstaller-log is
+</I>&gt;<i> &gt; written
+</I>&gt;<i> &gt; inside InstallerFrame.exit() --&gt; writeUninstallData(), which is private.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; - What's the design decision to place that writeUninstallData() inside
+</I>&gt;<i> &gt; exit() ? Wouldn't it be useful to write the InstallerData after all
+</I>&gt;<i> Packs
+</I>&gt;<i> &gt; have been written and all &quot;InstallerAction.afterPacks()&quot; have been
+</I>&gt;<i> &gt; performed?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; - Do you see other problems with this approach, or is it even a complete
+</I>&gt;<i> &gt; insane idea?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Thanks for your input
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Markus
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i> Erstellt mit Operas revolution&#228;rem E-Mail-Modul:
+</I>&gt;<i> <A HREF="http://www.opera.com/mail/">http://www.opera.com/mail/</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070605/a88147aa/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070605/a88147aa/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001160.html">[izpack-devel] Running the Installer twice without exit/launch ?
+</A></li>
+	<LI>Next message: <A HREF="001162.html">[izpack-devel] IzPack enhancements: a few panels and controls
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1161">[ date ]</a>
+              <a href="thread.html#1161">[ thread ]</a>
+              <a href="subject.html#1161">[ subject ]</a>
+              <a href="author.html#1161">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

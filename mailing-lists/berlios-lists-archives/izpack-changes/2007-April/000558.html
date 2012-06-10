@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1812 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1812%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000557.html">
+   <LINK REL="Next"  HREF="000559.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1812 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1812%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1812 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Mon Apr 16 10:13:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000557.html">[izpack-changes] r1811 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+        <LI>Next message: <A HREF="000559.html">[izpack-changes] r1813 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#558">[ date ]</a>
+              <a href="thread.html#558">[ thread ]</a>
+              <a href="subject.html#558">[ subject ]</a>
+              <a href="author.html#558">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2007-04-16 10:13:16 +0200 (Mon, 16 Apr 2007)
+New Revision: 1812
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/JDKPathPanel.java
+Log:
+Bug at dismiss usage of a JDK with a wrong version.
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/JDKPathPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/JDKPathPanel.java	2007-04-07 15:29:37 UTC (rev 1811)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/JDKPathPanel.java	2007-04-16 08:13:16 UTC (rev 1812)
+@@ -30,7 +30,6 @@
+ 
+ import com.coi.tools.os.win.MSWinConstants;
+ import com.coi.tools.os.win.NativeLibException;
+-import com.coi.tools.os.win.RegDataContainer;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.util.AbstractUIHandler;
+@@ -99,25 +98,25 @@
+      */
+     public boolean isValidated()
+     {
+-        if(idata.getVariable(&quot;PANEL_LAYOUT_TEST&quot;) != null)
+-            return(true);
++        boolean retval = false;
+         if (super.isValidated())
+         {
+             switch( verifyVersionEx())
+             {
+             case OK:
+                 idata.setVariable(getVariableName(), pathSelectionPanel.getPath());
+-                return (true);
++                retval = true;
++                break;
+             case BAD_REG_PATH:
+                 if (askQuestion(parent.langpack.getString(&quot;installer.warning&quot;), parent.langpack.getString(&quot;JDKPathPanel.nonValidPathInReg&quot;),
+                         AbstractUIHandler.CHOICES_YES_NO, AbstractUIHandler.ANSWER_NO) == AbstractUIHandler.ANSWER_YES)
+                 {
+                     idata.setVariable(getVariableName(), pathSelectionPanel.getPath());
+-                    return (true);
++                    retval = true;
+                 }
+-                return(false);
++                break;
+             case BAD_REAL_PATH:
+-                return(false);
++                break;
+             case BAD_VERSION:
+                 String min = getMinVersion();
+                 String max = getMaxVersion();
+@@ -136,13 +135,14 @@
+                         AbstractUIHandler.CHOICES_YES_NO, AbstractUIHandler.ANSWER_NO) == AbstractUIHandler.ANSWER_YES)
+                 {
+                     idata.setVariable(getVariableName(), pathSelectionPanel.getPath());
+-                    return (true);
++                    retval = true;
+                 }
++                break;
+                 default: throw new RuntimeException(&quot;Internal error: unknown result of version verification.&quot;);
+                 
+             }
+         }
+-        return (false);
++        return (retval);
+     }
+ 
+     /** Called when the panel becomes active. */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000557.html">[izpack-changes] r1811 - izpack-src/trunk/bin/langpacks/installer
+</A></li>
+	<LI>Next message: <A HREF="000559.html">[izpack-changes] r1813 - in izpack-src/branches/3.10: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#558">[ date ]</a>
+              <a href="thread.html#558">[ thread ]</a>
+              <a href="subject.html#558">[ subject ]</a>
+              <a href="author.html#558">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

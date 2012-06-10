@@ -1,0 +1,421 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1997 - izpack-src/trunk/src/doc-reST
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1997%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000742.html">
+   <LINK REL="Next"  HREF="000744.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1997 - izpack-src/trunk/src/doc-reST</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1997%20-%20izpack-src/trunk/src/doc-reST&In-Reply-To="
+       TITLE="[izpack-changes] r1997 - izpack-src/trunk/src/doc-reST">noreply at berlios.de
+       </A><BR>
+    <I>Sun Jan 20 22:05:24 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000742.html">[izpack-changes] r1996 - in izpack-src/trunk: . src src/doc-reST	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util
+</A></li>
+        <LI>Next message: <A HREF="000744.html">[izpack-changes] r1998 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#743">[ date ]</a>
+              <a href="thread.html#743">[ thread ]</a>
+              <a href="subject.html#743">[ subject ]</a>
+              <a href="author.html#743">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2008-01-20 22:05:16 +0100 (Sun, 20 Jan 2008)
+New Revision: 1997
+
+Added:
+   izpack-src/trunk/src/doc-reST/include-bottom
+   izpack-src/trunk/src/doc-reST/include-empty
+   izpack-src/trunk/src/doc-reST/include-top
+Modified:
+   izpack-src/trunk/src/doc-reST/advanced-features.txt
+   izpack-src/trunk/src/doc-reST/apache-license.txt
+   izpack-src/trunk/src/doc-reST/build.py
+   izpack-src/trunk/src/doc-reST/cc-license.txt
+   izpack-src/trunk/src/doc-reST/cookbooks.txt
+   izpack-src/trunk/src/doc-reST/creating-panels.txt
+   izpack-src/trunk/src/doc-reST/custom-actions.txt
+   izpack-src/trunk/src/doc-reST/desktop-shortcuts.txt
+   izpack-src/trunk/src/doc-reST/getting-started.txt
+   izpack-src/trunk/src/doc-reST/installation-files.txt
+   izpack-src/trunk/src/doc-reST/introduction.txt
+   izpack-src/trunk/src/doc-reST/izpack-utils.txt
+   izpack-src/trunk/src/doc-reST/panels.txt
+   izpack-src/trunk/src/doc-reST/user-input.txt
+Log:
+Support for top/bottom includes so as to provide nicer HTML.
+
+
+Modified: izpack-src/trunk/src/doc-reST/advanced-features.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/advanced-features.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/advanced-features.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,6 +1,8 @@
+ Advanced features
+ ==================
+ 
++.. include:: include-top.inc
++
+ Apache Ant integration
+ -----------------------
+ 
+@@ -372,3 +374,5 @@
+ 
+   &lt;str id=&quot;core.package&quot; txt=&quot;Core Package&quot;/&gt;
+   &lt;str id=&quot;core.package.description&quot; txt=&quot;The core package provides
++
++.. include:: include-bottom.inc
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/doc-reST/apache-license.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/apache-license.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/apache-license.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,12 +1,19 @@
+ Apache License, Version 2.0
+---------------------------------
++============================
+ 
++.. include:: include-top.inc
++
++Overview
++--------
++
+ IzPack is license under the terms of the **Apache License version 2.0**.
+ 
+ Please note that IzPack may use some third-party libraries that are not released under the same conditions (see the **legal/** directory of an IzPack source or binary distribution).
+ 
+ Finally, note that IzPack is not affiliated to the Apache Software Foundation.
+ 
++License
++-------
+ 
+ ::
+ 
+@@ -211,4 +218,6 @@
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+-  limitations under the License.
+\ No newline at end of file
++  limitations under the License.
++
++.. include:: include-bottom.inc
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/doc-reST/build.py
+===================================================================
+--- izpack-src/trunk/src/doc-reST/build.py	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/build.py	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -59,6 +59,8 @@
+ 
+ def generate_html(rest_files):
+ 	print('Generating html...')
++	shutil.copyfile('include-top', 'include-top.inc')
++	shutil.copyfile('include-bottom', 'include-bottom.inc')
+ 	for rest_file in rest_files:
+ 		print('    ' + rest_file)
+ 		args = [
+@@ -72,6 +74,8 @@
+ 
+ def generate_latex():
+ 	print('Generating LaTeX for PDF output...')
++	shutil.copyfile('include-empty', 'include-top.inc')
++	shutil.copyfile('include-empty', 'include-bottom.inc')
+ 	publish(writer_name='newlatex2e', argv=['pdf-version.txt', 'pdf/manual.tex'])
+ 
+ def compile_latex():
+
+Modified: izpack-src/trunk/src/doc-reST/cc-license.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/cc-license.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/cc-license.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,6 +1,10 @@
+ Documentation license
+ =====================
+ 
++.. include:: include-top.inc
++
+ This documentation is licensed under the terms of the **Creative Commons Attribution-ShareAlike 3.0 Unported License**.
+ 
+-The details can be found at <A HREF="http://creativecommons.org/licenses/by-sa/3.0/,">http://creativecommons.org/licenses/by-sa/3.0/,</A> with the complete license terms being available from <A HREF="http://creativecommons.org/licenses/by-sa/3.0/legalcode">http://creativecommons.org/licenses/by-sa/3.0/legalcode</A>
+\ No newline at end of file
++The details can be found at <A HREF="http://creativecommons.org/licenses/by-sa/3.0/,">http://creativecommons.org/licenses/by-sa/3.0/,</A> with the complete license terms being available from <A HREF="http://creativecommons.org/licenses/by-sa/3.0/legalcode">http://creativecommons.org/licenses/by-sa/3.0/legalcode</A>
++
++.. include:: include-bottom.inc
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/doc-reST/cookbooks.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/cookbooks.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/cookbooks.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,6 +1,7 @@
+ CookBooks
+ =========
+ 
++.. include:: include-top.inc
+ 
+ 1. How To create an ODBC connection with IzPack (by Fabrice Mirabile)
+ ---------------------------------------------------------------------
+@@ -786,3 +787,5 @@
+ user/devel list.
+ 
+ **Done by Fabrice Mirabile on 20th of april 2005**
++
++.. include:: include-bottom.inc
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/doc-reST/creating-panels.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/creating-panels.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/creating-panels.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,6 +1,8 @@
+ Creating Your Own Panels
+ ========================
+ 
++.. include:: include-top.inc
++
+ In IzPack all of the actual work of installing an application is done in
+ panels. The IzPack framework is primarily there to support the operation of
+ the panels and to manage the navigation through the installation process.
+@@ -272,3 +274,4 @@
+ DTD as the common langpack. For each language a separate file with the ISO3
+ extension in the id should be used.
+ 
++.. include:: include-bottom.inc
+
+Modified: izpack-src/trunk/src/doc-reST/custom-actions.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/custom-actions.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/custom-actions.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -3,6 +3,7 @@
+ 
+ (by Klaus BARTZ)
+ 
++.. include:: include-top.inc
+ 
+ Overview
+ ----------------------
+@@ -840,3 +841,5 @@
+         &lt;/summarylogfilepath&gt;
+     &lt;/info&gt;
+ 
++.. include:: include-bottom.inc
++
+
+Modified: izpack-src/trunk/src/doc-reST/desktop-shortcuts.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/desktop-shortcuts.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/desktop-shortcuts.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -3,6 +3,8 @@
+ 
+ (by Elmar GROM and Marc EPPELMANN)
+ 
++.. include:: include-top.inc
++
+ Defining Shortcuts
+ ------------------
+ 
+@@ -532,7 +534,7 @@
+ 
+ The platform prefix and language suffix are combined like in this example :
+ ``Unix_shortcutSpec.xml_fra``.
+-
++
+ When the installer can't find such a platform-and-language-specific resource,
+ it will fallback to a suitable default using the following search order :
+ ``shortcutSpec.xml_&lt;iso3&gt;`` (default platform, language-specific)
+@@ -545,7 +547,7 @@
+ 
+ **Example**
+ 
+-::
++::
+ 
+ 	&lt;res src=&quot;C:\MyDocuments\Installer\default_shortcut_specification.xml&quot;
+      id=&quot;shortcutSpec.xml&quot;/&gt;
+@@ -1073,3 +1075,5 @@
+        &lt;/shortcut&gt;
+ 
+     &lt;/shortcuts&gt;
++
++.. include:: include-bottom.inc
+
+Modified: izpack-src/trunk/src/doc-reST/getting-started.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/getting-started.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/getting-started.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,10 +1,12 @@
+ Getting started
+ ================
+ 
++.. include:: include-top.inc
++
+ Overview
+ ---------
+ 
+-To begin with, you should know what IzPack is organized if you want to use it. let's go into the directory where you have installed IzPack on your machine. There are 3 text files and a set of directories. The most important for the moment are bin/ doc/ sample/. If you are reading this, you already know that doc contains this documentation :-) 
++To begin with, you should know how IzPack is organized if you want to use it. Let's go into the directory where you have installed IzPack on your machine. There are 3 text files and a set of directories. The most important for the moment are bin/ doc/ sample/. If you are reading this, you already know that doc contains this documentation :-) 
+ 
+ So let's go into bin/. The icons/ directory contains some directories for your system, in case you would like an icon to launch a component of IzPack . But the most important things you can see in bin are the compile scripts (in both unix* and windows formats). Compile is used to compile a ready-to-go xml installation file from a command-line context or from an external tool.
+ 
+@@ -358,3 +360,5 @@
+    ant all
+ 
+ then all jar files in [izpackroot]/lib, [izpackroot]/bin/panels and [izpackroot]/bin/customactions should be recompiled with the selected source version.
++
++.. include:: include-bottom.inc
+
+Added: izpack-src/trunk/src/doc-reST/include-bottom
+===================================================================
+--- izpack-src/trunk/src/doc-reST/include-bottom	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/include-bottom	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -0,0 +1,2 @@
++
++`Go back to the documentation index &lt;index.html&gt;`_
+
+Added: izpack-src/trunk/src/doc-reST/include-empty
+===================================================================
+
+Added: izpack-src/trunk/src/doc-reST/include-top
+===================================================================
+--- izpack-src/trunk/src/doc-reST/include-top	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/include-top	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -0,0 +1,4 @@
++
++`Go back to the documentation index &lt;index.html&gt;`_
++
++.. contents::
+
+Modified: izpack-src/trunk/src/doc-reST/installation-files.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/installation-files.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/installation-files.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,6 +1,7 @@
+ Writing Installation XML Files
+ ==============================
+ 
++.. include:: include-top.inc
+ 
+ What You Need
+ -------------
+@@ -1148,3 +1149,5 @@
+           &lt;iiii&gt;there&lt;/iiii&gt;
+       &lt;/hhhh&gt;
+   &lt;/xfragment&gt;
++
++.. include:: include-bottom.inc
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/doc-reST/introduction.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/introduction.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/introduction.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,6 +1,7 @@
+ Introduction
+ ============
+ 
++.. include:: include-top.inc
+ 
+ Welcome to IzPack !
+ -------------------
+@@ -133,3 +134,5 @@
+ 
+ So, now let's dive into understanding how IzPack works. You'll be surprised
+ to see how powerful and simple it can be :-)
++
++.. include:: include-bottom.inc
+
+Modified: izpack-src/trunk/src/doc-reST/izpack-utils.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/izpack-utils.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/izpack-utils.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,6 +1,8 @@
+ IzPack utilities
+ ================
+ 
++.. include:: include-top.inc
++
+ The IzPack project includes a set of utilities that you may find useful.
+ 
+ These projects live outside the regular IzPack installer Subversion repository. You can access it from  <A HREF="http://svn.berlios.de/svnroot/repos/izpack/izpack-utils/">http://svn.berlios.de/svnroot/repos/izpack/izpack-utils/</A> instead of  <A HREF="http://svn.berlios.de/svnroot/repos/izpack/izpack-src/">http://svn.berlios.de/svnroot/repos/izpack/izpack-src/</A> for IzPack itself.
+@@ -95,5 +97,4 @@
+ 
+ wraps *installer.jar* as *Installer.app*
+ 
+-
+-
++.. include:: include-bottom.inc
+
+Modified: izpack-src/trunk/src/doc-reST/panels.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/panels.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/panels.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -1,6 +1,8 @@
+ The Available Panels
+ =====================
+ 
++.. include:: include-top.inc
++
+ In this section I will introduce the various panels available in IzPack. The
+ usage for most is pretty simple and described right here. The more elaborate
+ ones are explained in more detail in the *Advanced Features* chapter or in
+@@ -576,3 +578,5 @@
+ 
+ If you want to add html markup to those strings, add ``.html`` at the end
+ of the string id (after the group name).
++
++.. include:: include-bottom.inc
+
+Modified: izpack-src/trunk/src/doc-reST/user-input.txt
+===================================================================
+--- izpack-src/trunk/src/doc-reST/user-input.txt	2008-01-20 20:45:00 UTC (rev 1996)
++++ izpack-src/trunk/src/doc-reST/user-input.txt	2008-01-20 21:05:16 UTC (rev 1997)
+@@ -3,6 +3,7 @@
+ 
+ (by Elmar GROM)
+ 
++.. include:: include-top.inc
+ 
+ Most of the panels that come with IzPack take user input in some form. In
+ some panels this is through a simple user acknowledgment in others the user
+@@ -950,3 +951,4 @@
+       &lt;/spec&gt;
+     &lt;/field&gt;
+ 
++.. include:: include-bottom.inc
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000742.html">[izpack-changes] r1996 - in izpack-src/trunk: . src src/doc-reST	src/lib/com/izforge/izpack/panels src/lib/com/izforge/izpack/util
+</A></li>
+	<LI>Next message: <A HREF="000744.html">[izpack-changes] r1998 - izpack-src/trunk/src/doc-reST
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#743">[ date ]</a>
+              <a href="thread.html#743">[ thread ]</a>
+              <a href="subject.html#743">[ subject ]</a>
+              <a href="author.html#743">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

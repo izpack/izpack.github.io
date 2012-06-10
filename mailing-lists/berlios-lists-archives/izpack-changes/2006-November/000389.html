@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1644 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1644%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000388.html">
+   <LINK REL="Next"  HREF="000390.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1644 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1644%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/lib/com/izforge/izpack/installer%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1644 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 21 10:59:48 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000388.html">[izpack-changes] r1643 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000390.html">[izpack-changes] r1645 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/ant
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#389">[ date ]</a>
+              <a href="thread.html#389">[ thread ]</a>
+              <a href="subject.html#389">[ subject ]</a>
+              <a href="author.html#389">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-11-21 10:59:45 +0100 (Tue, 21 Nov 2006)
+New Revision: 1644
+
+Modified:
+   izpack-src/branches/branch-3.9/Versions.txt
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer/IzPanel.java
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+Cancel the previous commit as Klaus wants to handle it :-)
+
+Modified: izpack-src/branches/branch-3.9/Versions.txt
+===================================================================
+--- izpack-src/branches/branch-3.9/Versions.txt	2006-11-21 09:56:47 UTC (rev 1643)
++++ izpack-src/branches/branch-3.9/Versions.txt	2006-11-21 09:59:45 UTC (rev 1644)
+@@ -4,8 +4,7 @@
+ 
+ - Fixed the DesktopShortcutCheckboxEnabled Builtin Variable in docu (Fabrice Mirabile)
+ - Fixed build.xml (PathSelectionPanel without using TargetPanel) (Fabrice Mirabile)
+-- UserInputPanel multiline label fix (Vladimir Ralev @JBoss/RedHat, via Julien Ponge)
+-- UserInputPanel: strings customization based on the panel instance number (Stefan Wachter, via Julien Ponge)
++- UserInputPanel multiline label fix (Vladimir Ralev, JBoss/RedHat)
+ 
+ 
+   &gt; 3.9.0 (build 2006.09.25)
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer/IzPanel.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer/IzPanel.java	2006-11-21 09:56:47 UTC (rev 1643)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/installer/IzPanel.java	2006-11-21 09:59:45 UTC (rev 1644)
+@@ -461,19 +461,12 @@
+         Class clazz = this.getClass();
+         while (retval == null &amp;&amp; !clazz.getName().endsWith(&quot;.IzPanel&quot;))
+         {
+-            int instanceNumber = getInstanceNumber();
+-            if (instanceNumber != -1) {
+-                retval = getI18nStringForClass(clazz.getName(), subkey + &quot;.&quot; + instanceNumber, null);
+-                if (retval != null) return retval;
+-            }
+             retval = getI18nStringForClass(clazz.getName(), subkey, null);
+             clazz = clazz.getSuperclass();
+         }
+         return (retval);
+     }
+ 
+-    protected int getInstanceNumber() { return -1; }
+-    
+     /**
+      * Calls the langpack of parent InstallerFrame for the String &lt;tt&gt;RuntimeClassName.subkey&lt;/tt&gt;.
+      * Do not add a point infront of subkey, it is always added in this method.
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-11-21 09:56:47 UTC (rev 1643)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-11-21 09:59:45 UTC (rev 1644)
+@@ -475,8 +475,6 @@
+         }
+     }
+ 
+-    protected int getInstanceNumber() { return instanceNumber; }
+-    
+     /*--------------------------------------------------------------------------*/
+     /**
+      * Indicates wether the panel has been validated or not. The installer won't let the user go
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000388.html">[izpack-changes] r1643 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000390.html">[izpack-changes] r1645 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/ant
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#389">[ date ]</a>
+              <a href="thread.html#389">[ thread ]</a>
+              <a href="subject.html#389">[ subject ]</a>
+              <a href="author.html#389">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

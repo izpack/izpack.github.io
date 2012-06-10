@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Good practice for the Eclipse &quot;Problem&quot;-Tab...
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Good%20practice%20for%20the%20Eclipse%20%22Problem%22-Tab...&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000662.html">
+   <LINK REL="Next"  HREF="000664.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Good practice for the Eclipse &quot;Problem&quot;-Tab...</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Good%20practice%20for%20the%20Eclipse%20%22Problem%22-Tab...&In-Reply-To="
+       TITLE="[izpack-devel] Good practice for the Eclipse &quot;Problem&quot;-Tab...">markus.schlegel at pulinco.com
+       </A><BR>
+    <I>Mon Dec  4 13:26:09 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000662.html">[izpack-devel] Good practice for the Eclipse &quot;Problem&quot;-Tab...
+</A></li>
+        <LI>Next message: <A HREF="000664.html">[izpack-devel] Patches for IzPack - branch or trunk ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#663">[ date ]</a>
+              <a href="thread.html#663">[ thread ]</a>
+              <a href="subject.html#663">[ subject ]</a>
+              <a href="author.html#663">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Coding convention is one thing.
+Automatic Problem detection is an other thing...
+
+Let me try to explain whats &quot;wrong&quot; with the automatic problem detection
+of eclipse (at least for Javadoc comments):
+
+When develpers have to &quot;quieten&quot; those problem-messages, they tend to
+write things that are already clear and they tend to repeat things that
+are already written elsewhere (and maybe just one line above!!) - just
+to get rid of the message...
+
+As an Example, you can look at almost every class in izpack that has
+been altered because of this eclipse feature. Let me explain it with an
+example taken at random from the trunk: &quot;Compiler.java&quot;
+
+
+- Class comment is ok.
+- Comments of the fields are also ok, even if the name of the fields are
+selfexplainatory
+- &quot;setIzpackHome(String izHome)&quot; nothing wrong with this, but it is
+completely redundant to what the code (even in javadoc) says. Means: all
+info that the javadoc comment gives, is already there in the method
+declaration...
+- The same applies for most of the methods in this class up to line 290
+(there are 2 or 3 useful parameter descriptions and a handful useful
+method descriptions)
+--&gt; the developer who wrote these comments had only one motivation:
+quieten the eclipse problems... This just makes NO sense. Even if
+Javadoc is a part of the Language.
+
+What I wanted to say is, that if you will force writing Javadoc
+comments, then do it by coding convention, but NOT by saying &quot;checked in
+code must not have any Javadoc-Warnings in Eclipse&quot;.
+
+Don't get me wrong. I have also written such comments at some times, but
+at least wen I came back through that code few years later, I thought
+&quot;what a stupid thing&quot;. 
+
+So either you have to explain how a method does something or what a
+method does and write just that, or let it be.
+
+Of corse this is my opinion, and I am a newby in this project. But what
+I saw up to now is, that there are some problems in the code which
+should be soved, and that there is not plenty of time to do this. So why
+waste time on writing unneeded and redundant things? And by the way: is
+there any good reason why to develop with IzPack with only the Javadoc
+when you have the source code available? 
+
+Markus
+
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>] On Behalf Of Marc
+Eppelmann
+Sent: Friday, December 01, 2006 8:24 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+Subject: Re: [izpack-devel] Good practice for the Eclipse
+&quot;Problem&quot;-Tab...
+
+Hi,
+
++1 :-) Since we provide the Javadoc as HTML, these API Overview (or 
++better
+Developer Reference Manual) should be also up to date and usable.
+
+Marc
+
+Am Freitag, 1. Dezember 2006 17:18 schrieb Bartz, Klaus:
+&gt;<i> Hi Mrkus,
+</I>&gt;<i> I do not agree with you that it is a good practice to ignore eclipse 
+</I>&gt;<i> warnings. Yes, most of it are related to missing or corrupt java doc.
+</I>&gt;<i> May be we have not the time and/or not the knowledge to create 
+</I>&gt;<i> sufficient java doc comments for old code. But we can do it for our 
+</I>&gt;<i> new code. Also for getter and setter. It is possible to use template 
+</I>&gt;<i> for simple situation. You need a &lt;ctrl&gt; &lt;shift&gt; J grip... And you do 
+</I>&gt;<i> not forget the java doc at methods where it is really needed. It is 
+</I>&gt;<i> contents of the language and it is recommanded to comment all 
+</I>&gt;<i> non-private methods. Not all developer uses the source as docu. If we
+</I>do it not, the code will be not better.
+&gt;<i>
+</I>&gt;<i> May be it is possible to use implicit developing rules if the 
+</I>&gt;<i> developing group consists of one or two people, but not with nearly 
+</I>&gt;<i> twenty. One makes no java comment, the other do not attend the dtd (or
+</I>
+&gt;<i> writes no) and some others do not write docu for the features or do
+</I>not update it at changes.
+&gt;<i> Not forget different coding styles...
+</I>&gt;<i> To supress such chaos it is needed to say something about it from time
+</I>
+&gt;<i> to time (it is also addressed to me).
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Markus 
+</I>&gt;<i> Schlegel
+</I>&gt;<i> Sent: Friday, December 01, 2006 9:49 AM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-devel] Good practice for the Eclipse &quot;Problem&quot;-Tab...
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Hi
+</I>&gt;<i>
+</I>&gt;<i> I read some posts about this the last few days and like to share a few
+</I>
+&gt;<i> thoughts about this.
+</I>&gt;<i>
+</I>&gt;<i> When I switched from JBuilder to Eclipse last summer with my project, 
+</I>&gt;<i> Eclipse showed up with several thousands Problems. First I thought, 
+</I>&gt;<i> &quot;oh dear, there is so much wrong with my code? Lets fix all of this 
+</I>&gt;<i> and I get more reliable code (higher quality)...&quot;. When I got deeper 
+</I>&gt;<i> into this, I realized, that most of those problem warnings are 
+</I>&gt;<i> irrelevant. It just makes no sense to add a foll blown javadoc comment
+</I>
+&gt;<i> to a simple selfexplainatory method. What happens most in such cases 
+</I>&gt;<i> is, that the programmer then simply adds a dummy comment (no real 
+</I>&gt;<i> explaination, its there only to quiten eclipse). And in fact I saw 
+</I>&gt;<i> this in many projects. It just makes no sense to rewrite in javadoc
+</I>what is written in the method declaration already.
+&gt;<i> Often it's also much better and sufficient to write a good class
+</I>comment.
+&gt;<i> Then iot makes no sense to rewrite the comment for the methods again. 
+</I>&gt;<i> The other point that often happens with such (dummy) comments is, that
+</I>
+&gt;<i> - because they are irrelevant - they will not be maintained when 
+</I>&gt;<i> developing the code. What I like a lot more, are comments inside the 
+</I>&gt;<i> code block (as it is done in IzPack already very well I argue). But 
+</I>&gt;<i> this can not be tested with eclipse of corse...
+</I>&gt;<i>
+</I>&gt;<i> So maybe you should concentrate on real problems, open points and 
+</I>&gt;<i> fixing bugs rather than quitening eclipse's problem tab.
+</I>&gt;<i>
+</I>&gt;<i> Regards
+</I>&gt;<i>
+</I>&gt;<i> Markus
+</I>_______________________________________________
+izpack-devel mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000662.html">[izpack-devel] Good practice for the Eclipse &quot;Problem&quot;-Tab...
+</A></li>
+	<LI>Next message: <A HREF="000664.html">[izpack-devel] Patches for IzPack - branch or trunk ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#663">[ date ]</a>
+              <a href="thread.html#663">[ thread ]</a>
+              <a href="subject.html#663">[ subject ]</a>
+              <a href="author.html#663">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

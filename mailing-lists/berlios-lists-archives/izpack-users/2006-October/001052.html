@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] &lt;executable ...&gt; doesn't work
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20%3Cexecutable%20...%3E%20doesn%27t%20work&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001050.html">
+   <LINK REL="Next"  HREF="001053.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] &lt;executable ...&gt; doesn't work</H1>
+    <B>Hans-Georg Michna</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20%3Cexecutable%20...%3E%20doesn%27t%20work&In-Reply-To="
+       TITLE="[izpack-users] &lt;executable ...&gt; doesn't work">hans-georg at michna.com
+       </A><BR>
+    <I>Thu Oct 26 14:03:00 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001050.html">[izpack-users] &lt;executable ...&gt; doesn't work
+</A></li>
+        <LI>Next message: <A HREF="001053.html">[izpack-users] Shortcut Panel creates an EMPTY file as a	shortcut
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1052">[ date ]</a>
+              <a href="thread.html#1052">[ thread ]</a>
+              <a href="subject.html#1052">[ subject ]</a>
+              <a href="author.html#1052">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Thu, 26 Oct 2006 12:10:23 +0200, Bartz, Klaus wrote:
+
+&gt;<i>I assume, that the files which should be execut exist.
+</I>
+Yes, sure.
+
+&gt;<i>I assume we speak about OS Windows.
+</I>
+Yes.
+
+&gt;<i>Attached a zip file which contains a test installation project.
+</I>&gt;<i>Unpack it, adapt %IZPACK_HOME% and may be the java.exe call,
+</I>&gt;<i>compile, go in a cmd into the dir &quot;execute\dest&quot;, execute
+</I>&gt;<i>java -jar install.jar
+</I>&gt;<i>After installation the files IzPackBatchTest and IzPackBatchTest2
+</I>&gt;<i>should be exist in the installation directory.
+</I>&gt;<i>In the subdir lib install_helper.bat and uninstall_helper.bat
+</I>&gt;<i>should be exist, but not install_helper2.bat and none of the 
+</I>&gt;<i>shell scripts for unix.
+</I>&gt;<i>Go in a cmd into the parent dir of the installation dir. Call
+</I>&gt;<i>java -jar &lt;Install dir&gt;\uninstaller\uninstaller.jar
+</I>&gt;<i>Select all files NOT. Uninstall.
+</I>&gt;<i>The install dir should exist, in it the two log files should exist.
+</I>&gt;<i>These files are not installed else written by shellscripts. Therefore
+</I>&gt;<i>they have to exist if not all files in the dir should be removed.
+</I>&gt;<i>After uninstall
+</I>&gt;<i>$USER_HOME\IzPackUninstallBatchTest
+</I>&gt;<i>exist.
+</I>&gt;<i>Report your results
+</I>
+Everything worked as you described it. In your installer the
+problem does not occur. IzPack works as expected. The error
+doesn't seem to occur in a small, simple installation.
+
+The difference is obvious. When I use -DTRACE=TRUE with your
+installer, I get a complete log for all executable files.
+Everything looks perfect.
+
+When I use the same with my installer, I get a log that shows
+the first executable file running fine, then I get the error,
+&quot;com.izforge.izpack.installer.ResourceNotFoundException: Can not
+find Resource UninstallerIcon for language eng&quot;.
+
+After a few additional error lines the log ends. It doesn't show
+the other executable files, probably because it has stopped
+working after the error. Here's a longer part of the end of my
+log:
+
+----- Begin log excerpt -----
+checking if os constraints [Os  family windows name null version
+null arch null ] match current OS
+matched current OS.
+executeCommand
+	params: C:\Programme\Ovise
+Search\lib\office_install_helper.bat
+
+stdout:
+
+Z:\installer\distribution\Ovise_IzPack\installer_untested&gt;rem
+Register Office DLLs: 
+
+Z:\installer\distribution\Ovise_IzPack\installer_untested&gt;regsvr32
+/s &quot;C:\Dokumente und
+Einstellungen\HG\Anwendungsdaten\Microsoft\AddIns\OviseSearchForOffice.dll&quot;
+Z:\installer\distribution\Ovise_IzPack\installer_untested&gt;regsvr32
+/s &quot;C:\Programme\Ovise Search\lib\Redemption.dll&quot; 
+
+Z:\installer\distribution\Ovise_IzPack\installer_untested&gt;rem
+
+stderr:
+
+exit status: 0
+
+com.izforge.izpack.installer.ResourceNotFoundException: Can not
+find Resource UninstallerIcon for language eng
+
+ZipException in writing custom data: duplicate entry:
+com/izforge/izpack/util/OSClassHelper.class
+
+ZipException in writing custom data: duplicate entry:
+com/izforge/izpack/util/os/RegistryHandler.class
+
+ZipException in writing custom data: duplicate entry:
+com/izforge/izpack/util/os/Win_RegistryHandler.class
+
+ZipException in writing custom data: duplicate entry:
+com/izforge/izpack/util/os/WrappedNativeLibException.class
+
+ZipException in writing custom data: duplicate entry:
+com/izforge/izpack/util/IoHelper.class
+----- End of log -----
+
+It seems that the error is caused by the installer trying to
+find a resource named UninstallerIcon. I don't know where that
+comes from. Neither my files, nor any IzPack documentation files
+contain that word. I have no idea why the installer looks for
+that resource.
+
+I think that &quot;UninstallerIcon&quot; is the key to understanding this
+problem. I append my install.xml file below.
+
+Thanks for bearing with me. I'm certainly unable to solve this
+problem without help. I've tried all kinds of modifications in
+the hope of hitting the cause, but I couldn't get rid of the
+error.
+
+Hans-Georg
+
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot; ?&gt;
+&lt;installation version=&quot;1.0&quot;&gt;
+    &lt;info&gt;
+        &lt;appname&gt;Ovise Search&lt;/appname&gt;
+        &lt;appversion&gt;0&lt;/appversion&gt;
+        &lt;authors&gt;
+            &lt;author name=&quot;Ingent&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">info at ingent.com</A>&quot;/&gt;
+        &lt;/authors&gt;
+        &lt;url&gt;<A HREF="http://www.ingent.com/&lt;/url">http://www.ingent.com/&lt;/url</A>&gt;
+    &lt;/info&gt;
+    &lt;!-- GUI preferences --&gt;
+    &lt;guiprefs width=&quot;782&quot; height=&quot;355&quot; resizable=&quot;yes&quot;/&gt;
+    &lt;!-- Locale section --&gt;
+    &lt;locale&gt;
+        &lt;langpack iso3=&quot;eng&quot;/&gt;
+    &lt;/locale&gt;
+	&lt;variables&gt;
+	  &lt;variable name=&quot;InstallerFrame.logfilePath&quot;
+value=&quot;$INSTALL_PATH/Uninstaller/install.log&quot;/&gt; 
+	  &lt;variable name=&quot;DesktopShortcutCheckboxEnabled&quot;
+value=&quot;true&quot;/&gt; 
+	&lt;/variables&gt;
+    &lt;listeners&gt;
+        &lt;listener installer=&quot;RegistryInstallerListener&quot;
+uninstaller=&quot;RegistryUninstallerListener&quot;&gt;
+            &lt;os family=&quot;windows&quot;/&gt;
+        &lt;/listener&gt;
+    &lt;/listeners&gt;
+    &lt;native type=&quot;3rdparty&quot; name=&quot;COIOSHelper.dll&quot; stage=&quot;both&quot;&gt;
+        &lt;os family=&quot;windows&quot;/&gt;
+    &lt;/native&gt;
+    &lt;native type=&quot;izpack&quot; name=&quot;ShellLink.dll&quot;/&gt;
+    &lt;!-- Resources section. Ids must be exactly like this. --&gt;
+    &lt;resources&gt;
+        &lt;res id=&quot;HTMLInfoPanel.info&quot; src=&quot;info.htm&quot;/&gt;
+        &lt;res id=&quot;LicencePanel.licence&quot; src=&quot;license.txt&quot;/&gt;
+        &lt;res id=&quot;RegistrySpec.xml&quot; src=&quot;Win_registry.xml&quot;/&gt;
+        &lt;res id=&quot;shortcutSpec.xml&quot; src=&quot;Win_shortcutSpec.xml&quot;/&gt;
+        &lt;res id=&quot;Unix_shortcutSpec.xml&quot;
+src=&quot;Unix_shortcutSpec.xml&quot;/&gt;
+        &lt;res id=&quot;Installer.image.0&quot; src=&quot;pane0.png&quot;/&gt;
+        &lt;res id=&quot;Installer.image.1&quot; src=&quot;pane1.png&quot;/&gt;
+        &lt;res id=&quot;Installer.image.2&quot; src=&quot;&quot;/&gt;
+    &lt;/resources&gt;
+    &lt;!-- Panels section. Order will be respected. --&gt;
+    &lt;panels&gt;
+        &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+        &lt;panel classname=&quot;HTMLInfoPanel&quot;/&gt;
+        &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+        &lt;panel classname=&quot;TargetPanel&quot;/&gt;
+        &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+        &lt;panel classname=&quot;ShortcutPanel&quot;/&gt;
+        &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+        &lt;panel classname=&quot;SimpleFinishPanel&quot;/&gt;
+    &lt;/panels&gt;
+    &lt;!-- Packs section --&gt;
+    &lt;packs&gt;
+        &lt;pack name=&quot;Ovise Server&quot; required=&quot;yes&quot;&gt;
+            &lt;description&gt;Essential Ovise system components
+(required)&lt;/description&gt;
+            &lt;fileset dir=&quot;../../runtime&quot; excludes=&quot;configuration
+configuration/**/*&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;fileset os=&quot;windows&quot; dir=&quot;platforms/windows&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;fileset os=&quot;unix&quot; dir=&quot;platforms/unix&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;fileset os=&quot;mac&quot; dir=&quot;platforms/mac&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file os=&quot;windows&quot; src=&quot;../../runtime/configuration&quot;
+targetdir=&quot;${ENV[APPDATA]}/OviseSearch&quot;/&gt;
+            &lt;file os=&quot;unix&quot; src=&quot;../../runtime/configuration&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;file os=&quot;mac&quot; src=&quot;../../runtime/configuration&quot;
+targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+            &lt;parsable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/lib/install_helper.bat&quot;/&gt;
+            &lt;executable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/lib/install_helper.bat&quot;/&gt;
+            &lt;parsable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/lib/install_helper.vbs&quot;/&gt;
+            &lt;!--executable os=&quot;windows&quot; stage=&quot;never&quot;
+targetfile=&quot;$INSTALL_PATH/lib/install_helper.vbs&quot;/--&gt;
+            &lt;parsable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/lib/uninstall_helper.bat&quot;/&gt;
+            &lt;executable os=&quot;windows&quot; stage=&quot;uninstall&quot;
+targetfile=&quot;$INSTALL_PATH/lib/uninstall_helper.bat&quot;/&gt;
+            &lt;parsable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/lib/uninstall_helper.vbs&quot;/&gt;
+            &lt;!--executable os=&quot;windows&quot; stage=&quot;never&quot;
+targetfile=&quot;$INSTALL_PATH/lib/uninstall_helper.vbs&quot;/--&gt;
+            &lt;parsable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/lib/search.vbs&quot;/&gt;
+            &lt;!--executable os=&quot;windows&quot; stage=&quot;never&quot;
+targetfile=&quot;$INSTALL_PATH/lib/search.vbs&quot;/--&gt;
+            &lt;parsable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/startServer.cmd&quot;/&gt;
+            &lt;parsable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/startServerDebug.cmd&quot;/&gt;
+            &lt;parsable os=&quot;unix&quot;
+targetfile=&quot;$INSTALL_PATH/startServer.sh&quot;/&gt;
+            &lt;parsable os=&quot;mac&quot;
+targetfile=&quot;$INSTALL_PATH/startServer.sh&quot;/&gt;
+        &lt;/pack&gt;
+        &lt;pack name=&quot;Windows Explorer context menu command&quot;
+os=&quot;windows&quot; required=&quot;no&quot;&gt;
+            &lt;description&gt;Test1&lt;/description&gt;
+        &lt;/pack&gt;
+        &lt;pack name=&quot;Office toolbar button&quot; os=&quot;windows&quot;
+required=&quot;no&quot;&gt;
+            &lt;description&gt;Test2&lt;/description&gt;
+            &lt;file os=&quot;windows&quot; src=&quot;OviseSearchForOffice.dll&quot;
+targetdir=&quot;${ENV[APPDATA]}/Microsoft/AddIns&quot;/&gt;
+            &lt;parsable os=&quot;windows&quot;
+targetfile=&quot;$INSTALL_PATH/lib/office_install_helper.bat&quot;/&gt;
+            &lt;executable os=&quot;windows&quot; stage=&quot;postinstall&quot;
+targetfile=&quot;$INSTALL_PATH/lib/office_install_helper.bat&quot;/&gt;
+        &lt;/pack&gt;
+    &lt;/packs&gt;
+&lt;/installation&gt;
+
+-- 
+No mail, please.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001050.html">[izpack-users] &lt;executable ...&gt; doesn't work
+</A></li>
+	<LI>Next message: <A HREF="001053.html">[izpack-users] Shortcut Panel creates an EMPTY file as a	shortcut
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1052">[ date ]</a>
+              <a href="thread.html#1052">[ thread ]</a>
+              <a href="subject.html#1052">[ subject ]</a>
+              <a href="author.html#1052">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

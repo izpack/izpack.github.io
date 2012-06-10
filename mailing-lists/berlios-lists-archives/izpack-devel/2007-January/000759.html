@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Updating to latest version of NanoXML
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Updating%20to%20latest%20version%20of%20NanoXML&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139AC55%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000751.html">
+   <LINK REL="Next"  HREF="000760.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Updating to latest version of NanoXML</H1>
+    <B>Ari Voutilainen</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Updating%20to%20latest%20version%20of%20NanoXML&In-Reply-To=591E33C080D2E5449BB1791B70D66B280139AC55%40coi11.coi.com"
+       TITLE="[izpack-devel] Updating to latest version of NanoXML">ari.voutilainen at iki.fi
+       </A><BR>
+    <I>Mon Jan  8 21:17:05 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000751.html">[izpack-devel] Updating to latest version of NanoXML
+</A></li>
+        <LI>Next message: <A HREF="000760.html">[izpack-devel] Updating to latest version of NanoXML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#759">[ date ]</a>
+              <a href="thread.html#759">[ thread ]</a>
+              <a href="subject.html#759">[ subject ]</a>
+              <a href="author.html#759">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+Someone has said (or asked) something like this: &quot;Why to correct 
+or change 'thing' which is working well?&quot; It seems to me that 
+updating NanoXML will correct odd behaviour and that will make 
+IzPack better. Only if there are good reasons to change parser it 
+could be done. Elmar stated some reasons (are they enough?). If 
+change has to be done my opinion is to change VM to Java 5 and 
+to jDOM. jDOM will give to IzPack more than just coding wrapper. 
+Actually jDOM is some kind of wrapper to javax.xml. And jDOM 
+already is at stable phase. I understand that own wrapper might 
+give flexibility to change XML parser to the proper one without 
+recoding IzPack. But each time when change is done someone has to 
+recode some part of the wrapper in order to work together with 
+new parser. And we also could ask how often we will change the 
+parser.
+
+If I had understood correct NanoXML is also small packet. jDOM
+is larger. In large installations it won't be problem but in tiny 
+installations someone might want to find smaller installer... 
+Elmar stated also that plain DOM would be enough. That would 
+ideal because there will be as much Java related code as 
+possible; there would be no third party code. I myself agree 
+those arguments how difficult it is to work with DOM. When I used 
+jDOM after some DOM experimentation it was quite easy to handle 
+XML: it was straight forward to handle elements.
+
+And again: if there are only whishes to transfer javax.xml or do 
+own wrapper, keep NanoXML. If NanoXML contains problems which 
+make XML handling hard, transfer to new VM and javax.xml (and 
+perhaps to jDOM).
+
+Regards,
+Ari
+
+&gt;<i> Hi all,
+</I>&gt;<i> I remember fragile that there were some changes in
+</I>&gt;<i> the NanoXML code which will be used by IzPack. Therefore
+</I>&gt;<i> the sources are holded also in the IzPack repository.
+</I>&gt;<i> Is this right or not?
+</I>&gt;<i> If so, a simple update to the latest version will be 
+</I>&gt;<i> problematically.
+</I>&gt;<i> 
+</I>&gt;<i> On the other hand it is not so easy to change to DOM or so
+</I>&gt;<i> because there are many places where xml data will be used
+</I>&gt;<i> and this not only in the common area of IzPack else also
+</I>&gt;<i> in custom code.
+</I>&gt;<i> On the third hand I am sometimes playing with a registry
+</I>&gt;<i> editor which uses my registry stuff from IzPack. For the
+</I>&gt;<i> configuration I need xml, but I will not use the old NanoXML
+</I>&gt;<i> stuff. At this point it will be nice if IzPack uses no
+</I>&gt;<i> extra parser.
+</I>&gt;<i> On principle we can use xml support of the VM because since
+</I>&gt;<i> IzPack 3.9 a 1.4 VM is required. There are some problems in
+</I>&gt;<i> NanoXML which has made us some work in the past (e.g. support
+</I>&gt;<i> of wrong xml files which can be fixed by a validating parser).
+</I>&gt;<i> 
+</I>&gt;<i> What todo?? 
+</I>&gt;<i> I vote to use the 1.4 VM classes and create a wrapper near 
+</I>&gt;<i> (or identically) to the NanoXML api. 
+</I>&gt;<i> Who do it??
+</I>&gt;<i> Unfortunately I do not know..., I have problems to get the time
+</I>&gt;<i> for other stuff I have todo for IzPack.
+</I>&gt;<i> 
+</I>&gt;<i> Cheers
+</I>&gt;<i> 
+</I>&gt;<i> Klaus
+</I>&gt;<i> 
+</I>&gt;&gt;<i> -----Original Message-----
+</I>&gt;&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel-bounces at lists.berlios.de</A>]On Behalf Of Stefan
+</I>&gt;&gt;<i> Wachter
+</I>&gt;&gt;<i> Sent: Monday, January 08, 2007 9:13 AM
+</I>&gt;&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> Subject: Re: [izpack-devel] Updating to latest version of NanoXML
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Hi all,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> some time ago there was a discussion on this list that 
+</I>&gt;&gt;<i> favoured NanoXML in order to stay compatible 
+</I>&gt;&gt;<i> with Java 1.3, Java 1.2, ... I think this argument is still valid.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I did update my private IzPack version to the latested NanoXML 
+</I>&gt;&gt;<i> release because it solves my original 
+</I>&gt;&gt;<i> problem (the &amp;#10; character not being kept). Until now I do 
+</I>&gt;&gt;<i> not experience other problems. 
+</I>&gt;&gt;<i> (Admittedly I did no extensive testing, yet.)
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> In addition, I think that the XML API that NanoXML provides is 
+</I>&gt;&gt;<i> quite usable. In contrast to that, 
+</I>&gt;&gt;<i> using DOM would be not so funny. I also doubt that using some 
+</I>&gt;&gt;<i> utility classes to handle DOM is a 
+</I>&gt;&gt;<i> better solution than using NanoXML.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Therefore I still suggest to update NanoXML to the latest 
+</I>&gt;&gt;<i> version. I will report any problems 
+</I>&gt;&gt;<i> encountered on the list.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Cheers,
+</I>&gt;&gt;<i> --Stefan
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> PS: A very elegant means to handle configuration data is data binding.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-devel mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>&gt;&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000751.html">[izpack-devel] Updating to latest version of NanoXML
+</A></li>
+	<LI>Next message: <A HREF="000760.html">[izpack-devel] Updating to latest version of NanoXML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#759">[ date ]</a>
+              <a href="thread.html#759">[ thread ]</a>
+              <a href="subject.html#759">[ subject ]</a>
+              <a href="author.html#759">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

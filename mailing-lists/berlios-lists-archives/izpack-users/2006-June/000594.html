@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Unix formatted files are not copied from Windows
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Unix%20formatted%20files%20are%20not%20copied%20from%20Windows&In-Reply-To=044EFEA2A2E19F4D8B72E285C0B38BFD0DED6B%40staf-exm-01.ardentia.co.uk">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000593.html">
+   <LINK REL="Next"  HREF="000595.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Unix formatted files are not copied from Windows</H1>
+    <B>Kevin Hartig</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Unix%20formatted%20files%20are%20not%20copied%20from%20Windows&In-Reply-To=044EFEA2A2E19F4D8B72E285C0B38BFD0DED6B%40staf-exm-01.ardentia.co.uk"
+       TITLE="[izpack-users] Unix formatted files are not copied from Windows">kevin.hartig at gmail.com
+       </A><BR>
+    <I>Wed Jun 28 14:19:57 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000593.html">[izpack-users] Unix formatted files are not copied from Windows
+</A></li>
+        <LI>Next message: <A HREF="000595.html">[izpack-users] IzPack 3.9.0-preview1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#594">[ date ]</a>
+              <a href="thread.html#594">[ thread ]</a>
+              <a href="subject.html#594">[ subject ]</a>
+              <a href="author.html#594">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Iain,
+
+You should be able to use something like the following:
+in your install.xml file include
+
+&lt;resources&gt;
+    &lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;installer/process_panel.xml&quot;/&gt;
+&lt;/resources&gt;
+
+to specify the configuration file for the Process panel step in the 
+install which allows running scripts. In the process_panel.xml file 
+include something like the following:
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+&lt;processing&gt;
+
+    &lt;logfiledir&gt;$INSTALL_PATH&lt;/logfiledir&gt;
+
+    &lt;job name=&quot;Windows scripts&quot;&gt;
+        &lt;os family=&quot;windows&quot;/&gt;
+
+        &lt;executefile name=&quot;windows_script.bat&quot;&gt;
+            &lt;!-- arguments to pass into the script --&gt;
+            &lt;arg&gt;1&lt;/arg&gt; 
+            &lt;arg&gt;2&lt;/arg&gt;
+        &lt;/executefile&gt;
+    &lt;/job&gt;
+
+    &lt;job name=&quot;Windows scripts&quot;&gt;
+        &lt;os family=&quot;windows&quot;/&gt;
+
+        &lt;executefile name=&quot;windows_script.bat&quot;&gt;
+            &lt;!-- arguments to pass into the script --&gt;
+            &lt;arg&gt;1&lt;/arg&gt; 
+            &lt;arg&gt;2&lt;/arg&gt;
+        &lt;/executefile&gt;
+    &lt;/job&gt;
+
+    &lt;job name=&quot;Unix scripts&quot;&gt;
+        &lt;os family=&quot;unix&quot;/&gt;
+
+        &lt;executefile name=&quot;unix_script.sh&quot;&gt;
+            &lt;!-- arguments to pass into the script --&gt;
+            &lt;arg&gt;1&lt;/arg&gt; 
+            &lt;arg&gt;2&lt;/arg&gt;
+        &lt;/executefile&gt;
+    &lt;/job&gt;
+
+&lt;/processing&gt;
+
+Hope this helps.
+
+-kevin.
+
+Iain Willis wrote:
+&gt;<i> Hi,
+</I>&gt;<i>  
+</I>&gt;<i> We've created an installer on a Windows system which should install to 
+</I>&gt;<i> both Windows and Linux.
+</I>&gt;<i> We need to execute a script once the files have been copied, however 
+</I>&gt;<i> if the script is in Unix format, it doesn't get installed.  If we 
+</I>&gt;<i> leave it as Windows format, it gets installed, but then cannot be 
+</I>&gt;<i> executed.
+</I>&gt;<i>  
+</I>&gt;<i> One solution I thought of was to run &quot;dos2unix&quot; on the script after 
+</I>&gt;<i> installation, but there doesn't seem to be any way of simply running a 
+</I>&gt;<i> command after installation (the executable tag tries to modify the 
+</I>&gt;<i> file access properties).
+</I>&gt;<i>  
+</I>&gt;<i> Does anyone have a solution to this?
+</I>&gt;<i>  
+</I>&gt;<i> Thanks,
+</I>&gt;<i>  
+</I>&gt;<i> Iain
+</I>&gt;<i>  
+</I>&gt;<i> www.ardentia.com &lt;<A HREF="http://www.ardentia.com/">http://www.ardentia.com/</A>&gt;
+</I>&gt;<i> The home of NetSearch
+</I>&gt;<i>  
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000593.html">[izpack-users] Unix formatted files are not copied from Windows
+</A></li>
+	<LI>Next message: <A HREF="000595.html">[izpack-users] IzPack 3.9.0-preview1
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#594">[ date ]</a>
+              <a href="thread.html#594">[ thread ]</a>
+              <a href="subject.html#594">[ subject ]</a>
+              <a href="author.html#594">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

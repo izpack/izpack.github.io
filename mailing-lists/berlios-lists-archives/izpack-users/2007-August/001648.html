@@ -1,0 +1,266 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Linux Path Problem for JAR Execution
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Linux%20Path%20Problem%20for%20JAR%20Execution&In-Reply-To=46D5D06D.9030106%40yahoo.fr">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001647.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Linux Path Problem for JAR Execution</H1>
+    <B>yj</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Linux%20Path%20Problem%20for%20JAR%20Execution&In-Reply-To=46D5D06D.9030106%40yahoo.fr"
+       TITLE="[izpack-users] Linux Path Problem for JAR Execution">yj at m-itc.net
+       </A><BR>
+    <I>Wed Aug 29 22:08:21 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001647.html">[izpack-users] Linux Path Problem for JAR Execution
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1648">[ date ]</a>
+              <a href="thread.html#1648">[ thread ]</a>
+              <a href="subject.html#1648">[ subject ]</a>
+              <a href="author.html#1648">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thnx for the detailed explanation. I will test these out and let you 
+know of the outcome.
+
+Really thnx a lot.
+
+
+-- 
+Jankee Yogesh
+Team Leader
+M-ITC LTD
+<A HREF="http://www.m-itc.net">http://www.m-itc.net</A>
+
+
+
+
+Lo&#239;c wrote:
+&gt;<i> Hi again,
+</I>&gt;<i>
+</I>&gt;<i> Thanks for the files. &quot;Unable to access jar file&quot; seems to mean that 
+</I>&gt;<i> either it doesn't exist or you have a file access rights problem.
+</I>&gt;<i>
+</I>&gt;<i> If the file is really installed on disk in the right folder (first 
+</I>&gt;<i> thing to check), try uncommenting the following in your install XML :
+</I>&gt;<i>                &lt;executable 
+</I>&gt;<i> targetfile=&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot; type=&quot;jar&quot; 
+</I>&gt;<i> failure=&quot;ask&quot; stage=&quot;postinstall&quot; keep=&quot;true&quot;/&gt;
+</I>&gt;<i> and add a &quot;class&quot; attribute to it, with the name of the class 
+</I>&gt;<i> containing your Main method, like this :
+</I>&gt;<i>                &lt;executable 
+</I>&gt;<i> targetfile=&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot; type=&quot;jar&quot; 
+</I>&gt;<i> class=&quot;my.package.MyMainClass&quot; failure=&quot;ask&quot; stage=&quot;postinstall&quot; 
+</I>&gt;<i> keep=&quot;true&quot;/&gt;
+</I>&gt;<i> If this works, you could be able to get rid of the processpanel. 
+</I>&gt;<i> However from your processpanelspec I understand that your program 
+</I>&gt;<i> expects to get the install path as its first argument, but you can't 
+</I>&gt;<i> pass it by using this first solution (if this is the only one working 
+</I>&gt;<i> you'll have to adapt your main class to get its jar file location from 
+</I>&gt;<i> the classloader so that it doesn't need the command line argument).
+</I>&gt;<i>
+</I>&gt;<i> Else, go on reading after changing the line back to a minimal version :
+</I>&gt;<i>                &lt;executable 
+</I>&gt;<i> targetfile=&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot; 
+</I>&gt;<i> failure=&quot;warn&quot; stage=&quot;never&quot; keep=&quot;true&quot;/&gt;
+</I>&gt;<i>
+</I>&gt;<i> Then, first check you system for misconfiguration :
+</I>&gt;<i>
+</I>&gt;<i>     * check that the &quot;default&quot; JVM for your system points to something
+</I>&gt;<i>       compatible with your jar file (for example if you compiled your
+</I>&gt;<i>       JAR with a javac 5.0, if gcj-supplied java binary is active by
+</I>&gt;<i>       default, it may fail : check the output of &quot;java -version&quot; as
+</I>&gt;<i>       the user you used to install your product, and/or the result of
+</I>&gt;<i>       &quot;alternatives --display java&quot;). Be careful with what's set in
+</I>&gt;<i>       your PATH and JAVA_HOME.
+</I>&gt;<i>     * check your JVM security settings
+</I>&gt;<i>
+</I>&gt;<i> And finally try alternate file execution methods :
+</I>&gt;<i>
+</I>&gt;<i>     * merge your DataSourceInstaller.jar into izPack by adding a &lt;jar
+</I>&gt;<i>       src=&quot;utils/DataSourceInstaller.jar&quot; /&gt; to your installation XML,
+</I>&gt;<i>       and then change your processpanelspec's job to something like
+</I>&gt;<i>       this (replace the FQN for your Main class as above) :
+</I>&gt;<i>
+</I>&gt;<i>             &lt;job name=&quot;DS Install&quot;&gt;
+</I>&gt;<i>                 &lt;logfiledir&gt;&quot;$INSTALL_PATH/log&quot;&lt;/logfiledir&gt;           
+</I>&gt;<i>                 &lt;executeclass name=&quot;my.package.MyMainClass&quot;&gt;
+</I>&gt;<i>                       &lt;arg&gt;$INSTALL_PATH&lt;/arg&gt;
+</I>&gt;<i>                &lt;/executeclass&gt;
+</I>&gt;<i>             &lt;/job&gt;
+</I>&gt;<i>
+</I>&gt;<i>     * write a shell script that runs &quot;java -jar
+</I>&gt;<i>       $INSTALL_PATH/utils/DataSourceInstaller.jar $INSTALL_PATH&quot; (with
+</I>&gt;<i>       maximum logging at first : tee all output to a file, and log the
+</I>&gt;<i>       exit code of the java binary along with your environnement
+</I>&gt;<i>       variables values - you'll remove those from the script if you
+</I>&gt;<i>       finally use it when you deliver your app), add it to your utils
+</I>&gt;<i>       pack, and call it in your processpanelspec. Be sure to have the
+</I>&gt;<i>       script be properly parsed and with execute permissions - for
+</I>&gt;<i>       example :
+</I>&gt;<i>
+</I>&gt;<i>     &lt;parsable targetfile=&quot;$INSTALL_PATH/utils/installDataSource.sh&quot; /&gt;
+</I>&gt;<i>     &lt;executable targetfile=&quot;$INSTALL_PATH/utils/installDataSource.sh&quot;
+</I>&gt;<i>     failure=&quot;warn&quot; stage=&quot;never&quot; /&gt;
+</I>&gt;<i>
+</I>&gt;<i>     This last solution is, to my opinion, the most complicated but by
+</I>&gt;<i>     far the most versatile, debbugable and nice-looking way to run a
+</I>&gt;<i>     job. I do it that way on all my izPacks projects, it allows me to
+</I>&gt;<i>     have a fine control over process execution, I can use the power of
+</I>&gt;<i>     the shell for a variety of tasks and I can provide user feedback
+</I>&gt;<i>     right into the processpanel if needed (a plain old &quot;echo&quot; is nice
+</I>&gt;<i>     even only for tracking execution when you run lots of
+</I>&gt;<i>     time-consuming tasks). The only drawback is that you have to write
+</I>&gt;<i>     a script specific to each OS you ship to (and use the &lt;os&gt; tag in
+</I>&gt;<i>     your jobs so that the right script gets executed on the user
+</I>&gt;<i>     platform).
+</I>&gt;<i>
+</I>&gt;<i> If you have tried all this and it still fails, please let me know. In 
+</I>&gt;<i> that case please post the updated XMLs, error messages, scripts and 
+</I>&gt;<i> log files (the one from your processpanel specs, and you can get more 
+</I>&gt;<i> traces from izPack by running the installer as &quot;java -DTRACE=true -jar 
+</I>&gt;<i> yourinstaller.jar 2&gt;&amp;1 | tee izPackTraces.log &quot; ). Include the outputs 
+</I>&gt;<i> of &quot;java -version&quot;, &quot;alternatives --display java&quot; and &quot; env | grep -E 
+</I>&gt;<i> '(JAVA_HOME|PATH)' &quot;.
+</I>&gt;<i>
+</I>&gt;<i> Good luck,
+</I>&gt;<i>
+</I>&gt;<i> Lo&#239;c
+</I>&gt;<i>
+</I>&gt;<i> yj a &#233;crit :
+</I>&gt;&gt;<i> Hi Loic,
+</I>&gt;&gt;<i>     I have tried without the line &lt;osfamily=&quot;windows&quot;/&gt;  and it still 
+</I>&gt;&gt;<i> fails. The capitalization seems right to me also. I am enclosing my 
+</I>&gt;&gt;<i> installSpec.xml file and ProcessPanel xml file and a screenshot of 
+</I>&gt;&gt;<i> the error i get on Linux.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Thnx for helping me out with this problem. I need to deliver this asap.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Regards,
+</I>&gt;&gt;<i> -- 
+</I>&gt;&gt;<i> Jankee Yogesh
+</I>&gt;&gt;<i> Team Leader
+</I>&gt;&gt;<i> M-ITC LTD
+</I>&gt;&gt;<i> <A HREF="http://www.m-itc.net">http://www.m-itc.net</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Lo&#239;c wrote:
+</I>&gt;&gt;&gt;<i> Hi,
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Starting with some obvious stuff :
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i>     * Have you tried without the line &lt;osfamily=&quot;windows&quot;/&gt; ?
+</I>&gt;&gt;&gt;<i>     * Have you checked that the file name capitalization is right
+</I>&gt;&gt;&gt;<i>       (Linux is case-sensitive, windows isn't) ?
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> If your problem persists please post the full installation XML file.
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Good luck,
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> Lo&#239;c
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> yj a &#233;crit :
+</I>&gt;&gt;&gt;&gt;<i> Hi All,
+</I>&gt;&gt;&gt;&gt;<i>     I have built an installer using IzPack which executes a JAR file 
+</I>&gt;&gt;&gt;&gt;<i> using the ProcessPanel. The JAR file is successfully executed on Windows 
+</I>&gt;&gt;&gt;&gt;<i> but cannot be located on Linux. I have tried this of Fedora Core 7 and 
+</I>&gt;&gt;&gt;&gt;<i> Ubuntu Fesity Fawn but with no success.
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> My ProcessPanelSpec.xml is as follows:
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> &lt;processing&gt;
+</I>&gt;&gt;&gt;&gt;<i>     &lt;job name=&quot;DS Install&quot;&gt;
+</I>&gt;&gt;&gt;&gt;<i>         &lt;logfiledir&gt;&quot;$INSTALL_PATH/log&quot;&lt;/logfiledir&gt;
+</I>&gt;&gt;&gt;&gt;<i>         &lt;osfamily=&quot;windows&quot;/&gt;
+</I>&gt;&gt;&gt;&gt;<i>         &lt;executefile name=&quot;java&quot;&gt;
+</I>&gt;&gt;&gt;&gt;<i>             &lt;arg&gt;-jar&lt;/arg&gt;
+</I>&gt;&gt;&gt;&gt;<i>             &lt;arg&gt;&quot;$INSTALL_PATH/utils/DataSourceInstaller.jar&quot;&lt;/arg&gt;
+</I>&gt;&gt;&gt;&gt;<i>             &lt;arg&gt;$INSTALL_PATH&lt;/arg&gt;
+</I>&gt;&gt;&gt;&gt;<i>         &lt;/executefile&gt;
+</I>&gt;&gt;&gt;&gt;<i>     &lt;/job&gt;
+</I>&gt;&gt;&gt;&gt;<i> &lt;/processing&gt;
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Can anyone help me out with this problem.
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Loads of Thanx
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i> Regards,
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>   
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> ------------------------------------------------------------------------
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;<i>   
+</I>&gt;&gt;&gt;<i> ------------------------------------------------------------------------
+</I>&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> No virus found in this incoming message.
+</I>&gt;&gt;&gt;<i> Checked by AVG Free Edition. 
+</I>&gt;&gt;&gt;<i> Version: 7.5.484 / Virus Database: 269.12.10/976 - Release Date: 8/27/2007 6:20 PM
+</I>&gt;&gt;&gt;<i>   
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> ------------------------------------------------------------------------
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> ------------------------------------------------------------------------
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>   
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> No virus found in this incoming message.
+</I>&gt;<i> Checked by AVG Free Edition. 
+</I>&gt;<i> Version: 7.5.484 / Virus Database: 269.12.10/977 - Release Date: 8/28/2007 4:29 PM
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001647.html">[izpack-users] Linux Path Problem for JAR Execution
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1648">[ date ]</a>
+              <a href="thread.html#1648">[ thread ]</a>
+              <a href="subject.html#1648">[ subject ]</a>
+              <a href="author.html#1648">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

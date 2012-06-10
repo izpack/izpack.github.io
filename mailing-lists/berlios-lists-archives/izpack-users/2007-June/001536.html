@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How does variable substitution work?
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20does%20variable%20substitution%20work%3F&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC4A%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001534.html">
+   <LINK REL="Next"  HREF="001537.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How does variable substitution work?</H1>
+    <B>RAMOS lionel</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20does%20variable%20substitution%20work%3F&In-Reply-To=591E33C080D2E5449BB1791B70D66B28C3FC4A%40coi11.coi.com"
+       TITLE="[izpack-users] How does variable substitution work?">calimucho at gmail.com
+       </A><BR>
+    <I>Thu Jun 14 10:37:27 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001534.html">[izpack-users] How does variable substitution work?
+</A></li>
+        <LI>Next message: <A HREF="001537.html">[izpack-users] How does variable substitution work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1536">[ date ]</a>
+              <a href="thread.html#1536">[ thread ]</a>
+              <a href="subject.html#1536">[ subject ]</a>
+              <a href="author.html#1536">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi guys,
+
+I have moreover the same problem with the variable substitution but all in
+the install.xml
+
+I declare a variable
+&lt;variable name=&quot;TomcatVersion&quot; value=&quot;tomcat-5.5&quot;/&gt;
+
+and in &lt;pack&gt; tag I want to use like this:
+
+&lt;file targetdir=&quot;$INSTALL_PATH&quot; src=&quot;dnabi-install/${TomcatVersion}&quot;/&gt;
+
+But he don't replace the variable...
+Any tips? Because for me it's very usefull
+
+Thanks in advance,
+lionel
+
+
+On 6/14/07, Bartz, Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; wrote:
+&gt;<i>
+</I>&gt;<i> Hi Gernot,
+</I>&gt;<i> variables will be not substituted by the contents of variables.
+</I>&gt;<i> I see to ways to solve your problem.
+</I>&gt;<i>
+</I>&gt;<i> 1: write a custom action which does the substitution.
+</I>&gt;<i>
+</I>&gt;<i> 2: use
+</I>&gt;<i> in install.xml
+</I>&gt;<i> ...
+</I>&gt;<i> &lt;variable name=&quot;APPLICATIONS_SUB_PATH&quot;
+</I>&gt;<i>    value=&quot;/OpenOffice/orgPortable/App/openoffice/program/soffice.exe&quot;/&gt;
+</I>&gt;<i> ...
+</I>&gt;<i>
+</I>&gt;<i> in your parsable file
+</I>&gt;<i> &lt;value&gt;${APPLICATIONS_DEFAULT_ROOT}${APPLICATIONS_SUB_PATH}&lt;/value&gt;
+</I>&gt;<i>
+</I>&gt;<i> Cheers
+</I>&gt;<i>
+</I>&gt;<i> Klaus
+</I>&gt;<i>
+</I>&gt;<i> &gt; -----Original Message-----
+</I>&gt;<i> &gt; From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i> &gt; [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of
+</I>&gt;<i> &gt; Gernot Stenz
+</I>&gt;<i> &gt; Sent: Wednesday, June 13, 2007 6:44 PM
+</I>&gt;<i> &gt; To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt; Subject: [izpack-users] How does variable substitution work?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Hello,
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I have yet another problem with my IzPack (3.10.0) installer:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I need to set the path for an executable file. I do this
+</I>&gt;<i> &gt; using a variable and a &lt;parsable&gt;
+</I>&gt;<i> &gt; tag:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;variable name=&quot;OOEXECUTABLE&quot;
+</I>&gt;<i> &gt; value=&quot;$APPLICATIONS_DEFAULT_ROOT/OpenOfficeorgPortable/App/op
+</I>&gt;<i> &gt; enoffice/program/soffice.exe&quot;/&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;parsable type=&quot;xml&quot;
+</I>&gt;<i> &gt; targetfile=&quot;$INSTALL_PATH/Editor-3.3rc5/res/vmodellexport.xml&quot;/&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; and in said file I have the following:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;value&gt;$OOEXECUTABLE&lt;/value&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; However, after installation, the respective line in the file
+</I>&gt;<i> &gt; looks like this:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;value&gt;$APPLICATIONS_DEFAULT_ROOT/OpenOfficeorgPortable/App/op
+</I>&gt;<i> &gt; enoffice/program/soffice.exe&lt;/value&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Why doesn't $APPLICATIONS_DEFAULT_ROOT get substituted?
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Thanks in advance, Gernot
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; --
+</I>&gt;<i> &gt;     __o  Gernot Stenz
+</I>&gt;<i> &gt; e-mail:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">stenzg at informatik.tu-muenchen.de</A>        /\
+</I>&gt;<i> &gt;    -\&lt;,          WWW:  <A HREF="http://www4.in.tum.de/~stenzg">http://www4.in.tum.de/~stenzg</A>
+</I>&gt;<i> &gt;      /\/--\
+</I>&gt;<i> &gt; _(_)/(_)_London - Paris: 3547
+</I>&gt;<i> &gt; km__________________________________/      \
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; _______________________________________________
+</I>&gt;<i> &gt; izpack-users mailing list
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> &gt;
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070614/cb50599f/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070614/cb50599f/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001534.html">[izpack-users] How does variable substitution work?
+</A></li>
+	<LI>Next message: <A HREF="001537.html">[izpack-users] How does variable substitution work?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1536">[ date ]</a>
+              <a href="thread.html#1536">[ thread ]</a>
+              <a href="subject.html#1536">[ subject ]</a>
+              <a href="author.html#1536">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

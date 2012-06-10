@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Reading Attributes from install.xml
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Reading%20Attributes%20from%20install.xml&In-Reply-To=op.s24wanpwnznptk%40hase2">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000091.html">
+   <LINK REL="Next"  HREF="000087.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Reading Attributes from install.xml</H1>
+    <B>Hal Vaughan</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Reading%20Attributes%20from%20install.xml&In-Reply-To=op.s24wanpwnznptk%40hase2"
+       TITLE="[izpack-users] Reading Attributes from install.xml">hal at thresholddigital.com
+       </A><BR>
+    <I>Tue Jan 10 01:14:10 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000091.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+        <LI>Next message: <A HREF="000087.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#93">[ date ]</a>
+              <a href="thread.html#93">[ thread ]</a>
+              <a href="subject.html#93">[ subject ]</a>
+              <a href="author.html#93">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Monday 09 January 2006 06:17 pm, Klaus Bartz wrote:
+...
+&gt;<i> &gt;
+</I>&gt;<i> &gt; I don't know how to express it technically, so here's an example of
+</I>&gt;<i> &gt; SimplePanelsSpec.xml:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; &lt;simplespecs&gt;
+</I>&gt;<i> &gt; 	&lt;simplestuff1panel&gt;
+</I>&gt;<i> &gt; 		&lt;panel txt=&quot;Select a background color&quot; variableName=&quot;bgcolor&quot;&gt;
+</I>&gt;<i> &gt; 		&lt;panel order=&quot;1&quot; txt=&quot;Select a foreground color&quot;
+</I>&gt;<i> &gt; variableName=&quot;fgcolor&quot;&gt;
+</I>&gt;<i> &gt; 		&lt;panel order=&quot;2&quot; txt=&quot;Select a font color&quot; variableName=&quot;fontcolor&quot;&gt;
+</I>&gt;<i> &gt; 	&lt;simplestuff1panel/&gt;
+</I>&gt;<i> &gt; 	&lt;simplestuff2panel&gt;
+</I>&gt;<i> &gt; 		&lt;panel txt=&quot;Select mirror site for updates&quot; variableName=&quot;updMirrir&quot;&gt;
+</I>&gt;<i> &gt; 		&lt;panel order=&quot;1&quot; txt=&quot;Pick a download protocol&quot; variableName=&quot;dlproto&quot;&gt;
+</I>&gt;<i> &gt; 		&lt;panel order=&quot;2&quot; txt=&quot;How often should we update?&quot;
+</I>&gt;<i> &gt; variableName=&quot;updfreq&quot;&gt;
+</I>&gt;<i> &gt; 	&lt;simplestuff2panel/&gt;
+</I>&gt;<i> &gt; &lt;simplespecs/&gt;
+</I>&gt;<i>
+</I>&gt;<i> No, that you cannot write in a dtd.
+</I>&gt;<i> The name of the panel is not an element else an attribute of the element
+</I>&gt;<i> which handles panels.
+</I>&gt;<i> No text in a spec file else a key into the locale file.
+</I>&gt;<i> It will be better if variable names has a &quot;namespace&quot;.
+</I>&gt;<i> What about pack dependance?
+</I>&gt;<i> &lt;simplespecs&gt;
+</I>&gt;<i> 	&lt;simplepanel name=&quot;simplestuff1panel&quot;&gt;
+</I>&gt;<i> 		&lt;panel txtkey=&quot;simplestuff1panel.panel0.txt&quot;
+</I>&gt;<i> variableName=&quot;simplestuff1panel.bgcolor&quot;&gt;
+</I>&gt;<i> 	     &lt;panel order=&quot;1&quot; txtkey=&quot;simplestuff1panel.panel1.txt&quot;
+</I>&gt;<i> variableName=&quot;simplestuff1panel.fgcolor&quot;&gt;
+</I>&gt;<i> 		&lt;panel order=&quot;2&quot; txtkey=&quot;simplestuff1panel.panel1.txt&quot;
+</I>&gt;<i> variableName=&quot;simplestuff1panel.fontcolor&quot;&gt; 	&lt;simplepanel/&gt; 	&lt;simplepanel
+</I>&gt;<i> name=&quot;simplestuff2panel&quot;&gt;
+</I>&gt;<i>   	&lt;simplepanel/&gt;
+</I>&gt;<i> &lt;simplespecs/&gt;
+</I>
+Okay.  I see.  Thanks for correcting that!
+
+&gt;<i> &gt; The &lt;panel&gt; elements would NOT have children.  (If they did, they would
+</I>&gt;<i> &gt; not be
+</I>&gt;<i> &gt; simple.  You may notice this also allows the same panel to be used
+</I>&gt;<i> &gt; multiple
+</I>&gt;<i> &gt; times.  I looked at UserInput and found all that was needed for multiple
+</I>&gt;<i> &gt; instances of a panel was 2 integers, a static one that keeps count of the
+</I>&gt;<i> &gt; number of instances of a panel and a protected one that is the instance
+</I>&gt;<i> &gt; number.  (Note that if no order attribute is given, it defaults to 0,
+</I>&gt;<i> &gt; for the
+</I>&gt;<i> &gt; first or only instance of that panel.)
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; A side note: I've noticed some comments about how it would be nice to
+</I>&gt;<i> &gt; have
+</I>&gt;<i> &gt; multiple InfoPanels or HTMLInfoPanels.  This would make it a snap with
+</I>&gt;<i> &gt; something like this added to SimplePanelsSpec.xml for a panel named
+</I>&gt;<i> &gt; MultiInfoPanel:
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; 	&lt;multiinfopanel&gt;
+</I>&gt;<i> &gt; 		&lt;panel order=&quot;0&quot; resource=&quot;generalInfo.xml&quot;/&gt;
+</I>&gt;<i> &gt; 		&lt;panel order=&quot;1&quot; resource=&quot;upgradeInfo.xml&quot;/&gt;
+</I>&gt;<i> &gt; 	&lt;multiinfopanel/&gt;
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; I don't know if there is any reluctance to use multiple instances of
+</I>&gt;<i> &gt; panels,
+</I>&gt;<i> &gt; but I think this would provide an easy way for a simple panel to be used
+</I>&gt;<i> &gt; as
+</I>&gt;<i> &gt; many times as needed.
+</I>&gt;<i>
+</I>&gt;<i> Generell an interesting point. Little problems if the text of the
+</I>&gt;<i> panel should also depence on the order.
+</I>
+It would be up to the developer to keep the right resource associated with the 
+right panel, maybe numbers in the names would help:
+
+	&lt;simplepanel name=&quot;multiinfopanel&gt;
+		&lt;panel order=&quot;0&quot; resource=&quot;info0text.xml&quot;/&gt;
+		&lt;panel order=&quot;1&quot; resource=&quot;info1text.xml&quot;/&gt;
+	&lt;simplepanel name=&quot;multiinfopanel/&gt;
+
+That way, when the panel asked for a property, it would have to specify its 
+instance number.  The method could be overloaded so if no instance number is 
+specified, a default of 0 is used and the full method is called with that.
+
+&gt;<i> &gt;&gt; But if you would, why not a SimplePanelsSpec.xml. If so, I prefer if
+</I>&gt;<i> &gt;&gt; there will be a (static ?) method in SpecHelper like
+</I>&gt;<i> &gt;&gt; XMLElement getCommonPanelsSpec()
+</I>&gt;<i> &gt;&gt; which loads once the spec and returns every call the root of the spec.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; If you use that with my idea and the file format I just specified, then
+</I>&gt;<i> &gt; SpecHelper could load SimplePanelsSpec.xml at the start, and whenever it
+</I>&gt;<i>
+</I>&gt;<i> But without throw if not exist or at the first call of getCommonPanelsSpec.
+</I>&gt;<i> May be an installation will not use panels which using this and we will be
+</I>&gt;<i> compatible to older configurations. All new features has to be facultative.
+</I>
+Certainly.  I am thinking of adding functionality, but not doing something 
+that breaks what is there.  So this entire thing could be ignored by panels 
+that don't use or need it -- as if it were never there.  I didn't want to 
+force changes.  That's one reason I was thinking of &quot;MultiInfoPanel&quot;, it 
+would be very close to InfoPanel, but would allow multiple uses of the same 
+panel.  InfoPanel and other existing panels would not change at all.  Only 
+newer panels that want to use this spec file would use it.
+
+Hal
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000091.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+	<LI>Next message: <A HREF="000087.html">[izpack-users] Reading Attributes from install.xml
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#93">[ date ]</a>
+              <a href="thread.html#93">[ thread ]</a>
+              <a href="subject.html#93">[ subject ]</a>
+              <a href="author.html#93">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

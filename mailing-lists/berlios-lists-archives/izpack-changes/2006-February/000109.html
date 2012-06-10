@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] izpack-src/src/lib/com/izforge/izpack/uninstaller UninstallerFrame.java,1.22.4.2,1.22.4.3 Uninstaller.java,1.18.4.1,1.18.4.2
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/uninstaller%20UninstallerFrame.java%2C1.22.4.2%2C1.22.4.3%20Uninstaller.java%2C1.18.4.1%2C1.18.4.2&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000108.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] izpack-src/src/lib/com/izforge/izpack/uninstaller UninstallerFrame.java,1.22.4.2,1.22.4.3 Uninstaller.java,1.18.4.1,1.18.4.2</H1>
+    <B>jponge</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20izpack-src/src/lib/com/izforge/izpack/uninstaller%20UninstallerFrame.java%2C1.22.4.2%2C1.22.4.3%20Uninstaller.java%2C1.18.4.1%2C1.18.4.2&In-Reply-To="
+       TITLE="[izpack-changes] izpack-src/src/lib/com/izforge/izpack/uninstaller UninstallerFrame.java,1.22.4.2,1.22.4.3 Uninstaller.java,1.18.4.1,1.18.4.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Feb  2 16:56:00 CET 2006</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000108.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/panels InstallPanel.java,1.25.4.1,1.25.4.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/izpack//izpack-src/src/lib/com/izforge/izpack/uninstaller
+In directory sheep:/tmp/cvs-serv22927/src/lib/com/izforge/izpack/uninstaller
+
+Modified Files:
+      Tag: branch-3-8
+	UninstallerFrame.java Uninstaller.java 
+Log Message:
+Swing threading fixes. IzPack looks faster like that!
+
+Index: UninstallerFrame.java
+===================================================================
+RCS file: /cvsroot/izpack//izpack-src/src/lib/com/izforge/izpack/uninstaller/UninstallerFrame.java,v
+retrieving revision 1.22.4.2
+retrieving revision 1.22.4.3
+diff -u -d -r1.22.4.2 -r1.22.4.3
+--- UninstallerFrame.java	3 Jan 2006 13:54:04 -0000	1.22.4.2
++++ UninstallerFrame.java	2 Feb 2006 15:55:57 -0000	1.22.4.3
+@@ -48,6 +48,7 @@
+ import javax.swing.JOptionPane;
+ import javax.swing.JPanel;
+ import javax.swing.JProgressBar;
++import javax.swing.SwingUtilities;
+ import javax.swing.UIManager;
+ 
+ import com.izforge.izpack.LocaleDatabase;
+@@ -330,20 +331,30 @@
+          * @param name The name of the overall action. Not used here.
+          * @param max The maximum value of the progress.
+          */
+-        public void startAction(String name, int max)
++        public void startAction(final String name, final int max)
+         {
+-            progressBar.setMinimum(0);
+-            progressBar.setMaximum(max);
+-            blockGUI();
++            SwingUtilities.invokeLater(new Runnable() {
++                public void run()
++                {
++                    progressBar.setMinimum(0);
++                    progressBar.setMaximum(max);
++                    blockGUI();                    
++                }
++            });
+         }
+ 
+         /** The destroyer stops. */
+         public void stopAction()
+         {
+-            progressBar.setString(langpack.getString(&quot;InstallPanel.finished&quot;));
+-            targetDestroyCheckbox.setEnabled(false);
+-            destroyButton.setEnabled(false);
+-            releaseGUI();
++            SwingUtilities.invokeLater(new Runnable() {
++                public void run()
++                {
++                    progressBar.setString(langpack.getString(&quot;InstallPanel.finished&quot;));
++                    targetDestroyCheckbox.setEnabled(false);
++                    destroyButton.setEnabled(false);
++                    releaseGUI();
++                }
++            });
+         }
+ 
+         /**
+@@ -352,10 +363,15 @@
+          * @param pos The actual position.
+          * @param message The message.
+          */
+-        public void progress(int pos, String message)
++        public void progress(final int pos, final String message)
+         {
+-            progressBar.setValue(pos);
+-            progressBar.setString(message);
++            SwingUtilities.invokeLater(new Runnable() {
++                public void run()
++                {
++                    progressBar.setValue(pos);
++                    progressBar.setString(message);
++                }
++            });
+         }
+ 
+         public void nextStep(String step_name, int step_no, int no_of_substeps)
+
+Index: Uninstaller.java
+===================================================================
+RCS file: /cvsroot/izpack//izpack-src/src/lib/com/izforge/izpack/uninstaller/Uninstaller.java,v
+retrieving revision 1.18.4.1
+retrieving revision 1.18.4.2
+diff -u -d -r1.18.4.1 -r1.18.4.2
+--- Uninstaller.java	3 Jan 2006 13:54:05 -0000	1.18.4.1
++++ Uninstaller.java	2 Feb 2006 15:55:57 -0000	1.18.4.2
+@@ -21,6 +21,7 @@
+ 
+ import java.lang.reflect.Method;
+ 
++import javax.swing.SwingUtilities;
+ import javax.swing.UIManager;
+ 
+ /**
+@@ -56,16 +57,21 @@
+ 
+     public static void uninstall(String[] args)
+     {
+-        try
+-        {
+-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+-            new UninstallerFrame();
+-        }
+-        catch (Exception err)
+-        {
+-            System.err.println(&quot;- Error -&quot;);
+-            err.printStackTrace();
+-            System.exit(0);
+-        }
++        SwingUtilities.invokeLater(new Runnable() {
++            public void run()
++            {
++                try
++                {
++                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
++                    new UninstallerFrame();
++                }
++                catch (Exception err)
++                {
++                    System.err.println(&quot;- Error -&quot;);
++                    err.printStackTrace();
++                    System.exit(0);
++                }
++            }
++        });
+     }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000108.html">[izpack-changes] izpack-src/src/lib/com/izforge/izpack/panels InstallPanel.java,1.25.4.1,1.25.4.2
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

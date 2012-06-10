@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Usage of Loose Packs
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Usage%20of%20Loose%20Packs&In-Reply-To=op.s9f6sefqo9rvf8%40neptun">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000526.html">
+   <LINK REL="Next"  HREF="000529.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Usage of Loose Packs</H1>
+    <B>Stefan Wachter</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Usage%20of%20Loose%20Packs&In-Reply-To=op.s9f6sefqo9rvf8%40neptun"
+       TITLE="[izpack-users] Usage of Loose Packs">Stefan.Wachter at gmx.de
+       </A><BR>
+    <I>Fri May 12 19:27:37 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000526.html">[izpack-users] Usage of Loose Packs
+</A></li>
+        <LI>Next message: <A HREF="000529.html">[izpack-users] running a post install script and file separators
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#528">[ date ]</a>
+              <a href="thread.html#528">[ thread ]</a>
+              <a href="subject.html#528">[ subject ]</a>
+              <a href="author.html#528">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Joerg,
+
+unfortunately nobody reacted. Therefore I looked into AntInstaller and 
+found a nice solution there. If you know that a specific class is 
+packaged in the setup jar then you can get that class as a resource. 
+Then you do some file name manipulation to get the file name of the 
+setup jar. Finally you can derive the folder where the setup jar resides 
+in and address other files inside that folder. Here is some code snippet:
+
+    URL jarUrl = 
+getClass().getResource(&quot;/de/vdp/ant/IzPackDetermineJarTask.class&quot;); // 
+class contained in setup jar
+    String stringForm = jarUrl.toString();
+    String fileForm = jarUrl.getFile();
+   
+    File jarFile = null;
+    int endIdx = stringForm.indexOf(&quot;!/&quot;);
+    if (endIdx == -1) {
+      throw new BuildException(&quot;Can't locate the jar file - url: '&quot; + 
+stringForm + &quot;'&quot;);
+    }
+    String unescaped = null;
+    String fileNamePart = stringForm.substring(&quot;jar:file:&quot;.length(), 
+endIdx);
+    jarFile = new File(fileNamePart);
+    if (!jarFile.exists()) {
+      // try to unescape the URL Handler has escaped the &quot; &quot; to %20
+      unescaped = unescape(fileNamePart);
+      jarFile = new File(unescaped);
+      if (!jarFile.exists()) {
+        throw new BuildException(&quot;Can't locate the jar file - tried: '&quot; 
++ fileNamePart + &quot;' and '&quot; + unescaped + &quot;'&quot;);
+      }
+    }
+    File setupDirectory = jarFile.getParentFile();
+
+I use that code in an Ant task to set a property. Ideally someone would 
+integrate this kind of code into IzPack and set a built-in variable, 
+e.g. SETUP_DIRECTORY.
+
+--Stefan
+
+
+PS: Here's the code for unescape
+
+  private static String unescape(final String s) {
+    StringBuffer sb = new StringBuffer(s.length());
+   
+    for (int i = 0; i &lt; s.length(); i++) {
+      char c = s.charAt(i);
+      switch (c) {
+        case '%': {
+          try {
+            sb.append( (char) Integer.parseInt(s.substring(i + 1, i + 
+3), 16));
+            i += 2;
+            break;
+          } catch (NumberFormatException nfe) {
+            throw new IllegalArgumentException();
+          } catch (StringIndexOutOfBoundsException siob) {
+            String end = s.substring(i);
+            sb.append(end);
+            if (end.length() == 2) i++;
+          }
+          break;
+        }
+        default: {
+          sb.append(c);
+          break;
+        }
+      }
+    }
+    return sb.toString();
+  }
+
+Joerg Fackler wrote:
+&gt;<i> Hello,
+</I>&gt;<i>
+</I>&gt;<i> did you gained some information about that topic? For me
+</I>&gt;<i> this is interesting too.
+</I>&gt;<i>
+</I>&gt;<i> Best regards, Joerg
+</I>&gt;<i>
+</I>&gt;&gt;<i> Hi all,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I tried for hours to get a loose package working.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> The problem occurs during installation. What is the correct value 
+</I>&gt;&gt;<i> forthe &quot;dir&quot; attribute in a fileset of a loose package?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Assuming that in the same directory where the setup.jar is located 
+</I>&gt;&gt;<i> thereare a couple of WAR files that are to be copied into the webapps 
+</I>&gt;&gt;<i> folderof the installation directory. The following does not the job. 
+</I>&gt;&gt;<i> It seemsthat the specified dir (&quot;.&quot;) is resolved relatively to the 
+</I>&gt;&gt;<i> basedir that was specified during compiling the setup. Yet, the 
+</I>&gt;&gt;<i> basedir used duringcompilation can definitely not be used during 
+</I>&gt;&gt;<i> installation!
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Best regards,
+</I>&gt;&gt;<i> --Stefan
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>    &lt;pack name=&quot;wars&quot; required=&quot;yes&quot; loose=&quot;true&quot;&gt;
+</I>&gt;&gt;<i>      &lt;description/&gt;
+</I>&gt;&gt;<i>      &lt;fileset dir=&quot;.&quot; includes=&quot;*.war&quot; 
+</I>&gt;&gt;<i> targetdir=&quot;$INSTALL_PATH/webapps&quot;/&gt;
+</I>&gt;&gt;<i>    &lt;/pack&gt;
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="http://lists.berlios.de/mailman/listinfo/izpack-users">http://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000526.html">[izpack-users] Usage of Loose Packs
+</A></li>
+	<LI>Next message: <A HREF="000529.html">[izpack-users] running a post install script and file separators
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#528">[ date ]</a>
+              <a href="thread.html#528">[ thread ]</a>
+              <a href="subject.html#528">[ subject ]</a>
+              <a href="author.html#528">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

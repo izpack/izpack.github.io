@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1538 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1538%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000282.html">
+   <LINK REL="Next"  HREF="000284.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1538 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1538%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1538 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Sun Aug 27 13:27:16 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000282.html">[izpack-changes] r1537 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000284.html">[izpack-changes] r1539 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#283">[ date ]</a>
+              <a href="thread.html#283">[ thread ]</a>
+              <a href="subject.html#283">[ subject ]</a>
+              <a href="author.html#283">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-08-27 13:27:14 +0200 (Sun, 27 Aug 2006)
+New Revision: 1538
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java
+Log:
+Added some logging lines.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java	2006-08-25 15:22:36 UTC (rev 1537)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/AutomatedInstaller.java	2006-08-27 11:27:14 UTC (rev 1538)
+@@ -43,6 +43,7 @@
+ import com.izforge.izpack.ExecutableFile;
+ import com.izforge.izpack.LocaleDatabase;
+ import com.izforge.izpack.Panel;
++import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.Housekeeper;
+ import com.izforge.izpack.util.OsConstraint;
+ 
+@@ -179,6 +180,7 @@
+     {
+         // TODO: i18n
+         System.out.println(&quot;[ Starting automated installation ]&quot;);
++        Debug.log(&quot;[ Starting automated installation ]&quot;);
+ 
+         try
+         {
+@@ -190,6 +192,7 @@
+             while (panelsIterator.hasNext())
+             {
+                 Panel p = (Panel) panelsIterator.next();
++                
+                 String praefix = &quot;com.izforge.izpack.panels.&quot;;
+                 if (p.className.compareTo(&quot;.&quot;) &gt; -1)
+                 // Full qualified class name
+@@ -199,14 +202,19 @@
+                 String panelClassName = p.className;
+                 String automationHelperClassName = praefix + panelClassName + &quot;AutomationHelper&quot;;
+                 Class automationHelperClass = null;
++                
++                Debug.log( &quot;AutomationHelper:&quot; + automationHelperClassName );
+                 // determine if the panel supports automated install
+                 try
+                 {
++                    
+                     automationHelperClass = Class.forName(automationHelperClassName);
++                    
+                 }
+                 catch (ClassNotFoundException e)
+                 {
+                     // this is OK - not all panels have/need automation support.
++                    Debug.log( &quot;ClassNotFoundException-skip :&quot; + automationHelperClassName );
+                     continue;
+                 }
+     
+@@ -216,12 +224,13 @@
+                 {
+                     try
+                     {
++                        Debug.log( &quot;Instantiate :&quot; + automationHelperClassName );
+                         automationHelperInstance = (PanelAutomation) automationHelperClass
+                                 .newInstance();
+                     }
+                     catch (Exception e)
+                     {
+-                        System.err.println(&quot;ERROR: no default constructor for &quot;
++                        Debug.log(&quot;ERROR: no default constructor for &quot;
+                                 + automationHelperClassName + &quot;, skipping...&quot;);
+                         continue;
+                     }
+@@ -247,17 +256,22 @@
+                 {
+                     try
+                     {
++                        Debug.log( &quot;automationHelperInstance.runAutomated :&quot; + automationHelperClassName + &quot; entered.&quot; );
+                         if (! automationHelperInstance.runAutomated(this.idata, panelRoot))
+                         {
+                             // make installation fail instantly
+                             this.result = false;
+                             return;
+                         }
++                        else
++                        {
++                          Debug.log( &quot;automationHelperInstance.runAutomated :&quot; + automationHelperClassName + &quot; successfully done.&quot; );  
++                        }
+                     }
+                     catch (Exception e)
+                     {
+-                        System.err.println(&quot;ERROR: automated installation failed for panel &quot;
+-                                + panelClassName);
++                        Debug.log( &quot;ERROR: automated installation failed for panel &quot;
++                                + panelClassName );
+                         e.printStackTrace();
+                         this.result = false;
+                         continue;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000282.html">[izpack-changes] r1537 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000284.html">[izpack-changes] r1539 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#283">[ date ]</a>
+              <a href="thread.html#283">[ thread ]</a>
+              <a href="subject.html#283">[ subject ]</a>
+              <a href="author.html#283">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

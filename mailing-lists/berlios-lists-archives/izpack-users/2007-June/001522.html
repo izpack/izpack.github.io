@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] evaluating panelconditions
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20evaluating%20panelconditions&In-Reply-To=10798035.post%40talk.nabble.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001521.html">
+   <LINK REL="Next"  HREF="001525.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] evaluating panelconditions</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20evaluating%20panelconditions&In-Reply-To=10798035.post%40talk.nabble.com"
+       TITLE="[izpack-users] evaluating panelconditions">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Mon Jun 11 11:13:45 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001521.html">[izpack-users] Shiney has Tagged you! :)
+</A></li>
+        <LI>Next message: <A HREF="001525.html">[izpack-users] UI display issues
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1522">[ date ]</a>
+              <a href="thread.html#1522">[ thread ]</a>
+              <a href="subject.html#1522">[ subject ]</a>
+              <a href="author.html#1522">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hmm .... 
+I think, there's a problem in your condition xml, because condition-elements should only allowed before panelconditions elements.
+
+Maybe this already solves your problem.
+
+Regards,
+   Dennis
+
+-----Urspr&#252;ngliche Nachricht-----
+Von: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] Im Auftrag von grb
+Gesendet: Freitag, 25. Mai 2007 09:02
+An: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Betreff: [izpack-users] evaluating panelconditions
+
+
+Hello list,
+
+i have a question regarding the evalution of conditions, since i was not
+able to find anything, that answers
+my question. The scenario is the following:
+I have two custom panels. In the first (which is called EnvironmentPanel) i
+set a variable like this, if a certain radiobutton was selected:
+
+&gt;<i> idata.setVariable(&quot;setuptype&quot;, radioButtonAlias.isSelected() ? &quot;multinode&quot;
+</I>&gt;<i> : &quot;singlenode&quot;);
+</I>
+my custom isValidated() method within this panel shows me via
+System.out.println(idata.getVariable(&quot;setuptype&quot;)); that the  value is set
+as I expected.
+
+I then have my conditions.xml, that looks like following:
+
+&lt;conditions&gt;
+&lt;panelcondition panelid=&quot;web&quot; conditionid=&quot;multinodesetup&quot;/&gt;
+	&lt;condition type=&quot;variable&quot; id=&quot;multinodesetup&quot;&gt;
+           &lt;name&gt;setuptype&lt;/name&gt;
+           &lt;value&gt;multinode&lt;/value&gt;
+	&lt;/condition&gt;
+&lt;/conditions&gt;
+
+and the panels section of my install.xml:
+
+&lt;panels&gt;
+...
+&lt;panel classname=&quot;EnvironmentPanel&quot;/&gt;
+&lt;panel classname=&quot;WebServerPanel&quot; id=&quot;web&quot;/&gt;
+...
+&lt;panels&gt;
+
+So the idea behind this all is, that the 'WebServerPanel' should be shown if
+the variable &quot;setuptype&quot; in the prior panel (the 'EnvironmenPanel') was set
+to &quot;multinode&quot;. But it does not work.
+
+The interesting part of it all is that if i put a panel in between the
+'EnvironmentPanel' and the 'WebServerPanel', for instance:
+
+&lt;panels&gt;
+...
+&lt;panel classname=&quot;EnvironmentPanel&quot;/&gt;
+&lt;panel classname=&quot;SomePanel&quot; /&gt;
+&lt;panel classname=&quot;WebServerPanel&quot; id=&quot;web&quot;/&gt;
+...
+&lt;panels&gt;
+
+it works.
+
+So, what am I doing wrong? I know this has to be possible, since Dennis Reil
+posted the documentation 
+section of conditions a week ago, where a analogical example occurs in the
+examples.
+
+Regards
+
+
+
+
+
+-- 
+View this message in context: <A HREF="http://www.nabble.com/evaluating-panelconditions-tf3814543.html#a10798035">http://www.nabble.com/evaluating-panelconditions-tf3814543.html#a10798035</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+_______________________________________________
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001521.html">[izpack-users] Shiney has Tagged you! :)
+</A></li>
+	<LI>Next message: <A HREF="001525.html">[izpack-users] UI display issues
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1522">[ date ]</a>
+              <a href="thread.html#1522">[ thread ]</a>
+              <a href="subject.html#1522">[ subject ]</a>
+              <a href="author.html#1522">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] 2 Bugs Report
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%202%20Bugs%20Report&In-Reply-To=9291ebe10704162325u2bf0ae64na72bbaaadf4e4771%40mail.gmail.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001428.html">
+   <LINK REL="Next"  HREF="001415.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] 2 Bugs Report</H1>
+    <B>guan</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%202%20Bugs%20Report&In-Reply-To=9291ebe10704162325u2bf0ae64na72bbaaadf4e4771%40mail.gmail.com"
+       TITLE="[izpack-users] 2 Bugs Report">enzheng.guan at rsi.ricoh.co.jp
+       </A><BR>
+    <I>Tue Apr 17 10:20:39 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001428.html">[izpack-users] 2 Bugs Report
+</A></li>
+        <LI>Next message: <A HREF="001415.html">[izpack-users] Izpack shortcutPanel problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1430">[ date ]</a>
+              <a href="thread.html#1430">[ thread ]</a>
+              <a href="subject.html#1430">[ subject ]</a>
+              <a href="author.html#1430">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Hello Julien,
+
+Thank you very much for your answer.
+ 
+It is really an encoding problem, In fact, there existes the same problem in
+Chinese Version.
+Now I can resolve the problem by the following way :
+In (IzPack3.10.1) line 292 of
+com.izforge.izpack.util.VariableSubstitutor.substitute
+substitute(Reader,Writer,String) 
+modify  [ if(c&gt;0xFF) ] -&gt; [  if(c==0xFF) ] , or delete this segment.
+because: the value of the missed charactor is &quot;12452&quot; which is bigger than
+oxFF.
+-------------------the original code------------------------
+// Ignore quaint return values at UTF-8 BOMs. 
+        if( c &gt; 0xFF )
+            c = reader.read();
+---------------------------------------------------------------
+But I am not sure whether it is the right way to solve the problem. and now
+I am learning the knowlege about encoding problem.
+
+By the way,  could you tell me how to solve the 2nd question.
+Bug2.
+In UserInputPanel, during the installation proccess, when I select the
+&quot;previous&quot; button to see the previous UserInputPanel again, the previous
+UerInputPanel cannot show in right layout.
+
+Regards, 
+Guan
+
+
+
+
+Julien Ponge-3 wrote:
+&gt;<i> 
+</I>&gt;<i> Guan,
+</I>&gt;<i> 
+</I>&gt;<i> I don't know how to handle your report since I think your message has
+</I>&gt;<i> encoding problems and I cannot read Japanese, so I am not sure what the
+</I>&gt;<i> problem really is :-(
+</I>&gt;<i> 
+</I>&gt;<i> On 4/11/07, guan &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">enzheng.guan at rsi.ricoh.co.jp</A>&gt; wrote:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Bug1. When I selcect &quot;Quit&quot; button during an installation proccess. In
+</I>&gt;&gt;<i> the
+</I>&gt;&gt;<i> Japanese Version there exists such a bug: the right message to show is
+</I>&gt;&gt;<i> :&quot;&#12452;&#12531;&#12473;&#12488;&#12540;&#12523;&#20013;&#27490;&quot;, but IzPack shows a wrong message &quot;&#12531;&#12473;&#12488;&#12540;&#12523;&#20013;&#27490;&quot; which missed the
+</I>&gt;&gt;<i> &quot;&#12452;&quot;. The image is like the following picture: [image: 2 Bugs Report] I
+</I>&gt;&gt;<i> think the reason causes in line 1179. 1180 of
+</I>&gt;&gt;<i> com.izforge.izpack.installer.InstallerFrame.java. And I think the bug is
+</I>&gt;&gt;<i> in method substitute() which exists in Line 267 of
+</I>&gt;&gt;<i> com.izforge.izpack.util.VariableSubstitutor.substitute. But now I dont
+</I>&gt;&gt;<i> know how to correct it. Bug2. In UserInputPanel, during the installation
+</I>&gt;&gt;<i> proccess, when I select the &quot;previous&quot; button to see the previous
+</I>&gt;&gt;<i> UserInputPanel again, the previous UerInputPanel cannot show in right
+</I>&gt;&gt;<i> format. the first time to see the UerInputPanel&#65306; [image: 2 Bugs
+</I>&gt;&gt;<i> Report]the second time to see it when click the &quot;previous&quot; button:
+</I>&gt;&gt;<i> [image:
+</I>&gt;&gt;<i> 2 Bugs Report] Till now I do not konw the reasons, would you like to help
+</I>&gt;&gt;<i> me. Very Very Thanks!
+</I>&gt;&gt;<i> ------------------------------
+</I>&gt;&gt;<i> View this message in context: 2 Bugs
+</I>&gt;&gt;<i> Report&lt;<A HREF="http://www.nabble.com/2-Bugs-Report-tf3556704.html#a9931343">http://www.nabble.com/2-Bugs-Report-tf3556704.html#a9931343</A>&gt;
+</I>&gt;&gt;<i> Sent from the izpack users mailing list
+</I>&gt;&gt;<i> archive&lt;<A HREF="http://www.nabble.com/izpack-users-f15508.html">http://www.nabble.com/izpack-users-f15508.html</A>&gt;at
+</I>&gt;&gt;<i> Nabble.com.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+-- 
+View this message in context: <A HREF="http://www.nabble.com/2-Bugs-Report-tf3556704.html#a10031113">http://www.nabble.com/2-Bugs-Report-tf3556704.html#a10031113</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001428.html">[izpack-users] 2 Bugs Report
+</A></li>
+	<LI>Next message: <A HREF="001415.html">[izpack-users] Izpack shortcutPanel problem
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1430">[ date ]</a>
+              <a href="thread.html#1430">[ thread ]</a>
+              <a href="subject.html#1430">[ subject ]</a>
+              <a href="author.html#1430">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

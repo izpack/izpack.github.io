@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Patch to allow JDKPathPanel to work properly on	MacOSX .. and more
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20to%20allow%20JDKPathPanel%20to%20work%20properly%20on%0A%09MacOSX%20..%20and%20more&In-Reply-To=0EEDC49D-9475-4BD0-BDC6-F2E3DB2A3D1D%40magnolia.info">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000700.html">
+   <LINK REL="Next"  HREF="000702.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Patch to allow JDKPathPanel to work properly on	MacOSX .. and more</H1>
+    <B>Gr&#233;gory Joseph</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%20to%20allow%20JDKPathPanel%20to%20work%20properly%20on%0A%09MacOSX%20..%20and%20more&In-Reply-To=0EEDC49D-9475-4BD0-BDC6-F2E3DB2A3D1D%40magnolia.info"
+       TITLE="[izpack-devel] Patch to allow JDKPathPanel to work properly on	MacOSX .. and more">gregory.joseph at magnolia.info
+       </A><BR>
+    <I>Thu Dec 14 19:29:30 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000700.html">[izpack-devel] Patch to allow JDKPathPanel to work properly on	MacOSX .. and more
+</A></li>
+        <LI>Next message: <A HREF="000702.html">[izpack-devel] Patch to allow JDKPathPanel to work properly	onMacOSX .. and more
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#701">[ date ]</a>
+              <a href="thread.html#701">[ thread ]</a>
+              <a href="subject.html#701">[ subject ]</a>
+              <a href="author.html#701">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I forgot to mention: it also makes it works (ie &quot;find&quot; a default JDK)  
+on systems where the JAVA_HOME env.var points to a JDK, on systems  
+where the installer is started *with* a jdk's java and on systems  
+where the JAVA_HOME env.var points to a JRE which is in a subdir of a  
+JDK but where the installer is started with another JDK (ie JAVA_HOME  
+not in synch with PATH, or the mighty MS JVM...)
+
+I worked on the 3.9.0 tag, but the patch is applicable on the trunk too.
+
+g
+
+
+On Dec 14, 2006, at 19:17 , Gr&#233;gory Joseph wrote:
+
+&gt;<i> Hi list,
+</I>&gt;<i>
+</I>&gt;<i> As mentionned on the user-list, the JDKPathPanel does not work  
+</I>&gt;<i> properly on MacOSX: it tries to get the parent directory of the  
+</I>&gt;<i> running vm (idata.getVariable(&quot;JAVA_HOME&quot;), which confusingly  
+</I>&gt;<i> actually corresponds to System.getProperty(&quot;java.home&quot;)), which  
+</I>&gt;<i> makes no sense on MacOSX (i.e this will not point to a jdk if we're  
+</I>&gt;<i> running from a jre). Since I wasn't checking for a minimal version  
+</I>&gt;<i> in my installer, the installed application just did not work.
+</I>&gt;<i>
+</I>&gt;<i> Anyways, here's my patch for this. Instead of just trying to find a  
+</I>&gt;<i> jdk at java.home's parent, it checks
+</I>&gt;<i> java.home
+</I>&gt;<i> java.home's parent
+</I>&gt;<i> JAVA_HOME (the system env. variable)
+</I>&gt;<i> JAVA_HOME's parent
+</I>&gt;<i>
+</I>&gt;<i> As you'll see, I had to introduce a pathIsValid(String path) method  
+</I>&gt;<i> in PathInputPanel, which is actually probably a good thing and  
+</I>&gt;<i> should help in further separating gui code from logic, and for  
+</I>&gt;<i> instance, avoids unnecessary calls to          
+</I>&gt;<i> pathSelectionPanel.setPath(chosenPath) (lines 126-129 in JDKPathPanel)
+</I>&gt;<i>
+</I>&gt;<i> Please let me know what you think.
+</I>&gt;<i>
+</I>&gt;<i> Cheers,
+</I>&gt;<i>
+</I>&gt;<i> greg
+</I>&gt;<i>
+</I>&gt;<i> &lt;jdkpathpanel.patch&gt;
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-devel mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">izpack-devel at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-devel">https://lists.berlios.de/mailman/listinfo/izpack-devel</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000700.html">[izpack-devel] Patch to allow JDKPathPanel to work properly on	MacOSX .. and more
+</A></li>
+	<LI>Next message: <A HREF="000702.html">[izpack-devel] Patch to allow JDKPathPanel to work properly	onMacOSX .. and more
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#701">[ date ]</a>
+              <a href="thread.html#701">[ thread ]</a>
+              <a href="subject.html#701">[ subject ]</a>
+              <a href="author.html#701">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

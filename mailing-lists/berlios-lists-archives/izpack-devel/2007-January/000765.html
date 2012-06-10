@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] MultiVolumeInstaller
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20MultiVolumeInstaller&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000768.html">
+   <LINK REL="Next"  HREF="000766.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] MultiVolumeInstaller</H1>
+    <B>Dennis Reil</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20MultiVolumeInstaller&In-Reply-To="
+       TITLE="[izpack-devel] MultiVolumeInstaller">Dennis.Reil at reddot.de
+       </A><BR>
+    <I>Tue Jan  9 13:11:16 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000768.html">[izpack-devel] Updating to latest version of NanoXML
+</A></li>
+        <LI>Next message: <A HREF="000766.html">[izpack-devel] MultiVolumeInstaller
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#765">[ date ]</a>
+              <a href="thread.html#765">[ thread ]</a>
+              <a href="subject.html#765">[ subject ]</a>
+              <a href="author.html#765">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I added a new packager and unpacker (called MultiVolumePackager and
+MultiVolumeUnpacker) which can be used to create an installer which
+spans over multiple disks, e.g. 2 CDs. There was a wiki-entry in the
+past which discussed the option of a spanning disk installer. These
+classes are partly based on the ideas mentioned there.
+
+It can be activated by specifying it using the packaging-element in
+install.xml, e.g. add the following to your install.xml if you want to
+create an installer using multiple cds of 650 MB size:
+
+&lt;packaging&gt;
+   &lt;packager class=&quot;com.izforge.izpack.compiler.MultiVolumePackager&quot;&gt;
+     &lt;options volumesize=&quot;681574400&quot; firstvolumefreespace=&quot;157286400&quot; /&gt;
+   &lt;/packager&gt;
+   &lt;unpacker class=&quot;com.izforge.izpack.installer.MultiVolumeUnpacker&quot; /&gt;
+&lt;/packaging&gt;
+
+There will be an additional free space on the first cd of 150 MB. This
+can be used for the installer.jar + additional information, docu, ...
+which is not part of the installer itself.
+
+Izpack now creates a jar file plus some installer.pak*-files. These
+.pak*-files contain the packfiles and can be placed on separate disks.
+
+I'll send out some documentation to Fabrice soon.
+
+Btw, this is just a new option, so it won't be changed anything in the
+current installers behaviour if you don't use the packaging element,
+except that there will be some new classes in the installer.jar.
+
+Regards,
+  Dennis
+ 
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000768.html">[izpack-devel] Updating to latest version of NanoXML
+</A></li>
+	<LI>Next message: <A HREF="000766.html">[izpack-devel] MultiVolumeInstaller
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#765">[ date ]</a>
+              <a href="thread.html#765">[ thread ]</a>
+              <a href="subject.html#765">[ subject ]</a>
+              <a href="author.html#765">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

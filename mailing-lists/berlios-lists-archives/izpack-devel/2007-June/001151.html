@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Patch: Pack name in PacksPanel
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%3A%20Pack%20name%20in%20PacksPanel&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001156.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Patch: Pack name in PacksPanel</H1>
+    <B>Markus Schlegel</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Patch%3A%20Pack%20name%20in%20PacksPanel&In-Reply-To="
+       TITLE="[izpack-devel] Patch: Pack name in PacksPanel">schlm3 at gmail.com
+       </A><BR>
+    <I>Fri Jun  1 09:41:55 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001156.html">[izpack-devel] Patch: Pack name in PacksPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1151">[ date ]</a>
+              <a href="thread.html#1151">[ thread ]</a>
+              <a href="subject.html#1151">[ subject ]</a>
+              <a href="author.html#1151">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>The Packspanel shows the Pack-Id instead of the Pack-Name in the Packspanel,
+if the user chooses the default language and the installer does not contain
+a langpack for the defaultlanguage (thus the installer.xml contains the name
+and description of the default language directly).
+
+Attached a patch for this.
+
+Notice, that I had a similar problem a while ago, and I think the API of
+LocalDatabase could be improved by adding that method:
+
+public String getString(String key, String default){
+        String val = (String) get(key);
+        if (val == null)  return default;
+        else return val;
+}
+
+There are a enough callers of getString(key) that check (or maybe forget to
+check) if the returnvalue is equal to key and have to alter it afterwards,
+that legitimates that change.
+I could also make this change in the trunk (replacing current calls like the
+one in the patch and &quot;PacksPanelBase.getI18NPackName(Pack)&quot;) if you like.
+
+Regards
+Markus
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070601/979dba5f/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070601/979dba5f/attachment.html</A> 
+-------------- next part --------------
+Index: C:/deron/3rdParty/IzPack_3.10/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- C:/deron/3rdParty/IzPack_3.10/src/lib/com/izforge/izpack/panels/PacksModel.java	(revision 1857)
++++ C:/deron/3rdParty/IzPack_3.10/src/lib/com/izforge/izpack/panels/PacksModel.java	(working copy)
+@@ -303,7 +303,11 @@
+             }
+             else
+             {
+-                return langpack.getString(pack.id);
++                String tmp = langpack.getString(pack.id); //TODO should really change this. Getting back the Key does not help.
++                if (pack.id.equals(tmp))
++                    return pack.name;
++                else
++                    return tmp;
+             }
+ 
+         case 2:
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001156.html">[izpack-devel] Patch: Pack name in PacksPanel
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1151">[ date ]</a>
+              <a href="thread.html#1151">[ thread ]</a>
+              <a href="subject.html#1151">[ subject ]</a>
+              <a href="author.html#1151">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

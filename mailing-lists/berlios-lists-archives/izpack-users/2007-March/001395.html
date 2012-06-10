@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Passing arguments to executable
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To=460B7DBC.9080705%40webmail.co.za">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001393.html">
+   <LINK REL="Next"  HREF="001392.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Passing arguments to executable</H1>
+    <B>Zycor.net Development Solutions</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Passing%20arguments%20to%20executable&In-Reply-To=460B7DBC.9080705%40webmail.co.za"
+       TITLE="[izpack-users] Passing arguments to executable">airhead at webmail.co.za
+       </A><BR>
+    <I>Thu Mar 29 11:17:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001393.html">[izpack-users] Passing arguments to executable
+</A></li>
+        <LI>Next message: <A HREF="001392.html">[izpack-users] total space required bug ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1395">[ date ]</a>
+              <a href="thread.html#1395">[ thread ]</a>
+              <a href="subject.html#1395">[ subject ]</a>
+              <a href="author.html#1395">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>But according to the DTD, it needs to be like this (Unless I'm missing 
+something...)
+
+Please help, I don't know what else to try....
+
+
+&lt;pack name=&quot;MSDE 2005&quot; id=&quot;sqlExpress.package&quot; required=&quot;no&quot;
+                installGroups=&quot;Stand Alone (Vista),Network Server (Vista)&quot;
+                loose=&quot;true&quot;&gt;
+            &lt;description&gt;The MS SQL Server Express&lt;/description&gt;
+                &lt;file src=&quot;serverExpress&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+                &lt;executable
+                    targetfile=&quot;$INSTALL_PATH/serverExpress/setup.exe&quot;
+                            stage=&quot;postinstall&quot; keep=&quot;false&quot; failure=&quot;warn&quot;&gt;
+                  &lt;args&gt;
+                    &lt;arg value=&quot;/qb&quot; /&gt;
+                    &lt;arg value=&quot;INSTANCENAME=CORETALK&quot; /&gt;
+                    &lt;arg value=&quot;ADDLOCAL=ALL&quot; /&gt;
+                    &lt;arg value=&quot;SQLAUTOSTART=1&quot; /&gt;
+                    &lt;arg value=&quot;AGTAUTOSTART=1&quot; /&gt;
+                    &lt;arg value=&quot;SECURITYMODE=SQL&quot; /&gt;
+                    &lt;arg value=&quot;SAPWD=root&quot; /&gt;
+                    &lt;arg value=&quot;DISABLENETWORKPROTOCOLS=0&quot; /&gt;
+                  &lt;/args&gt;
+                &lt;/executable&gt;
+    &lt;/pack&gt;
+
+
+Riaan Cornelius  Software Developer - B.Sc(IT)  -  *<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">neo at zycor.net</A>*
+
+ 
+
+
+
+Zycor.net Development Solutions wrote:
+&gt;<i> Hi everybody,
+</I>&gt;<i>
+</I>&gt;<i> Can anybody help with this? As far as I can tell, the correct way of 
+</I>&gt;<i> doing this would actually be as follows (From the ProcessPanel docs...):
+</I>&gt;<i>
+</I>&gt;<i> &lt;pack name=&quot;MSDE 2005&quot; id=&quot;sqlExpress.package&quot; required=&quot;no&quot;
+</I>&gt;<i>                 installGroups=&quot;Stand Alone (Vista),Network Server (Vista)&quot;
+</I>&gt;<i>                 loose=&quot;true&quot;&gt;
+</I>&gt;<i>             &lt;description&gt;The MS SQL Server Express&lt;/description&gt;
+</I>&gt;<i>                 &lt;file src=&quot;serverExpress&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;<i>                 &lt;executable
+</I>&gt;<i>                     targetfile=&quot;$INSTALL_PATH/serverExpress/setup.exe&quot;
+</I>&gt;<i>                             stage=&quot;postinstall&quot; keep=&quot;false&quot; 
+</I>&gt;<i> failure=&quot;warn&quot;&gt;
+</I>&gt;<i>                     &lt;arg&gt; /qb &lt;/arg&gt;
+</I>&gt;<i>                     &lt;arg&gt; INSTANCENAME=CORETALK &lt;/arg&gt;
+</I>&gt;<i>                     &lt;arg&gt; ADDLOCAL=ALL &lt;/arg&gt;
+</I>&gt;<i>                     &lt;arg&gt; SQLAUTOSTART=1 &lt;/arg&gt;
+</I>&gt;<i>                     &lt;arg&gt; AGTAUTOSTART=1 &lt;/arg&gt;
+</I>&gt;<i>                     &lt;arg&gt; SECURITYMODE=SQL &lt;/arg&gt;
+</I>&gt;<i>                     &lt;arg&gt; SAPWD=root &lt;/arg&gt;
+</I>&gt;<i>                     &lt;arg&gt; DISABLENETWORKPROTOCOLS=0 &lt;/arg&gt;
+</I>&gt;<i>                 &lt;/executable&gt;
+</I>&gt;<i>     &lt;/pack&gt;       
+</I>&gt;<i>
+</I>&gt;<i> But this still does not pass any arguments to the setup.exe...
+</I>&gt;<i>
+</I>&gt;<i> Thanks
+</I>&gt;<i> Riaan Cornelius  Software Developer - B.Sc(IT)  -  *<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">neo at zycor.net</A>*
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> Zycor.net Development Solutions wrote:
+</I>&gt;&gt;<i> Hi All,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I have the following problem on Windows XP and Windows Vista (Only 
+</I>&gt;&gt;<i> ones I've tested):
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> I declare the SQL Express pack as follows:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> &lt;pack name=&quot;MSDE 2005&quot; id=&quot;sqlExpress.package&quot; required=&quot;no&quot;
+</I>&gt;&gt;<i>                 installGroups=&quot;Stand Alone (Vista),Network Server 
+</I>&gt;&gt;<i> (Vista)&quot;
+</I>&gt;&gt;<i>                 loose=&quot;true&quot;&gt;
+</I>&gt;&gt;<i>             &lt;description&gt;The MS SQL Server Express&lt;/description&gt;
+</I>&gt;&gt;<i>                 &lt;file src=&quot;serverExpress&quot; targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;&gt;<i>                 &lt;executable
+</I>&gt;&gt;<i>                     targetfile=&quot;$INSTALL_PATH/serverExpress/setup.exe&quot;
+</I>&gt;&gt;<i>                             stage=&quot;postinstall&quot; keep=&quot;false&quot; 
+</I>&gt;&gt;<i> failure=&quot;warn&quot;&gt;
+</I>&gt;&gt;<i>                     &lt;args&gt;
+</I>&gt;&gt;<i>                         &lt;arg value=&quot;/qb&quot; /&gt;
+</I>&gt;&gt;<i>                         &lt;arg value=&quot;INSTANCENAME=CORETALK&quot; /&gt;
+</I>&gt;&gt;<i>                         &lt;arg value=&quot;ADDLOCAL=ALL&quot; /&gt;
+</I>&gt;&gt;<i>                         &lt;arg value=&quot;SQLAUTOSTART=1&quot; /&gt;
+</I>&gt;&gt;<i>                         &lt;arg value=&quot;AGTAUTOSTART=1&quot; /&gt;
+</I>&gt;&gt;<i>                         &lt;arg value=&quot;SECURITYMODE=SQL&quot; /&gt;
+</I>&gt;&gt;<i>                         &lt;arg value=&quot;SAPWD=root&quot; /&gt;
+</I>&gt;&gt;<i>                         &lt;arg value=&quot;DISABLENETWORKPROTOCOLS=0&quot; /&gt;
+</I>&gt;&gt;<i>                     &lt;/args&gt;
+</I>&gt;&gt;<i>                 &lt;/executable&gt;
+</I>&gt;&gt;<i>     &lt;/pack&gt;
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> The executable runs fine after installation, but as far as I can see, 
+</I>&gt;&gt;<i> The arguments isn't passed to it... Am I doing something wrong?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> If I run the following from the command prompt, it works as expected 
+</I>&gt;&gt;<i> (From within the $INSTALL_PATH/serverExpress/ folder ):
+</I>&gt;&gt;<i> setup /qb INSTANCENAME=CORETALK ADDLOCAL=ALL SQLAUTOSTART=1 
+</I>&gt;&gt;<i> AGTAUTOSTART=1 SECURITYMODE=SQL SAPWD=root DISABLENETWORKPROTOCOLS=0.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Thanks in advance
+</I>&gt;&gt;<i> Riaan Cornelius  Software Developer - B.Sc(IT)  -  *<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">neo at zycor.net</A>*
+</I>&gt;&gt;<i>
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>   
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> No virus found in this incoming message.
+</I>&gt;<i> Checked by AVG Free Edition.
+</I>&gt;<i> Version: 7.5.446 / Virus Database: 268.18.20/737 - Release Date: 3/28/2007 4:23 PM
+</I>&gt;<i>   
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/68dbec1c/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070329/68dbec1c/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001393.html">[izpack-users] Passing arguments to executable
+</A></li>
+	<LI>Next message: <A HREF="001392.html">[izpack-users] total space required bug ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1395">[ date ]</a>
+              <a href="thread.html#1395">[ thread ]</a>
+              <a href="subject.html#1395">[ subject ]</a>
+              <a href="author.html#1395">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

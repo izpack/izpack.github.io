@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Using ProcessPanel and Log4J
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Using%20ProcessPanel%20and%20Log4J&In-Reply-To=5A3418AC7876DC4B9FEEC69799C39B1F19F035%40servo.Traderoot.local">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001437.html">
+   <LINK REL="Next"  HREF="001438.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Using ProcessPanel and Log4J</H1>
+    <B>Mandeep Saini</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Using%20ProcessPanel%20and%20Log4J&In-Reply-To=5A3418AC7876DC4B9FEEC69799C39B1F19F035%40servo.Traderoot.local"
+       TITLE="[izpack-users] Using ProcessPanel and Log4J">Mandeep.Saini at dante.org.uk
+       </A><BR>
+    <I>Fri Apr 20 11:19:42 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001437.html">[izpack-users] Using ProcessPanel and Log4J
+</A></li>
+        <LI>Next message: <A HREF="001438.html">[izpack-users] Locales
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1439">[ date ]</a>
+              <a href="thread.html#1439">[ thread ]</a>
+              <a href="subject.html#1439">[ subject ]</a>
+              <a href="author.html#1439">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Marius,
+
+see the related comments below:
+Marius Hugo wrote:
+&gt;<i> Hi, I'm new to IzPack and I'm having a bit of trouble with the following:
+</I>&gt;<i>  
+</I>&gt;<i> I have to merge files based on versioning and a license that I must 
+</I>&gt;<i> parse.  I have written my own code to
+</I>&gt;<i> handle this and included it in a ProcessPanel.  I loaded the jars 
+</I>&gt;<i> necessary using the &lt;jar&gt; tag (these tags are in my install.xml).
+</I>
+Make sure you also include the jars on which your class has dependency, 
+unless its already in izpack. For example, if my classes have dependency 
+on 'commons-codec-1.3.jar' and my processing classes are in another jar 
+file (say processingClasses.jar) then in my install.xml I will write:
+
+&lt;jar src=&quot;target/processPanelJar/processingClasses.jar&quot; /&gt;
+&lt;jar src=&quot;target/jars/commons-codec-1.3.jar&quot; /&gt;
+
+
+&gt;<i> When I  get to running the panel, it simply tells me that there has been 
+</I>&gt;<i> an exception using
+</I>&gt;<i> my class and there is no actual indication that the correct action
+</I>&gt;<i> was taken or that my class was even run (I also have no clue what the 
+</I>&gt;<i> exception is, it doesn't specify)
+</I>&gt;<i>  
+</I>&gt;<i> My class uses log4j and that has to read a file for its config.  
+</I>&gt;<i> Normally I would just say the following:
+</I>&gt;<i> java  -Dlog4j.configuration=log4j.properties com.bla bla bla.MyClass
+</I>
+If your class file needs some config file like 'log4j.properties' then 
+the jar file which contains your class should also contain the 
+properties file. make the code to find it from there.
+&gt;<i>  
+</I>&gt;<i> How would I get this right in the process panel?  Cause I need to see 
+</I>&gt;<i> the logs so that I can know what's going on.
+</I>&gt;<i>  
+</I>&gt;<i> Also, I attempted to enable the ProcessPanel logging, but the file never 
+</I>&gt;<i> gets created in $INSTALL_PATH.
+</I>
+I have also tried to enable ProcessPanel logging but I could not do so. 
+As far as I remember this feature is not completely implemented yet but 
+I cant remember the actual cause.
+&gt;<i> My ProcessPanel config looks a little something like this:
+</I>&gt;<i>  
+</I>&gt;<i> &lt;processing&gt;
+</I>&gt;<i>  &lt;job name=&quot;InstallArtifacts&quot;&gt;
+</I>&gt;<i>  &lt;logfiledir&gt;$INSTALL_PATH&lt;/logfiledir&gt;
+</I>&gt;<i>  &lt;executeclass name=&quot;com.traderoot.tools.artifact.installer.LicenseInstall&quot;&gt;
+</I>&gt;<i>   &lt;args&gt;
+</I>&gt;<i>               &lt;arg value=&quot;$trtLicense&quot;/&gt;
+</I>&gt;<i>               &lt;arg value=&quot;$INSTALL_PATH/TradeRoot/Installations/&quot;/&gt;
+</I>&gt;<i>               &lt;arg value=&quot;$INSTALL_PATH/TradeRoot/Repositories&quot;/&gt;
+</I>&gt;<i>               &lt;arg value=&quot;Stack&quot;/&gt;
+</I>&gt;<i>              &lt;/args&gt;
+</I>&gt;<i>  &lt;/executeclass&gt;
+</I>&gt;<i>  &lt;/job&gt;
+</I>&gt;<i> &lt;/processing&gt;
+</I>&gt;<i>  
+</I>&gt;<i> $trtLicense -&gt; location of license that i captured in a UserInput panel....
+</I>&gt;<i> I understand that all these values are passed in the specified order to 
+</I>&gt;<i> the main method of the class
+</I>&gt;<i> that I specified.
+</I>
+When you write any class for process panel, you don't need to write main 
+method instead you write the run( AbstractUIProcessHandler handler, 
+String[] args) method. For example:
+
+import com.izforge.izpack.util.AbstractUIProcessHandler;
+
+public class MyClass {
+	
+public void run( AbstractUIProcessHandler handler, String[] args){
+	String install_path = args[0];
+	myMethod(install_path);
+}
+
+public void myMethod(){
+}
+}
+
+Hope this works for you.
+
+Regards
+Mandeep
+
+&gt;<i>  
+</I>&gt;<i> thanks guys
+</I>&gt;<i>  
+</I>&gt;<i>  
+</I>&gt;<i>  
+</I>&gt;<i> 	
+</I>&gt;<i> 
+</I>&gt;<i> MARIUS HUGO
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> SOFTWARE ENGINEER
+</I>&gt;<i> 
+</I>&gt;<i> 	
+</I>&gt;<i> c
+</I>&gt;<i> t
+</I>&gt;<i> f
+</I>&gt;<i> 	+27 72 237 4083
+</I>&gt;<i> +27 21 551 5444
+</I>&gt;<i> +27 21 551 5449
+</I>&gt;<i> 
+</I>&gt;<i> 	*TRADEROOT **TECHNOLOGIES (Pty)Ltd. Reg. No. 2000/005984/07.
+</I>&gt;<i> www.traderoot.com Directors* E von Engelhardt, J Ludik, B Dungan, W Reece.
+</I>&gt;<i> 
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001437.html">[izpack-users] Using ProcessPanel and Log4J
+</A></li>
+	<LI>Next message: <A HREF="001438.html">[izpack-users] Locales
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1439">[ date ]</a>
+              <a href="thread.html#1439">[ thread ]</a>
+              <a href="subject.html#1439">[ subject ]</a>
+              <a href="author.html#1439">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

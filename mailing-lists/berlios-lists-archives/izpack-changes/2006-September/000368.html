@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1623 -	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1623%20-%0A%09izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000367.html">
+   <LINK REL="Next"  HREF="000369.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1623 -	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1623%20-%0A%09izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui&In-Reply-To="
+       TITLE="[izpack-changes] r1623 -	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui">noreply at berlios.de
+       </A><BR>
+    <I>Fri Sep 29 17:31:46 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000367.html">[izpack-changes] r1622 - in	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack:	. compiler installer
+</A></li>
+        <LI>Next message: <A HREF="000369.html">[izpack-changes] r1624 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#368">[ date ]</a>
+              <a href="thread.html#368">[ thread ]</a>
+              <a href="subject.html#368">[ subject ]</a>
+              <a href="author.html#368">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: rsshilli
+Date: 2006-09-29 17:31:46 +0200 (Fri, 29 Sep 2006)
+New Revision: 1623
+
+Added:
+   izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui/JPanelWithBackground.java
+   izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui/SplashScreen.java
+Log:
+- Added a new attribute to the &quot;uninstaller&quot; element called &quot;path&quot;.  It's the path that the uninstaller jar will be deployed to on install.
+    - We now differentiate between when closing requires asking and when closing requires the files to be removed.  This way it still asks you if you want to quite at any time before the finish panel.
+    - Added an optional splash screen that shows up with the installer starts up.
+        - Add a resource called &quot;SplashScreen&quot; and it will be compiled in and come up.  ie:
+            &lt;res id=&quot;SplashScreen&quot; src=&quot;installer/resources/InstallerSplash.png&quot;/&gt;
+        - Also, on Solaris over some old XWindows clients had a hard time showing the splash screen, so if you start the installer with -Dskip_splash=true then the splash screen doesn't get shown.
+    - If you specify a resource named &quot;Icon&quot;, the installer will use that instead of the default IzPack icon.
+    - Shutdown file cleanup now uses the Housekeeper.  Hence, if you add additional shutdown hooks to the Housekeeper they will get executed before the files are removed.
+
+Added: izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui/JPanelWithBackground.java
+===================================================================
+--- izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui/JPanelWithBackground.java	2006-09-28 22:48:07 UTC (rev 1622)
++++ izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui/JPanelWithBackground.java	2006-09-29 15:31:46 UTC (rev 1623)
+@@ -0,0 +1,105 @@
++package com.izforge.izpack.gui;
++
++import javax.swing.*;
++
++import java.awt.*;
++import java.awt.image.ImageObserver;
++
++public class JPanelWithBackground extends JPanel
++{
++    protected Image backgroundImage = null;
++    protected int width;
++    protected int height;
++
++    /* The JPanel constructors with the backgroundImage as an extra parameter*/
++    public JPanelWithBackground(Image backgroundImage)
++    {
++        super();
++        this.backgroundImage = backgroundImage;
++        cacheImageSize();
++    }
++
++    public JPanelWithBackground(boolean isDoubleBuffered, Image backgroundImage)
++    {
++        super(isDoubleBuffered);
++        this.backgroundImage = backgroundImage;
++        cacheImageSize();
++    }
++
++    public JPanelWithBackground(LayoutManager layout, Image backgroundImage)
++    {
++        super(layout);
++        this.backgroundImage = backgroundImage;
++        cacheImageSize();
++    }
++
++    public JPanelWithBackground(LayoutManager layout, boolean isDoubleBuffered, Image backgroundImage)
++    {
++        super(layout, isDoubleBuffered);
++        this.backgroundImage = backgroundImage;
++        cacheImageSize();
++    }
++
++    /**
++     * Returns the background image
++     *
++     * @return Background image
++     */
++    public Image getBackgroundImage()
++    {
++        return backgroundImage;
++    }
++
++    /**
++     * Sets the background image
++     *
++     * @param backgroundImage Background image
++     */
++    public void setBackgroundImage(Image backgroundImage)
++    {
++        this.backgroundImage = backgroundImage;
++        cacheImageSize();
++    }
++
++    /**
++     * Overrides the painting to display a background image
++     */
++    protected void paintComponent(Graphics g)
++    {
++        if(backgroundImage != null)
++        {
++            g.drawImage(backgroundImage, 0, 0, this);
++        } else {
++            super.paintComponent(g);
++        }
++
++    }
++
++    public Dimension getPreferredSize()
++    {
++        return new Dimension(width, height);
++    }
++
++    private void cacheImageSize()
++    {
++        ImageObserver observer = new ImageObserver()
++        {
++            public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height)
++            {
++                if(width &gt; 0 &amp;&amp; height &gt; 0)
++                {
++                    JPanelWithBackground.this.width = width;
++                    JPanelWithBackground.this.height = height;
++                    return false;
++                }
++                else
++                {
++                    return true;
++                }
++            }
++        };
++        width = backgroundImage.getWidth(observer);
++        height = backgroundImage.getHeight(observer);
++    }
++
++}
+
+Added: izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui/SplashScreen.java
+===================================================================
+--- izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui/SplashScreen.java	2006-09-28 22:48:07 UTC (rev 1622)
++++ izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack/gui/SplashScreen.java	2006-09-29 15:31:46 UTC (rev 1623)
+@@ -0,0 +1,98 @@
++package com.izforge.izpack.gui;
++
++import javax.swing.*;
++
++import java.awt.*;
++import java.awt.image.BufferedImage;
++
++/**
++ * Shows a splash screen.  This implementation supports a transparent background.
++ */
++public class SplashScreen extends JWindow
++{
++
++    /**
++     * A writable off screen image.
++     */
++    protected BufferedImage bufImage;
++
++    /**
++     * True if initialization thread is running.
++     */
++    protected boolean isAlive;
++    protected Image image;
++
++    /**
++     * Constructor for the SplashScreen object. Starts initialization and showing of the splash screen immediately.
++     *
++     * @param image the image to put in the splash screen.
++     */
++    public SplashScreen(Image image)
++    {
++        this.image = image;
++        run();
++    }
++
++    /**
++     * Starts the initialization thread of the SplashScreen.
++     */
++    public void run()
++    {
++        isAlive = true;
++
++        // Figure out how to center it on the screen.
++        int imageWidth = image.getWidth(this);
++        int imageHeight = image.getHeight(this);
++        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
++        Rectangle rect = new Rectangle((screenSize.width / 2 - imageWidth / 2), (screenSize.height / 2 - imageHeight / 2),
++                                       imageWidth, imageHeight);
++        // the critical lines, create a screen shot
++        try
++        {
++            bufImage = new Robot().createScreenCapture(rect);
++        }
++        catch(AWTException e)
++        {
++            e.printStackTrace();
++        }
++        // obtain the graphics context from the BufferedImage
++        Graphics2D g2D = bufImage.createGraphics();
++        // Draw the image over the screen shot
++        g2D.drawImage(image, 0, 0, this);
++        // draw the modified BufferedImage back into the same space
++        setBounds(rect);
++        // present our work :)
++        setVisible(true);
++
++        isAlive = false;
++    }
++
++    /**
++     * Disposes of the SplashScreen. To be called shortly before the main application is ready to be displayed.
++     *
++     * @throws IllegalStateException Is thrown if the initialization thread has not yet reached it's end.
++     */
++    public void close() throws IllegalStateException
++    {
++        if(!isAlive)
++        {
++            dispose();
++        }
++        else
++        {
++            // better not dispose a SplashScreen that has not been painted on screen yet.
++            throw new IllegalStateException(&quot;SplashScreen not yet fully initialized.&quot;);
++        }
++    }
++
++    /**
++     *  Overrides the paint() method of JWindow.
++     *
++     *  @param  g  The graphics context
++     */
++    public void paint(Graphics g)
++    {
++        Graphics2D g2D = (Graphics2D) g;
++        g2D.drawImage(bufImage, 0, 0, this);
++    }
++}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000367.html">[izpack-changes] r1622 - in	izpack-src/branches/branch-rsshilli/src/lib/com/izforge/izpack:	. compiler installer
+</A></li>
+	<LI>Next message: <A HREF="000369.html">[izpack-changes] r1624 - izpack-src/trunk/src/doc-ng/XHTML
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#368">[ date ]</a>
+              <a href="thread.html#368">[ thread ]</a>
+              <a href="subject.html#368">[ subject ]</a>
+              <a href="author.html#368">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

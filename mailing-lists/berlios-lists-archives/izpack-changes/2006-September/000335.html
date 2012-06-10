@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1590 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1590%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000334.html">
+   <LINK REL="Next"  HREF="000336.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1590 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1590%20-%0A%09izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix&In-Reply-To="
+       TITLE="[izpack-changes] r1590 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix">noreply at berlios.de
+       </A><BR>
+    <I>Tue Sep 12 22:41:13 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000334.html">[izpack-changes] r1589 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller
+</A></li>
+        <LI>Next message: <A HREF="000336.html">[izpack-changes] r1591 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#335">[ date ]</a>
+              <a href="thread.html#335">[ thread ]</a>
+              <a href="subject.html#335">[ subject ]</a>
+              <a href="author.html#335">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-12 22:41:12 +0200 (Tue, 12 Sep 2006)
+New Revision: 1590
+
+Modified:
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix/ShellScript.java
+Log:
+Added needed append*(char) methods
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix/ShellScript.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix/ShellScript.java	2006-09-12 20:40:01 UTC (rev 1589)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os/unix/ShellScript.java	2006-09-12 20:41:12 UTC (rev 1590)
+@@ -35,6 +35,8 @@
+ {
+ 
+     // ~ Static fields/initializers *********************************************************
++
++    // ~ Static fields/initializers *********************************************************
+     /** Author = &quot;marc.eppelmann_at_gmx.de&quot; */
+     private final static String Author = &quot;Author: marc.eppelmann_at_gmx.de&quot;;
+ 
+@@ -71,6 +73,7 @@
+     private final static String header = lf + explanation + lf + H + Generator + lf + H + SCM_ID
+             + lf + H + Author + lf + H + Revision + lf + H + currentDateMsg + lf + lf;
+ 
++    // ~ Instance fields ********************************************************************
+ 
+     // ~ Instance fields ********************************************************************
+     /** Internal ContentBuffer of this ShellScript */
+@@ -80,6 +83,8 @@
+     private String itsLocation;
+ 
+     // ~ Constructors ***********************************************************************
++
++    // ~ Constructors ***********************************************************************
+     /**
+      * Creates and initializes the ShellScript for running on the given shell.
+      * 
+@@ -100,6 +105,8 @@
+     }
+ 
+     // ~ Methods ****************************************************************************
++
++    // ~ Methods ****************************************************************************
+     /**
+      * Appends an Object or String to this ShellScript.
+      * 
+@@ -111,16 +118,84 @@
+     }
+ 
+     /**
++     * Appends a Char to this ShellScript.
++     * 
++     * @param aChar a char to append
++     */
++    public void append(char aChar)
++    {
++        content.append(aChar);
++    }
++
++    /**
+      * Appends an Object or String to this ShellScript with unix linefeed (&quot;\n&quot;).
+      * 
+      * @param anObject the Object to append
+      */
+     public void appendln(Object anObject)
+     {
+-        append(anObject + lf);
++        append(anObject);
++        append(lf);
+     }
+ 
+     /**
++     * Appends a Char Object or String to this ShellScript with unix linefeed (&quot;\n&quot;).
++     * 
++     * @param aChar a char to append
++     */
++    public void appendln(char aChar)
++    {
++        append(aChar);
++        append(lf);
++    }
++
++    /**
++     * Appends an Object or String to this ShellScript with unix linefeed (&quot;\n&quot;).
++     */
++    public void appendln()
++    {
++        append(lf);
++    }
++
++    /**
++     * gets the Content of this Script.
++     * 
++     * @return the Content
++     */
++    public StringBuffer getContent()
++    {
++        return content;
++    }
++
++    /**
++     * Gets the Content of this Script as String 
++     * 
++     * @return the script as String
++     */
++    public String getContentAsString()
++    {
++        return content.toString();
++    }
++
++    /**
++     * Dumps the ShellScript Content, and Location.
++     * Use getContentAsString() to get this ShellScripts Content 
++     * 
++     * @return The ShellScript as Object dump.
++     */
++    public String toString()
++    {
++        StringBuffer result = new StringBuffer();
++        result.append(getClass().getName());
++        result.append('\n');
++        result.append(itsLocation);
++        result.append('\n');
++        result.append(content);
++
++        return result.toString();
++    }
++
++    /**
+      * write this to the given Destination FileName
+      * 
+      * @param aDestination a destination filename
+@@ -272,8 +347,11 @@
+          * ShellScript s = new ShellScript( ); s.append( &quot;ls $HOME&quot; ); s.write( System.getProperty(
+          * &quot;user.home&quot;, &quot;.&quot; ) + File.separator + &quot;test.sh&quot; );
+          */
+-        System.out.println(ShellScript.execute(new StringBuffer(&quot;ls $HOME&quot;), System.getProperty(
+-                &quot;user.home&quot;, &quot;.&quot;)
+-                + File.separator + Long.toString(System.currentTimeMillis()) + &quot;test.sh&quot;));
++
++        /*
++         * System.out.println(ShellScript.execute(new StringBuffer(&quot;ls $HOME&quot;), System.getProperty(
++         * &quot;user.home&quot;, &quot;.&quot;) + File.separator + Long.toString(System.currentTimeMillis()) +
++         * &quot;test.sh&quot;));
++         */
+     }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000334.html">[izpack-changes] r1589 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/uninstaller
+</A></li>
+	<LI>Next message: <A HREF="000336.html">[izpack-changes] r1591 -	izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/util/os
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#335">[ date ]</a>
+              <a href="thread.html#335">[ thread ]</a>
+              <a href="subject.html#335">[ subject ]</a>
+              <a href="author.html#335">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

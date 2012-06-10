@@ -1,0 +1,339 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1847 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1847%20-%0A%09izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000592.html">
+   <LINK REL="Next"  HREF="000594.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1847 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1847%20-%0A%09izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix&In-Reply-To="
+       TITLE="[izpack-changes] r1847 -	izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix">noreply at berlios.de
+       </A><BR>
+    <I>Mon May 28 15:18:43 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000592.html">[izpack-changes] r1846 - izpack-src/trunk
+</A></li>
+        <LI>Next message: <A HREF="000594.html">[izpack-changes] r1848 - izpack-src/branches/3.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#593">[ date ]</a>
+              <a href="thread.html#593">[ thread ]</a>
+              <a href="subject.html#593">[ subject ]</a>
+              <a href="author.html#593">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2007-05-28 15:18:24 +0200 (Mon, 28 May 2007)
+New Revision: 1847
+
+Modified:
+   izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix/UnixHelper.java
+Log:
+Applied the patch: &quot;Fix NPE when ypcat not installed on linux&quot; from Dick Hollenbeck
+Also fixed some Javadoc-phrases and the test-main().
+
+Modified: izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix/UnixHelper.java
+===================================================================
+--- izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix/UnixHelper.java	2007-05-28 13:08:54 UTC (rev 1846)
++++ izpack-src/branches/3.10/src/lib/com/izforge/izpack/util/os/unix/UnixHelper.java	2007-05-28 13:18:24 UTC (rev 1847)
+@@ -39,7 +39,7 @@
+ 
+     // ~ Static fields/initializers *********************************************************
+ 
+-    /** whichCommand = &quot;/usr/bin/which&quot; or so */
++    /** whichCommand = &quot;/usr/bin/which&quot; or /bin/which */
+     public static String whichCommand = FileExecutor.getExecOutput(
+             new String[] { &quot;/usr/bin/env&quot;, &quot;which&quot;, &quot;which&quot;}, false).trim();
+ 
+@@ -48,7 +48,7 @@
+     // ~ Methods ****************************************************************************
+ 
+     /**
+-     * get the lines from /etc/passwd as Array
++     * Get the lines from /etc/passwd as Array
+      * 
+      * @return the /etc/passwd as String ArrayList
+      */
+@@ -72,12 +72,26 @@
+         {
+             // ignore - there are maybe no users
+         }
++        finally
++        {
++            try
++            {
++                if (reader != null) reader.close();
++            }
++            catch (Exception ignore)
++            {
++                // ignore
++            }
++        }
+ 
+         return result;
+     }
+ 
+     /**
+-     * get the lines from /etc/passwd as Array
++     * Get the YelloyPages (NIS) Users lines from &lt;code&gt;ypcat passwd&lt;/code&gt; as Array. Ypcat
++     * passwd's output has the same format as the the local /etc/passwd. Because there can be
++     * thousands of yp-users and this query is net-based, this is a candidate for a token-based
++     * optimization.
+      * 
+      * @return the /etc/passwd as String ArrayList
+      */
+@@ -87,29 +101,44 @@
+ 
+         String line = &quot;&quot;;
+         BufferedReader reader = null;
++        String ypcommand = getYpCatCommand();
+ 
+-        try
++        if (ypcommand != null &amp;&amp; ypcommand.length() &gt; 0)
+         {
+-            reader = new BufferedReader(new StringReader(FileExecutor.getExecOutput(new String[] {
+-                    getYpCatCommand(), &quot;passwd&quot;})));
+ 
+-            while ((line = reader.readLine()) != null)
++            try
+             {
+-                result.add(line);
++                reader = new BufferedReader(new StringReader(FileExecutor
++                        .getExecOutput(new String[] { ypcommand, &quot;passwd&quot;})));
++                while ((line = reader.readLine()) != null)
++                {
++                    result.add(line);
++                }
+             }
++            catch (Exception e)
++            {
++                // ignore - there are maybe no users
++            }
++            finally
++            {
++                try
++                {
++                    if (reader != null) reader.close();
++
++                }
++                catch (Exception i)
++                {
++                    // ignore
++                }
++            }
+         }
+-        catch (Exception e)
+-        {
+-            // ignore - there are maybe no users
+-        }
+-
+         return result;
+     }
+ 
+     /**
+-     * Test if KDE is installed. This is done by $&gt;/usr/bin/env konqueror --version This assumes
+-     * that the konqueror as a main-app of kde is already installed. If this returns with 0 konqeror
+-     * and resp. kde means to be installed,
++     * Test if KDE is installed. This is done by &lt;code&gt; $&gt;/usr/bin/env kwin --version&lt;/code&gt; This
++     * assumes that kwin, the window Manager, as part of the kde-base package is already installed.
++     * If this returns with 0 kwin resp. kde means to be installed,
+      * 
+      * @return true if kde is installed otherwise false.
+      */
+@@ -119,17 +148,17 @@
+ 
+         String[] execOut = new String[2];
+ 
+-        int execResult = fe.executeCommand(
+-                new String[] { &quot;/usr/bin/env&quot;, &quot;konqueror&quot;, &quot;--version&quot;}, execOut);
++        int execResult = fe.executeCommand(new String[] { &quot;/usr/bin/env&quot;, &quot;kwin&quot;, &quot;--version&quot;},
++                execOut);
+ 
+         return execResult == 0;
+     }
+ 
+     /**
+-     * Gets the absolute Pathe to the cp (Copy) Command. This is necessary, because the command is
++     * Gets the absolute path of the which command. This is necessary, because the command is
+      * located at /bin on linux but in /usr/bin on Sun Solaris.
+      * 
+-     * @return /bin/cp on linux /usr/bin/cp on solaris
++     * @return /bin/which on linux /usr/bin/which on solaris
+      */
+     public static String getWhichCommand()
+     {
+@@ -137,7 +166,7 @@
+     }
+ 
+     /**
+-     * Gets the absolute Pathe to the cp (Copy) Command. This is necessary, because the command is
++     * Gets the absolute path of the cp (Copy) command. This is necessary, because the command is
+      * located at /bin on linux but in /usr/bin on Sun Solaris.
+      * 
+      * @return /bin/cp on linux /usr/bin/cp on solaris
+@@ -148,7 +177,7 @@
+     }
+ 
+     /**
+-     * Gets the absolute Pathe to the su (SuperUser) Command. This is necessary, because the command
++     * Gets the absolute path to the su (SuperUser) command. This is necessary, because the command
+      * is located at /bin on linux but in /usr/bin on Sun Solaris.
+      * 
+      * @return /bin/su on linux /usr/bin/su on solaris
+@@ -181,12 +210,13 @@
+     }
+ 
+     /**
+-     * Gets the absolute Pathe to the ypcat (YellowPage/NIS Cat) Command. This is necessary, because
+-     * the command is located at /bin on linux but in /usr/bin on Sun Solaris.
++     * Gets the absolute Pathe to the given custom command. This is necessary, because the command
++     * may be located at /bin on linux but in /usr/bin on Sun Solaris. Which can locate it in your
++     * $PATH for you.
+      * 
+      * @param aCommand a Custom Command
+      * 
+-     * @return /bin/ypcat on linux /usr/bin/ypcat on solaris
++     * @return /bin/aCommand on linux /usr/bin/aCommand on solaris
+      */
+     public static String getCustomCommand(String aCommand)
+     {
+@@ -194,8 +224,7 @@
+     }
+ 
+     /**
+-     * Standalone Test Main Method call with : &amp;gt; java -cp
+-     * ../bin/panels/UserInputPanel.jar:../_dist/IzPack-install-3.9.0-preview1.jar
++     * Standalone Test Main Method call with : &amp;gt; java -cp ../_build
+      * com.izforge.izpack.util.os.unix.UnixHelper
+      * 
+      * @param args commandline args
+@@ -207,7 +236,7 @@
+         // System.out.println( StringTool.stringArrayListToString(UnixUsers.getUsersAsArrayList())
+         // );
+ 
+-        //System.out.println(&quot;Kde is&quot; + (kdeIsInstalled() ? &quot; &quot; : &quot; not &quot;) + &quot;installed&quot;);
++        // System.out.println(&quot;Kde is&quot; + (kdeIsInstalled() ? &quot; &quot; : &quot; not &quot;) + &quot;installed&quot;);
+ 
+         System.out.println(&quot;WhichCommand: '&quot; + getWhichCommand() + &quot;'&quot;);
+         System.out.println(&quot;SuCommand: &quot; + getSuCommand());
+@@ -231,41 +260,65 @@
+         }
+ 
+         System.out.println(&quot;Tempfile: &quot; + tempFile.toString());
++        System.out.println(&quot;TempfileName: &quot; + tempFile.getName());
+ 
+         // This does not work :-(
+         /*
+          * FileExecutor.getExecOutput(new String[] { getCustomCommand(&quot;echo&quot;), &quot;Hallo&quot;, &quot;&gt;&quot;,
+          * tempFile.toString()});
+          */
++        String username = System.getProperty(&quot;user.name&quot;);
+ 
++        // System.out.println(&quot;Your Name: &quot; + username);
+         // so try:
+-        try
++        if (&quot;root&quot;.equals(username))
+         {
+-            BufferedWriter w = new BufferedWriter(  new FileWriter(tempFile) );
+-            w.write(&quot;Hallo&quot;);
+-            w.flush();
+-            w.close();
+-            if( tempFile.exists() )
+-              System.out.println(&quot;Wrote: &quot; + tempFile + &quot;&gt;&gt;Hallo&quot;);
+-            else
+-                System.out.println(&quot;Could not Wrote: &quot; + tempFile + &quot;Hallo&quot;);
+-        }
+-        catch (Exception e)
+-        {
+-            e.printStackTrace();
+-        }
+-        // tempFile
++            try
++            {
++                BufferedWriter w = new BufferedWriter(new FileWriter(tempFile));
++                w.write(&quot;Hallo&quot;);
++                w.flush();
++                w.close();
++                if (tempFile.exists())
++                    System.out.println(&quot;Wrote: &quot; + tempFile + &quot;&gt;&gt;Hallo&quot;);
++                else
++                    System.out.println(&quot;Could not Wrote: &quot; + tempFile + &quot;Hallo&quot;);
++            }
++            catch (Exception e)
++            {
++                e.printStackTrace();
++            }
+ 
+-        String destfilename = &quot;/home/marc.eppelmann&quot; + File.separator + &quot;Desktop&quot; ;
++            String destfilename = &quot;/home/marc.eppelmann&quot; + File.separator + &quot;Desktop&quot;
++                    + File.separator + tempFile.getName();
+ 
+-        System.out.println(&quot;Copy: &quot; + tempFile.toString() + &quot; to &quot; + destfilename);
++            System.out.println(&quot;Copy: &quot; + tempFile.toString() + &quot; to &quot; + destfilename);
+ 
+-        String result = FileExecutor.getExecOutput(new String[] { getSuCommand(), &quot;marc.eppelmann&quot;, &quot;-c&quot;,
+-                &quot;\&quot;&quot; + getCpCommand() + &quot; &quot; + tempFile.toString() + &quot; &quot; + destfilename + &quot;\&quot;&quot;});
+-        
+-        System.out.println(&quot;Wrote: &quot; + tempFile.toString() + &quot; to &quot; + destfilename + &quot; &gt; &quot; + result);
++            ShellScript s = new ShellScript(&quot;bash&quot;);
+ 
+-        // getYpPasswdArray();
+-        // System.out.println(&quot;/bin/bash&quot;.endsWith(&quot;sh&quot;));
++            s.append(getSuCommand() + &quot; &quot; + &quot;marc.eppelmann&quot; + &quot; &quot; + &quot;-c&quot; + &quot; &quot; + &quot;\&quot;&quot;
++                    + getCpCommand() + &quot; &quot; + tempFile.toString() + &quot; &quot; + destfilename + &quot;\&quot;&quot;);
++
++            String shLocation = &quot;/tmp/x.21.21&quot;;
++            try
++            {
++                shLocation = File.createTempFile(UnixHelper.class.getName(),
++                        Long.toString(System.currentTimeMillis()) + &quot;.sh&quot;).toString();
++            }
++            catch (Exception x)
++            {
++                x.printStackTrace();
++            }
++            s.write(shLocation);
++            s.exec();
++
++            // File deleteMe = new File( shLocation ); deleteMe.delete();
++
++        }
++        else
++        {
++            System.out.println(&quot;Your name: '&quot; + username
++                    + &quot;' is not 'root'. But this is a test for the user root.&quot;);
++        }
+     }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000592.html">[izpack-changes] r1846 - izpack-src/trunk
+</A></li>
+	<LI>Next message: <A HREF="000594.html">[izpack-changes] r1848 - izpack-src/branches/3.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#593">[ date ]</a>
+              <a href="thread.html#593">[ thread ]</a>
+              <a href="subject.html#593">[ subject ]</a>
+              <a href="author.html#593">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

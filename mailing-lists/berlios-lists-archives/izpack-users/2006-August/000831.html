@@ -1,0 +1,405 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Exception when adding an Uninstaller (was)	Re:Re:Integrating Izpack with eclipse
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Exception%20when%20adding%20an%20Uninstaller%20%28was%29%0A%09Re%3ARe%3AIntegrating%20Izpack%20with%20eclipse&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000830.html">
+   <LINK REL="Next"  HREF="000832.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Exception when adding an Uninstaller (was)	Re:Re:Integrating Izpack with eclipse</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Exception%20when%20adding%20an%20Uninstaller%20%28was%29%0A%09Re%3ARe%3AIntegrating%20Izpack%20with%20eclipse&In-Reply-To="
+       TITLE="[izpack-users] Exception when adding an Uninstaller (was)	Re:Re:Integrating Izpack with eclipse">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Aug 31 14:22:49 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000830.html">[izpack-users] Exception when adding an Uninstaller (was) Re:	Re:Integrating Izpack with eclipse
+</A></li>
+        <LI>Next message: <A HREF="000832.html">[izpack-users] Exception when adding an Uninstaller (was)	Re:Re:Integrating Izpack with eclipse
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#831">[ date ]</a>
+              <a href="thread.html#831">[ thread ]</a>
+              <a href="subject.html#831">[ subject ]</a>
+              <a href="author.html#831">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Jacobo,
+I have tested it on my box and it runs if I remove the blank in standalone-compiler.jar.
+With ant 1.6.2 and a little bit changed path. May be try a path without blanks.
+Will be nice if you use a little bit bigger fond because then I must not copy it to an editor to
+be able to read it right...
+I do not know why it do not run as your side. May be you can make some System.out.println in the
+involved code and see what happens. Debugging this will be a little bit hard...
+If you will, there is a description in the docu. To invoke standalone-compiler.jar it have to be refered
+as external jar and in opposide to &quot;normal&quot; debugging of IzPack infront of the project.
+To debug it with ant I do not know.
+ 
+Cheers
+ 
+Klaus
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Jacobo Garc&#237;a
+Sent: Wednesday, August 30, 2006 9:08 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Subject: Re: [izpack-users] Exception when adding an Uninstaller (was) Re:Re:Integrating Izpack with eclipse
+
+
+I'm not quite sure of this, but does findIzPackResource looks in system classpath for files?, standalone-compiler is not in system classpath, but in my plugin's one, so maybe something has to be changed in order to make this work. 
+
+In other side It seems findIzPackResource is returning null. But reading findIzPackResource code I can't understand how is this possible, if path variable is not null (and it isn`t) the method should return an URL like this /lib/uninstaller.jar 
+
+If path variable is null, and it isn't because addInfo call findIzPackResource directly with String lib/uninstaller.jar  a new resource is created, and then returned.
+
+Any clues on this ideas?
+
+
+On 8/30/06, Jacobo Garc&#237;a &lt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">jacobo.garcia at gmail.com</A>&gt; wrote: 
+
+The uninstal.jar file is inside standalone-compiler.jar , so this is not the problem.
+
+My ant file is like this
+
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; 
+&lt;project name=&quot;Installer Generator&quot; default=&quot;default&quot; basedir=&quot;.&quot;&gt;
+
+
+    &lt;taskdef name=&quot;izpack&quot; classpath=&quot;/Users/jacobo/Documents/workspace/Eclipse Installer Generator/izpack/lib/standalone- compiler.jar&quot; classname=&quot;com.izforge.izpack.ant.IzPackTask&quot; /&gt;
+
+    &lt;target name=&quot;default&quot; description=&quot;Main target&quot;&gt; 
+
+        &lt;izpack input=&quot;/Users/jacobo/Desktop/export/tmp/installer.xml&quot; output=&quot;/Users/jacobo/Desktop/jacobo- installer.jar&quot; basedir=&quot;/Users/jacobo/Desktop/export/tmp&quot; izpackdir=&quot;/Users/jacobo/Documents/workspace/Eclipse Installer Generator/&quot; /&gt;
+    &lt;/target&gt;
+&lt;/project&gt;
+Here is the folder structure of the plugin, Eclipse Installer Generator is root plugin folder
+
+Eclipse Installer Generator/izpack/lib/installer-generator.jar
+
+I've been trying changing last part izpackdir attribute to every combination of (izpack, izpack/lib, izpack/lib/installer- generator.jar)
+
+Nothing of this worked.
+
+Thanks again for your time.
+
+
+
+On 8/30/06, Bartz, Klaus &lt;  &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; wrote:
+
+
+Hi Jacobo,
+normaly it compiles without this error.
+Look into findIzPackResource.this method searches in your compiler jar file for the
+needed resources.
+Please look into standalone-compiler.jar; there should be stored uninstaller.jar in path lib\.
+If not, it is missing at generating standalone-compiler.jar. Build stanalone-compiler.jar only
+in a full IzPack project with installed sources.
+I do not work with the standalone-compiler.jar. May be you have to set izpackdir also you should
+not need it.
+ 
+Cheers
+ 
+Klaus
+
+
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> [mailto: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Jacobo Garc&#237;a
+
+Sent: Wednesday, August 30, 2006 4:22 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+
+Subject: [izpack-users] Exception when adding an Uninstaller (was) Re: Re:Integrating Izpack with eclipse
+
+
+
+Thanks for your help Klaus, I've managed to run the compiler now. I'm using the standalone compiler at this moment, and it looks that my plugin works well with it.
+
+By the way I'm Having another problem at this moment. 
+
+This is a typical izpack xml file that my plugin generates:
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;installation version=&quot;1.0&quot;&gt;
+  &lt;info&gt;
+    &lt;appname&gt;jaco&lt;/appname&gt;
+    &lt;appversion&gt;dsfa&lt;/appversion&gt; 
+    &lt;authors&gt;
+      &lt;author email=&quot;fdasadsf&quot; name=&quot;asdfads&quot;/&gt;
+    &lt;/authors&gt;
+    &lt;url&gt; <A HREF="http://www.com.com&lt;/url">http://www.com.com&lt;/url</A>&gt;
+    &lt;javaversion&gt;1.5&lt;/javaversion&gt;
+  &lt;/info&gt; 
+  &lt;guiprefs height=&quot;600&quot; resizable=&quot;no&quot; width=&quot;800&quot;/&gt;
+  &lt;resources&gt;
+    &lt;res id=&quot;InfoPanel.info&quot; src=&quot;/Users/jacobo/Desktop/export/tmp/readme.txt&quot;/&gt; 
+  &lt;/resources&gt;
+  &lt;panels&gt;
+    &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+    &lt;panel classname=&quot;InfoPanel&quot;/&gt;
+    &lt;panel classname=&quot;InstallPanel&quot;/&gt; 
+  &lt;/panels&gt;
+  &lt;packs&gt;
+    &lt;pack name=&quot;Main&quot; required=&quot;yes&quot;&gt;
+      &lt;description&gt;Main Pack that does all the installation&lt;/description&gt;
+      &lt;file dir=&quot;/Users/jacobo/Desktop/export/linux.gtk.x86&quot; os=&quot;unix&quot; override=&quot;true&quot; targetdir=&quot;/opt/jaco&quot;/&gt;
+      &lt;file dir=&quot;/Users/jacobo/Desktop/export/win32.win32.x86&quot; os=&quot;windows&quot; override=&quot;true&quot; targetdir=&quot;c:\Program Files\jaco&quot;/&gt;
+      &lt;file dir=&quot;/Users/jacobo/Desktop/export/macosx.carbon.x86&quot; os=&quot;mac&quot; override=&quot;true&quot; targetdir=&quot;/Applications/jaco&quot;/&gt; 
+    &lt;/pack&gt;
+  &lt;/packs&gt; 
+&lt;/installation&gt;
+
+
+When running this file, I get a null pointer exception, this is the code: 
+
+Caused by: java.lang.NullPointerException
+    at org.apache.tools.ant.Task.log(Task.java:346)
+    at com.izforge.izpack.ant.IzPackTask.packagerMsg(IzPackTask.java:142) 
+    at com.izforge.izpack.compiler.Packager.sendMsg(Packager.java:242)
+    at com.izforge.izpack.compiler.Packager.addResource(Packager.java:371)
+    at com.izforge.izpack.compiler.Compiler.addResource(Compiler.java:408)
+    at com.izforge.izpack.compiler.CompilerConfig.addInfo (CompilerConfig.java:1195)
+    at com.izforge.izpack.compiler.CompilerConfig.executeCompiler(CompilerConfig.java:310) 
+    at com.izforge.izpack.ant.IzPackTask.execute(IzPackTask.java:234)
+    ... 67 more
+--- Nested Exception ---
+
+Looking at izpack source code, the exception comes in CompilerConfig.java, in this portion of code:
+
+ XMLElement uninstallInfo = root.getFirstChildNamed(&quot;uninstaller&quot;);
+        if (validateYesNoAttribute(uninstallInfo, &quot;write&quot;, YES))
+        {
+        /* thisline gives the error*/  URL url = findIzPackResource(&quot;lib/uninstaller.jar&quot;, &quot;Uninstaller&quot;, root); 
+            compiler.addResource(&quot;IzPack.uninstaller&quot;, url);
+
+            if (uninstallInfo != null)
+            {
+                String uninstallerName = uninstallInfo.getAttribute(&quot;name&quot;);
+                if (uninstallerName != null &amp;&amp; uninstallerName.endsWith(&quot;.jar&quot;)
+                        &amp;&amp; uninstallerName.length() &gt; &quot;.jar&quot;.length())
+                    info.setUninstallerName (uninstallerName);
+            }
+        }
+
+This happens if I include uninstall element on the xml or not. It looks like it does not find uninstaller.jar, So I tried to add it to the same folder where standalone-compiler.jar is. But did not worked. 
+
+&#191;Is this a Bug?
+
+On 8/30/06, Bartz, Klaus &lt; <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; wrote:
+&gt;<i>  
+</I>&gt;<i>  
+</I>&gt;<i> Hi Jacobo, 
+</I>&gt;<i> I think only izpackdir is missing in the task, but let us recapitulate: 
+</I>&gt;<i>   
+</I>&gt;<i> You need all contents of lib (except standalone-compiler.jar) and bin also
+</I>&gt;<i> including the sub dirs e.g. bin/panels. 
+</I>&gt;<i> Panels jars should be exist there, the subdirs created at building are not 
+</I>&gt;<i> needed. 
+</I>&gt;<i>   
+</I>&gt;<i> Alternate you can use the  standakine-compiler. Then you need nothing more
+</I>&gt;<i> because it should contain all. 
+</I>&gt;<i> If you have custom panels/actions a rebuild will be needed. 
+</I>&gt;<i>   
+</I>&gt;<i> IzPack needs to know where are the bin and the lib directory. therefore the
+</I>&gt;<i> ant call should contain 
+</I>&gt;<i> also izpackdir. My task (used since some years) seems like: 
+</I>&gt;<i> ... 
+</I>&gt;<i>   &lt;taskdef name=&quot;izpack&quot; classpath=&quot;${ izpack.home}/lib/compiler.jar&quot; 
+</I>&gt;<i>     classname=&quot;com.izforge.izpack.ant.IzPackTask&quot;/&gt;
+</I>&gt;<i> ... 
+</I>&gt;<i>   &lt;izpack
+</I>&gt;<i> input=&quot;${installersrc.root}/product/appl/install/IzPackProjects/${ installer.subproject}/install.xml&quot;
+</I>&gt;<i>     output=&quot;${installerdest.root}/${installer.subproject}/install.jar&quot; 
+</I>&gt;<i>     installertype=&quot;standard&quot; 
+</I>&gt;<i>     basedir=&quot;${installersrc.root }&quot; 
+</I>&gt;<i>     izpackdir=&quot;${izpack.home}/&quot;/&gt; 
+</I>&gt;<i>   
+</I>&gt;<i> Alternate: 
+</I>&gt;<i>  
+</I>&gt;<i>  
+</I>&gt;<i> ... 
+</I>&gt;<i>   &lt;taskdef name=&quot;izpack&quot;
+</I>&gt;<i> classpath=&quot;${izpack.home}/lib/standalone_compiler.jar&quot; 
+</I>&gt;<i>     classname=&quot;com.izforge.izpack.ant.IzPackTask&quot;/&gt;
+</I>&gt;<i> ...  &lt;izpack
+</I>&gt;<i> input=&quot;${installersrc.root}/product/appl/install/IzPackProjects/${installer.subproject}/install.xml&quot;
+</I>&gt;<i>     output=&quot;${ installerdest.root}/${installer.subproject}/install.jar&quot; 
+</I>&gt;<i>     installertype=&quot;standard&quot; 
+</I>&gt;<i>     basedir=&quot;${installersrc.root}&quot; /&gt; 
+</I>&gt;<i>   
+</I>&gt;<i> Ant vars are defined at the beginning of the ant script... 
+</I>&gt;<i>   
+</I>&gt;<i> If this not work, test with a full IzPack installation. 
+</I>&gt;<i>   
+</I>&gt;<i> Hope it helpes
+</I>&gt;<i>  
+</I>&gt;<i>   
+</I>&gt;<i> Klaus
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i>  
+</I>&gt;<i>   
+</I>&gt;<i>  
+</I>&gt;<i> -----Original Message----- 
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>  &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>&gt; 
+</I>&gt;<i> [mailto: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A> ]On Behalf Of
+</I>&gt;<i> Jacobo Garc&#237;a
+</I>&gt;<i> Sent: Wednesday, August 30, 2006 1:41 AM
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Subject: [izpack-users] Integrating Izpack with eclipse 
+</I>&gt;<i> 
+</I>&gt;<i> Hello, 
+</I>&gt;<i> 
+</I>&gt;<i> I am developing an Eclipse plugin that creates an installer for Eclipse RCP
+</I>&gt;<i> applications.
+</I>&gt;<i> 
+</I>&gt;<i> I have copied both lib and bin folders from my OS X Izpack (3.9.0 . preview)
+</I>&gt;<i> installation into a folder called izpack that is in the root of my plugin
+</I>&gt;<i> folder.
+</I>&gt;<i> 
+</I>&gt;<i> The plugin works this way:
+</I>&gt;<i> 
+</I>&gt;<i> The user exports (to a folder, let's call it export folder) an Eclipse RCP 
+</I>&gt;<i> application with other Eclipse wizard (not my plugin), usually Windows, Mac,
+</I>&gt;<i> and Linux exports are performed with &quot;Eclipse Delta Pack&quot;. 
+</I>&gt;<i> 
+</I>&gt;<i> Then user runs the plugin I am developing, in this process he chooses the 
+</I>&gt;<i> export folder, and other parameters like the authors or website.
+</I>&gt;<i> 
+</I>&gt;<i> Then the plugin generates an ant script file and an izpack xml installer
+</I>&gt;<i> (named installer.xml). This file is located in a tmp folder located inside 
+</I>&gt;<i> the export folder. The ant file contains izpack task, and the plugin
+</I>&gt;<i> launches the ant task inside the plugin with a specific Eclipse class called
+</I>&gt;<i> AntRunner. 
+</I>&gt;<i> 
+</I>&gt;<i> Here is an example of the ant file. 
+</I>&gt;<i> 
+</I>&gt;<i> &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+</I>&gt;<i> &lt;project name=&quot;Installer Generator&quot; default=&quot;default&quot; basedir=&quot;.&quot;&gt;
+</I>&gt;<i>     &lt;target name=&quot;default&quot; description=&quot;Main target&quot;&gt; 
+</I>&gt;<i>  
+</I>&gt;<i>         &lt;izpack
+</I>&gt;<i> input=&quot;/Users/jacobo/Desktop/export/tmp/installer.xml&quot;
+</I>&gt;<i> output=&quot;/Users/jacobo/Desktop/jj- installer.jar&quot;
+</I>&gt;<i> installerType=&quot;standard&quot;
+</I>&gt;<i> basedir=&quot;/Users/jacobo/Desktop/export/tmp&quot;/&gt;
+</I>&gt;<i>     &lt;/target&gt;
+</I>&gt;<i> &lt;/project&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> In eclipse you can register ant tasks in a file called plugin.xml, so you
+</I>&gt;<i> don't have to use  taskdef in order to define tasks, that's what I've done 
+</I>&gt;<i> with the code shown above.
+</I>&gt;<i> 
+</I>&gt;<i> The problem is that I am getting the famous - You have misspelt 'izpack'. -
+</I>&gt;<i> ant exception. I am wondering if I do have to register more izpack tasks
+</I>&gt;<i> that IzPackTask depends on. I looked at izpack sources and IzPackTask only 
+</I>&gt;<i> depends on other classes that are inside compiler.jar. To be totally sure, I
+</I>&gt;<i> created a little test ant task jar file, and tried to add it to plugin.xml
+</I>&gt;<i> the same way I do with izpack ant tasks, and this worked fine. 
+</I>&gt;<i> 
+</I>&gt;<i> Here it comes my first question, am I missing something? some izpack folder?
+</I>&gt;<i> some .jar? 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> Also I tried to add the taskdef code to my ant task, so right now ant task 
+</I>&gt;<i> looks this way.
+</I>&gt;<i> 
+</I>&gt;<i> &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; 
+</I>&gt;<i> &lt;project name=&quot;Installer Generator&quot; default=&quot;default&quot; basedir=&quot;.&quot;&gt;
+</I>&gt;<i>  
+</I>&gt;<i>     &lt;taskdef name=&quot;izpack&quot;               
+</I>&gt;<i> classpath=&quot;/Users/jacobo/Documents/workspace/Eclipse
+</I>&gt;<i> Installer Generator/izpack/lib/compiler.jar&quot; classname=&quot;
+</I>&gt;<i> com.izforge.izpack.ant.IzPackTask &quot; /&gt;
+</I>&gt;<i>     &lt;target name=&quot;default&quot; description=&quot;Main target&quot;&gt; 
+</I>&gt;<i>  
+</I>&gt;<i>         &lt;izpack
+</I>&gt;<i> input=&quot;/Users/jacobo/Desktop/export/tmp/installer.xml&quot;
+</I>&gt;<i> output=&quot;/Users/jacobo/Desktop/jacobo- installer.jar&quot;
+</I>&gt;<i> installerType=&quot;standard&quot;
+</I>&gt;<i> basedir=&quot;/Users/jacobo/Desktop/export/tmp&quot;/&gt;
+</I>&gt;<i>     &lt;/target&gt;
+</I>&gt;<i> &lt;/project&gt;
+</I>&gt;<i> 
+</I>&gt;<i> This way I am getting this exception: A class needed by class 
+</I>&gt;<i> com.izforge.izpack.ant.IzPackTask cannot be found:
+</I>&gt;<i> 
+</I>&gt;<i> I am not sure what is wrong in this second file, something related to
+</I>&gt;<i> basedir?
+</I>&gt;<i> 
+</I>&gt;<i> That's all, I can show you all the code if you find it necessary. 
+</I>&gt;<i> 
+</I>&gt;<i> Thanks for your attention, and please accept my apologies about my bad
+</I>&gt;<i> english.
+</I>&gt;<i> 
+</I>&gt;<i> -- 
+</I>&gt;<i> Jacobo Garc&#237;a L&#243;pez de Araujo 
+</I>&gt;<i> _______________________________________________ 
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>  &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>&gt; 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+
+-- 
+Jacobo Garc&#237;a L&#243;pez de Araujo
+
+
+
+_______________________________________________
+
+
+izpack-users mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>  &lt;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>&gt; 
+<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+
+
+
+
+
+
+-- 
+Jacobo Garc&#237;a L&#243;pez de Araujo 
+
+
+
+
+-- 
+Jacobo Garc&#237;a L&#243;pez de Araujo 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060831/6220c627/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060831/6220c627/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000830.html">[izpack-users] Exception when adding an Uninstaller (was) Re:	Re:Integrating Izpack with eclipse
+</A></li>
+	<LI>Next message: <A HREF="000832.html">[izpack-users] Exception when adding an Uninstaller (was)	Re:Re:Integrating Izpack with eclipse
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#831">[ date ]</a>
+              <a href="thread.html#831">[ thread ]</a>
+              <a href="subject.html#831">[ subject ]</a>
+              <a href="author.html#831">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

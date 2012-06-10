@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Log4j Integration in IzPack
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Log4j%20Integration%20in%20IzPack&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001687.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Log4j Integration in IzPack</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Log4j%20Integration%20in%20IzPack&In-Reply-To="
+       TITLE="[izpack-users] Log4j Integration in IzPack">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Sep 27 09:35:03 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001687.html">[izpack-users] variable dependent on os
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1686">[ date ]</a>
+              <a href="thread.html#1686">[ thread ]</a>
+              <a href="subject.html#1686">[ subject ]</a>
+              <a href="author.html#1686">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Suresh,
+the way using the jar file as container for own properties files is a
+work-around. Normally
+IzPack only supports resources in a special subdir named &quot;res&quot;, you
+know.
+If you would add something to a jar file use the jar program. Also
+possible is to use a zipper.
+For replacing a particular file in a jar, war, ear we use on Windows the
+total comander. With
+it it is possible e.g. to change a log level in a properties file in a
+jar file &quot;on the fly&quot;, not needed
+a rebuild of the installer.
+If it is a often recurring an ant process can help for the build and
+there it is no problem to 
+create a jar which contains the properties etc.
+To do it is not mission of an installer builder, you see. 
+ 
+Cheers
+ 
+Klaus
+
+	-----Original Message-----
+	From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Suresh Reddy
+	Sent: Wednesday, September 26, 2007 6:05 PM
+	To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+	Subject: Re: [izpack-users] Log4j Integration in IzPack
+	
+	
+	Hi Klaus,
+	
+	Thanks for the information. I tried this and it worked for me
+:<i>-)
+</I>	But, adding properties  file to jar is not ok; I mean, every
+time I modify the log level in properties file I need to archive it.
+	Can't we the files (not only properties but, any other format)
+directly?? 
+	
+	Thanks &amp; Regards,
+	Suresh
+	
+	
+	
+	
+	On 9/26/07, Bartz, Klaus &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Klaus.Bartz at coi.de</A>&gt; wrote: 
+
+		Hi Suresh,
+		put the properties into a jar file and add it also as
+jar
+		&lt;jar src=&quot;./IzPack/lib/log4j.jar&quot; stage=&quot;both&quot; /&gt; 
+		&lt;jar src=&quot;./myproject/lib/myprops.jar&quot; stage=&quot;both&quot; /&gt;
+		
+		Cheers
+		
+		Klaus
+		
+		&gt; -----Original Message-----
+		&gt; From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+		&gt; [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On
+Behalf Of sureshrk19
+		&gt; Sent: Tuesday, September 25, 2007 7:14 PM 
+		&gt; To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+		&gt; Subject: [izpack-users] Log4j Integration in IzPack
+		&gt;
+		&gt;
+		&gt;
+		&gt; Hi,
+		&gt;
+		&gt; I'm trying to integrate log4j with IzPack; 
+		&gt; I specified the log4j.jar in classpath (in
+install.xml) as follows:
+		&gt;
+		&gt; &lt;jar src=&quot;./IzPack/lib/log4j.jar&quot; stage=&quot;both&quot; /&gt;
+		&gt;
+		&gt; My requirement is to automate the build process... 
+		&gt;
+		&gt; If I add log4j.properties to the jar (install.jar)
+manually
+		&gt; everything works
+		&gt; fine; but, I didn't find a way to add the
+log4j.properties
+		&gt; file to the build process (to be picked up added to
+install.jar).
+		&gt;
+		&gt; If I add the properties file in resources section, as
+follows....
+		&gt;
+		&gt; &lt;resources&gt;
+		&gt;               &lt;res id=&quot;log4j.properties&quot;
+src=&quot;./log4j.properties&quot; /&gt; 
+		&gt; ...
+		&gt; &lt;/resources&gt;
+		&gt;
+		&gt; It is getting added in &quot;res&quot; section of install.jar; I
+didn;t
+		&gt; find any other way to add log4j.properties directly to
+the
+		&gt; install.jar.
+		&gt; 
+		&gt; Any inputs will be highly appreciated.
+		&gt;
+		&gt; Thanks &amp; Regards,
+		&gt; Suresh
+		&gt; --
+		&gt; View this message in context:
+		&gt;
+<A HREF="http://www.nabble.com/Log4j-Integration-in-IzPack-tf4516129.ht">http://www.nabble.com/Log4j-Integration-in-IzPack-tf4516129.ht</A>
+		ml#a12881463
+		Sent from the izpack users mailing list archive at
+Nabble.com.
+		
+		_______________________________________________ 
+		izpack-users mailing list
+		<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+		<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A> 
+		_______________________________________________
+		izpack-users mailing list
+		<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+		<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+		
+
+
+
+
+	-- 
+	Regards
+	Suresh 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20070927/cca1e363/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20070927/cca1e363/attachment.html</A> 
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001687.html">[izpack-users] variable dependent on os
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1686">[ date ]</a>
+              <a href="thread.html#1686">[ thread ]</a>
+              <a href="subject.html#1686">[ subject ]</a>
+              <a href="author.html#1686">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

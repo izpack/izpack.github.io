@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Serialization problem
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Serialization%20problem&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000274.html">
+   <LINK REL="Next"  HREF="000276.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Serialization problem</H1>
+    <B>damo</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Serialization%20problem&In-Reply-To="
+       TITLE="[izpack-devel] Serialization problem">foodofgods2002 at yahoo.co.uk
+       </A><BR>
+    <I>Fri Jun 30 12:01:11 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000274.html">[izpack-devel] IzPack 3.9.0-preview1
+</A></li>
+        <LI>Next message: <A HREF="000276.html">[izpack-devel] ShortcutPanel headline indentation fixed.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#275">[ date ]</a>
+              <a href="thread.html#275">[ thread ]</a>
+              <a href="subject.html#275">[ subject ]</a>
+              <a href="author.html#275">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I have been trying to add some new functionality to izpack so that it can use variable dependencies in a similar way the OS tag does.
+
+eg.
+&lt;fileset dir=&quot;Database&quot; targetdir=&quot;$INSTALL_PATH\&quot;&gt;
+   &lt;installType type=&quot;something&quot;&gt;  
+      &lt;include name=&quot;**\**\**\*&quot;/&gt;
+   &lt;/installType&gt;
+&lt;/fileset&gt;
+
+the &quot;something will be set in a panel that is near the start of the install&quot;
+
+it is supported for &lt;file&gt;&lt;fileset&gt;&lt;singlefile&gt;&lt;parseable&gt;&lt;executable&gt; 
+based on the value of the variable a fileset (for instance) would be copied or not. 
+I have implemented it fully and the ant task builds successfully but when i try to compile using compiler.jar i get an error 
+
+the fileset where i use the tag &lt;installType&gt; is used in &quot;Pack 2: Application Server&quot; and that's where i get this error...
+
+[ Begin ]
+
+Copying  the  skeleton installer
+Copying 22 files into installer
+Merging 15 jars into installer
+Writing 5 Packs into installer
+Writing Pack 0: Core Files
+Writing Pack 1: Database Data
+Writing Pack 2: Application Server
+Exception in thread &quot;main&quot; java.lang.NoClassDefFoundError: Lcom/izforge/izpack/installer/InstallData;
+        at java.lang.Class.getDeclaredFields0(Native Method)
+        at java.lang.Class.privateGetDeclaredFields(Class.java:1522)
+        at java.lang.Class.getDeclaredField(Class.java:1214)
+        at java.io.ObjectStreamClass.getDeclaredSUID(ObjectStreamClass.java:1474)
+        at java.io.ObjectStreamClass.access$400(ObjectStreamClass.java:47)
+        at   java.io.ObjectStreamClass$3.run(ObjectStreamClass.java:335)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at java.io.ObjectStreamClass.&lt;init&gt;(ObjectStreamClass.java:333)
+        at java.io.ObjectStreamClass.lookup(ObjectStreamClass.java:253)
+        at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1010)
+        at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:278)
+        at java.util.ArrayList.writeObject(ArrayList.java:529)
+        at sun.reflect.GeneratedMethodAccessor2.invoke(Unknown Source)
+        at   sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+        at java.lang.reflect.Method.invoke(Method.java:324)
+        at java.io.ObjectStreamClass.invokeWriteObject(ObjectStreamClass.java:809)
+        at java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1296)
+        at java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1247)
+        at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1052)
+        at java.io.ObjectOutputStream.defaultWriteFields(ObjectOutputStream.java:1332)
+        at java.io.ObjectOutputStream.writeSerialData(ObjectOutputStream.java:1304)
+        at   java.io.ObjectOutputStream.writeOrdinaryObject(ObjectOutputStream.java:1247)
+        at java.io.ObjectOutputStream.writeObject0(ObjectOutputStream.java:1052)
+        at java.io.ObjectOutputStream.writeObject(ObjectOutputStream.java:278)
+        at com.izforge.izpack.compiler.Packager.writePacks(Packager.java:570)
+        at com.izforge.izpack.compiler.Packager.createInstaller(Packager.java:190)
+        at com.izforge.izpack.compiler.Compiler.createInstaller(Compiler.java:248)
+        at com.izforge.izpack.compiler.CompilerConfig.executeCompiler(CompilerConfig.java:333)
+        at com.izforge.izpack.compiler.CompilerConfig.main(CompilerConfig.java:1875)
+        at   com.izforge.izpack.compiler.Compiler.main(Compiler.java:620)
+
+[end...]
+
+any help would be great as i would like to contribute to this project and hope that this can be implemented into izpack at some stage as it would be a very handy addition to the project.
+
+NOTE: com/izforge/izpack/installer/InstallData.java does exist 
+
+i have also assigned a new serialVersionUID but i think that there is a special way to work them out as the error refers to SUID
+
+at java.io.ObjectStreamClass.getDeclaredSUID(ObjectStreamClass.java:1474)
+at java.io.ObjectStreamClass.access$400(ObjectStreamClass.java:47)
+
+this to me suggests that there is a security access problem because the serialVersionUID is invalid.
+
+if anyone knows what i need to do or even if there are any serialVersionUID available to use i would be gratefull to hear them. 
+
+Thanks Damien
+
+Regards Damien.
+ 		
+---------------------------------
+ Inbox full of spam? Get leading spam protection and 1GB storage with All New Yahoo! Mail.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20060630/2e79bbf8/attachment.html">https://lists.berlios.de/pipermail/izpack-devel/attachments/20060630/2e79bbf8/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000274.html">[izpack-devel] IzPack 3.9.0-preview1
+</A></li>
+	<LI>Next message: <A HREF="000276.html">[izpack-devel] ShortcutPanel headline indentation fixed.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#275">[ date ]</a>
+              <a href="thread.html#275">[ thread ]</a>
+              <a href="subject.html#275">[ subject ]</a>
+              <a href="author.html#275">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

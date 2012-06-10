@@ -1,0 +1,534 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Using ProcessPanel and Log4J
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Using%20ProcessPanel%20and%20Log4J&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001465.html">
+   <LINK REL="Next"  HREF="001469.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Using ProcessPanel and Log4J</H1>
+    <B>Marius Hugo</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Using%20ProcessPanel%20and%20Log4J&In-Reply-To="
+       TITLE="[izpack-users] Using ProcessPanel and Log4J">marius.hugo at traderoot.com
+       </A><BR>
+    <I>Thu Apr 26 11:13:21 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001465.html">[izpack-users] UI display issues
+</A></li>
+        <LI>Next message: <A HREF="001469.html">[izpack-users] Using ProcessPanel and Log4J
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1467">[ date ]</a>
+              <a href="thread.html#1467">[ thread ]</a>
+              <a href="subject.html#1467">[ subject ]</a>
+              <a href="author.html#1467">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Mandeep, 
+
+Im having some trouble with the attachment, not sure if you worked in an
+editor or something, but the xml files look as follow:
+
+{\rtf1\ansi\ansicpg1252\deff0\deflang2057{\fonttbl{\f0\fnil Courier
+New;}{\f1\fnil\fcharset0 Courier New;}{\f2\fswiss\fcharset0 Arial;}}
+{\colortbl
+;\red0\green128\blue128;\red63\green127\blue127;\red127\green0\blue127;\
+red0\green0\blue0;\red42\green0\blue255;\red232\green242\blue254;}
+{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\cf1\f0\fs20
+&lt;?\cf2 xml \cf3 version\cf4 =\cf5 &quot;1.0&quot; \cf3 encoding\cf4 =\cf5
+&quot;iso-8859-1&quot; \cf3 standalone\cf4 =\cf5 &quot;yes&quot; \cf1 ?&gt;\cf0\par
+\cf1 &lt;\cf2 installation \cf3 version\cf4 =\cf5 &quot;1.0&quot;\cf1 &gt;\cf0\par
+\cf4\tab\cf1 &lt;\cf2 info\cf1 &gt;\cf0\par
+\cf4         \cf1 &lt;\cf2 appname\cf1 &gt;\cf4 TradeRoot\cf1 &lt;/\cf2
+appname\cf1 &gt;\cf0\par
+\cf4         \cf1 &lt;\cf2 appversion\cf1 &gt;\cf4 4.5.1\cf1 &lt;/\cf2
+appversion\cf1 &gt;\cf0\par
+\cf4         \cf1 &lt;\cf2 authors\cf1 &gt;\cf0\par
+\cf4             \cf1 &lt;\cf2 author \cf3 name\cf4 =\cf5 &quot;Marius&quot; \cf3
+email\cf4 =\cf5 &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">marius.hugo at traderoot.com</A>&quot;\cf1 /&gt;\cf0\par
+\cf4             \cf1 &lt;\cf2 author \cf3 name\cf4 =\cf5 &quot;TRADEROOT&quot; \cf3
+email\cf4 =\cf5 &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">traderoot at traderoot.com</A>&quot;\cf1 /&gt;\cf0\par
+\cf4         \cf1 &lt;/\cf2 authors\cf1 &gt;\cf0\par
+\cf4         \cf1 &lt;\cf2 url\cf1 &gt;\cf4 <A HREF="http://www.traderoot.com/\cf1">http://www.traderoot.com/\cf1</A>
+&lt;/\cf2 url\cf1 &gt;\cf0\par
+\cf4         \cf1 &lt;\cf2 javaversion\cf1 &gt;\cf4 1.4\cf1 &lt;/\cf2
+javaversion\cf1 &gt;\cf0\par
+\cf4     \f1\tab\cf1\f0 &lt;/\cf2 info\cf1 &gt;\cf0\par
+
+ this does not parse,
+Unless I ma missing something dreadfully obvious
+
+Thanks,
+marius
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Mandeep
+Saini
+Sent: 24 April 2007 15:44
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Subject: Re: [izpack-users] Using ProcessPanel and Log4J
+
+Hi Marius,
+
+I am sending you a detailed example try to follow it:
+for ProcessPanel.Spec.xml and install.xml find the attachments:
+
+com.traderoot.tools.artifact.installer.LicenseInstall class:
+
+public class LicenseInstall {
+public void run( AbstractUIProcessHandler handler, String[] args) {
+	String installPath = args[0];
+	String trtLicense = args[1];
+	String tradeRootInstallationPath = args[2];
+	String tradeRootRepositoriesPath = args[3];
+	String check = args[4];
+	String output = null;
+	
+	if(check.equals(&quot;Selected&quot;){
+	output = &quot;install path is: &quot; + installPath + &quot;\n&quot;;
+	output = output + &quot;trtLicense variable contains: &quot; + trtLicense
++ &quot;\n&quot;;
+	output = output + &quot;tradeRootInstallationPath is: &quot; +
+tradeRootInstallationPath + &quot;\n&quot;;
+
+	}	
+	
+	try {
+	 FileWriter propWriter propWriter= new
+FileWriter(tradeRootRepositoriesPath + &quot;/MyProp.properties&quot;);
+	 BufferedWriter outBuffer = new BufferedWriter(propWriter);
+	 outBuffer.write(output);
+	 outBuffer.close();
+	}
+	catch(java.io.IOException ioe){	 }	
+
+}
+}
+
+Hope it will help.
+
+Regards
+Mandeep
+
+Marius Hugo wrote:
+&gt;<i> Thanks, I tried all of that now, but I still get an exception and I 
+</I>&gt;<i> cannot get the ProcessPanel logging to work...
+</I>&gt;<i> My code that im passing looks like this
+</I>&gt;<i> 
+</I>&gt;<i> public class LicenseInstall {
+</I>&gt;<i> 	public void run(AbstractUIProcessHandler handler, String[]
+</I>args){
+&gt;<i> 		String install_path = args[0];
+</I>&gt;<i> 		Util.configureLogging();
+</I>&gt;<i> 		Util.setLogLevel(Util.VERBOSE);
+</I>&gt;<i> 		Util.log(Util.VERBOSE,&quot;WORKING&quot;,classname,null);
+</I>&gt;<i> 		
+</I>&gt;<i> 		try{
+</I>&gt;<i> 			LicenseInstall l = new LicenseInstall(args);
+</I>&gt;<i> 		} catch (Exception x){
+</I>&gt;<i> 			Util.log(Util.ERROR,&quot;Uh-oh! &quot;, classname,x);
+</I>&gt;<i> 		}
+</I>&gt;<i> 	}
+</I>&gt;<i> 	 
+</I>&gt;<i> ...
+</I>&gt;<i> ..
+</I>&gt;<i> ..
+</I>&gt;<i> ..
+</I>&gt;<i> }
+</I>&gt;<i> 
+</I>&gt;<i> I expected to have a log file created containing the text &quot;WORKING&quot; on
+</I>
+&gt;<i> the C drive as is configured in my log4j, that didn't work inside the 
+</I>&gt;<i> ProcessPanel (if I just run it in my environment it works) I have 
+</I>&gt;<i> tried to just make a BufferedWriter and create a text file just to see
+</I>
+&gt;<i> if my class at least runs, but that also does nothing...so I don't 
+</I>&gt;<i> think the log4j is the problem.
+</I>&gt;<i> 
+</I>&gt;<i> I get the following window that pops up when I run the process panel:
+</I>&gt;<i> Title -&gt; Post Processing Error
+</I>&gt;<i> -&gt; Exception when running class:
+</I>&gt;<i> com.traderoot.tools.artifact.installer.LicenseInstall,
+</I>&gt;<i> com.traderoot.tools.artifact.installer.LicenseInstall.
+</I>&gt;<i> 
+</I>&gt;<i> Could anyone point out anything that I'm missing? I'm gonna attach my 
+</I>&gt;<i> install.xml file, etc...
+</I>&gt;<i> 
+</I>&gt;<i> Thanks,
+</I>&gt;<i> Marius
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> -----Original Message-----
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;<i> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>] On Behalf Of Mandeep 
+</I>&gt;<i> Saini
+</I>&gt;<i> Sent: 20 April 2007 11:20
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> Subject: Re: [izpack-users] Using ProcessPanel and Log4J
+</I>&gt;<i> 
+</I>&gt;<i> Hi Marius,
+</I>&gt;<i> 
+</I>&gt;<i> see the related comments below:
+</I>&gt;<i> Marius Hugo wrote:
+</I>&gt;&gt;<i> Hi, I'm new to IzPack and I'm having a bit of trouble with the
+</I>&gt;<i> following:
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i> I have to merge files based on versioning and a license that I must 
+</I>&gt;&gt;<i> parse.  I have written my own code to handle this and included it in 
+</I>&gt;&gt;<i> a
+</I>&gt;<i> 
+</I>&gt;&gt;<i> ProcessPanel.  I loaded the jars necessary using the &lt;jar&gt; tag (these
+</I>
+&gt;&gt;<i> tags are in my install.xml).
+</I>&gt;<i> 
+</I>&gt;<i> Make sure you also include the jars on which your class has 
+</I>&gt;<i> dependency, unless its already in izpack. For example, if my classes 
+</I>&gt;<i> have dependency on 'commons-codec-1.3.jar' and my processing classes 
+</I>&gt;<i> are in another jar file (say processingClasses.jar) then in my
+</I>install.xml I will write:
+&gt;<i> 
+</I>&gt;<i> &lt;jar src=&quot;target/processPanelJar/processingClasses.jar&quot; /&gt; &lt;jar 
+</I>&gt;<i> src=&quot;target/jars/commons-codec-1.3.jar&quot; /&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;&gt;<i> When I  get to running the panel, it simply tells me that there has 
+</I>&gt;&gt;<i> been an exception using my class and there is no actual indication 
+</I>&gt;&gt;<i> that the correct action was taken or that my class was even run (I 
+</I>&gt;&gt;<i> also have no clue what the exception is, it doesn't specify)
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i> My class uses log4j and that has to read a file for its config.  
+</I>&gt;&gt;<i> Normally I would just say the following:
+</I>&gt;&gt;<i> java  -Dlog4j.configuration=log4j.properties com.bla bla bla.MyClass
+</I>&gt;<i> 
+</I>&gt;<i> If your class file needs some config file like 'log4j.properties' then
+</I>
+&gt;<i> the jar file which contains your class should also contain the 
+</I>&gt;<i> properties file. make the code to find it from there.
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i> How would I get this right in the process panel?  Cause I need to see
+</I>
+&gt;&gt;<i> the logs so that I can know what's going on.
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i> Also, I attempted to enable the ProcessPanel logging, but the file 
+</I>&gt;&gt;<i> never gets created in $INSTALL_PATH.
+</I>&gt;<i> 
+</I>&gt;<i> I have also tried to enable ProcessPanel logging but I could not do
+</I>so. 
+&gt;<i> As far as I remember this feature is not completely implemented yet 
+</I>&gt;<i> but I cant remember the actual cause.
+</I>&gt;&gt;<i> My ProcessPanel config looks a little something like this:
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i> &lt;processing&gt;
+</I>&gt;&gt;<i>  &lt;job name=&quot;InstallArtifacts&quot;&gt;
+</I>&gt;&gt;<i>  &lt;logfiledir&gt;$INSTALL_PATH&lt;/logfiledir&gt;
+</I>&gt;&gt;<i>  &lt;executeclass
+</I>&gt;<i> name=&quot;com.traderoot.tools.artifact.installer.LicenseInstall&quot;&gt;
+</I>&gt;&gt;<i>   &lt;args&gt;
+</I>&gt;&gt;<i>               &lt;arg value=&quot;$trtLicense&quot;/&gt;
+</I>&gt;&gt;<i>               &lt;arg value=&quot;$INSTALL_PATH/TradeRoot/Installations/&quot;/&gt;
+</I>&gt;&gt;<i>               &lt;arg value=&quot;$INSTALL_PATH/TradeRoot/Repositories&quot;/&gt;
+</I>&gt;&gt;<i>               &lt;arg value=&quot;Stack&quot;/&gt;
+</I>&gt;&gt;<i>              &lt;/args&gt;
+</I>&gt;&gt;<i>  &lt;/executeclass&gt;
+</I>&gt;&gt;<i>  &lt;/job&gt;
+</I>&gt;&gt;<i> &lt;/processing&gt;
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i> $trtLicense -&gt; location of license that i captured in a UserInput
+</I>&gt;<i> panel....
+</I>&gt;&gt;<i> I understand that all these values are passed in the specified order 
+</I>&gt;&gt;<i> to the main method of the class that I specified.
+</I>&gt;<i> 
+</I>&gt;<i> When you write any class for process panel, you don't need to write 
+</I>&gt;<i> main method instead you write the run( AbstractUIProcessHandler 
+</I>&gt;<i> handler, String[] args) method. For example:
+</I>&gt;<i> 
+</I>&gt;<i> import com.izforge.izpack.util.AbstractUIProcessHandler;
+</I>&gt;<i> 
+</I>&gt;<i> public class MyClass {
+</I>&gt;<i> 	
+</I>&gt;<i> public void run( AbstractUIProcessHandler handler, String[] args){
+</I>&gt;<i> 	String install_path = args[0];
+</I>&gt;<i> 	myMethod(install_path);
+</I>&gt;<i> }
+</I>&gt;<i> 
+</I>&gt;<i> public void myMethod(){
+</I>&gt;<i> }
+</I>&gt;<i> }
+</I>&gt;<i> 
+</I>&gt;<i> Hope this works for you.
+</I>&gt;<i> 
+</I>&gt;<i> Regards
+</I>&gt;<i> Mandeep
+</I>&gt;<i> 
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i> thanks guys
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i> 	
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> MARIUS HUGO
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> SOFTWARE ENGINEER
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 	
+</I>&gt;&gt;<i> c
+</I>&gt;&gt;<i> t
+</I>&gt;&gt;<i> f
+</I>&gt;&gt;<i> 	+27 72 237 4083
+</I>&gt;&gt;<i> +27 21 551 5444
+</I>&gt;&gt;<i> +27 21 551 5449
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> 	*TRADEROOT **TECHNOLOGIES (Pty)Ltd. Reg. No. 2000/005984/07.
+</I>&gt;&gt;<i> www.traderoot.com Directors* E von Engelhardt, J Ludik, B Dungan, W
+</I>&gt;<i> Reece.
+</I>&gt;&gt;<i>  
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> ---------------------------------------------------------------------
+</I>&gt;&gt;<i> -
+</I>&gt;&gt;<i> --
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> ----------------------------------------------------------------------
+</I>&gt;<i> --
+</I>&gt;<i> 
+</I>&gt;<i> &lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot; standalone=&quot;yes&quot; ?&gt;
+</I>&gt;<i> 
+</I>&gt;<i> &lt;!--
+</I>&gt;<i> 
+</I>&gt;<i> Some handy tips....
+</I>&gt;<i> 
+</I>&gt;<i> VARIABLES
+</I>&gt;<i> 
+</I>&gt;<i> &lt;variables&gt;
+</I>&gt;<i> 	&lt;variable name=&quot;app-version&quot; value=&quot;1.4&quot;/&gt;
+</I>&gt;<i> 	&lt;variable name=&quot;released-on&quot; value=&quot;08/03/2002&quot;/&gt; &lt;/variables&gt;
+</I>&gt;<i> 
+</I>&gt;<i> use variable as follows -&gt; $name
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> --&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> &lt;installation version=&quot;1.0&quot;&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- gui preferences --&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;guiprefs height=&quot;700&quot; resizable=&quot;yes&quot; width=&quot;900&quot;&gt;
+</I>&gt;<i> 	&lt;laf name=&quot;metouia&quot;&gt;
+</I>&gt;<i> 		&lt;os family=&quot;unix&quot; /&gt;
+</I>&gt;<i> 		&lt;param name=&quot;decorate.frames&quot; value=&quot;yes&quot; /&gt;
+</I>&gt;<i> 		&lt;param name=&quot;decorate.dialogs&quot; value=&quot;yes&quot; /&gt;
+</I>&gt;<i> 	&lt;/laf&gt;
+</I>&gt;<i> 	&lt;laf name=&quot;metouia&quot;&gt;
+</I>&gt;<i> 		&lt;os family=&quot;windows&quot; /&gt;		
+</I>&gt;<i> 		&lt;param name=&quot;decorate.frames&quot; value=&quot;yes&quot; /&gt;
+</I>&gt;<i> 		&lt;param name=&quot;decorate.dialogs&quot; value=&quot;yes&quot; /&gt;
+</I>&gt;<i> 	&lt;/laf&gt;
+</I>&gt;<i>      &lt;/guiprefs&gt;
+</I>&gt;<i>      
+</I>&gt;<i>      
+</I>&gt;<i>      
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>  	Specify the supported languages
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     &lt;locale&gt;
+</I>&gt;<i>         &lt;langpack iso3=&quot;eng&quot;/&gt;        
+</I>&gt;<i>     &lt;/locale&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>  	Specify resources that can be loaded by the panels (defined and
+</I>used later in this file)
+&gt;<i>  	I defined the logo, text containing info and the license
+</I>agreement
+&gt;<i>     --&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;resources&gt;
+</I>&gt;<i>     	&lt;res id=&quot;Installer.image&quot; src=&quot;/Logo/logo.jpg&quot;/&gt;
+</I>&lt;!-- left hand picture for all panes, trtLogo
+&gt;<i>     	...can also specify for each panel...id=Installer.image.n, where
+</I>
+&gt;<i> n=0..lastpanel-1  --&gt;
+</I>&gt;<i>     	
+</I>&gt;<i> 	&lt;res id=&quot;InfoPanel.info&quot; src=&quot;/Doc/ReadMe.txt&quot;/&gt;
+</I>&gt;<i> 	&lt;res id=&quot;LicencePanel.licence&quot; src=&quot;/Legal/License.txt&quot;/&gt;
+</I>&gt;<i> 	&lt;res id=&quot;userInputSpec.xml&quot; src=&quot;userInputSpec.xml&quot;/&gt;
+</I>&gt;<i> 	&lt;res id=&quot;ProcessPanel.Spec.xml&quot; src=&quot;ProcessPanel.Spec.xml&quot;/&gt;	
+</I>&gt;<i>     &lt;/resources&gt;
+</I>&gt;<i>    
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;jar src=&quot;lib/artifact-SNAPSHOT.jar&quot;/&gt;
+</I>&gt;<i>     &lt;jar src=&quot;lib/commons-io-1.1.jar&quot;/&gt;
+</I>&gt;<i>     &lt;jar src=&quot;lib/commons-logging-1.0.4.jar&quot;/&gt;
+</I>&gt;<i>     &lt;jar src=&quot;lib/log4j-1.2.8.jar&quot;/&gt;
+</I>&gt;<i>     &lt;jar src=&quot;lib/truezip-6.jar&quot;/&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- 
+</I>&gt;<i>         Indicate the panels we want to use, in order.
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     &lt;panels&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;HelloPanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;InfoPanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;UserInputPanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;LicencePanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;TargetPanel&quot;/&gt; 
+</I>&gt;<i>         &lt;panel classname=&quot;PacksPanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;InstallPanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;ProcessPanel&quot;/&gt;
+</I>&gt;<i>         &lt;panel classname=&quot;FinishPanel&quot;/&gt;
+</I>&gt;<i>     &lt;/panels&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;!-- InfoPanel -&gt; info about this installer....for the info 
+</I>&gt;<i> panel... --&gt;
+</I>&gt;<i> 
+</I>&gt;<i>     &lt;info&gt;
+</I>&gt;<i>         &lt;appname&gt;TradeRoot&lt;/appname&gt;
+</I>&gt;<i>         &lt;appversion&gt;4.5.1&lt;/appversion&gt;
+</I>&gt;<i>         &lt;authors&gt;
+</I>&gt;<i>             &lt;author name=&quot;Marius&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">marius.hugo at traderoot.com</A>&quot;/&gt;
+</I>&gt;<i>             &lt;author name=&quot;TRADEROOT&quot; email=&quot;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">traderoot at traderoot.com</A>&quot;/&gt;
+</I>&gt;<i>         &lt;/authors&gt;
+</I>&gt;<i>         &lt;url&gt;<A HREF="http://www.traderoot.com/&lt;/url">http://www.traderoot.com/&lt;/url</A>&gt;
+</I>&gt;<i>         &lt;javaversion&gt;1.4&lt;/javaversion&gt;
+</I>&gt;<i>     &lt;/info&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>      &lt;!-- 
+</I>&gt;<i>         The packs section.
+</I>&gt;<i>         We specify our packs here.
+</I>&gt;<i>     --&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i>     &lt;packs&gt;
+</I>&gt;<i>         &lt;pack name=&quot;TradeRoot Core&quot; required=&quot;yes&quot;&gt;
+</I>&gt;<i>             &lt;description&gt;The core files required for a TradeRoot
+</I>Installation.  Please note that you are required to select at least one
+Installation&lt;/description&gt;
+&gt;<i>             &lt;required&gt;yes&lt;/required&gt;
+</I>&gt;<i>             &lt;preselected&gt;yes&lt;/preselected&gt;                        
+</I>&gt;<i>             &lt;file src=&quot;TradeRoot Skeleton/Export&quot;
+</I>targetdir=&quot;$INSTALL_PATH&quot;&gt;
+&gt;<i>             	&lt;exclude&gt;**&lt;/exclude&gt;
+</I>&gt;<i>             &lt;/file&gt;
+</I>&gt;<i>             &lt;file src=&quot;TradeRoot Skeleton/Import&quot;
+</I>targetdir=&quot;$INSTALL_PATH&quot;&gt;
+&gt;<i>                 &lt;exclude&gt;**&lt;/exclude&gt;
+</I>&gt;<i>             &lt;/file&gt;
+</I>&gt;<i>             
+</I>&gt;<i>             &lt;file src=&quot;TradeRoot Skeleton/Installations&quot;
+</I>targetdir=&quot;$INSTALL_PATH&quot;&gt;
+&gt;<i>                 &lt;exclude&gt;**&lt;/exclude&gt;
+</I>&gt;<i>             &lt;/file&gt;            
+</I>&gt;<i>             &lt;file src=&quot;TradeRoot Skeleton/Java&quot;
+</I>targetdir=&quot;$INSTALL_PATH&quot;&gt;
+&gt;<i>                 &lt;exclude&gt;**&lt;/exclude&gt;
+</I>&gt;<i>             &lt;/file&gt;            
+</I>&gt;<i>             &lt;file src=&quot;TradeRoot Skeleton/UserApplications&quot;
+</I>targetdir=&quot;$INSTALL_PATH&quot;&gt;
+&gt;<i>                 &lt;exclude&gt;**&lt;/exclude&gt;
+</I>&gt;<i>             &lt;/file&gt;
+</I>&gt;<i>             
+</I>&gt;<i>             &lt;file src=&quot;TradeRoot Skeleton/Repositories&quot;
+</I>targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+&gt;<i>             &lt;file src=&quot;TradeRoot Skeleton/Install&quot; 
+</I>&gt;<i> targetdir=&quot;$INSTALL_PATH&quot;/&gt;
+</I>&gt;<i>                         
+</I>&gt;<i> 
+</I>&gt;<i>         &lt;/pack&gt;
+</I>&gt;<i>      &lt;/packs&gt;
+</I>&gt;<i>      
+</I>&gt;<i> &lt;/installation&gt;
+</I>&gt;<i>     
+</I>&gt;<i>     
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> ----------------------------------------------------------------------
+</I>&gt;<i> --
+</I>&gt;<i> 
+</I>&gt;<i> &lt;processing&gt;
+</I>&gt;<i> 	&lt;job name=&quot;InstallArtifacts&quot;&gt;
+</I>&gt;<i> 	&lt;logfiledir&gt;$INSTALL_PATH&lt;/logfiledir&gt;
+</I>&gt;<i> 	    &lt;jar src=&quot;lib/artifact-SNAPSHOT.jar&quot;/&gt;
+</I>&gt;<i>     &lt;jar src=&quot;lib/commons-io-1.1.jar&quot;/&gt;
+</I>&gt;<i>     &lt;jar src=&quot;lib/commons-logging-1.0.4.jar&quot;/&gt;
+</I>&gt;<i>     &lt;jar src=&quot;lib/log4j-1.2.8.jar&quot;/&gt;
+</I>&gt;<i>     &lt;jar src=&quot;lib/truezip-6.jar&quot;/&gt;
+</I>&gt;<i> 	&lt;executeclass
+</I>name=&quot;com.traderoot.tools.artifact.installer.LicenseInstall&quot;&gt;
+&gt;<i> 		&lt;args&gt;
+</I>&gt;<i>             		&lt;arg value=&quot;$trtLicense&quot;/&gt;
+</I>&gt;<i>             		&lt;arg
+</I>value=&quot;$INSTALL_PATH/TradeRoot/Installations/&quot;/&gt;
+&gt;<i>             		&lt;arg
+</I>value=&quot;$INSTALL_PATH/TradeRoot/Repositories&quot;/&gt;
+&gt;<i>             		&lt;arg value=&quot;Stack&quot;/&gt;
+</I>&gt;<i>             	&lt;/args&gt;
+</I>&gt;<i> 	&lt;/executeclass&gt;
+</I>&gt;<i> 	&lt;/job&gt;
+</I>&gt;<i> &lt;/processing&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> ----------------------------------------------------------------------
+</I>&gt;<i> --
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001465.html">[izpack-users] UI display issues
+</A></li>
+	<LI>Next message: <A HREF="001469.html">[izpack-users] Using ProcessPanel and Log4J
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1467">[ date ]</a>
+              <a href="thread.html#1467">[ thread ]</a>
+              <a href="subject.html#1467">[ subject ]</a>
+              <a href="author.html#1467">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

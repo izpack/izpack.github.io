@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1671 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1671%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000415.html">
+   <LINK REL="Next"  HREF="000417.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1671 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1671%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/compiler&In-Reply-To="
+       TITLE="[izpack-changes] r1671 -	izpack-src/trunk/src/lib/com/izforge/izpack/compiler">noreply at berlios.de
+       </A><BR>
+    <I>Tue Jan  2 11:28:59 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000415.html">[izpack-changes] r1670 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/event
+</A></li>
+        <LI>Next message: <A HREF="000417.html">[izpack-changes] r1672 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#416">[ date ]</a>
+              <a href="thread.html#416">[ thread ]</a>
+              <a href="subject.html#416">[ subject ]</a>
+              <a href="author.html#416">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-01-02 11:28:58 +0100 (Tue, 02 Jan 2007)
+New Revision: 1671
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+Log:
+added support for custom configuration information of packagers
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-01-02 10:11:23 UTC (rev 1670)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/CompilerConfig.java	2007-01-02 10:28:58 UTC (rev 1671)
+@@ -349,7 +349,10 @@
+                 unpackerclassname = requireAttribute(unpacker, &quot;class&quot;);
+             }        
+         }
+-        compiler.initPackager(packagerclassname);        
++        compiler.initPackager(packagerclassname);  
++        if (root != null){
++            compiler.getPackager().addConfigurationInformation(root);
++        }
+         notifyCompilerListener(&quot;loadPackager&quot;, CompilerListener.END, data);        
+     }
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java	2007-01-02 10:11:23 UTC (rev 1670)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/IPackager.java	2007-01-02 10:28:58 UTC (rev 1671)
+@@ -23,6 +23,8 @@
+ import java.util.List;
+ import java.util.Properties;
+ 
++import net.n3.nanoxml.XMLElement;
++
+ import com.izforge.izpack.CustomData;
+ import com.izforge.izpack.GUIPrefs;
+ import com.izforge.izpack.Info;
+@@ -169,9 +171,15 @@
+     public abstract PackCompressor getCompressor();     
+     
+     /**
+-     * 
++     * Initializes a pack compressor if supported by the packager
+      * @param compr_format
+      * @param compr_level
+      */
+     public abstract void initPackCompressor(String compr_format, int compr_level) throws CompilerException;
++    
++    /**
++     * Adds configuration information to the packager.
++     * @param data - the xml-element packaging from the install.xml
++     */
++    public abstract void addConfigurationInformation(XMLElement data);
+ }
+\ No newline at end of file
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-01-02 10:11:23 UTC (rev 1670)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/compiler/Packager.java	2007-01-02 10:28:58 UTC (rev 1671)
+@@ -39,6 +39,8 @@
+ import java.util.zip.ZipException;
+ import java.util.zip.ZipInputStream;
+ 
++import net.n3.nanoxml.XMLElement;
++
+ // The declarations for ZipOutputStreams will be done
+ // as full qualified to clear at the use point that
+ // we do not use the standard class else the extended
+@@ -695,4 +697,10 @@
+         compressor = PackCompressorFactory.get( compr_format);
+         compressor.setCompressionLevel(compr_level);        
+     }
++
++    public void addConfigurationInformation(XMLElement data)
++    {
++        // TODO Auto-generated method stub
++        
++    }
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000415.html">[izpack-changes] r1670 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/compiler src/lib/com/izforge/izpack/event
+</A></li>
+	<LI>Next message: <A HREF="000417.html">[izpack-changes] r1672 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#416">[ date ]</a>
+              <a href="thread.html#416">[ thread ]</a>
+              <a href="subject.html#416">[ subject ]</a>
+              <a href="author.html#416">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1952 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1952%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000697.html">
+   <LINK REL="Next"  HREF="000699.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1952 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1952%20-%20in%20izpack-src/trunk%3A%20.%0A%09src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1952 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Thu Dec 13 13:16:54 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000697.html">[izpack-changes] r1951 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000699.html">[izpack-changes] r1953 - in izpack-src/trunk: . src/dist-files	src/doc-reST src/dtd src/lib/com/izforge/izpack	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#698">[ date ]</a>
+              <a href="thread.html#698">[ thread ]</a>
+              <a href="subject.html#698">[ subject ]</a>
+              <a href="author.html#698">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2007-12-13 13:16:47 +0100 (Thu, 13 Dec 2007)
+New Revision: 1952
+
+Modified:
+   izpack-src/trunk/Versions.txt
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/JDKPathPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PathInputPanel.java
+Log:
+- JDKPathPanel: Mac OS X fix (Julien Ponge)
+- PathInputPanel: add some space between the text and the input field (Julien Ponge)
+
+
+Modified: izpack-src/trunk/Versions.txt
+===================================================================
+--- izpack-src/trunk/Versions.txt	2007-12-12 18:17:00 UTC (rev 1951)
++++ izpack-src/trunk/Versions.txt	2007-12-13 12:16:47 UTC (rev 1952)
+@@ -66,6 +66,8 @@
+ - Added built-in conditions (Dennis Reil)
+ - ProcessPanel: make the progress bar advance after the current process has run, not before
+   (Julien Ponge)
++- JDKPathPanel: Mac OS X fix (Julien Ponge)
++- PathInputPanel: add some space between the text and the input field (Julien Ponge)
+ 
+   
+   &gt; 3.10.2 (build 2007.05.11)
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/JDKPathPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/JDKPathPanel.java	2007-12-12 18:17:00 UTC (rev 1951)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/JDKPathPanel.java	2007-12-13 12:16:47 UTC (rev 1952)
+@@ -55,6 +55,8 @@
+     
+     private static final String JDK_VALUE_NAME = &quot;JavaHome&quot;;
+ 
++    private static final String OSX_JDK_HOME = &quot;/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home/&quot;;
++
+     private static final int OK = 0;
+     private static final int BAD_VERSION = 1;
+     private static final int BAD_REAL_PATH = 2;
+@@ -157,8 +159,17 @@
+         if (idata.getVariable(getVariableName()) != null)
+             chosenPath = idata.getVariable(getVariableName());
+         else
+-            // Try the JAVA_HOME as child dir of the jdk path
+-            chosenPath = (new File(idata.getVariable(&quot;JAVA_HOME&quot;))).getParent();
++        {
++            if (OsVersion.IS_OSX)
++            {
++                chosenPath = OSX_JDK_HOME;
++            }
++            else
++            {
++                // Try the JAVA_HOME as child dir of the jdk path
++                chosenPath = (new File(idata.getVariable(&quot;JAVA_HOME&quot;))).getParent();
++            }
++        }
+         // Set the path for method pathIsValid ...
+         pathSelectionPanel.setPath(chosenPath);
+ 
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PathInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PathInputPanel.java	2007-12-12 18:17:00 UTC (rev 1951)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PathInputPanel.java	2007-12-13 12:16:47 UTC (rev 1952)
+@@ -96,6 +96,9 @@
+         // Intro
+         // row 0 column 0
+         add(createMultiLineLabel(introText));
++
++        add(IzPanelLayout.createParagraphGap());
++
+         // Label for input
+         // row 1 column 0.
+         add(createLabel(&quot;info&quot;, &quot;TargetPanel&quot;, &quot;open&quot;,
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000697.html">[izpack-changes] r1951 - in izpack-src/trunk: .	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000699.html">[izpack-changes] r1953 - in izpack-src/trunk: . src/dist-files	src/doc-reST src/dtd src/lib/com/izforge/izpack	src/lib/com/izforge/izpack/compiler	src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#698">[ date ]</a>
+              <a href="thread.html#698">[ thread ]</a>
+              <a href="subject.html#698">[ subject ]</a>
+              <a href="author.html#698">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

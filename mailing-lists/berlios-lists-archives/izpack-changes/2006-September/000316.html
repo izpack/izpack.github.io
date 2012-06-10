@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1571 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1571%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000315.html">
+   <LINK REL="Next"  HREF="000317.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1571 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1571%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1571 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:35:36 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000315.html">[izpack-changes] r1570 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000317.html">[izpack-changes] r1572 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#316">[ date ]</a>
+              <a href="thread.html#316">[ thread ]</a>
+              <a href="subject.html#316">[ subject ]</a>
+              <a href="author.html#316">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:35:36 +0200 (Wed, 06 Sep 2006)
+New Revision: 1571
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/UninstallData.java
+Log:
+-implemented  the X-KDE subsitute user - shortcut attribute (see Unix_shortcutSpec.xml).
+-write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+-write common shortcuts  to the new freedesktop.org common &quot;/usr/share/applications&quot; 
+and &quot;/usr/share/pixmaps&quot; folders to display these in the commons [start].menu
+Here: updated the uninstaller
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/UninstallData.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/UninstallData.java	2006-09-06 20:34:33 UTC (rev 1570)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/UninstallData.java	2006-09-06 20:35:36 UTC (rev 1571)
+@@ -21,10 +21,13 @@
+ 
+ import java.util.ArrayList;
+ import java.util.HashMap;
++import java.util.Hashtable;
+ import java.util.List;
+ import java.util.Map;
+ 
++
+ import com.izforge.izpack.ExecutableFile;
++import com.izforge.izpack.util.os.unix.UnixUser;
+ 
+ /**
+  * Holds uninstallation data. Implemented as a singleton.
+@@ -33,7 +36,6 @@
+  */
+ public class UninstallData
+ {
+-
+     /** The uninstall data object. */
+     private static UninstallData instance = null;
+ 
+@@ -51,6 +53,9 @@
+ 
+     /** Additional uninstall data like uninstaller listener list. */
+     private Map additionalData;
++    
++    /** Filesmap which should removed by the root user for another user */
++    private Hashtable rootData;
+ 
+     /** The constructor. */
+     private UninstallData()
+@@ -58,7 +63,10 @@
+         filesList = new ArrayList();
+         executablesList = new ArrayList();
+         additionalData = new HashMap();
++        rootData = new Hashtable();
+     }
++    
++    public final static String RootFiles = &quot;rootfiles&quot;;
+ 
+     /**
+      * Returns the instance (it is a singleton).
+@@ -172,4 +180,27 @@
+         additionalData.put(name, value);
+     }
+ 
++    /**
++     * Adds the given File to delete as Root for the given User.
++     * 
++     * @param aFilePath The file to delete.
++     * @param aUser a User to delete for
++     */
++    public void addRootAsUserFile( String aFilePath, UnixUser aUser )
++    {    
++        rootData.put(aFilePath, aUser);
++    }
++    
++    /**
++     * Returns the root data.
++     * 
++     * @return root data
++     */
++    public Hashtable getRootData()
++    {
++        return rootData;
++    }
++    
++    
++
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000315.html">[izpack-changes] r1570 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000317.html">[izpack-changes] r1572 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#316">[ date ]</a>
+              <a href="thread.html#316">[ thread ]</a>
+              <a href="subject.html#316">[ subject ]</a>
+              <a href="author.html#316">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

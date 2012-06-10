@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] Font/Label problem in language selection window
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Font/Label%20problem%20in%20language%20selection%20window&In-Reply-To=20071005075013.GA5395%40solo.seimet.de">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001695.html">
+   <LINK REL="Next"  HREF="001708.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] Font/Label problem in language selection window</H1>
+    <B>Julien Ponge</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20Font/Label%20problem%20in%20language%20selection%20window&In-Reply-To=20071005075013.GA5395%40solo.seimet.de"
+       TITLE="[izpack-users] Font/Label problem in language selection window">julien.ponge at gmail.com
+       </A><BR>
+    <I>Tue Oct  9 20:58:25 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001695.html">[izpack-users] Font/Label problem in language selection window
+</A></li>
+        <LI>Next message: <A HREF="001708.html">[izpack-users] Font/Label problem in language selection window
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1706">[ date ]</a>
+              <a href="thread.html#1706">[ thread ]</a>
+              <a href="subject.html#1706">[ subject ]</a>
+              <a href="author.html#1706">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thanks for the patch, I will handle it in the next few days.
+
+On 10/5/07, Uwe Seimet &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">Uwe.Seimet at seimet.de</A>&gt; wrote:
+&gt;<i> Hello,
+</I>&gt;<i>
+</I>&gt;<i> On Mac OS X the two lines &quot;Please select your language&quot; and &quot;for install
+</I>&gt;<i> instructions&quot; are not displayed correctly. The corresponding JLabels are
+</I>&gt;<i> too close together, but even when adding more space between them the
+</I>&gt;<i> descenders (in particular the letters 'g' in &quot;language) are cut off.
+</I>&gt;<i> As far as I can tell this problem is caused by too many contraints
+</I>&gt;<i> applied by the GridBagLayout layout manager.
+</I>&gt;<i> Can you consider using a simpler layout manager instead, with less
+</I>&gt;<i> constraints on the layed out elements? My experience is that the more
+</I>&gt;<i> constraints you apply the more problems you get with respect to
+</I>&gt;<i> platform-independence.
+</I>&gt;<i> By changing the GUIInsstaller I was able to fix the label display
+</I>&gt;<i> problem, even though now the OK button seems to be rendered differently
+</I>&gt;<i> than before. Please find my diffs below.
+</I>&gt;<i> If you are interested I can post a screenshot showing the problem
+</I>&gt;<i> on Mac OS X.
+</I>&gt;<i>
+</I>&gt;<i> Best regards,   Uwe
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> 535c535,543
+</I>&gt;<i> &lt;             JLabel label1 = new JLabel(firstMessage, SwingConstants.CENTER);
+</I>&gt;<i> ---
+</I>&gt;<i> &gt;             javax.swing.Box box = javax.swing.Box.createVerticalBox();
+</I>&gt;<i> &gt;             JLabel label1 = new JLabel(firstMessage);
+</I>&gt;<i> &gt;             JPanel panel1 = new JPanel();
+</I>&gt;<i> &gt;             panel1.add(label1);
+</I>&gt;<i> &gt;             box.add(panel1);
+</I>&gt;<i> &gt;             JLabel label2 = new JLabel(&quot;for install instructions:&quot;);
+</I>&gt;<i> &gt;             JPanel panel2 =  new JPanel();
+</I>&gt;<i> &gt;             panel2.add(label2);
+</I>&gt;<i> &gt;             box.add(panel2);
+</I>&gt;<i> 537,541d544
+</I>&gt;<i> &lt;             gbConstraints.insets = new Insets(5, 5, 0, 5);
+</I>&gt;<i> &lt;             layout.addLayoutComponent(label1, gbConstraints);
+</I>&gt;<i> &lt;             contentPane.add(label1);
+</I>&gt;<i> &lt;             JLabel label2 = new JLabel(&quot;for install instructions:&quot;, SwingConstants.CENTER);
+</I>&gt;<i> &lt;             gbConstraints.gridy = 2;
+</I>&gt;<i> 543,544c546,547
+</I>&gt;<i> &lt;             layout.addLayoutComponent(label2, gbConstraints);
+</I>&gt;<i> &lt;             contentPane.add(label2);
+</I>&gt;<i> ---
+</I>&gt;<i> &gt;             layout.addLayoutComponent(box, gbConstraints);
+</I>&gt;<i> &gt;             contentPane.add(box);
+</I>&gt;<i> 552c555
+</I>&gt;<i> &lt;             gbConstraints.gridy = 3;
+</I>&gt;<i> ---
+</I>&gt;<i> &gt;             gbConstraints.gridy = 2;
+</I>&gt;<i> 559c562
+</I>&gt;<i> &lt;             gbConstraints.gridy = 4;
+</I>&gt;<i> ---
+</I>&gt;<i> &gt;             gbConstraints.gridy = 3;
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i> -----------------------------------------------------------------------
+</I>&gt;<i>   Dr. Uwe Seimet                                <A HREF="http://www.seimet.de/">http://www.seimet.de/</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i>
+</I></PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001695.html">[izpack-users] Font/Label problem in language selection window
+</A></li>
+	<LI>Next message: <A HREF="001708.html">[izpack-users] Font/Label problem in language selection window
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1706">[ date ]</a>
+              <a href="thread.html#1706">[ thread ]</a>
+              <a href="subject.html#1706">[ subject ]</a>
+              <a href="author.html#1706">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

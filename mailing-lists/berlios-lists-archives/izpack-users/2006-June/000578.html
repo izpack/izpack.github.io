@@ -1,0 +1,244 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] RE: Getting Custom panel visible
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20RE%3A%20Getting%20Custom%20panel%20visible&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000579.html">
+   <LINK REL="Next"  HREF="000581.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] RE: Getting Custom panel visible</H1>
+    <B>Bartz, Klaus</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20RE%3A%20Getting%20Custom%20panel%20visible&In-Reply-To="
+       TITLE="[izpack-users] RE: Getting Custom panel visible">Klaus.Bartz at coi.de
+       </A><BR>
+    <I>Thu Jun 22 15:11:29 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000579.html">[izpack-users] RE: Getting Custom panel visible
+</A></li>
+        <LI>Next message: <A HREF="000581.html">[izpack-users] RadioButtons in ImgPacksPanel ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#578">[ date ]</a>
+              <a href="thread.html#578">[ thread ]</a>
+              <a href="subject.html#578">[ subject ]</a>
+              <a href="author.html#578">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Jose,
+I do not use the bin\compile.bat because I have my own or it is in our daily night ant script.
+In my ten or more projects I have a compile.cmd in each project.
+ 
+It seems so, that the compiler has no  %IZHOME% at your call.
+I think, you should call it from %IZHOME%; means
+cd %IZHOME%
+bin\compile ...
+ 
+Alternative write your own compile batch; my looks like:
+ 
+SET IZH=n:\home\bartzkau\work\xt150_forIzPack\izpack-src
+SET SRC_ROOT=N:\home\bartzkau\work\xt150_forIzPack\appl\install\IzPackProjects\CloseTest
+ 
+java.exe -jar &quot;%IZH%\lib\compiler.jar&quot; -HOME %IZH% %SRC_ROOT%\install.xml -b %SRC_ROOT% -o %SRC_ROOT%\dist\install.jar
+
+ 
+DO NOT CHANGE
+URL url = getClass().getResource(&quot;/&quot; + path);
+There you are not in the file system else in the installation jar file.
+The JavaDoc for Class.getResource sad for this:
+&quot;
+Before delegation, an absolute resource name is constructed from the given resource name using this algorithm: 
+
+
+*	If the name begins with a '/' ('\u002f'), then the absolute name of the resource is the portion of the name following the '/'. 
+
+*	Otherwise, the absolute name is of the following form: 
+
+
+	   modified_package_name/name
+
+
+
+ 
+&quot;
+ 
+Cheers
+ 
+Klaus
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Jose Correia
+Sent: Thursday, June 22, 2006 2:35 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+Subject: RE: [izpack-users] RE: Getting Custom panel visible
+
+
+Thanks Klaus for the clarification, I tried the option:
+ 
+if you use compiler.jar you have only to put the langpack files and MyPanel.jar into the right dirs 
+(%IZHOME%\bin\langpacks\installer, %IZHOME%\bin\panels).
+ 
+I did this plus i modified the %IZHOME%\bin\install file to point to compiler.jar,
+ 
+i then ran:
+ 
+$ compile ../TradeRootInstaller/install.xml -b ../TradeRootInstaller/ -o ../TradeRootInstaller/install.jar -k standard
+ 
+from the %IZHOME%\bin using CYGWIN
+ 
+and I'm now getting:
+ 
+-&gt; Processing  : ../TradeRootInstaller/install.xml
+-&gt; Output      : ../TradeRootInstaller/install.jar
+-&gt; Base path   : ../TradeRootInstaller/
+-&gt; Kind        : standard
+-&gt; Compression : default
+-&gt; Compr. level: -1
+ 
+-&gt; Fatal error :
+   ../TradeRootInstaller/install.xml:18: Uninstaller not found: .\lib\uninstalle
+r.jar
+com.izforge.izpack.compiler.CompilerException: ../TradeRootInstaller/install.xml
+:<i>18: Uninstaller not found: .\lib\uninstaller.jar
+</I>        at com.izforge.izpack.compiler.CompilerConfig.parseError(CompilerConfig.
+java:1518)
+        at com.izforge.izpack.compiler.CompilerConfig.findIzPackResource(Compile
+rConfig.java:1483)
+        at com.izforge.izpack.compiler.CompilerConfig.addInfo(CompilerConfig.jav
+a:1194)
+        at com.izforge.izpack.compiler.CompilerConfig.executeCompiler(CompilerCo
+nfig.java:310)
+        at com.izforge.izpack.compiler.CompilerConfig.main(CompilerConfig.java:1
+847)
+        at com.izforge.izpack.compiler.Compiler.main(Compiler.java:620)
+ 
+Any idea why it can't find the %IZHOME%\lib\uninstaller.jar ??
+ 
+I did notice something u can improve under the method: findIzPackResource in CompilerConfig line 1475:
+ 
+URL url = getClass().getResource(&quot;/&quot; + path);
+ 
+change it to:
+ 
+URL url = getClass().getResource(File.separator + path);    //this way Java determines which separator to use based on OS i.e either &quot;\&quot; or &quot;/&quot;
+ 
+Please assist, thanks.
+ 
+Best regards
+Jose Correia
+
+  _____  
+
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>] On Behalf Of Bartz, Klaus
+Sent: 21 June 2006 12:10 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at berlios.de</A>
+Subject: RE: [izpack-users] RE: Getting Custom panel visible
+
+
+Hi Jose,
+it depends on what IzPack compiler you use.
+If you use standalone-compiler.jar you have to do it, if you use compiler.jar
+you have only to put the langpack files and MyPanel.jar into the right dirs 
+(%IZHOME%\bin\langpacks\installer, %IZHOME%\bin\panels).
+In detail: the jars and langpack files have to be in standalone-compiler.jar, not more.
+ 
+If you use %IZHOME%\src\dist-files\compile.bat often the standalone compiler will be used.
+ 
+You are free to write a little ant script which creates your custom panels, copies to the
+right place or put it into standalone-compiler.jar.
+ 
+Cheers
+ 
+Klaus
+
+-----Original Message-----
+From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-admin at berlios.de</A>]On Behalf Of Jose Correia
+Sent: Wednesday, June 21, 2006 11:38 AM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+Subject: [izpack-users] RE: Getting Custom panel visible
+
+
+Hi all
+ 
+Can someone assist me on this please... have i got to build the entire izpack project whenever I create a custom Panel or update the langpacks (so that the standard-compiler jar gets updated with these) before I can then build my own installation project??
+ 
+Thanks
+Jose
+
+  _____  
+
+From: Jose Correia 
+Sent: 15 June 2006 05:12 PM
+To: '<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>'
+Subject: Getting Custom panel visible
+
+
+Hi all
+ 
+Apologies if this has already been asked but since there is no search facility on previous posts I didn't feel like going through 15 megs worth of posts.
+ 
+Anyway I created my sample project (using version 3.8.1) and I wanted to add a custom Panel to it so I followed the instructions of placing my panel's code inside ./bin/panels
+as per:
+ 
+&quot;/bin/panels: You will see that there is a subdirectory for each panel. Make a subdirectory for your new panel with the exact same name as your panel and place your compiled panel code there.
+
+
+Once this is accomplished, you are ready to use your panel in an installer. Just list it in the spec file like any other panel, compile and in theory it will show up when running the installer. Once you made it this far, you can dig deeper and get going with your specific needs.&quot;
+
+I then specified my panel inside my sample project install.xml file and then proceeded to run:
+
+../bin/compile install.xml -b . -o install.jar -k standard
+
+I now get this:
+
+&quot;Adding content of jar: file:/C:/Program%20Files/IzPack/lib/standalone-compiler.j
+ar!/bin/panels/LicencePanel.jar
+
+-&gt; Fatal error :
+   install.xml:61: Panel jar file not found: .\bin\panels\InstallationSelectionP
+anel.jar
+com.izforge.izpack.compiler.CompilerException: install.xml:61: Panel jar file no
+t found: .\bin\panels\InstallationSelectionPanel.jar
+        at com.izforge.izpack.compiler.CompilerConfig.parseError(CompilerConfig.
+java:1518)
+        at com.izforge.izpack.compiler.CompilerConfig.findIzPackResource(Compile
+rConfig.java:1483)&quot;
+
+So it looks like it's looking for my panel's jar file inside the standalone-compiler.jar??? ( i did try putting in there and that part worked, but I had also updated the english langpack and it moaned about that too). I thought upon compile it was supposed to go look for these things inside the directories themselves not that jar?
+
+Please help...thanks
+
+Jose Correia
+
+ 
+
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: <A HREF="https://lists.berlios.de/pipermail/izpack-users/attachments/20060622/42398174/attachment.html">https://lists.berlios.de/pipermail/izpack-users/attachments/20060622/42398174/attachment.html</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000579.html">[izpack-users] RE: Getting Custom panel visible
+</A></li>
+	<LI>Next message: <A HREF="000581.html">[izpack-users] RadioButtons in ImgPacksPanel ?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#578">[ date ]</a>
+              <a href="thread.html#578">[ thread ]</a>
+              <a href="subject.html#578">[ subject ]</a>
+              <a href="author.html#578">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

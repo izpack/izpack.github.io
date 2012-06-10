@@ -1,0 +1,563 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1651 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1651%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000395.html">
+   <LINK REL="Next"  HREF="000397.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1651 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1651%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1651 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Fri Nov 24 14:18:48 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000395.html">[izpack-changes] r1650 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+        <LI>Next message: <A HREF="000397.html">[izpack-changes] r1652 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#396">[ date ]</a>
+              <a href="thread.html#396">[ thread ]</a>
+              <a href="subject.html#396">[ subject ]</a>
+              <a href="author.html#396">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2006-11-24 14:18:47 +0100 (Fri, 24 Nov 2006)
+New Revision: 1651
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+Log:
+added conditions to UserinputPanel fields
+
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-11-24 13:16:54 UTC (rev 1650)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/UserInputPanel.java	2006-11-24 13:18:47 UTC (rev 1651)
+@@ -1,22 +1,19 @@
+ /*
+  * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
+  * 
+- * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+- * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A> <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+  * 
+  * Copyright 2002 Elmar Grom
+  * 
+- * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this file except
++ * in compliance with the License. You may obtain a copy of the License at
+  * 
+- *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
+- *     
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
++ * <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ * 
++ * Unless required by applicable law or agreed to in writing, software distributed under the License
++ * is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
++ * or implied. See the License for the specific language governing permissions and limitations under
++ * the License.
+  */
+ 
+ package com.izforge.izpack.panels;
+@@ -293,6 +290,8 @@
+ 
+     private static final String UNSELECTEDPACKS = &quot;createForUnselectedPack&quot;; // new
+ 
++    protected static final String ATTRIBUTE_CONDITIONID_NAME = &quot;conditionid&quot;;
++
+     // node
+ 
+     private static final String NAME = &quot;name&quot;;
+@@ -366,13 +365,17 @@
+      */
+     /*--------------------------------------------------------------------------*/
+     public UserInputPanel(InstallerFrame parent, InstallData installData)
+-
+     {
+         super(parent, installData);
+-
+         instanceNumber = instanceCount++;
+         this.parentFrame = parent;
++    }
+ 
++    protected void init()
++    {
++        super.removeAll();
++        uiElements.clear();
++
+         // ----------------------------------------------------
+         // ----------------------------------------------------
+         TwoColumnLayout layout = new TwoColumnLayout(10, 5, 30, 25, TwoColumnLayout.LEFT);
+@@ -424,7 +427,15 @@
+         {
+             XMLElement field = (XMLElement) fields.elementAt(i);
+             String attribute = field.getAttribute(TYPE);
+-
++            String conditionid = field.getAttribute(ATTRIBUTE_CONDITIONID_NAME);
++            if (conditionid != null)
++            {
++                // check if condition is fulfilled
++                if (!this.parent.getRules().isConditionTrue(conditionid, idata.getVariables()))
++                {
++                    continue;
++                }
++            }
+             if (attribute != null)
+             {
+                 if (attribute.equals(RULE_FIELD))
+@@ -475,6 +486,81 @@
+         }
+     }
+ 
++    protected void updateUIElements()
++    {
++        boolean updated = false;
++        VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
++
++        for (int i = 0; i &lt; uiElements.size(); i++)
++        {
++            Object[] element = (Object[]) uiElements.get(i);
++            if (element[POS_VARIABLE] == null)
++            {
++                continue;
++            }
++            String value = idata.getVariable((String) element[POS_VARIABLE]);
++            
++            if (RADIO_FIELD.equals(element[POS_TYPE]))
++            {
++                // we have a radio field, which should be updated
++                JRadioButton choice = (JRadioButton) element[POS_FIELD];
++                if (value == null)
++                {
++                    continue;
++                }
++                if (value.equals(element[POS_TRUE]))
++                {
++                    choice.setSelected(true);
++                }
++                else
++                {
++                    choice.setSelected(false);
++                }
++                element[POS_FIELD] = choice;
++            }
++            else if (TEXT_FIELD.equals(element[POS_TYPE]))
++            {
++                // update TextField
++                JTextField textf = (JTextField) element[POS_FIELD];
++
++                // System.out.println(&quot;Textfield: &quot; + value);
++                if (value == null)
++                {
++                    value = textf.getText();
++                }
++                textf.setText(vs.substitute(value, null));
++                element[POS_FIELD] = textf;
++            }
++            else if (CHECK_FIELD.equals(element[POS_TYPE]))
++            {
++                // TODO: HAS TO BE IMPLEMENTED
++            }
++            else if (SEARCH_FIELD.equals(element[POS_TYPE]))
++            {
++                // TODO: HAS TO BE IMPLEMENTED
++            }
++            else if (RULE_FIELD.equals(element[POS_TYPE]))
++            {
++
++                RuleInputField rulef = (RuleInputField) element[POS_FIELD];
++                // System.out.println(&quot;RuleInputField: &quot; + value);
++                if (value == null)
++                {
++                    value = rulef.getText();
++                }               
++            }
++            // overwrite entry;
++            uiElements.set(i, element);
++            updated = true;
++        }
++        if (updated)
++        {
++            // super.removeAll();
++            super.invalidate();
++            // buildUI();
++        }
++    }
++
+     /*--------------------------------------------------------------------------*/
+     /**
+      * Indicates wether the panel has been validated or not. The installer won't let the user go
+@@ -496,6 +582,8 @@
+     /*--------------------------------------------------------------------------*/
+     public void panelActivate()
+     {
++        this.init();        
++                
+         if (spec == null)
+         {
+             // TODO: translate
+@@ -503,7 +591,8 @@
+                     &quot;The specification for the user input panel could not be found. Please contact the packager.&quot;);
+             parentFrame.skipPanel();
+         }
+-
++        //  update UI with current values of associated variables
++        updateUIElements();
+         Vector forPacks = spec.getChildrenNamed(SELECTEDPACKS);
+         Vector forUnselectedPacks = spec.getChildrenNamed(UNSELECTEDPACKS);
+         Vector forOs = spec.getChildrenNamed(OS);
+@@ -528,7 +617,7 @@
+         if (packsDefined)
+         {
+             parentFrame.lockPrevButton();
+-        }
++        }        
+     }
+ 
+     /*--------------------------------------------------------------------------*/
+@@ -894,13 +983,12 @@
+             // If so, then add them to validateParamMap.
+             // ----------------------------------------------------------
+             validateParams = element.getChildrenNamed(RULE_PARAM);
+-            if (validateParams != null &amp;&amp; validateParams.size() &gt; 0) 
++            if (validateParams != null &amp;&amp; validateParams.size() &gt; 0)
+             {
+                 hasParams = true;
+-                
+-                if (validateParamMap == null)
+-                    validateParamMap = new HashMap();
+ 
++                if (validateParamMap == null) validateParamMap = new HashMap();
++
+                 for (Iterator it = validateParams.iterator(); it.hasNext();)
+                 {
+                     element = (XMLElement) it.next();
+@@ -908,7 +996,7 @@
+                     paramValue = element.getAttribute(RULE_PARAM_VALUE);
+                     validateParamMap.put(paramName, paramValue);
+                 }
+-                
++
+             }
+ 
+         }
+@@ -1034,13 +1122,16 @@
+                 {
+                     set = &quot;&quot;;
+                 }
+-            }else{
+-                if (set != null &amp;&amp; !&quot;&quot;.equals(set)){
++            }
++            else
++            {
++                if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++                {
+                     VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+                     set = vs.substitute(set, null);
+                 }
+             }
+-                
++
+             try
+             {
+                 size = Integer.parseInt(element.getAttribute(TEXT_SIZE));
+@@ -1125,21 +1216,21 @@
+      * This is a complete example of a valid XML specification
+      * 
+      * &lt;pre&gt;
+-     * 
+      *  
+      *   
+-     *    &amp;lt;field type=&amp;quot;combo&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
+-     *      &amp;lt;description text=&amp;quot;Description for the combo box&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
+-     *      &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;choice 1&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 1&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;choice 2&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 2&amp;quot; set=&amp;quot;true&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;choice 3&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 3&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;choice 4&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 4&amp;quot;/&amp;gt;
+-     *      &amp;lt;/spec&amp;gt;
+-     *    &amp;lt;/field&amp;gt;
+      *    
++     *     &amp;lt;field type=&amp;quot;combo&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
++     *       &amp;lt;description text=&amp;quot;Description for the combo box&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
++     *       &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;choice 1&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 1&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;choice 2&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 2&amp;quot; set=&amp;quot;true&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;choice 3&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 3&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;choice 4&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;combo box 4&amp;quot;/&amp;gt;
++     *       &amp;lt;/spec&amp;gt;
++     *     &amp;lt;/field&amp;gt;
++     *     
++     *    
+      *   
+-     *  
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the combo box.
+@@ -1188,11 +1279,12 @@
+                     {
+                         set = &quot;&quot;;
+                     }
+-                    if (set != null &amp;&amp; !&quot;&quot;.equals(set)){
++                    if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++                    {
+                         VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+                         set = vs.substitute(set, null);
+                     }
+-                    
++
+                     StringTokenizer tokenizer = new StringTokenizer(choiceValues, &quot;:&quot;);
+                     int counter = 0;
+                     while (tokenizer.hasMoreTokens())
+@@ -1215,7 +1307,8 @@
+                     String set = ((XMLElement) choices.elementAt(i)).getAttribute(SET);
+                     if (set != null)
+                     {
+-                        if (set != null &amp;&amp; !&quot;&quot;.equals(set)){
++                        if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++                        {
+                             VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+                             set = vs.substitute(set, null);
+                         }
+@@ -1297,22 +1390,22 @@
+      * This is a complete example of a valid XML specification
+      * 
+      * &lt;pre&gt;
+-     * 
+      *  
+      *   
+-     *    &amp;lt;field type=&amp;quot;radio&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
+-     *      &amp;lt;description text=&amp;quot;Description for the radio buttons&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
+-     *      &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;radio 1&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;radio 2&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot; set=&amp;quot;true&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;radio 3&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;radio 4&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
+-     *        &amp;lt;choice text=&amp;quot;radio 5&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
+-     *      &amp;lt;/spec&amp;gt;
+-     *    &amp;lt;/field&amp;gt;
+      *    
++     *     &amp;lt;field type=&amp;quot;radio&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
++     *       &amp;lt;description text=&amp;quot;Description for the radio buttons&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
++     *       &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;radio 1&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;radio 2&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot; set=&amp;quot;true&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;radio 3&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;radio 4&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
++     *         &amp;lt;choice text=&amp;quot;radio 5&amp;quot; id=&amp;quot;&amp;quot; value=&amp;quot;&amp;quot;/&amp;gt;
++     *       &amp;lt;/spec&amp;gt;
++     *     &amp;lt;/field&amp;gt;
++     *     
++     *    
+      *   
+-     *  
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the radio button
+@@ -1366,7 +1459,8 @@
+                 String set = ((XMLElement) choices.elementAt(i)).getAttribute(SET);
+                 if (set != null)
+                 {
+-                    if (set != null &amp;&amp; !&quot;&quot;.equals(set)){
++                    if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++                    {
+                         VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+                         set = vs.substitute(set, null);
+                     }
+@@ -1425,21 +1519,21 @@
+      * This is a complete example of a valid XML specification
+      * 
+      * &lt;pre&gt;
+-     * 
+      *  
+      *   
+-     *    &amp;lt;field type=&amp;quot;password&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
+-     *      &amp;lt;description align=&amp;quot;left&amp;quot; txt=&amp;quot;Please enter your password&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
+-     *      &amp;lt;spec&amp;gt;
+-     *        &amp;lt;pwd txt=&amp;quot;Password&amp;quot; id=&amp;quot;key for the label&amp;quot; size=&amp;quot;10&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
+-     *        &amp;lt;pwd txt=&amp;quot;Retype password&amp;quot; id=&amp;quot;another key for the label&amp;quot; size=&amp;quot;10&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
+-     *      &amp;lt;/spec&amp;gt;
+-     *      &amp;lt;validator class=&amp;quot;com.izforge.sample.PWDValidator&amp;quot; txt=&amp;quot;Both versions of the password must match&amp;quot; id=&amp;quot;key for the error text&amp;quot;/&amp;gt;
+-     *      &amp;lt;processor class=&amp;quot;com.izforge.sample.PWDEncryptor&amp;quot;/&amp;gt;
+-     *    &amp;lt;/field&amp;gt;
+      *    
++     *     &amp;lt;field type=&amp;quot;password&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
++     *       &amp;lt;description align=&amp;quot;left&amp;quot; txt=&amp;quot;Please enter your password&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
++     *       &amp;lt;spec&amp;gt;
++     *         &amp;lt;pwd txt=&amp;quot;Password&amp;quot; id=&amp;quot;key for the label&amp;quot; size=&amp;quot;10&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
++     *         &amp;lt;pwd txt=&amp;quot;Retype password&amp;quot; id=&amp;quot;another key for the label&amp;quot; size=&amp;quot;10&amp;quot; set=&amp;quot;&amp;quot;/&amp;gt;
++     *       &amp;lt;/spec&amp;gt;
++     *       &amp;lt;validator class=&amp;quot;com.izforge.sample.PWDValidator&amp;quot; txt=&amp;quot;Both versions of the password must match&amp;quot; id=&amp;quot;key for the error text&amp;quot;/&amp;gt;
++     *       &amp;lt;processor class=&amp;quot;com.izforge.sample.PWDEncryptor&amp;quot;/&amp;gt;
++     *     &amp;lt;/field&amp;gt;
++     *     
++     *    
+      *   
+-     *  
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the set of password
+@@ -1502,7 +1596,8 @@
+             {
+                 fieldSpec = (XMLElement) inputs.elementAt(i);
+                 String set = fieldSpec.getAttribute(SET);
+-                if (set != null &amp;&amp; !&quot;&quot;.equals(set)){
++                if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++                {
+                     VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+                     set = vs.substitute(set, null);
+                 }
+@@ -1616,7 +1711,8 @@
+ 
+         if (set != null)
+         {
+-            if (set != null &amp;&amp; !&quot;&quot;.equals(set)){
++            if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++            {
+                 VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+                 set = vs.substitute(set, null);
+             }
+@@ -1706,19 +1802,19 @@
+      * This is a complete example of a valid XML specification
+      * 
+      * &lt;pre&gt;
+-     * 
+      *  
+      *   
+-     *    &amp;lt;field type=&amp;quot;search&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
+-     *      &amp;lt;description text=&amp;quot;Description for the search field&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
+-     *      &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot; filename=&amp;quot;the_file_to_search&amp;quot; result=&amp;quot;directory&amp;quot; /&amp;gt; &amp;lt;!-- values for result: directory, file --&amp;gt;
+-     *        &amp;lt;choice dir=&amp;quot;directory1&amp;quot; set=&amp;quot;true&amp;quot; /&amp;gt; &amp;lt;!-- default value --&amp;gt;
+-     *        &amp;lt;choice dir=&amp;quot;dir2&amp;quot; /&amp;gt;
+-     *      &amp;lt;/spec&amp;gt;
+-     *    &amp;lt;/field&amp;gt;
+      *    
++     *     &amp;lt;field type=&amp;quot;search&amp;quot; variable=&amp;quot;testVariable&amp;quot;&amp;gt;
++     *       &amp;lt;description text=&amp;quot;Description for the search field&amp;quot; id=&amp;quot;a key for translated text&amp;quot;/&amp;gt;
++     *       &amp;lt;spec text=&amp;quot;label&amp;quot; id=&amp;quot;key for the label&amp;quot; filename=&amp;quot;the_file_to_search&amp;quot; result=&amp;quot;directory&amp;quot; /&amp;gt; &amp;lt;!-- values for result: directory, file --&amp;gt;
++     *         &amp;lt;choice dir=&amp;quot;directory1&amp;quot; set=&amp;quot;true&amp;quot; /&amp;gt; &amp;lt;!-- default value --&amp;gt;
++     *         &amp;lt;choice dir=&amp;quot;dir2&amp;quot; /&amp;gt;
++     *       &amp;lt;/spec&amp;gt;
++     *     &amp;lt;/field&amp;gt;
++     *     
++     *    
+      *   
+-     *  
+      * &lt;/pre&gt;
+      * 
+      * @param spec a &lt;code&gt;XMLElement&lt;/code&gt; containing the specification for the search field
+@@ -1812,7 +1908,8 @@
+                 String set = ((XMLElement) choices.elementAt(i)).getAttribute(SET);
+                 if (set != null)
+                 {
+-                    if (set != null &amp;&amp; !&quot;&quot;.equals(set)){
++                    if (set != null &amp;&amp; !&quot;&quot;.equals(set))
++                    {
+                         VariableSubstitutor vs = new VariableSubstitutor(idata.getVariables());
+                         set = vs.substitute(set, null);
+                     }
+@@ -2117,23 +2214,22 @@
+      * legal integer, then the default value is returned.
+      */
+     /*--------------------------------------------------------------------------*/
+-//    private int getInt(XMLElement element, String attribute, int defaultValue)
+-//    {
+-//        int result = defaultValue;
+-//
+-//        if ((attribute != null) &amp;&amp; (attribute.length() &gt; 0))
+-//        {
+-//            try
+-//            {
+-//                result = Integer.parseInt(element.getAttribute(attribute));
+-//            }
+-//            catch (Throwable exception)
+-//            {}
+-//        }
+-//
+-//        return (result);
+-//    }
+-
++    // private int getInt(XMLElement element, String attribute, int defaultValue)
++    // {
++    // int result = defaultValue;
++    //
++    // if ((attribute != null) &amp;&amp; (attribute.length() &gt; 0))
++    // {
++    // try
++    // {
++    // result = Integer.parseInt(element.getAttribute(attribute));
++    // }
++    // catch (Throwable exception)
++    // {}
++    // }
++    //
++    // return (result);
++    // }
+     /*--------------------------------------------------------------------------*/
+     /**
+      * Retrieves the value of a floating point attribute. If the attribute is not found or the value
+@@ -2280,10 +2376,7 @@
+             {
+                 match = OsVersion.IS_UNIX;
+             }
+-            if (match)
+-            {
+-                return true;
+-            }
++            if (match) { return true; }
+         }
+         return false;
+     }
+@@ -2624,10 +2717,7 @@
+              * Check if the user has entered data into the ComboBox and add it to the Itemlist
+              */
+             String selected = (String) this.pathComboBox.getSelectedItem();
+-            if (selected == null)
+-            {
+-                return false;
+-            }
++            if (selected == null) { return false; }
+             boolean found = false;
+             for (int x = 0; x &lt; this.pathComboBox.getItemCount(); x++)
+             {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000395.html">[izpack-changes] r1650 -	izpack-src/trunk/src/lib/com/izforge/izpack/installer
+</A></li>
+	<LI>Next message: <A HREF="000397.html">[izpack-changes] r1652 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#396">[ date ]</a>
+              <a href="thread.html#396">[ thread ]</a>
+              <a href="subject.html#396">[ subject ]</a>
+              <a href="author.html#396">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

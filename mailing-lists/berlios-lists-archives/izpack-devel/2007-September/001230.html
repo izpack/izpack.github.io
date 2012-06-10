@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] [Patch] No chmod on JAR type
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20%5BPatch%5D%20No%20chmod%20on%20JAR%20type&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001232.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] [Patch] No chmod on JAR type</H1>
+    <B>Andreas Guenther</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20%5BPatch%5D%20No%20chmod%20on%20JAR%20type&In-Reply-To="
+       TITLE="[izpack-devel] [Patch] No chmod on JAR type">aguenther at mulesource.com
+       </A><BR>
+    <I>Thu Sep 20 00:47:09 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001232.html">[izpack-devel] [Patch] No chmod on JAR type
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1230">[ date ]</a>
+              <a href="thread.html#1230">[ thread ]</a>
+              <a href="subject.html#1230">[ subject ]</a>
+              <a href="author.html#1230">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi there,
+
+Since there's no bug tracking system I followed the instrx on sending my 
+patch to the dev list as requested. Here goes.
+
+I needed to resolve classpath dependencies while executing Java code 
+during post processing using the &lt;executable&gt; tag. Right now, the 
+targetfile attribute only can handle a single jar file. Looking at the 
+trace output I realized that targetfile ultimately resolves into a '-cp' 
+option. Hence, I tried specifying more jars in classpath fashion in 
+targetfile. Here's an example:
+
+&lt;executable 
+targetfile=&quot;$INSTALL_PATH/lib/foo.jar:$INSTALL_PATH/lib/bar.jar&quot; 
+class=&quot;org.foo.Bar&quot; failure=&quot;abort&quot; type=&quot;jar&quot; stage=&quot;postinstall&quot; 
+keep=&quot;true&quot;/&gt;
+
+Unfortunately, this didn't work because the code tries to run chmod on 
+targetfile after processing. I changed the code so that chmod only 
+applies and executes when type is set to bin. Now I am able to resolve 
+my Java execution dependencies and can use targetfile as a classpath 
+variable.
+
+Please see my attached patch. I was hoping you guys are going to commit 
+it to trunk for an upcoming release. Certainly, if there's a better to 
+run Java code with multiple classpath entries I'd like to hear about it ;o)
+
+Cheers,
+-Andreas
+
+
+-------------- next part --------------
+An embedded and charset-unspecified text was scrubbed...
+Name: FileExecutor.java.no-chmod-on-jar-type-patch.txt
+Url: <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070919/fc56e4d7/attachment.txt">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070919/fc56e4d7/attachment.txt</A> 
+</PRE>
+
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001232.html">[izpack-devel] [Patch] No chmod on JAR type
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1230">[ date ]</a>
+              <a href="thread.html#1230">[ thread ]</a>
+              <a href="subject.html#1230">[ subject ]</a>
+              <a href="author.html#1230">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

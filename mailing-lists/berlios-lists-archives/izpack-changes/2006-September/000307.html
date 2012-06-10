@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1562 - izpack-src/trunk/src
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1562%20-%20izpack-src/trunk/src&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000306.html">
+   <LINK REL="Next"  HREF="000308.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1562 - izpack-src/trunk/src</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1562%20-%20izpack-src/trunk/src&In-Reply-To="
+       TITLE="[izpack-changes] r1562 - izpack-src/trunk/src">noreply at berlios.de
+       </A><BR>
+    <I>Wed Sep  6 22:24:18 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000306.html">[izpack-changes] r1561 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+</A></li>
+        <LI>Next message: <A HREF="000308.html">[izpack-changes] r1563 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#307">[ date ]</a>
+              <a href="thread.html#307">[ thread ]</a>
+              <a href="subject.html#307">[ subject ]</a>
+              <a href="author.html#307">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-09-06 22:24:17 +0200 (Wed, 06 Sep 2006)
+New Revision: 1562
+
+Modified:
+   izpack-src/trunk/src/build.xml
+Log:
+-implemented  the X-KDE subsitute user - shortcut attribute (see Unix_shortcutSpec.xml).
+-write Desktop shortcuts to all known local and ypbinded users &quot;desktop&quot; folders.
+-write common shortcuts  to the new freedesktop.org common &quot;/usr/share/applications&quot; 
+and &quot;/usr/share/pixmaps&quot; folders to display these in the commons [start].menu
+Here: updated the uninstaller
+
+Modified: izpack-src/trunk/src/build.xml
+===================================================================
+--- izpack-src/trunk/src/build.xml	2006-09-06 05:56:23 UTC (rev 1561)
++++ izpack-src/trunk/src/build.xml	2006-09-06 20:24:17 UTC (rev 1562)
+@@ -403,7 +403,11 @@
+                debuglevel=&quot;${debuglevel}&quot;&gt;
+             &lt;include name=&quot;com/izforge/izpack/LocaleDatabase.java&quot; /&gt;
+             &lt;include name=&quot;com/izforge/izpack/gui/*.java&quot; /&gt;
+-            &lt;include name=&quot;com/izforge/izpack/util/*.java&quot; /&gt;
++            
++            &lt;include name=&quot;com/izforge/izpack/util/*.java&quot;/&gt;
++            &lt;include name=&quot;com/izforge/izpack/util/os/*.java&quot;/&gt;
++            &lt;include name=&quot;com/izforge/izpack/util/os/unix/*.java&quot;/&gt;
++            
+             &lt;include name=&quot;com/izforge/izpack/uninstaller/*.java&quot; /&gt;
+             &lt;exclude name=&quot;com/izforge/izpack/gui/IzPackKMetalTheme.java&quot; /&gt;
+             &lt;include name=&quot;net/n3/nanoxml/*.java&quot; /&gt;
+@@ -422,16 +426,11 @@
+                 &lt;include name=&quot;com/izforge/izpack/LocaleDatabase.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/gui/*.class&quot; /&gt;
+                 &lt;include name=&quot;com/izforge/izpack/uninstaller/*.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/ExecutableFile.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/AbstractUI*.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/Console.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/Debug.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/Os*.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/String*.class&quot; /&gt;
+-                &lt;include name=&quot;com/izforge/izpack/util/File*.class&quot; /&gt;
++                &lt;include name=&quot;com/izforge/izpack/ExecutableFile.class&quot; /&gt;                
+                 &lt;exclude name=&quot;com/izforge/izpack/gui/IzPackKMetalTheme.class&quot; /&gt;
+                 &lt;include name=&quot;net/n3/nanoxml/*.class&quot; /&gt;
+             &lt;/fileset&gt;
++            &lt;fileset dir=&quot;${build.dir}/com/izforge/izpack/util&quot;/&gt;
+             &lt;fileset dir=&quot;${img.dir}/uninstaller&quot; /&gt;
+         &lt;/jar&gt;
+     &lt;/target&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000306.html">[izpack-changes] r1561 -	izpack-src/trunk/src/lib/com/izforge/izpack/util/os
+</A></li>
+	<LI>Next message: <A HREF="000308.html">[izpack-changes] r1563 -	izpack-src/trunk/src/lib/com/izforge/izpack/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#307">[ date ]</a>
+              <a href="thread.html#307">[ thread ]</a>
+              <a href="subject.html#307">[ subject ]</a>
+              <a href="author.html#307">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

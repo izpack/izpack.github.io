@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1894 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1894%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000639.html">
+   <LINK REL="Next"  HREF="000641.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1894 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1894%20-%0A%09izpack-src/trunk/src/lib/com/izforge/izpack/panels&In-Reply-To="
+       TITLE="[izpack-changes] r1894 -	izpack-src/trunk/src/lib/com/izforge/izpack/panels">noreply at berlios.de
+       </A><BR>
+    <I>Fri Nov  9 15:32:17 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000639.html">[izpack-changes] r1893 - izpack-src/trunk/src/doc-reST
+</A></li>
+        <LI>Next message: <A HREF="000641.html">[izpack-changes] r1895 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#640">[ date ]</a>
+              <a href="thread.html#640">[ thread ]</a>
+              <a href="subject.html#640">[ subject ]</a>
+              <a href="author.html#640">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: dreil
+Date: 2007-11-09 15:32:00 +0100 (Fri, 09 Nov 2007)
+New Revision: 1894
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+Log:
+Bugfix: conditions in PacksPanel not fully functional
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-11-08 08:18:58 UTC (rev 1893)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/PacksModel.java	2007-11-09 14:32:00 UTC (rev 1894)
+@@ -7,6 +7,7 @@
+  * Copyright 2002 Marcus Wolschon
+  * Copyright 2002 Jan Blok
+  * Copyright 2004 Gaganis Giorgos
++ * Copyright 2006,2007 Dennis Reil
+  * 
+  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+  * you may not use this file except in compliance with the License.
+@@ -46,6 +47,8 @@
+      * 
+      */
+     private static final long serialVersionUID = 3258128076746733110L;
++    
++    private static final String INITAL_PACKSELECTION = &quot;initial.pack.selection&quot;;
+ 
+     private List packs;
+ 
+@@ -71,22 +74,25 @@
+     private Properties variables;
+ 
+     public PacksModel(PacksPanelInterface panel, InstallData idata, RulesEngine rules)
+-    {
+-        this(idata.availablePacks, idata.selectedPacks, panel);
+-        this.rules = rules;
+-        this.variables = idata.getVariables();
+-        this.updateConditions(true);
++    {        
++        this(idata.availablePacks, idata.selectedPacks, panel, rules, idata.getVariables());               
+     }
+ 
+-    public PacksModel(List packs, List packsToInstall, PacksPanelInterface panel)
++    public PacksModel(List packs, List packsToInstall, PacksPanelInterface panel, RulesEngine rules, Properties variables)
+     {
++        this.rules = rules;
+         this.packs = packs;
+         this.packsToInstall = packsToInstall;
+         this.panel = panel;
++        this.variables = variables;
++        this.variables.setProperty(INITAL_PACKSELECTION,Boolean.toString(true));
+         langpack = panel.getLangpack();
+         checkValues = new int[packs.size()];
+         reverseDeps();
+-        initvalues();
++        initvalues();        
++        this.updateConditions(true);
++        refreshPacksToInstall();
++        this.variables.setProperty(INITAL_PACKSELECTION,Boolean.toString(false));
+     }
+ 
+     public void updateConditions()
+@@ -96,36 +102,51 @@
+ 
+     private void updateConditions(boolean initial)
+     {
+-        // look for packages,
+-        for (int i = 0; i &lt; packs.size(); i++)
+-        {
+-            Pack pack = (Pack) packs.get(i);
+-            int pos = getPos(pack.name);
+-            Debug.trace(&quot;Conditions fulfilled for: &quot; + pack.name + &quot;?&quot;);
+-            if (!this.rules.canInstallPack(pack.id, this.variables))
++        boolean changes = true;
++        
++        while (changes) {
++            changes = false;
++            // look for packages,
++            for (int i = 0; i &lt; packs.size(); i++)
+             {
+-                Debug.trace(&quot;no&quot;);
+-                if (this.rules.canInstallPackOptional(pack.id, this.variables))
++                Pack pack = (Pack) packs.get(i);
++                int pos = getPos(pack.name);
++                Debug.trace(&quot;Conditions fulfilled for: &quot; + pack.name + &quot;?&quot;);
++                if (!this.rules.canInstallPack(pack.id, this.variables))
+                 {
+-                    Debug.trace(&quot;optional&quot;);
+-                    Debug.trace(pack.id + &quot; can be installed optionally.&quot;);
+-                    if (initial)
++                    Debug.trace(&quot;no&quot;);
++                    if (this.rules.canInstallPackOptional(pack.id, this.variables))
+                     {
+-                        checkValues[pos] = 0;
++                        Debug.trace(&quot;optional&quot;);
++                        Debug.trace(pack.id + &quot; can be installed optionally.&quot;);
++                        if (initial)
++                        {
++                            if (checkValues[pos] != 0) {
++                                checkValues[pos] = 0;
++                                changes=true;
++                                // let the process start from the beginning
++                                break;
++                            }
++                        }
++                        else
++                        {
++                            // just do nothing                       
++                        }
+                     }
+                     else
+                     {
+-                        // just do nothing                       
++                        Debug.trace(pack.id + &quot; can not be installed.&quot;);
++                        if (checkValues[pos] != -2) {
++                            checkValues[pos] = -2;
++                            changes = true;
++                            // let the process start from the beginning
++                            break;
++                        }
+                     }
+                 }
+-                else
+-                {
+-                    Debug.trace(pack.id + &quot; can not be installed.&quot;);
+-                    checkValues[pos] = -2;
+-                }
+             }
++            refreshPacksToInstall();
+         }
+-        refreshPacksToInstall();
+     }
+ 
+     /**
+@@ -328,9 +349,10 @@
+             if (aValue instanceof Integer)
+             {
+                 Pack pack = (Pack) packs.get(rowIndex);
+-                
++                boolean packadded=false;
+                 if (((Integer) aValue).intValue() == 1)
+                 {
++                    packadded=true;
+                     String packid = pack.id;
+                     if (packid != null){                        
+                         if (this.rules.canInstallPack(packid, this.variables) || this.rules.canInstallPackOptional(packid, this.variables)){
+@@ -353,11 +375,29 @@
+                 }                
+                 else
+                 {
++                    packadded=false;
+                     checkValues[rowIndex] = 0;
+                 }
+                 updateExcludes(rowIndex);
+                 updateDeps();
++
++                if (packadded) {
++                    // temporarily add pack to packstoinstall
++                    this.packsToInstall.add(pack);
++                }
++                else {
++                    // temporarily remove pack from packstoinstall
++                    this.packsToInstall.remove(pack);
++                }
+                 updateConditions();
++                if (packadded) {
++                    // redo 
++                    this.packsToInstall.remove(pack);
++                }
++                else {
++                    // redo
++                    this.packsToInstall.add(pack);
++                }
+                 updateBytes();
+                 fireTableDataChanged();
+                 refreshPacksToInstall();
+@@ -373,15 +413,8 @@
+         for (int i = 0; i &lt; packs.size(); i++)
+         {
+             Pack pack = (Pack) packs.get(i);
+-            if (Math.abs(checkValues[i]) == 1) {
+-                String packid = pack.id;
+-                
+-                if ((packid != null) &amp;&amp; (this.rules != null) &amp;&amp; (this.rules.canInstallPack(packid, this.variables) || this.rules.canInstallPackOptional(packid, this.variables))){
+-                   packsToInstall.add(pack);
+-                }
+-                else {
+-                    packsToInstall.add(pack);
+-                }
++            if (Math.abs(checkValues[i]) == 1) {                               
++                packsToInstall.add(pack);               
+             }
+ 
+         }
+
+</PRE>
+
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000639.html">[izpack-changes] r1893 - izpack-src/trunk/src/doc-reST
+</A></li>
+	<LI>Next message: <A HREF="000641.html">[izpack-changes] r1895 - izpack-src/trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#640">[ date ]</a>
+              <a href="thread.html#640">[ thread ]</a>
+              <a href="subject.html#640">[ subject ]</a>
+              <a href="author.html#640">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

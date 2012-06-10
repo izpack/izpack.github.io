@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1645 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/ant
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1645%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/lib/com/izforge/izpack/ant&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000389.html">
+   <LINK REL="Next"  HREF="000391.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1645 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/ant</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1645%20-%20in%20izpack-src/branches/branch-3.9%3A%20.%0A%09src/lib/com/izforge/izpack/ant&In-Reply-To="
+       TITLE="[izpack-changes] r1645 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/ant">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 21 11:01:44 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000389.html">[izpack-changes] r1644 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+        <LI>Next message: <A HREF="000391.html">[izpack-changes] r1646 - in izpack-src/branches/branch-3.9: .	src/doc-ng/XHTML src/doc-ng/docbooks	src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#390">[ date ]</a>
+              <a href="thread.html#390">[ thread ]</a>
+              <a href="subject.html#390">[ subject ]</a>
+              <a href="author.html#390">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: jponge
+Date: 2006-11-21 11:01:42 +0100 (Tue, 21 Nov 2006)
+New Revision: 1645
+
+Modified:
+   izpack-src/branches/branch-3.9/Versions.txt
+   izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/ant/IzPackTask.java
+Log:
+Fix for calling the IzPack Ant task from Maven builds (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+
+Modified: izpack-src/branches/branch-3.9/Versions.txt
+===================================================================
+--- izpack-src/branches/branch-3.9/Versions.txt	2006-11-21 09:59:45 UTC (rev 1644)
++++ izpack-src/branches/branch-3.9/Versions.txt	2006-11-21 10:01:42 UTC (rev 1645)
+@@ -4,9 +4,9 @@
+ 
+ - Fixed the DesktopShortcutCheckboxEnabled Builtin Variable in docu (Fabrice Mirabile)
+ - Fixed build.xml (PathSelectionPanel without using TargetPanel) (Fabrice Mirabile)
+-- UserInputPanel multiline label fix (Vladimir Ralev, JBoss/RedHat)
++- UserInputPanel multiline label fix (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
++- Fix for calling the IzPack Ant task from Maven builds (Vladimir Ralev, JBoss/RedHat, via Julien Ponge)
+ 
+-
+   &gt; 3.9.0 (build 2006.09.25)
+ - Fix NullPointerException in CompilerConfig, if you specify a 
+ 	compiler listener and the compiler listener class can't be found (Dennis Reil)
+
+Modified: izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/ant/IzPackTask.java
+===================================================================
+--- izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/ant/IzPackTask.java	2006-11-21 09:59:45 UTC (rev 1644)
++++ izpack-src/branches/branch-3.9/src/lib/com/izforge/izpack/ant/IzPackTask.java	2006-11-21 10:01:42 UTC (rev 1645)
+@@ -213,6 +213,7 @@
+             {
+                 String name = (String) e.nextElement();
+                 String value = properties.getProperty(name);
++                value = fixPathString(value);
+                 c.addProperty(name, value);
+             }
+         }
+@@ -225,6 +226,7 @@
+             {
+                 String name = (String) e.nextElement();
+                 String value = (String) projectProps.get(name);
++                value = fixPathString(value);
+                 c.addProperty(name, value);
+             }            
+         }
+@@ -239,7 +241,21 @@
+             // failed
+         }
+     }
+-
++    
++    private static String fixPathString(String path)
++    {
++       /*
++        * The following code fixes a bug in in codehaus classworlds loader,
++        * which can't handle mixed path strings like &quot;c:\test\../lib/mylib.jar&quot;.
++        * The bug is in org.codehaus.classworlds.UrlUtils.normalizeUrlPath().
++        */
++       StringBuffer fixpath = new StringBuffer(path);
++       for(int q=0; q&lt;fixpath.length(); q++)
++          if(fixpath.charAt(q) == '\\')
++             fixpath.setCharAt(q, '/');
++       return fixpath.toString();
++    }
++    
+     /**
+      * Setter for property input.
+      * 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000389.html">[izpack-changes] r1644 - in izpack-src/branches/branch-3.9: .	src/lib/com/izforge/izpack/installer	src/lib/com/izforge/izpack/panels
+</A></li>
+	<LI>Next message: <A HREF="000391.html">[izpack-changes] r1646 - in izpack-src/branches/branch-3.9: .	src/doc-ng/XHTML src/doc-ng/docbooks	src/lib/com/izforge/izpack/compiler
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#390">[ date ]</a>
+              <a href="thread.html#390">[ thread ]</a>
+              <a href="subject.html#390">[ subject ]</a>
+              <a href="author.html#390">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-users] How to modify userinputpanel according to anexecutable response
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20to%20modify%20userinputpanel%20according%20to%0A%20anexecutable%20response&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891765%40coi11.coi.com">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001072.html">
+   <LINK REL="Next"  HREF="001074.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-users] How to modify userinputpanel according to anexecutable response</H1>
+    <B>macke</B> 
+    <A HREF="mailto:izpack-users%40lists.berlios.de?Subject=%5Bizpack-users%5D%20How%20to%20modify%20userinputpanel%20according%20to%0A%20anexecutable%20response&In-Reply-To=591E33C080D2E5449BB1791B70D66B28891765%40coi11.coi.com"
+       TITLE="[izpack-users] How to modify userinputpanel according to anexecutable response">maier at isys.uni-klu.ac.at
+       </A><BR>
+    <I>Mon Oct 30 10:51:52 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001072.html">[izpack-users] How to modify userinputpanel according to	anexecutable response
+</A></li>
+        <LI>Next message: <A HREF="001074.html">[izpack-users] How to modify userinputpanel according to	anexecutable response
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1073">[ date ]</a>
+              <a href="thread.html#1073">[ thread ]</a>
+              <a href="subject.html#1073">[ subject ]</a>
+              <a href="author.html#1073">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Hi Klaus,
+
+thx anyway for every help you give. I understand that with the db stuff, no
+problem.
+In the meantime I found my own solution for that. To incorporate with a DB
+was not
+the problem. I used the ProcessPanel for that and call an extra class for
+this work 
+(executeclass). The problem I had, was how to validate the whole userinput
+for db 
+communication I get by UserInputPanels before, to guarantee that everything
+will work. 
+My first solution in the moment was to extend the validation classes and to
+assign beside
+the ProcessingClient also the whole InstallData. A own validation class
+called for example
+by the last field of all of my UserInputPanels validates the variables set
+in InstallData and 
+for example tries to establish a db connection or validates if the db has
+the right version
+or whatever. To give better feedback in such cases, my extended validation
+classes return
+beside the boolean also a message. All in all not the best solution, but in
+the moment
+adequate for me.
+Do you have experience with the ProcessPanel/ProcessPanelWorker and the
+executeclass
+ability? I wrote an generic class, which reads from a assigned file the sql
+statements and
+executes them. All in all I call this class by ProcessPanel.Spec.xml 13
+times to executing state-
+ments of 13 sql-Files. If one file causes an SQLException, in the moment the
+next will still 
+executed. In my blindness I don't know how I can stop all processes which
+will follow 
+if a sql exception will be thrown. How can I tell the ProcessPanel(Worker)
+that a process
+error occured and that all following processes should not executed?
+  
+thx for help from everyone in advance,
+Macke
+
+p.s.: izpack is great!
+
+
+
+Bartz, Klaus wrote:
+&gt;<i> 
+</I>&gt;<i> Hi Macke,
+</I>&gt;<i> unfortunately I cannot give you the DB login stuff. It is more
+</I>&gt;<i> complicated, interwoven with other custom panels and custom actions.
+</I>&gt;<i> I think I need a week of work or more to make it generic (if
+</I>&gt;<i> even possible).
+</I>&gt;<i> In the wiki there is an article from Fabrice which describes an
+</I>&gt;<i> other way of incorporating DB.
+</I>&gt;<i> 
+</I>&gt;<i> If you write a custom panel, you can validate what you would
+</I>&gt;<i> in the method isValidated.
+</I>&gt;<i> Look into %IZ_HOME%\\src\lib\com\izforge\izpack\panels
+</I>&gt;<i> You can use all panels from there as example. May be starting
+</I>&gt;<i> with the HelloPanel (there is a description in it how to use
+</I>&gt;<i> the IzPack specific layout manager). In JDKPathPanel you can see
+</I>&gt;<i> how to inherit in IzPack, how to get and set variables and how
+</I>&gt;<i> to make a panel back drop safty.
+</I>&gt;<i> If you like complicated things, look into UserInputPanel.
+</I>&gt;<i> Related to the UserInputPanel I can say not more because I use
+</I>&gt;<i> it not (I write custom panels).
+</I>&gt;<i> 
+</I>&gt;<i> Cheers
+</I>&gt;<i> 
+</I>&gt;<i> Klaus
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;&gt;<i>-----Original Message-----
+</I>&gt;&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of macke
+</I>&gt;&gt;<i>Sent: Saturday, October 28, 2006 11:24 AM
+</I>&gt;&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;<i>Subject: Re: [izpack-users] How to modify userinputpanel according to
+</I>&gt;&gt;<i>anexecutable response
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>Hi Klaus!
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>Is it possible to get your solution for testing a DB login? I 
+</I>&gt;&gt;<i>have to solve
+</I>&gt;&gt;<i>a very similar problem.
+</I>&gt;&gt;<i>Or is it possible to validate the data of a whole panel like validating
+</I>&gt;&gt;<i>field contents? All in all an example for a custom panel would 
+</I>&gt;&gt;<i>be great.
+</I>&gt;&gt;<i>And another question: is it possible to show/read the value of 
+</I>&gt;&gt;<i>a variable in
+</I>&gt;&gt;<i>a userinputpanel set in an userinputpanel before to validate 
+</I>&gt;&gt;<i>for example if
+</I>&gt;&gt;<i>the values are the same? Do you have an idea, how I can do this?
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>thx for help to everyone who may responses,
+</I>&gt;&gt;<i>macke 
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>Bartz, Klaus wrote:
+</I>&gt;&gt;&gt;<i> 
+</I>&gt;&gt;&gt;<i> Hi Nicolas,
+</I>&gt;&gt;&gt;<i> radio Erivan, principle yes, but...
+</I>&gt;&gt;&gt;<i> I do not know how todo it with an UserInputPanel.
+</I>&gt;&gt;&gt;<i> If I have to solve the problem I would write a custom panel
+</I>&gt;&gt;&gt;<i> which does the work. I have a equal solution for testing
+</I>&gt;&gt;&gt;<i> right DB login.
+</I>&gt;&gt;&gt;<i> But this is really a little bit more work and needs some
+</I>&gt;&gt;&gt;<i> knowledge about java and IzPack.
+</I>&gt;&gt;&gt;<i> 
+</I>&gt;&gt;&gt;<i> Cheers
+</I>&gt;&gt;&gt;<i> 
+</I>&gt;&gt;&gt;<i> Klaus
+</I>&gt;&gt;&gt;<i> 
+</I>&gt;&gt;&gt;&gt;<i>-----Original Message-----
+</I>&gt;&gt;&gt;&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;<i>[mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users-bounces at lists.berlios.de</A>]On Behalf Of Nicolas
+</I>&gt;&gt;&gt;&gt;<i>FROMENT
+</I>&gt;&gt;&gt;&gt;<i>Sent: Wednesday, October 25, 2006 2:59 PM
+</I>&gt;&gt;&gt;&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;<i>Subject: [izpack-users] How to modify userinputpanel according to
+</I>&gt;&gt;&gt;&gt;<i>anexecutable response
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>Hi all,
+</I>&gt;&gt;&gt;&gt;<i>I need to write an userinputpanel with a radiobutton whose 
+</I>&gt;&gt;&gt;&gt;<i>default is dependent of the return code or display of an 
+</I>&gt;&gt;&gt;&gt;<i>executable. Is it possible ? Or may I run the executable in a 
+</I>&gt;&gt;&gt;&gt;<i>script before running install.jar ? In this last case how can 
+</I>&gt;&gt;&gt;&gt;<i>I pass parameters to install.jar ? -D ?
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>Thanks !
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>Nicolas
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;&gt;<i>_______________________________________________
+</I>&gt;&gt;&gt;&gt;<i>izpack-users mailing list
+</I>&gt;&gt;&gt;&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;&gt;<i>
+</I>&gt;&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;&gt;<i> izpack-users mailing list
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;&gt;&gt;<i> 
+</I>&gt;&gt;&gt;<i> 
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i>-- 
+</I>&gt;&gt;<i>View this message in context: 
+</I>&gt;<i> <A HREF="http://www.nabble.com/Re%3A-How-to-modify-userinputpanel-according-to-anexecutable-response-tf2507851.html#a7046951">http://www.nabble.com/Re%3A-How-to-modify-userinputpanel-according-to-anexecutable-response-tf2507851.html#a7046951</A>
+</I>&gt;<i> Sent from the izpack users mailing list archive at Nabble.com.
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> izpack-users mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">izpack-users at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/izpack-users">https://lists.berlios.de/mailman/listinfo/izpack-users</A>
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>
+-- 
+View this message in context: <A HREF="http://www.nabble.com/Re%3A-How-to-modify-userinputpanel-according-to-anexecutable-response-tf2507851.html#a7071589">http://www.nabble.com/Re%3A-How-to-modify-userinputpanel-according-to-anexecutable-response-tf2507851.html#a7071589</A>
+Sent from the izpack users mailing list archive at Nabble.com.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001072.html">[izpack-users] How to modify userinputpanel according to	anexecutable response
+</A></li>
+	<LI>Next message: <A HREF="001074.html">[izpack-users] How to modify userinputpanel according to	anexecutable response
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1073">[ date ]</a>
+              <a href="thread.html#1073">[ thread ]</a>
+              <a href="subject.html#1073">[ subject ]</a>
+              <a href="author.html#1073">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-users">More information about the izpack-users
+mailing list</a><br>
+</body></html>

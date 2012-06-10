@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Proposal for Messenger class
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Proposal%20for%20Messenger%20class&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000610.html">
+   <LINK REL="Next"  HREF="000603.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Proposal for Messenger class</H1>
+    <B>Elmar Grom</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Proposal%20for%20Messenger%20class&In-Reply-To="
+       TITLE="[izpack-devel] Proposal for Messenger class">elmar at grom.net
+       </A><BR>
+    <I>Tue Nov 21 00:51:10 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000610.html">[izpack-devel] patch: support for unpacking archives when	compiling installation bits
+</A></li>
+        <LI>Next message: <A HREF="000603.html">[izpack-devel] Proposal for Messenger class
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#602">[ date ]</a>
+              <a href="thread.html#602">[ thread ]</a>
+              <a href="subject.html#602">[ subject ]</a>
+              <a href="author.html#602">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi everyone,
+
+a little over a week ago I sent out some messages regarding problems that
+some of my customers had overriding files. It is unfortunate but as I guess
+you all know there is nothing one can do from inside Java to force the write
+of a file if it happens to write protected. Besides, there might be other
+reasons for not being able to write a file.
+
+My feeling on this matter is that at the very least we should inform the
+user about such things in a proper and comprehensible way. Otherwise it
+looks like the installation went fine, if in fact it did not.
+
+While I looked at the issue under the hood, I became aware that the only
+facility in IzPack to deal with such issues is the implementation of
+AbstractUIHandler. Unfortunately the error messages that are generated are
+not detailed and are not localized. From my experience with users of limited
+computer related experience I am positive that in most cases error messages
+they do not understand are treated as if they never happened. I suppose a
+lot of folks simply go by the motto &quot;if it was important they would surely
+tell my about it in a way I can understand, therefore anything I don't
+understand cannot possibly be important&quot;.
+
+I am looking for feedback on the following proposal to deal with this issue
+
+1) implement a singleton class (Messenger) that collects information on
+unusual events throughout the installation process. This information might
+come from multiple panels. A skeleton for this class is attached.
+2) modify the finish panel such, that it queries Messenger and displays a
+message appropriate for the situation (i.e. 'Installation Successful' or
+'Problems occurred during installation').
+3) modify the finish panel to support viewing the details and writing them
+to a text file.
+4) implement a framework that makes it easy to add localized messages from
+anywhere in the code. The messages should also be able to accommodate
+variable text, such as file names etc.
+5) improve code throughout IzPack to report potential problems.
+
+I could provide (1) and (4) and add reporting for writing of files. (2), (3)
+and (5) would require work form other contributors. In addition, there will
+probably be several messages that need localizing.
+
+Any feedback is very welcome.
+
+       Elmar
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: Messenger.java
+Type: application/octet-stream
+Size: 5757 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20061120/210310d3/attachment.obj">https://lists.berlios.de/pipermail/izpack-devel/attachments/20061120/210310d3/attachment.obj</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000610.html">[izpack-devel] patch: support for unpacking archives when	compiling installation bits
+</A></li>
+	<LI>Next message: <A HREF="000603.html">[izpack-devel] Proposal for Messenger class
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#602">[ date ]</a>
+              <a href="thread.html#602">[ thread ]</a>
+              <a href="subject.html#602">[ subject ]</a>
+              <a href="author.html#602">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>

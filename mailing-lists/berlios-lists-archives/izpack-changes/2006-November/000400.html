@@ -1,0 +1,1011 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1655 - in izpack-src/trunk/src/lib/com:	coi/tools/os/win coi/tools/os/win/resources	izforge/izpack/panels izforge/izpack/util/os
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1655%20-%20in%20izpack-src/trunk/src/lib/com%3A%0A%09coi/tools/os/win%20coi/tools/os/win/resources%0A%09izforge/izpack/panels%20izforge/izpack/util/os&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000399.html">
+   <LINK REL="Next"  HREF="000401.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1655 - in izpack-src/trunk/src/lib/com:	coi/tools/os/win coi/tools/os/win/resources	izforge/izpack/panels izforge/izpack/util/os</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1655%20-%20in%20izpack-src/trunk/src/lib/com%3A%0A%09coi/tools/os/win%20coi/tools/os/win/resources%0A%09izforge/izpack/panels%20izforge/izpack/util/os&In-Reply-To="
+       TITLE="[izpack-changes] r1655 - in izpack-src/trunk/src/lib/com:	coi/tools/os/win coi/tools/os/win/resources	izforge/izpack/panels izforge/izpack/util/os">noreply at berlios.de
+       </A><BR>
+    <I>Tue Nov 28 10:32:35 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000399.html">[izpack-changes] r1654 - in izpack-src/trunk: . src/doc-ng/XHTML
+</A></li>
+        <LI>Next message: <A HREF="000401.html">[izpack-changes] r1656 - in	izpack-src/trunk/src/lib/com/coi/tools/os: izpack win
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#400">[ date ]</a>
+              <a href="thread.html#400">[ thread ]</a>
+              <a href="subject.html#400">[ subject ]</a>
+              <a href="author.html#400">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: bartzkau
+Date: 2006-11-28 10:32:35 +0100 (Tue, 28 Nov 2006)
+New Revision: 1655
+
+Added:
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/AccessControlList.java
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/MSWinConstants.java
+Modified:
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/RegDataContainer.java
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryImpl.java
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/resources/NativeLibErr.java
+   izpack-src/trunk/src/lib/com/coi/tools/os/win/resources/NativeLibErr_de.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/panels/CheckedHelloPanel.java
+   izpack-src/trunk/src/lib/com/izforge/izpack/util/os/RegistryHandler.java
+Log:
+Some internal changes of the registry stuff for later
+additionals.
+
+
+Added: izpack-src/trunk/src/lib/com/coi/tools/os/win/AccessControlList.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/AccessControlList.java	2006-11-24 14:47:35 UTC (rev 1654)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/AccessControlList.java	2006-11-28 09:32:35 UTC (rev 1655)
+@@ -0,0 +1,197 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2006 Klaus Bartz
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.coi.tools.os.win;
++
++import java.util.ArrayList;
++
++/**
++ * Data container for access control lists used by the registry stuff in the java and in the native
++ * part. DO NOT CHANGE METHODE SIGNATURES etc. without addapt the native methods
++ * RegistryImpl.modifyKeyACL and RegistryImpl.getKeyACL.
++ * 
++ * @author Klaus Bartz
++ * 
++ */
++public class AccessControlList extends java.util.ArrayList
++{
++
++    private ArrayList permissions = new ArrayList();
++
++    /**
++     * Default constructor.
++     */
++    public AccessControlList()
++    {
++        super();
++    }
++
++    /**
++     * Creates an ACE entry in the permission array with the given values.
++     * 
++     * @param owner owner of the ACE
++     * @param allowed access allowed mask
++     * @param denied access denied mask
++     */
++    public void setACE(String owner, int allowed, int denied)
++    {
++        AccessControlEntry ace = new AccessControlEntry(owner, allowed, denied);
++        permissions.add(ace);
++    }
++
++    /**
++     * Returns the access control entry related to the given id.
++     * 
++     * @param num id in the internal permisson array.
++     * @return the access control entry for the given id
++     */
++    public AccessControlEntry getACE(int num)
++    {
++        return ((AccessControlEntry) (((AccessControlEntry) permissions.get(num)).clone()));
++    }
++
++    /**
++     * Returns number of access control entries.
++     * 
++     * @return number of access control entries
++     */
++    public int getACECount()
++    {
++        return (permissions.size());
++    }
++
++    /**
++     * This class holds a representation of MS Windows ACEs.
++     * 
++     * @author Klaus Bartz
++     * 
++     */
++    public static class AccessControlEntry implements Cloneable
++    {
++
++        private String owner;
++
++        private int accessAllowdMask;
++
++        private int accessDeniedMask;
++
++        /**
++         * Default constructor.
++         */
++        public AccessControlEntry()
++        {
++            super();
++        }
++
++        /**
++         * Creates an ACE with the given parameter.
++         * 
++         * @param owner2 owner of the ACE
++         * @param allowed access allowed mask
++         * @param denied access denied mask
++         */
++        public AccessControlEntry(String owner2, int allowed, int denied)
++        {
++            owner = owner2;
++            accessAllowdMask = allowed;
++            accessDeniedMask = denied;
++        }
++
++        /**
++         * Returns the owner.
++         * 
++         * @return the owner
++         */
++        public String getOwner()
++        {
++            return owner;
++        }
++
++        /**
++         * Sets owner to the given value.
++         * 
++         * @param owner The owner to set.
++         */
++        public void setOwner(String owner)
++        {
++            this.owner = owner;
++        }
++
++        /**
++         * Returns the accessAllowdMask.
++         * 
++         * @return the accessAllowdMask
++         */
++        public int getAccessAllowdMask()
++        {
++            return accessAllowdMask;
++        }
++
++        /**
++         * Sets accessAllowdMask to the given value.
++         * 
++         * @param accessAllowdMask The accessAllowdMask to set.
++         */
++        public void setAccessAllowdMask(int accessAllowdMask)
++        {
++            this.accessAllowdMask = accessAllowdMask;
++        }
++
++        /**
++         * Returns the accessDeniedMask.
++         * 
++         * @return the accessDeniedMask
++         */
++        public int getAccessDeniedMask()
++        {
++            return accessDeniedMask;
++        }
++
++        /**
++         * Sets accessDeniedMask to the given value.
++         * 
++         * @param accessDeniedMask The accessDeniedMask to set.
++         */
++        public void setAccessDeniedMask(int accessDeniedMask)
++        {
++            this.accessDeniedMask = accessDeniedMask;
++        }
++
++        /*
++         * (non-Javadoc)
++         * 
++         * @see java.lang.Object#clone()
++         */
++        public Object clone()
++        {
++            try
++            {
++                return (super.clone());
++            }
++            catch (CloneNotSupportedException e)
++            {
++                e.printStackTrace();
++            }
++            return (null);
++        }
++    }
++
++}
+
+
+Property changes on: izpack-src/trunk/src/lib/com/coi/tools/os/win/AccessControlList.java
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Added: izpack-src/trunk/src/lib/com/coi/tools/os/win/MSWinConstants.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/MSWinConstants.java	2006-11-24 14:47:35 UTC (rev 1654)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/MSWinConstants.java	2006-11-28 09:32:35 UTC (rev 1655)
+@@ -0,0 +1,300 @@
++/*
++ * IzPack - Copyright 2001-2006 Julien Ponge, All Rights Reserved.
++ * 
++ * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
++ * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
++ * 
++ * Copyright 2006 Klaus Bartz
++ *
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A>
++ *     
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.coi.tools.os.win;
++
++
++/**
++ * Constants related to MS Windows DACLs.
++ * @author Klaus Bartz
++ *
++ */
++public interface MSWinConstants
++{
++    /*
++     * Registry root values, extracted from winreg.h
++     */
++    /** HKCR registry root */
++    static final int HKEY_CLASSES_ROOT = 0x80000000;
++
++    /** HKCU registry root */
++    static final int HKEY_CURRENT_USER = 0x80000001;
++
++    /** HKLM registry root */
++    static final int HKEY_LOCAL_MACHINE = 0x80000002;
++
++    /** HKU registry root */
++    static final int HKEY_USERS = 0x80000003;
++
++    /** HKPD registry root */
++    static final int HKEY_PERFORMANCE_DATA = 0x80000004;
++
++    /** HKCC registry root */
++    static final int HKEY_CURRENT_CONFIG = 0x80000005;
++
++    /** HKDD registry root */
++    static final int HKEY_DYN_DATA = 0x80000006;
++
++    /*
++     * Registry value types, extracted from winnt.h
++     */
++    /** No value type */
++    static final int REG_NONE = 0; 
++
++    /** Unicode nul terminated string */
++    static final int REG_SZ = 1; 
++
++    /** Unicode nul terminated string */
++    static final int REG_EXPAND_SZ = 2; 
++
++    /** Free form binary */
++    static final int REG_BINARY = 3; 
++
++    /** 32-bit number */
++    static final int REG_DWORD = 4; 
++
++    /** Symbolic Link (unicode) */
++    static final int REG_LINK = 6; 
++
++    /** Multiple Unicode strings */
++    static final int REG_MULTI_SZ = 7; 
++
++   //
++    // Define access rights to files and directories
++    // Copied from winnt.h BUILD Version: 0095
++
++    /** Flag for permission read file or pipe date. */
++    static final int FILE_READ_DATA = 0x0001; // file &amp; pipe
++
++    /** Flag for permission list contents of a directory. */
++    static final int FILE_LIST_DIRECTORY = 0x0001; // directory
++
++    /** Flag for permission write file or pipe data. */
++    static final int FILE_WRITE_DATA = 0x0002; // file &amp; pipe
++
++    /** Flag for permission add a file to a directory. */
++    static final int FILE_ADD_FILE = 0x0002; // directory
++
++    /** Flag for permission add data to a file (append). */
++    static final int FILE_APPEND_DATA = 0x0004; // file
++
++    /** Flag for permission add a subdirectory to a directory. */
++    static final int FILE_ADD_SUBDIRECTORY = 0x0004; // directory
++
++    /** Flag for permission create a named pipe. */
++    static final int FILE_CREATE_PIPE_INSTANCE = 0x0004; // named pipe
++
++    /** Flag for permission read. */
++    static final int FILE_READ_EA = 0x0008; // file &amp; directory
++
++    /** Flag for permission write. */
++    static final int FILE_WRITE_EA = 0x0010; // file &amp; directory
++
++    /** Flag for permission execute a file. */
++    static final int FILE_EXECUTE = 0x0020; // file
++
++    /** Flag for permission traverse through a directory. */
++    static final int FILE_TRAVERSE = 0x0020; // directory
++
++    /** Flag for permission delete a file or subdirectory in a directory. */
++    static final int FILE_DELETE_CHILD = 0x0040; // directory
++
++    /** Flag for permission all read attributes. */
++    static final int FILE_READ_ATTRIBUTES = 0x0080; // all
++
++    /** Flag for permission all write attributes. */
++    static final int FILE_WRITE_ATTRIBUTES = 0x0100; // all
++
++    /** Flag for permission delete. */
++    static final int DELETE = 0x00010000;
++
++    /** Flag for permission read. */
++    static final int READ_CONTROL = 0x00020000;
++
++    /** Flag for permission write a DAC. */
++    static final int WRITE_DAC = 0x00040000;
++
++    /** Flag for permission set owner. */
++    static final int WRITE_OWNER = 0x00080000;
++
++    /** Flag for permission use synchronize. */
++    static final int SYNCHRONIZE = 0x00100000;
++
++    /** Flag for permission standard rights for required. */
++    static final int STANDARD_RIGHTS_REQUIRED = 0x000F0000;
++
++    /** Flag for permission standard rights for read. */
++    static final int STANDARD_RIGHTS_READ = 0x00020000; // original READ_CONTROL
++
++    /** Flag for permission standard rights for write. */
++    static final int STANDARD_RIGHTS_WRITE = 0x00020000; // original READ_CONTROL
++
++    /** Flag for permission standard rights for execute. */
++    static final int STANDARD_RIGHTS_EXECUTE = 0x00020000; // original READ_CONTROL
++
++    /** Flag for permission all standard rights. */
++    static final int STANDARD_RIGHTS_ALL = 0x001F0000;
++
++    /** Flag for permission all specific rights. */
++    static final int SPECIFIC_RIGHTS_ALL = 0x0000FFFF;
++
++    /** Flag for permission STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0x3FF. */
++    static final int FILE_ALL_ACCESS = 0x001F03FF;
++
++    /** Flag for permission generic read. */
++    static final int FILE_GENERIC_READ = 0x00120089;
++
++    // #define FILE_GENERIC_WRITE (STANDARD_RIGHTS_WRITE |\
++    // FILE_WRITE_DATA |\
++    // FILE_WRITE_ATTRIBUTES |\
++    // FILE_WRITE_EA |\
++    // FILE_APPEND_DATA |\
++    // SYNCHRONIZE)
++
++    /** Flag for permission generic write. */
++    static final int FILE_GENERIC_WRITE = 0x00120116;
++
++    // #define FILE_GENERIC_EXECUTE (STANDARD_RIGHTS_EXECUTE |\
++    // FILE_READ_ATTRIBUTES |\
++    // FILE_EXECUTE |\
++    // SYNCHRONIZE)
++    /** Flag for permission generic execute. */
++    static final int FILE_GENERIC_EXECUTE = 0x001200A0;
++
++    //
++    // AccessSystemAcl access type
++    //
++
++    /** Flag for permission all specific rights. */
++    static final int ACCESS_SYSTEM_SECURITY = 0x01000000;
++
++    //
++    // MaximumAllowed access type
++    //
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int MAXIMUM_ALLOWED = 0x02000000;
++
++    //
++    // These are the generic rights.
++    //
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int GENERIC_READ = 0x80000000; // may be a problem with int ...
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int GENERIC_WRITE = 0x40000000;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int GENERIC_EXECUTE = 0x20000000;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int GENERIC_ALL = 0x10000000;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_CASE_SENSITIVE_SEARCH = 0x00000001;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_CASE_PRESERVED_NAMES = 0x00000002;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_UNICODE_ON_DISK = 0x00000004;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_PERSISTENT_ACLS = 0x00000008;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_FILE_COMPRESSION = 0x00000010;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_VOLUME_QUOTAS = 0x00000020;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_SUPPORTS_SPARSE_FILES = 0x00000040;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_SUPPORTS_REPARSE_POINTS = 0x00000080;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_SUPPORTS_REMOTE_STORAGE = 0x00000100;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_VOLUME_IS_COMPRESSED = 0x00008000;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_SUPPORTS_OBJECT_IDS = 0x00010000;
++
++    /**
++     * Flag for NT permissions: For more information see the Windows NT description for permisson
++     * flags.
++     */
++    static final int FILE_SUPPORTS_ENCRYPTION = 0x00020000;
++
++
++}
+
+
+Property changes on: izpack-src/trunk/src/lib/com/coi/tools/os/win/MSWinConstants.java
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/win/RegDataContainer.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/RegDataContainer.java	2006-11-24 14:47:35 UTC (rev 1654)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/RegDataContainer.java	2006-11-28 09:32:35 UTC (rev 1655)
+@@ -4,7 +4,7 @@
+  * <A HREF="http://www.izforge.com/izpack/">http://www.izforge.com/izpack/</A>
+  * <A HREF="http://developer.berlios.de/projects/izpack/">http://developer.berlios.de/projects/izpack/</A>
+  * 
+- * Copyright 2005 Klaus Bartz
++ * Copyright 2005-2006 Klaus Bartz
+  *
+  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+  * you may not use this file except in compliance with the License.
+@@ -22,40 +22,24 @@
+ package com.coi.tools.os.win;
+ 
+ import java.io.Serializable;
++import java.util.ArrayList;
+ 
+ /**
+  * &lt;p&gt;
+  * Data container for Windows registry values. Windows registry values can contain different data
+  * types. It is not possible to map they all to one Java type. Therefore this class contains the
+- * different container types.
++ * different container types. DO NOT CHANGE METHODE SIGNATURES etc. without addapt the native method
++ * RegistryImpl.setValueN and RegistryImpl.getValue.
+  * &lt;/p&gt;
+  * 
+  * @author Klaus Bartz
+  * 
+  */
+-public class RegDataContainer implements Cloneable, Serializable
++public class RegDataContainer implements Cloneable, Serializable, MSWinConstants
+ {
+ 
+     private static final long serialVersionUID = 3979265850388066865L;
+ 
+-    /*
+-     * Registry value types, extracted from winnt.h
+-     */
+-    public static final int REG_NONE = 0; // No value type
+-
+-    public static final int REG_SZ = 1; // Unicode nul terminated string
+-
+-    public static final int REG_EXPAND_SZ = 2; // Unicode nul terminated string
+-
+-    // (with environment variable references)
+-    public static final int REG_BINARY = 3; // Free form binary
+-
+-    public static final int REG_DWORD = 4; // 32-bit number
+-
+-    public static final int REG_LINK = 6; // Symbolic Link (unicode)
+-
+-    public static final int REG_MULTI_SZ = 7; // Multiple Unicode strings
+-
+     private static final int[] VALID_TYPES = { 0, 1, 2, 3, 4, 6, 7};
+ 
+     private long dwordData = 0;
+@@ -352,4 +336,5 @@
+         result = 29 * result + type;
+         return result;
+     }
++
+ }
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryImpl.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryImpl.java	2006-11-24 14:47:35 UTC (rev 1654)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/RegistryImpl.java	2006-11-28 09:32:35 UTC (rev 1655)
+@@ -25,33 +25,18 @@
+ import java.util.Iterator;
+ import java.util.List;
+ 
+-
+ /**
+  * System dependent helper for MS Windows registry handling. This class is only vaild on Windows. It
+- * declares naitve methods which are implemented in COIOSHelper.dll
++ * declares naitve methods which are implemented in COIOSHelper.dll. The native methods uses the
++ * classes RegDataContainer and AccessControlList as in and output. Do not change the getter and
++ * setter methods of them. Do not try to implement a get or setValueACL because it will be nonsense.
++ * In the registry only keys have a ACL. not values.
+  * 
+  * @author Klaus Bartz
+  */
+-public class RegistryImpl
++public class RegistryImpl implements MSWinConstants
+ {
+ 
+-    /*
+-     * Registry root values, extracted from winreg.h
+-     */
+-    public static final int HKEY_CLASSES_ROOT = 0x80000000;
+-
+-    public static final int HKEY_CURRENT_USER = 0x80000001;
+-
+-    public static final int HKEY_LOCAL_MACHINE = 0x80000002;
+-
+-    public static final int HKEY_USERS = 0x80000003;
+-
+-    public static final int HKEY_PERFORMANCE_DATA = 0x80000004;
+-
+-    public static final int HKEY_CURRENT_CONFIG = 0x80000005;
+-
+-    public static final int HKEY_DYN_DATA = 0x80000006;
+-
+     private static final String DEFAULT_PLACEHOLDER = &quot;__#$&amp;DEFAULT_PLACEHODER_VALUE#$?&quot;;
+ 
+     private int currentRoot = HKEY_CURRENT_USER;
+@@ -153,16 +138,15 @@
+     /**
+      * Creates the given key under the given root.
+      * 
++     * @param root to be used
+      * @param key key to be created
+      * @throws NativeLibException
+      */
+     public void createKey(int root, String key) throws NativeLibException
+     {
+         int pathEnd = key.lastIndexOf('\\');
+-        if( pathEnd &lt; 0 )
+-        {
++        if (pathEnd &lt; 0)
+             throw new NativeLibException(&quot;Keys directly under the root are not allowed!&quot;);
+-        }
+         String subkey = key.substring(0, pathEnd);
+         if (!exist(root, subkey))
+         { // Create missing sub keys
+@@ -368,6 +352,7 @@
+     {
+         deleteKeyL(currentRoot, key);
+     }
++
+     /**
+      * Deletes a key under the current root if it is empty, else do nothing.
+      * 
+@@ -388,7 +373,7 @@
+      */
+     public void deleteKeyIfEmpty(int root, String key) throws NativeLibException
+     {
+-        if (keyExist(root, key) &amp;&amp; isKeyEmpty(root, key) ) deleteKeyL(root, key);
++        if (keyExist(root, key) &amp;&amp; isKeyEmpty(root, key)) deleteKeyL(root, key);
+ 
+     }
+ 
+@@ -556,8 +541,6 @@
+     private native void setValueN(int root, String key, String value, RegDataContainer contents)
+             throws NativeLibException;
+ 
+-    private native int getValueType(int root, String key, String value) throws NativeLibException;
+-
+     private native RegDataContainer getValue(int root, String key, String value)
+             throws NativeLibException;
+ 
+@@ -567,18 +550,30 @@
+ 
+     private native boolean isKeyEmpty(int root, String key) throws NativeLibException;
+ 
+-    private native int getSubkeyCount(int root, String key) throws NativeLibException;
+-
+-    private native int getValueCount(int root, String key) throws NativeLibException;
+-
+-    private native String getSubkeyName(int root, String key, int index) throws NativeLibException;
+-
+-    private native String getValueName(int root, String key, int index) throws NativeLibException;
+-
+     private native String[] getSubkeyNames(int root, String key) throws NativeLibException;
+ 
+     private native String[] getValueNames(int root, String key) throws NativeLibException;
+ 
++    // Methods which are implemented in the native part but not used yet. To suppress warnings
++    // in Eclipse this methods are commented out. Comment in if needed.
++    // private native int getValueType(int root, String key, String value) throws
++    // NativeLibException;
++    //
++    // private native int getSubkeyCount(int root, String key) throws NativeLibException;
++    //
++    // private native int getValueCount(int root, String key) throws NativeLibException;
++    //
++    // private native String getSubkeyName(int root, String key, int index) throws
++    // NativeLibException;
++    //
++    // private native String getValueName(int root, String key, int index) throws
++    // NativeLibException;
++    //
++    // private native void modifyKeyACL(int root, String key, AccessControlList acl)
++    // throws NativeLibException;
++    //
++    // private native AccessControlList getKeyACL(int root, String key) throws NativeLibException;
++
+     /**
+      * Creates a new (empty) logging list and activates logging.
+      */
+@@ -606,6 +601,8 @@
+ 
+     /**
+      * Returns a copy of the colected logging informations.
++     * 
++     * @return a copy of the colected logging informations
+      */
+     public List getLoggingInfo()
+     {
+@@ -626,6 +623,8 @@
+     /**
+      * Copies the contents of the given list of RegistryLogItems to a newly created internal logging
+      * list.
++     * 
++     * @param info list containing RegistryLogItems to be used for logging
+      */
+     public void setLoggingInfo(List info)
+     {
+@@ -635,7 +634,8 @@
+ 
+     /**
+      * Adds copies of the contents of the given list of RegistryLogItems to the existent internal
+-     * logging list.
++     * 
++     * @param info list containing RegistryLogItems to be used for logging logging list.
+      */
+     public void addLoggingInfo(List info)
+     {
+@@ -663,14 +663,4 @@
+         if (doLogging &amp;&amp; logging != null) logging.add(0, item);
+     }
+ 
+-    /**
+-     * Adds the given item to the end of the logging list if logging is enabled, else do nothing.
+-     * 
+-     * @param item
+-     */
+-    private void logAtEnd(RegistryLogItem item)
+-    {
+-        if (doLogging &amp;&amp; logging != null) logging.add(item);
+-    }
+-
+ }
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/win/resources/NativeLibErr.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/resources/NativeLibErr.java	2006-11-24 14:47:35 UTC (rev 1654)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/resources/NativeLibErr.java	2006-11-28 09:32:35 UTC (rev 1655)
+@@ -31,6 +31,7 @@
+  */
+ public class NativeLibErr extends ListResourceBundle
+ {
++
+     private static final Object[][] contents = {
+             { &quot;libInternal.OsErrNumPraefix&quot;, &quot; System error number is: &quot;},
+             { &quot;libInternal.OsErrStringPraefix&quot;, &quot; System error text is: &quot;},
+@@ -52,7 +53,8 @@
+ 
+             { &quot;registry.ValueNotFound&quot;, &quot;Registry value not found.&quot;},
+             { &quot;registry.KeyNotFound&quot;, &quot;Registry key not found.&quot;},
+-            { &quot;registry.KeyExist&quot;, &quot;Cannot create registry key {0}\\{1} because key exist already.&quot;}};
++            { &quot;registry.KeyExist&quot;, &quot;Cannot create registry key {0}\\{1} because key exist already.&quot;},
++            { &quot;registry.ACLNotSupported&quot;, &quot;In this version of COIOSHelper permission of registry keys are not supported.&quot;}};
+ 
+     /**
+      * Default constructor.
+
+Modified: izpack-src/trunk/src/lib/com/coi/tools/os/win/resources/NativeLibErr_de.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/coi/tools/os/win/resources/NativeLibErr_de.java	2006-11-24 14:47:35 UTC (rev 1654)
++++ izpack-src/trunk/src/lib/com/coi/tools/os/win/resources/NativeLibErr_de.java	2006-11-28 09:32:35 UTC (rev 1655)
+@@ -60,7 +60,9 @@
+             { &quot;registry.KeyNotFound&quot;,
+                     &quot;Der angeforderte Registry-Schl\u00fcssel wurde nicht gefunden.&quot;},
+             { &quot;registry.KeyExist&quot;,
+-                    &quot;Der Registry-Schl\u00fcssel {0}\\{1} konnte nicht angelegt werden, weil er bereits existierte.&quot;}};
++                    &quot;Der Registry-Schl\u00fcssel {0}\\{1} konnte nicht angelegt werden, weil er bereits existierte.&quot;},
++            { &quot;registry.ACLNotSupported&quot;,
++                    &quot;In dieser Version von COIOSHelper werden Berechtigungen von Registry-Schl\u00fcsseln nicht unterst\u00fctzt.&quot;}};
+ 
+     /**
+      * Returns the contents array.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/panels/CheckedHelloPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/panels/CheckedHelloPanel.java	2006-11-24 14:47:35 UTC (rev 1654)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/panels/CheckedHelloPanel.java	2006-11-28 09:32:35 UTC (rev 1655)
+@@ -19,8 +19,8 @@
+ 
+ package com.izforge.izpack.panels;
+ 
++import com.coi.tools.os.win.MSWinConstants;
+ import com.coi.tools.os.win.RegDataContainer;
+-import com.coi.tools.os.win.RegistryImpl;
+ import com.izforge.izpack.installer.InstallData;
+ import com.izforge.izpack.installer.InstallerFrame;
+ import com.izforge.izpack.util.AbstractUIHandler;
+@@ -35,7 +35,7 @@
+  * 
+  * @author Klaus Bartz
+  */
+-public class CheckedHelloPanel extends HelloPanel
++public class CheckedHelloPanel extends HelloPanel implements MSWinConstants
+ {
+ 
+     /** Flag to break installation or not. */
+@@ -81,7 +81,7 @@
+             if (uninstallName == null) break; // Should never be...
+             // First we &quot;create&quot; the reg key.
+             String keyName = RegistryHandler.UNINSTALL_ROOT + uninstallName;
+-            rh.setRoot(RegistryImpl.HKEY_LOCAL_MACHINE);
++            rh.setRoot(HKEY_LOCAL_MACHINE);
+             if (!rh.valueExist(keyName, &quot;UninstallString&quot;))
+             // We assume that the application was installed with
+                     // IzPack. Therefore there should be the value &quot;UninstallString&quot;
+@@ -108,14 +108,14 @@
+             int typeOfVal = val.getType();
+             switch (typeOfVal)
+             {
+-            case RegDataContainer.REG_EXPAND_SZ:
+-            case RegDataContainer.REG_SZ:
++            case REG_EXPAND_SZ:
++            case REG_SZ:
+                 valString = val.getStringData();
+                 break;
+-            case RegDataContainer.REG_BINARY:
+-            case RegDataContainer.REG_DWORD:
+-            case RegDataContainer.REG_LINK:
+-            case RegDataContainer.REG_MULTI_SZ:
++            case REG_BINARY:
++            case REG_DWORD:
++            case REG_LINK:
++            case REG_MULTI_SZ:
+                 throw new Exception(&quot;Bad data type of chosen registry value &quot; + keyName);
+             default:
+                 throw new Exception(&quot;Unknown data type of chosen registry value &quot; + keyName);
+@@ -252,7 +252,7 @@
+                     + &quot;)&quot;;
+             // Then we &quot;create&quot; the reg key with it.
+             String keyName = RegistryHandler.UNINSTALL_ROOT + newUninstallName;
+-            rh.setRoot(RegistryImpl.HKEY_LOCAL_MACHINE);
++            rh.setRoot(HKEY_LOCAL_MACHINE);
+             if (!rh.keyExist(keyName))
+             { // That's the name for which we searched.
+                 // Change the uninstall name in the reg helper.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/util/os/RegistryHandler.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/util/os/RegistryHandler.java	2006-11-24 14:47:35 UTC (rev 1654)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/util/os/RegistryHandler.java	2006-11-28 09:32:35 UTC (rev 1655)
+@@ -29,9 +29,9 @@
+ import java.util.List;
+ import java.util.Map;
+ 
++import com.coi.tools.os.win.MSWinConstants;
+ import com.coi.tools.os.win.NativeLibException;
+ import com.coi.tools.os.win.RegDataContainer;
+-import com.coi.tools.os.win.RegistryImpl;
+ import com.izforge.izpack.installer.AutomatedInstallData;
+ import com.izforge.izpack.installer.ResourceManager;
+ import com.izforge.izpack.util.Debug;
+@@ -45,7 +45,7 @@
+  * @author Klaus Bartz
+  * 
+  */
+-public class RegistryHandler extends OSClassHelper
++public class RegistryHandler extends OSClassHelper implements MSWinConstants
+ {
+ 
+     public static final String UNINSTALL_ROOT = &quot;SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\&quot;;
+@@ -59,20 +59,20 @@
+     private static RegistryHandler defaultHandler = null;
+     static
+     {
+-        ROOT_KEY_MAP.put(&quot;HKCR&quot;, new Integer(RegistryImpl.HKEY_CLASSES_ROOT));
+-        ROOT_KEY_MAP.put(&quot;HKEY_CLASSES_ROOT&quot;, new Integer(RegistryImpl.HKEY_CLASSES_ROOT));
+-        ROOT_KEY_MAP.put(&quot;HKCU&quot;, new Integer(RegistryImpl.HKEY_CURRENT_USER));
+-        ROOT_KEY_MAP.put(&quot;HKEY_CURRENT_USER&quot;, new Integer(RegistryImpl.HKEY_CURRENT_USER));
+-        ROOT_KEY_MAP.put(&quot;HKLM&quot;, new Integer(RegistryImpl.HKEY_LOCAL_MACHINE));
+-        ROOT_KEY_MAP.put(&quot;HKEY_LOCAL_MACHINE&quot;, new Integer(RegistryImpl.HKEY_LOCAL_MACHINE));
+-        ROOT_KEY_MAP.put(&quot;HKU&quot;, new Integer(RegistryImpl.HKEY_USERS));
+-        ROOT_KEY_MAP.put(&quot;HKEY_USERS&quot;, new Integer(RegistryImpl.HKEY_USERS));
+-        ROOT_KEY_MAP.put(&quot;HKPD&quot;, new Integer(RegistryImpl.HKEY_PERFORMANCE_DATA));
+-        ROOT_KEY_MAP.put(&quot;HKEY_PERFORMANCE_DATA&quot;, new Integer(RegistryImpl.HKEY_PERFORMANCE_DATA));
+-        ROOT_KEY_MAP.put(&quot;HKCC&quot;, new Integer(RegistryImpl.HKEY_CURRENT_CONFIG));
+-        ROOT_KEY_MAP.put(&quot;HKEY_CURRENT_CONFIG&quot;, new Integer(RegistryImpl.HKEY_CURRENT_CONFIG));
+-        ROOT_KEY_MAP.put(&quot;HKDDS&quot;, new Integer(RegistryImpl.HKEY_DYN_DATA));
+-        ROOT_KEY_MAP.put(&quot;HKEY_DYN_DATA&quot;, new Integer(RegistryImpl.HKEY_DYN_DATA));
++        ROOT_KEY_MAP.put(&quot;HKCR&quot;, new Integer(HKEY_CLASSES_ROOT));
++        ROOT_KEY_MAP.put(&quot;HKEY_CLASSES_ROOT&quot;, new Integer(HKEY_CLASSES_ROOT));
++        ROOT_KEY_MAP.put(&quot;HKCU&quot;, new Integer(HKEY_CURRENT_USER));
++        ROOT_KEY_MAP.put(&quot;HKEY_CURRENT_USER&quot;, new Integer(HKEY_CURRENT_USER));
++        ROOT_KEY_MAP.put(&quot;HKLM&quot;, new Integer(HKEY_LOCAL_MACHINE));
++        ROOT_KEY_MAP.put(&quot;HKEY_LOCAL_MACHINE&quot;, new Integer(HKEY_LOCAL_MACHINE));
++        ROOT_KEY_MAP.put(&quot;HKU&quot;, new Integer(HKEY_USERS));
++        ROOT_KEY_MAP.put(&quot;HKEY_USERS&quot;, new Integer(HKEY_USERS));
++        ROOT_KEY_MAP.put(&quot;HKPD&quot;, new Integer(HKEY_PERFORMANCE_DATA));
++        ROOT_KEY_MAP.put(&quot;HKEY_PERFORMANCE_DATA&quot;, new Integer(HKEY_PERFORMANCE_DATA));
++        ROOT_KEY_MAP.put(&quot;HKCC&quot;, new Integer(HKEY_CURRENT_CONFIG));
++        ROOT_KEY_MAP.put(&quot;HKEY_CURRENT_CONFIG&quot;, new Integer(HKEY_CURRENT_CONFIG));
++        ROOT_KEY_MAP.put(&quot;HKDDS&quot;, new Integer(HKEY_DYN_DATA));
++        ROOT_KEY_MAP.put(&quot;HKEY_DYN_DATA&quot;, new Integer(HKEY_DYN_DATA));
+ 
+     }
+ 
+@@ -343,7 +343,7 @@
+         if (uninstallName == null) return (false);
+         String keyName = UNINSTALL_ROOT + uninstallName;
+         int oldVal = getRoot();
+-        setRoot(RegistryImpl.HKEY_LOCAL_MACHINE);
++        setRoot(HKEY_LOCAL_MACHINE);
+         boolean retval = keyExist(keyName);
+         setRoot(oldVal);
+         return (retval);
+@@ -363,7 +363,7 @@
+                 + installdata.getVariable(&quot;INSTALL_PATH&quot;) + &quot;\\uninstaller\\uninstaller.jar\&quot;&quot;;
+ 
+         int oldVal = getRoot();
+-        setRoot(RegistryImpl.HKEY_LOCAL_MACHINE);
++        setRoot(HKEY_LOCAL_MACHINE);
+         setValue(keyName, &quot;DisplayName&quot;, uninstallName);
+         setValue(keyName, &quot;UninstallString&quot;, cmd);
+         // Try to write the uninstaller icon out.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000399.html">[izpack-changes] r1654 - in izpack-src/trunk: . src/doc-ng/XHTML
+</A></li>
+	<LI>Next message: <A HREF="000401.html">[izpack-changes] r1656 - in	izpack-src/trunk/src/lib/com/coi/tools/os: izpack win
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#400">[ date ]</a>
+              <a href="thread.html#400">[ thread ]</a>
+              <a href="subject.html#400">[ subject ]</a>
+              <a href="author.html#400">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

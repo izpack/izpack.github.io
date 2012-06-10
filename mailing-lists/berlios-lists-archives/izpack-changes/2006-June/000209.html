@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-changes] r1463 - izpack-src/trunk/src/lib/com/izforge/izpack/installer
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1463%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000208.html">
+   <LINK REL="Next"  HREF="000210.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-changes] r1463 - izpack-src/trunk/src/lib/com/izforge/izpack/installer</H1>
+    <B>noreply at berlios.de</B> 
+    <A HREF="mailto:izpack-changes%40lists.berlios.de?Subject=%5Bizpack-changes%5D%20r1463%20-%20izpack-src/trunk/src/lib/com/izforge/izpack/installer&In-Reply-To="
+       TITLE="[izpack-changes] r1463 - izpack-src/trunk/src/lib/com/izforge/izpack/installer">noreply at berlios.de
+       </A><BR>
+    <I>Fri Jun 30 12:42:43 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000208.html">[izpack-changes] r1462 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+        <LI>Next message: <A HREF="000210.html">[izpack-changes] r1464 - izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#209">[ date ]</a>
+              <a href="thread.html#209">[ thread ]</a>
+              <a href="subject.html#209">[ subject ]</a>
+              <a href="author.html#209">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: eppelman
+Date: 2006-06-30 12:42:40 +0200 (Fri, 30 Jun 2006)
+New Revision: 1463
+
+Modified:
+   izpack-src/trunk/src/lib/com/izforge/izpack/installer/IzPanel.java
+Log:
+fixed the indentation of the panel headline.
+
+Modified: izpack-src/trunk/src/lib/com/izforge/izpack/installer/IzPanel.java
+===================================================================
+--- izpack-src/trunk/src/lib/com/izforge/izpack/installer/IzPanel.java	2006-06-30 10:34:58 UTC (rev 1462)
++++ izpack-src/trunk/src/lib/com/izforge/izpack/installer/IzPanel.java	2006-06-30 10:42:40 UTC (rev 1463)
+@@ -37,6 +37,7 @@
+ 
+ import com.izforge.izpack.gui.LabelFactory;
+ import com.izforge.izpack.util.AbstractUIHandler;
++import com.izforge.izpack.util.Debug;
+ import com.izforge.izpack.util.MultiLineLabel;
+ 
+ /**
+@@ -152,10 +153,15 @@
+       setLayout(  );
+       buildHeadline( iconName, instance );
+       gridyCounter++;
+-    }
++    }   
+     
+     /** 
+-     * Build the Headline
++     * Build the Headline of a Panel.
++     * Allows also to display a leading Icon for the PanelHeadline.
++     * This Icon can also be different if the panel has more than one Instances. 
++     * The UserInputPanel is one of these Candidates.
++     * 
++     * @author marc.eppelmann&amp;#064;gmx.de
+      *
+      * @param imageIconName an Iconname
+      * @param instanceNumber an panel instance
+@@ -171,15 +177,19 @@
+       // TODO: 
+       // TODO: first Test if a Resource for your protected Instance exists.
+       String headline;
+-      String headlineSearchBaseKey = myClassname + d + &quot;headline&quot;;
++      String headlineSearchBaseKey = myClassname + d + &quot;headline&quot;; // Results for example in &quot;ShortcutPanel.headline&quot; : 
+ 
+-      if( instanceNumber &gt; -1 )
++      if( instanceNumber &gt; -1 )  // Search for Results for example in &quot;ShortcutPanel.headline.1, 2, 3 etc.&quot; :
+       {
+-        String instanceSearchKey = headlineSearchBaseKey + d + Integer.toString( instanceNumber );
++        String instanceSearchKey = headlineSearchBaseKey + d +
++                                   Integer.toString( instanceNumber );
+ 
+         String instanceHeadline = getString( instanceSearchKey );
+ 
+-        //System.out.println( &quot;found headline: &quot; + instanceHeadline  +  d + S + &quot;: &quot;+  instanceNumber );
++        if( Debug.isLOG() ) 
++        { 
++          System.out.println( &quot;found headline: &quot; + instanceHeadline  +  d + &quot; for instance # &quot; +  instanceNumber ); 
++        }
+         if( ! instanceSearchKey.equals( instanceHeadline ) )
+         {
+           headline = instanceHeadline;
+@@ -198,7 +208,8 @@
+       {
+         if( ( imageIconName != null ) &amp;&amp; ! &quot;&quot;.equals( imageIconName ) )
+         {
+-          headLineLabel = new JLabel( headline, getImageIcon( imageIconName ), JLabel.TRAILING );
++          headLineLabel = new JLabel( headline, getImageIcon( imageIconName ),
++                                      JLabel.LEADING );
+         }
+         else
+         {
+@@ -211,20 +222,25 @@
+         font = font.deriveFont( style, ( size * 1.5f ) );
+         headLineLabel.setFont( font );
+ 
+-        GridBagConstraints gbc = getNewGridBagConstraints( X_ORIGIN, Y_ORIGIN, COLS_1, ROWS_1 );
+-        gbc.weightx =  0.0;
+-        gbc.weighty = 1.0;        
+-        
+-        gbc.fill   = GridBagConstraints.NONE;
+-        gbc.anchor = GridBagConstraints.NORTHWEST;
+-        gbc.insets = new Insets( 0, 0, 5, 0 );
++        GridBagConstraints gbc = new GridBagConstraints(  );
++
++        gbc.gridx      = 0;
++        gbc.gridy      = 0;
++        gbc.gridwidth  = 1;
++        gbc.gridheight = 1;
++
++        gbc.fill   = GridBagConstraints.HORIZONTAL;
++        gbc.anchor = GridBagConstraints.WEST;
++        gbc.insets = new Insets( 0, 0, 0, 0 );
++        headLineLabel.setName( HEADLINE );
+         izPanelLayout.setConstraints( headLineLabel, gbc );
+-        headLineLabel.setName( HEADLINE );
++
+         add( headLineLabel );
+       }
+ 
+       return result;
+     }
++
+     
+     /** 
+      * Gets a language Resource String from the parent, which  holds these global resource.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000208.html">[izpack-changes] r1462 - izpack-src/trunk/src/lib/com/izforge/izpack
+</A></li>
+	<LI>Next message: <A HREF="000210.html">[izpack-changes] r1464 - izpack-src/trunk/src/lib/com/izforge/izpack/panels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#209">[ date ]</a>
+              <a href="thread.html#209">[ thread ]</a>
+              <a href="subject.html#209">[ subject ]</a>
+              <a href="author.html#209">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-changes">More information about the izpack-changes
+mailing list</a><br>
+</body></html>

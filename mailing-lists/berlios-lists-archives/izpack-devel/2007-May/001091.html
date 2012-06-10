@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [izpack-devel] Uninstaller bug
+   </TITLE>
+   <LINK REL="Index" HREF="index.html" >
+   <LINK REL="made" HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Uninstaller%20bug&In-Reply-To=">
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001081.html">
+   <LINK REL="Next"  HREF="001092.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[izpack-devel] Uninstaller bug</H1>
+    <B>Marius Nicolae</B> 
+    <A HREF="mailto:izpack-devel%40lists.berlios.de?Subject=%5Bizpack-devel%5D%20Uninstaller%20bug&In-Reply-To="
+       TITLE="[izpack-devel] Uninstaller bug">mariusn007 at gmail.com
+       </A><BR>
+    <I>Wed May  9 13:52:59 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001081.html">[izpack-devel] langpacks
+</A></li>
+        <LI>Next message: <A HREF="001092.html">[izpack-devel] Uninstaller bug
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1091">[ date ]</a>
+              <a href="thread.html#1091">[ thread ]</a>
+              <a href="subject.html#1091">[ subject ]</a>
+              <a href="author.html#1091">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+I was trying to build a command line installer/uninstaller using IzPack.
+
+The install part can be automated with  an xml file. The uninstall
+part can be resolved by adding the -c flag to the uninstaller.
+
+The problem:
+If I run the installer without a GUI (using an .xml file as a
+parameter), the uninstaller encounters a null pointer exception.
+
+I've attached a screenshot of the error message.
+
+NOTE: To reproduce the error do the following:
+1. Run the sample that comes with IzPack, save the xml script for
+automated installation then uninstalled the sample.
+2. Run the installer with the xml script as a parameter. This should
+install the sample again.
+3. Run the uninstaller from Sample Installation/Uninstaller
+
+Can we get around this in any way?
+
+Best regards,
+Marius Nicolae
+
+PS: this is a copy of the log file. The error is displayed here also.
+[myHome] represents my home folder
+
+2007-05-09T13:30:26.934 Phase 1: JarFile: [myHome]/Sample
+Installation/Uninstaller/uninstaller.jar
+2007-05-09T13:30:26.987 Phase 1: Extracted 119 files into /tmp/izpack9522.d
+2007-05-09T13:30:26.988 Phase 1: Spawning phase 2:
+        /usr/lib/jvm/java-1.5.0-sun-1.5.0_update8/jre/bin/java
+        -classpath
+        /tmp/izpack9522.d
+        -Dself.mod.base=/tmp/izpack9522
+        -Dself.mod.jar=[myHome]/Sample Installation/Uninstaller/uninstaller.jar
+        -Dself.mod.class=com.izforge.izpack.uninstaller.Uninstaller
+        -Dself.mod.method=uninstall
+        -Dself.mod.phase=2
+        com.izforge.izpack.uninstaller.SelfModifier
+2007-05-09T13:30:26.993 Phase 1: Exit
+2007-05-09T13:30:28.186 Phase 2: Spawning phase 3:
+        /usr/lib/jvm/java-1.5.0-sun-1.5.0_update8/jre/bin/java
+        -classpath
+        /tmp/izpack9522.d
+        -Dself.mod.base=/tmp/izpack9522
+        -Dself.mod.jar=[myHome]/Sample Installation/Uninstaller/uninstaller.jar
+        -Dself.mod.class=com.izforge.izpack.uninstaller.Uninstaller
+        -Dself.mod.method=uninstall
+        -Dself.mod.phase=3
+        com.izforge.izpack.uninstaller.SelfModifier
+2007-05-09T13:30:28.274 Phase 3: Invoking method:
+com.izforge.izpack.uninstaller.Uninstaller.uninstall(String[] args)
+2007-05-09T13:30:28.514 Phase 3: Method returned, waiting for other threads
+java.lang.NullPointerException
+        at java.io.ObjectInputStream$PeekInputStream.read(ObjectInputStream.java:2213)
+        at java.io.ObjectInputStream$PeekInputStream.readFully(ObjectInputStream.java:2226)
+        at java.io.ObjectInputStream$BlockDataInputStream.readShort(ObjectInputStream.java:2694)
+        at java.io.ObjectInputStream.readStreamHeader(ObjectInputStream.java:761)
+        at java.io.ObjectInputStream.&lt;init&gt;(ObjectInputStream.java:277)
+        at com.izforge.izpack.uninstaller.Destroyer.getRootScript(Destroyer.java:223)
+        at com.izforge.izpack.uninstaller.Destroyer.run(Destroyer.java:119)
+2007-05-09T13:32:04.024 Phase 2: deleteing sandbox
+2007-05-09T13:32:04.048 Phase 2: Phase 3 return value = 0
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: exception.jpg
+Type: image/jpeg
+Size: 45800 bytes
+Desc: not available
+Url : <A HREF="https://lists.berlios.de/pipermail/izpack-devel/attachments/20070509/2acec976/attachment.jpg">https://lists.berlios.de/pipermail/izpack-devel/attachments/20070509/2acec976/attachment.jpg</A> 
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001081.html">[izpack-devel] langpacks
+</A></li>
+	<LI>Next message: <A HREF="001092.html">[izpack-devel] Uninstaller bug
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1091">[ date ]</a>
+              <a href="thread.html#1091">[ thread ]</a>
+              <a href="subject.html#1091">[ subject ]</a>
+              <a href="author.html#1091">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/izpack-devel">More information about the izpack-devel
+mailing list</a><br>
+</body></html>
