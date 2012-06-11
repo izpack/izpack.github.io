@@ -33,8 +33,8 @@ Our canonical repository is hosted at [The Codehaus](http://codehaus.org/). This
 We have an [*izpack* organization on GitHub](http://github.com/izpack) where a Git repository is hosted:
 
 * GitHub: [http://github.com/izpack/izpack](http://github.com/izpack/izpack)
-* read-only access: 
-* organization-member access: 
+* read-only access: `git://github.com/izpack/izpack.git`
+* organization-member access: `ssh://git@github.com:izpack/izpack.git`
 
 ## How to collaborate on GitHub
 
