@@ -7,4 +7,3 @@ Source code for the [IzPack public website](http://izpack.org/).
 Things to keep in mind:
 
 * Pick a license.
-* Google Analytics integration.
