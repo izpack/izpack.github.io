@@ -67,7 +67,8 @@ The barrier to entry is probably lower than you may expect, however keep in mind
 
 1. please go through the GitHub repository instead of directly pushing to Codehaus,
 2. you are free to push the state of the GitHub repository branches to Codehaus,
-3. however, do not push feature development branches to Codehaus, only `master` and version branches.
+3. however, do not push feature development branches to Codehaus, only `master` and version branches,
+4. you *may* directly push trivial changes to `master` or a feature branch, but this should be the exception.
 
 
 
