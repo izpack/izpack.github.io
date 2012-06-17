@@ -70,5 +70,14 @@ The barrier to entry is probably lower than you may expect, however keep in mind
 3. however, do not push feature development branches to Codehaus, only `master` and version branches,
 4. you *may* directly push trivial changes to `master` or a feature branch, but this should be the exception.
 
+## Fun facts by Ohloh
 
+<div class="row">
+  <div class="span4">
+    <script type="text/javascript" src="http://www.ohloh.net/p/5148/widgets/project_factoids_stats.js"> </script>
+  </div>
+  <div class="span4">
+    <script type="text/javascript" src="http://www.ohloh.net/p/5148/widgets/project_languages.js"> </script>
+  </div>
+</div>
 
