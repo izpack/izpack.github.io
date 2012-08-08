@@ -12,8 +12,8 @@ title: "Download IzPack"
 The current stable is release is **IzPack 4.3.5**.
 We have beta releases for the upcoming **IzPack 5.0**.
 
-* [Download the installer for IzPack 5.0.0-beta10](http://get.izpack.org/izpack/5.0.0-beta10)
-* [Download the installer for IzPack 4.3.5](http://get.izpack.org/izpack/4.3.5)
+* [Download the installer for IzPack 5.0.0-beta10](http://dist.codehaus.org/izpack/releases/5.0.0-beta10/izpack-dist-5.0.0-beta10-installer.jar)
+* [Download the installer for IzPack 4.3.5](http://dist.codehaus.org/izpack/releases/4.3.5/IzPack-install-4.3.5.jar)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
