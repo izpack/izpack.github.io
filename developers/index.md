@@ -24,6 +24,7 @@ title: "Developers: Hack on IzPack!"
 
 Our canonical repository is hosted at [The Codehaus](http://codehaus.org/). This repository makes reference and only approved developers may push to it, and subsequently perform releases.
 
+
 * read-only access: `git://git.codehaus.org/izpack.git`
 * developers access: `ssh://git@git.codehaus.org/izpack.git`
 * GitWeb: [http://git.codehaus.org/gitweb.cgi?p=izpack.git](http://git.codehaus.org/gitweb.cgi?p=izpack.git)
