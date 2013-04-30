@@ -24,6 +24,12 @@ title: "Developers: Hack on IzPack!"
 
 Our canonical repository is hosted at [The Codehaus](http://codehaus.org/). This repository makes reference and only approved developers may push to it, and subsequently perform releases.
 
+<div class="alert alert-error">
+Currently, we actually use Github as repository for the active development to better reaching contributors.
+Unfortunately, we haven't found any service that allows automatic pushes (commit forwarding) from Github to Codehaus
+to not synchronize manually to [git.codehaus.org](http://git.codehaus.org/gitweb.cgi?p=izpack.git).
+There has been raised an issue (wish) at Codehaus, whether they wouldn't provide a web service for Github's post-receive hooks, this would be an effective way to mirror izpack/izpack from Github to Codehaus without any further intervention elsewhere.
+</div>
 
 * read-only access: `git://git.codehaus.org/izpack.git`
 * developers access: `ssh://git@git.codehaus.org/izpack.git`
