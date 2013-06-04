@@ -60,6 +60,14 @@ Niklaus Giger maintains a plug-in for [Apache BuildrR](http://buildr.apache.org/
 
 ## Graphical user interfaces
 
+<h3>DCP Setup Maker</h3>
+[DCP Setup Maker](http://sourceforge.net/projects/devcompack) is an opensource project, powered by IzPack and developed by Said El Imam,
+that generates java installers easily for a set of files, without the need of coding knowledge.
+It automatically writes the xml code, and compiles it for you.
+
+DCP Setup Maker is not affiliated with the IzPack project, and is released under the terms of the [Apache license v2](http://www.apache.org/licenses/LICENSE-2.0.html)
+
+<h3>PackJacket</h3>
 The independent [PackJacket](http://packjacket.sf.net/) opensource project offers a convenient graphical user interface for creating IzPack-based installers.
 
 PackJacket is not affiliated with the IzPack project, and is released under the terms of the [GPLv3 license](http://www.gnu.org/licenses/gpl.html)
@@ -71,7 +79,7 @@ We developed a simple Windows native launcher that can check for the presence of
 * [Version 2.2, based on Qt](http://dist.codehaus.org/izpack/native-launcher/izpack-launcher-2.2.zip)
 * [Version 1.3, based on wxWidgets](http://dist.codehaus.org/izpack/native-launcher/izpack-launcher-1.3.zip)
 
-You may alternatively look at the independent [JSmooth](http://jsmooth.sourceforge.net/) and [Launch4J](http://launch4j.sourceforge.net/) opensource projects. Lots of users have had positive experiences mixing them with IzPack=based installers!
+You may alternatively look at the independent [JSmooth](http://jsmooth.sourceforge.net/) and [Launch4J](http://launch4j.sourceforge.net/) opensource projects. Lots of users have had positive experiences mixing them with IzPack based installers!
 
 ## Showcases
 
