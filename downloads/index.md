@@ -12,12 +12,12 @@ title: "Download IzPack"
 The current stable is release is **IzPack 4.3.5**.
 We have beta releases for the upcoming **IzPack 5.0**.
 
-* [Download the installer for IzPack 5.0.0-rc1](http://dist.codehaus.org/izpack/releases/5.0.0-rc1/izpack-dist-5.0.0-rc1-installer.jar)
+* [Download the installer for IzPack 5.0.0-rc2](http://dist.codehaus.org/izpack/releases/5.0.0-rc2/izpack-dist-5.0.0-rc2-installer.jar)
 * [Download the installer for IzPack 4.3.5](http://dist.codehaus.org/izpack/releases/4.3.5/IzPack-install-4.3.5.jar)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
-    $ java -jar izpack-dist-5.0.0-rc1-installer.jar
+    $ java -jar izpack-dist-5.0.0-rc2-installer.jar
 
 If you are interested in the source code then please have a look at the [instructions for obtaining it from Git](/developers/).
 
@@ -36,7 +36,7 @@ For IzPack 5.x:
     <dependency>
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-maven-plugin</artifactId>
-        <version>5.0.0-rc1</version>
+        <version>5.0.0-rc2</version>
     </dependency>
 
 [See the new IzPack Maven plugin documentation](http://izpack.codehaus.org/izpack-maven-plugin/).
