@@ -41,7 +41,7 @@ For IzPack 5.x:
 
 [See the new IzPack Maven plugin documentation](http://izpack.codehaus.org/izpack-maven-plugin/).
 
-If you are migrating from IzPack 4 to IzPack 5, do not forget to [read our migration notes](http://docs.codehaus.org/display/IZPACK/Upgrading+from+IzPack+4.3+to+5.0).
+If you are migrating from IzPack 4 to IzPack 5, do not forget to [read our migration notes](http://docs.codehaus.org/display/IZPACK/Upgrading+Existing+Installers+from+IzPack+4.x+to+5.0).
 
 ## Gradle users
 
