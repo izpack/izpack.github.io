@@ -78,6 +78,7 @@
             <xs:element name="javaversion" type="xs:string" minOccurs="0"/>
             <xs:element name="requiresjdk" type="xs:string" minOccurs="0"/>
             <xs:element name="pack200" minOccurs="0"/>
+            <xs:element name="tempdir" type="tempDirType" minOccurs="0" />
             <xs:element name="run-privileged" type="runPrivilegedType" minOccurs="0"/>
             <xs:element name="summarylogfilepath" type="xs:string" minOccurs="0"/>
             <xs:element name="uninstaller" type="uninstallerType" minOccurs="0"/>
@@ -97,6 +98,12 @@
         </xs:sequence>
     </xs:complexType>
 
+	<xs:complexType name="tempDirType">
+		<xs:attribute type="xs:string" name="variablename" use="optional" />
+		<xs:attribute type="xs:string" name="prefix" use="optional" />
+		<xs:attribute type="xs:string" name="suffix" use="optional" />
+	</xs:complexType>
+	
     <xs:complexType name="runPrivilegedType">
         <xs:attribute type="xs:string" name="condition" use="optional"/>
     </xs:complexType>
@@ -390,8 +397,20 @@
     <xs:complexType name="packType">
         <xs:sequence>
             <xs:element name="description" type="xs:string" maxOccurs="1"/>
+            <xs:element name="onSelect" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="condition" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="onDeselect" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="condition" type="xs:string" use="optional"/>
+                </xs:complexType>
+            </xs:element>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element name="fileset" type="fileSetType"/>
+                <xs:element name="fileset" type="fileSetTypeDisk"/>
                 <xs:element name="file" type="fileType"/>
                 <xs:element name="singlefile" type="singleFileType"/>
                 <xs:element name="parsable" type="parsableType"/>
@@ -422,7 +441,7 @@
     <!--                                                                                                        -->
     <!-- File sets                                                                                              -->
     <!--                                                                                                        -->
-    <xs:complexType name="fileSetType">
+    <xs:complexType name="fileSetTypeDisk">
         <xs:sequence>
             <xs:element name="include" type="types:includeExcludeType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="exclude" type="types:includeExcludeType" minOccurs="0" maxOccurs="unbounded"/>
@@ -432,9 +451,19 @@
         <xs:attribute name="dir" type="xs:string" use="required"/>
         <xs:attribute name="includes" type="xs:string" use="optional"/>
         <xs:attribute name="excludes" type="xs:string" use="optional"/>
-        <xs:attribute name="targetdir" type="xs:string" use="required"/>
+        <xs:attribute name="targetdir" type="xs:string" use="optional" default="${INSTALL_PATH}"/>
         <xs:attribute name="override" type="overrideType" use="optional" default="false"/>
         <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="fileSetTypePack">
+        <xs:sequence>
+            <xs:element name="include" type="types:includeExcludeType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="exclude" type="types:includeExcludeType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="includes" type="xs:string" use="optional"/>
+        <xs:attribute name="excludes" type="xs:string" use="optional"/>
+        <xs:attribute name="targetdir" type="xs:string" use="optional" default="${INSTALL_PATH}"/>
     </xs:complexType>
 
     <xs:complexType name="fileType">
@@ -468,7 +497,7 @@
 
     <xs:complexType name="parsableType">
         <xs:sequence>
-            <xs:element name="fileset" type="fileSetType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="fileset" type="fileSetTypePack" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="os" type="types:osType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="targetfile" type="xs:string" use="optional"/>
@@ -479,7 +508,7 @@
 
     <xs:complexType name="executableType">
         <xs:sequence>
-            <xs:element name="fileset" type="fileSetType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="fileset" type="fileSetTypePack" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="args" minOccurs="0">
                 <xs:complexType>
                     <xs:sequence>
