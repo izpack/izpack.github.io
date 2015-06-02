@@ -20,24 +20,13 @@ title: "Developers: Hack on IzPack!"
   <span>Attach a link to a pull request on our GitHub repository instead!</span>
 </div>
 
-## Git at Codehaus <small>(for official developers)</small>
+## Git at Codehaus terminated
 
-Our canonical repository is hosted at [The Codehaus](http://codehaus.org/). This repository makes reference and only approved developers may push to it, and subsequently perform releases.
-
-<div class="alert alert-error">
-Currently, we actually use Github as repository for the active development to better reaching contributors.
-Unfortunately, we haven't found any service that allows automatic pushes (commit forwarding) from Github to Codehaus
-to not synchronize manually to [git.codehaus.org](http://git.codehaus.org/gitweb.cgi?p=izpack.git).
-There has been raised an issue (wish) at Codehaus, whether they wouldn't provide a web service for Github's post-receive hooks, this would be an effective way to mirror izpack/izpack from Github to Codehaus without any further intervention elsewhere.
-</div>
-
-* read-only access: `git://git.codehaus.org/izpack.git`
-* developers access: `ssh://git@git.codehaus.org/izpack.git`
-* GitWeb: [http://git.codehaus.org/gitweb.cgi?p=izpack.git](http://git.codehaus.org/gitweb.cgi?p=izpack.git)
+All Codehaus services have now been terminated, thus Codehaus GIT, Nexus, JIRA, mailing lists etc. got migrated to other providers.
 
 ## IzPack on GitHub <small>(lowering the barrier to collaboration)</small>
 
-We have an [*izpack* organization on GitHub](http://github.com/izpack) where a Git repository is hosted:
+Our canonical repository is now exclusively hosted at [GitHub](http://github.com/izpack) where a Git repository is hosted:
 
 * GitHub: [http://github.com/izpack/izpack](http://github.com/izpack/izpack)
 * read-only access: `git://github.com/izpack/izpack.git` or `https://github.com/izpack/izpack.git`
