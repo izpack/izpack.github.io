@@ -47,7 +47,7 @@ To minimize bureaucracy overhead, we adopt the following soft rules.
 The barrier to entry is probably lower than you may expect, however keep in mind that :
 
 1. a good contribution has a test,
-2. a new feature needs to be documented [in our wiki](http://docs.codehaus.org/display/IZPACK/User+documentation) once an organization members validates your pull-request,
+2. a new feature needs to be documented [in our wiki](https://izpack.atlassian.net/wiki/display/IZPACK/IzPack+Home) once an organization members validates your pull-request,
 3. you are intended to respect the source code format of existing files.
 
 ### If you are a member of the GitHub organization:
@@ -58,13 +58,6 @@ The barrier to entry is probably lower than you may expect, however keep in mind
 4. a fellow organization member must approve the pull-request,
 5. if nobody reacts to your pull request within 3 days then you can merge yourself,
 6. when reviewing an external contribution, do not forget to ask the contributor to edit the wiki documentation if you approve it.
-
-### If you are an IzPack developer on Codehaus:
-
-1. please go through the GitHub repository instead of directly pushing to Codehaus,
-2. you are free to push the state of the GitHub repository branches to Codehaus,
-3. however, do not push feature development branches to Codehaus, only `master` and version branches,
-4. you *may* directly push trivial changes to `master` or a feature branch, but this should be the exception.
 
 ## Fun facts by Ohloh
 
