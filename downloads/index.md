@@ -9,15 +9,15 @@ title: "Download IzPack"
 
 ## Direct installer download
 
-The current stable is release is **IzPack 4.3.5**.
-We have relase candidates for the upcoming **IzPack 5.0**.
+The current legacy release is **IzPack 4.3.5**.
+We encourage you to migrate to the latest release candidate for the upcoming **IzPack 5.0**.
 
-* [Download the installer for IzPack 5.0.0-rc4](http://dist.codehaus.org/izpack/releases/5.0.0-rc4/izpack-dist-5.0.0-rc4.jar)
-* [Download the installer for IzPack 4.3.5](http://dist.codehaus.org/izpack/releases/4.3.5/IzPack-install-4.3.5.jar)
+* [Download the installer for IzPack 5.0.0-rc5](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.0.0-rc5/izpack-dist-5.0.0-rc5.jar)
+* [Download the installer for IzPack 4.3.5](http://dist.codehaus.org/izpack/releases/4.3.5/IzPack-install-4.3.5.jar) (link currently unavailable)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
-    $ java -jar izpack-dist-5.0.0-rc4-installer.jar
+    $ java -jar izpack-dist-5.0.0-rc5-installer.jar
 
 If you are interested in the source code then please have a look at the [instructions for obtaining it from Git](/developers/).
 
@@ -36,12 +36,12 @@ For IzPack 5.x:
     <dependency>
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-maven-plugin</artifactId>
-        <version>5.0.0-rc4</version>
+        <version>5.0.0-rc5</version>
     </dependency>
 
 [See the new IzPack Maven plugin documentation](http://izpack.codehaus.org/izpack-maven-plugin/).
 
-If you are migrating from IzPack 4 to IzPack 5, do not forget to [read our migration notes](http://docs.codehaus.org/display/IZPACK/Upgrading+Existing+Installers+from+IzPack+4.x+to+5.0).
+If you are migrating from IzPack 4 to IzPack 5, do not forget to [read our migration notes](https://izpack.atlassian.net/wiki/display/IZPACK/Upgrading+Existing+Installers+from+IzPack+4.x+to+5.0).
 
 ## Gradle users
 
