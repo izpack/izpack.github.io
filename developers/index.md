@@ -50,7 +50,7 @@ The barrier to entry is probably lower than you may expect, however keep in mind
 2. a new feature needs to be documented [in our wiki](https://izpack.atlassian.net/wiki/display/IZPACK/IzPack+Home) once an organization members validates your pull-request,
 3. you are intended to respect the source code format of existing files.
 
-### If you are a member of the GitHub organization:
+### If you are an official developer:
 
 1. do not push directly to the `master` branch or to a version branch,
 2. you may push feature development branches at will, just give them an explicit name and/or a JIRA issue identifier,
