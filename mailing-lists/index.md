@@ -7,16 +7,30 @@ title: "IzPack mailing-lists"
   <h1>IzPack mailing-lists</h1>
 </div>
 
-The IzPack project is running 4 mailing-lists.
+The IzPack project is running 3 mailing-lists.
 
-You can subscribe to them [from Codehaus](http://xircles.codehaus.org/projects/izpack/lists):
+We recently migrated them from the terminating Codehaus organization to Google Groups, see [this blog post http://news.izpack.org/2015/05/mailinglists-migration.html]. The existing subscribers have been left and don't probably have to re-subscribe (but rather give it a try). All existing lists (except scm) have been kept, just the mail addresses change.
 
-* [announce](http://xircles.codehaus.org/lists/announce@izpack.codehaus.org) is a low-traffic mailing-list for announcements (e.g., releases)
-* [user](http://xircles.codehaus.org/lists/user@izpack.codehaus.org) is a place for users discussions, including support
-* [dev](http://xircles.codehaus.org/lists/dev@izpack.codehaus.org) is the main IzPack development channel
-* [scm](http://xircles.codehaus.org/lists/scm@izpack.codehaus.org) is directly plugged on developer-oriented events such as Git commits and JIRA notifications.
+In particular, there are activated the following lists:
+* izpack-announce@googlegroups.com<br>
+  Read more about the izpack-announce group.<br>
+  Do no longer use the former list announce@izpack.codehaus.org!<br>
+  If you are not a member you can subscribe by sending an e-mail to:<br>
+  izpack-announce+subscribe@googlegroups.com.
+* izpack-user@googlegroups.com<br>
+  Read more about the izpack-user group.<br>
+  Do no longer use the former list user@izpack.codehaus.org!<br>
+  If you are not a member you can subscribe by sending an e-mail to:<br>
+  izpack-user+subscribe@googlegroups.com.
+* izpack-dev@googlegroups.com<br>
+  Read more about the izpack-dev group.<br>
+  Do no longer use the former list dev@izpack.codehaus.org!<br>
+  If you are not a member you can subscribe by sending an e-mail to:<br>
+  izpack-dev+subscribe@googlegroups.com.
 
-The lists are also [archived on MarkMail](http://izpack.markmail.org/) and mirrored on Google Groups: [announce](http://groups.google.com/group/izpack-announce), [user](http://groups.google.com/group/izpack-user), [dev](http://groups.google.com/group/izpack-dev) and [scm](http://groups.google.com/group/izpack-scm).
+If you are not a member of one of the above groups of your interest you may subscribe to them with or without being logged on as Google user on the web interface or by mail. For more help on Google Groups visit the according help center.
+
+Be invited to join us again.
 
 ## Attic
 
