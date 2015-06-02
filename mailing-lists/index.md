@@ -12,21 +12,21 @@ The IzPack project is running 3 mailing-lists.
 We recently migrated them from the terminating Codehaus organization to Google Groups, see [this blog post http://news.izpack.org/2015/05/mailinglists-migration.html]. The existing subscribers have been left and don't probably have to re-subscribe (but rather give it a try). All existing lists (except scm) have been kept, just the mail addresses change.
 
 In particular, there are activated the following lists:
-* izpack-announce@googlegroups.com
-  Read more about the izpack-announce group.
-  Do no longer use the former list announce@izpack.codehaus.org!
-  If you are not a member you can subscribe by sending an e-mail to:
-  izpack-announce+subscribe@googlegroups.com.
-* izpack-user@googlegroups.com
-  Read more about the izpack-user group.
-  Do no longer use the former list user@izpack.codehaus.org!
-  If you are not a member you can subscribe by sending an e-mail to:
-  izpack-user+subscribe@googlegroups.com.
-* izpack-dev@googlegroups.com
-  Read more about the izpack-dev group.
-  Do no longer use the former list dev@izpack.codehaus.org!
-  If you are not a member you can subscribe by sending an e-mail to:
-  izpack-dev+subscribe@googlegroups.com.
+*  izpack-announce@googlegroups.com
+   Read more about the izpack-announce group.
+   Do no longer use the former list announce@izpack.codehaus.org!
+   If you are not a member you can subscribe by sending an e-mail to:
+   izpack-announce+subscribe@googlegroups.com.
+*  izpack-user@googlegroups.com
+   Read more about the izpack-user group.
+   Do no longer use the former list user@izpack.codehaus.org!
+   If you are not a member you can subscribe by sending an e-mail to:
+   izpack-user+subscribe@googlegroups.com.
+*  izpack-dev@googlegroups.com
+   Read more about the izpack-dev group.
+   Do no longer use the former list dev@izpack.codehaus.org!
+   If you are not a member you can subscribe by sending an e-mail to:
+   izpack-dev+subscribe@googlegroups.com.
 
 If you are not a member of one of the above groups of your interest you may subscribe to them with or without being logged on as Google user on the web interface or by mail. For more help on Google Groups visit the according help center.
 
