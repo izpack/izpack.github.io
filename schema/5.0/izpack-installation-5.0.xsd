@@ -32,7 +32,7 @@
     <!--                                                                                                        -->
     <xs:element name="installation">
         <xs:complexType>
-            <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
                 <xs:element name="properties" type="propertiesType" minOccurs="0"/>
                 <xs:element name="info" type="infoType" minOccurs="1"/>
                 <xs:element name="variables" type="variablesType" minOccurs="0"/>
@@ -49,7 +49,7 @@
                 <xs:element name="panels" type="panelsType" minOccurs="1"/>
                 <xs:element name="packs" type="packsType" minOccurs="1"/>
                 <xs:element name="natives" type="nativesType" minOccurs="0"/>
-            </xs:sequence>
+            </xs:choice>
             <xs:attribute name="version" type="xs:string" fixed="5.0"/>
         </xs:complexType>
     </xs:element>
@@ -98,11 +98,11 @@
         </xs:sequence>
     </xs:complexType>
 
-	<xs:complexType name="tempDirType">
-		<xs:attribute type="xs:string" name="variablename" use="optional" />
-		<xs:attribute type="xs:string" name="prefix" use="optional" />
-		<xs:attribute type="xs:string" name="suffix" use="optional" />
-	</xs:complexType>
+  <xs:complexType name="tempDirType">
+    <xs:attribute type="xs:string" name="variablename" use="optional" />
+    <xs:attribute type="xs:string" name="prefix" use="optional" />
+    <xs:attribute type="xs:string" name="suffix" use="optional" />
+  </xs:complexType>
 
     <xs:complexType name="runPrivilegedType">
         <xs:attribute type="xs:string" name="condition" use="optional"/>
@@ -329,18 +329,25 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:attributeGroup name="panelConfigurationOptionGroup">
+      <xs:attribute name="condition" type="xs:string" use="optional" />
+    </xs:attributeGroup>
+
     <xs:complexType name="panelType">
         <xs:sequence>
             <xs:element name="configuration" minOccurs="0">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="param" type="nameValueType" minOccurs="0" maxOccurs="unbounded"/>
+                        <!-- <xs:element name="param" type="nameValueType" minOccurs="0" maxOccurs="unbounded"/> -->
+                        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
                     </xs:sequence>
+                    <xs:attributeGroup ref="panelConfigurationOptionGroup"/>
                 </xs:complexType>
             </xs:element>
             <xs:element name="validator" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:attribute type="xs:string" name="classname" use="required"/>
+                    <xs:attribute type="xs:string" name="condition" use="optional"/>
                 </xs:complexType>
             </xs:element>
             <xs:element name="actions" minOccurs="0">
@@ -427,6 +434,7 @@
         <xs:attribute name="preselected" type="types:yesNoTrueFalseType" use="optional"/>
         <xs:attribute name="loose" type="xs:boolean" use="optional"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
+        <xs:attribute name="installGroups" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="refpackType">
@@ -454,6 +462,7 @@
         <xs:attribute name="targetdir" type="xs:string" use="optional" default="${INSTALL_PATH}"/>
         <xs:attribute name="override" type="overrideType" use="optional" default="false"/>
         <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
+        <xs:attribute name="condition" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="fileSetTypePack">
@@ -533,6 +542,7 @@
             </xs:simpleType>
         </xs:attribute>
         <xs:attribute name="keep" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="condition" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="updateCheckType">
