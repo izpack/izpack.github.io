@@ -9,7 +9,7 @@ title: "IzPack mailing-lists"
 
 The IzPack project is running 3 mailing-lists.
 
-We recently migrated them from the terminating Codehaus organization to Google Groups, see [this blog post http://news.izpack.org/2015/05/mailinglists-migration.html]. The existing subscribers have been left and don't probably have to re-subscribe (but rather give it a try). All existing lists (except scm) have been kept, just the mail addresses change.
+We recently migrated them from the terminating Codehaus organization to Google Groups, see <a href="http://news.izpack.org/2015/05/mailinglists-migration.html" target="_blank">this blog post</a>. The existing subscribers have been left and don't probably have to re-subscribe (but rather give it a try). All existing lists (except scm) have been kept, just the mail addresses change.
 
 In particular, there are activated the following lists:
 <ul>
