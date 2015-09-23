@@ -39,7 +39,7 @@ For IzPack 5.x:
         <version>5.0.5</version>
     </dependency>
 
-[See the new IzPack Maven plugin documentation](http://izpack.codehaus.org/izpack-maven-plugin/).
+[See the new IzPack Maven plugin documentation](https://izpack.atlassian.net/wiki/display/IZPACK/IzPack+Maven+Plugin+Reference).
 
 If you are migrating from IzPack 4 to IzPack 5, do not forget to [read our migration notes](https://izpack.atlassian.net/wiki/display/IZPACK/Upgrading+Existing+Installers+from+IzPack+4.x+to+5.0).
 
