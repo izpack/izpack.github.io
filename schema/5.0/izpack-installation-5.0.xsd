@@ -417,7 +417,7 @@
                 </xs:complexType>
             </xs:element>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element name="fileset" type="fileSetTypeDisk"/>
+                <xs:element name="fileset" type="overriderename"/>
                 <xs:element name="file" type="fileType"/>
                 <xs:element name="singlefile" type="singleFileType"/>
                 <xs:element name="parsable" type="parsableType"/>
@@ -462,6 +462,7 @@
         <xs:attribute name="targetdir" type="xs:string" use="optional" default="${INSTALL_PATH}"/>
         <xs:attribute name="override" type="overrideType" use="optional" default="false"/>
         <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
+        <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
     </xs:complexType>
 
@@ -484,7 +485,8 @@
         <xs:attribute name="src" type="xs:string" use="required"/>
         <xs:attribute name="targetdir" type="xs:string" use="required"/>
         <xs:attribute name="override" type="overrideType" use="optional" default="false"/>
-        <xs:attribute name="blockable" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
+        <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
         <xs:attribute name="unpack" type="xs:boolean" use="optional" default="false"/>
         <xs:attribute name="casesensitive" type="xs:boolean" use="optional" default="true"/>
         <xs:attribute name="defaultexcludes" type="xs:boolean" use="optional" default="true"/>
@@ -500,7 +502,8 @@
         <xs:attribute name="src" type="xs:string" use="required"/>
         <xs:attribute name="target" type="xs:string" use="required"/>
         <xs:attribute name="override" type="overrideType" use="optional" default="false"/>
-        <xs:attribute name="blockable" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
+        <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
         <xs:attribute name="unpack" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
 
@@ -562,6 +565,13 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="blockableType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="none"/>
+            <xs:enumeration value="auto"/>
+            <xs:enumeration value="force"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <!--                                                                                                        -->
     <!-- Natives                                                                                                -->
