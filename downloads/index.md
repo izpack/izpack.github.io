@@ -13,7 +13,7 @@ The current legacy release is **IzPack 4.3.5**.
 We encourage you to migrate to the latest release **IzPack 5.0.6**.
 
 * [Download the installer for IzPack 5.0.6](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.0.6/izpack-dist-5.0.6.jar)
-* [Download the installer for IzPack 4.3.5](http://dist.codehaus.org/izpack/releases/4.3.5/IzPack-install-4.3.5.jar) (link currently unavailable)
+* [Download the standalone compiler for IzPack 4.3.5](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
