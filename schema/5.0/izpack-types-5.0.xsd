@@ -41,17 +41,18 @@
     <!-- Conditions                                                                                             -->
     <!--                                                                                                        -->
     <xs:complexType name="conditionsType">
-        <xs:sequence>
-            <xs:element name="condition" type="conditionType" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="condition" type="conditionType"/>
             <xs:element name="panelcondition" type="panelConditionType" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+            <xs:element name="packcondition" type="packConditionType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="conditionType">
-        <xs:sequence>
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
             <xs:element name="condition" type="conditionType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="value" type="valueElementType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="variable" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="arg1" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="arg2" type="xs:string" minOccurs="0" maxOccurs="1"/>
@@ -61,7 +62,7 @@
             <xs:element name="java" type="javaType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="returnvalue" type="returnValueType" minOccurs="0" maxOccurs="1"/>
             <xs:element name="requiredusername" type="xs:string" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="id" type="xs:string"/>
         <xs:attribute name="refid" type="xs:string"/>
         <xs:attribute name="type" use="optional">
@@ -86,12 +87,22 @@
         </xs:attribute>
     </xs:complexType>
 
+    <xs:complexType name="valueElementType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="caseInsensitive" type="xs:boolean" use="optional" default="false"/>
+                <xs:attribute name="regex" type="xs:boolean" use="optional" default="false"/>
+                <xs:attribute name="byLine" type="xs:boolean" use="optional" default="true"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <xs:complexType name="javaType">
-        <xs:sequence>
+        <xs:all>
             <xs:element name="class" type="xs:string"/>
             <xs:element name="method" type="xs:string" minOccurs="0"/>
             <xs:element name="field" type="xs:string" minOccurs="0"/>
-        </xs:sequence>
+        </xs:all>
     </xs:complexType>
 
     <xs:complexType name="returnValueType" mixed="true">
@@ -105,8 +116,20 @@
     </xs:complexType>
 
     <xs:complexType name="panelConditionType">
-        <xs:attribute name="conditionid" type="xs:string" use="required"/>
         <xs:attribute name="panelid" type="xs:string" use="required"/>
+        <xs:attribute name="conditionid" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="packConditionType">
+        <xs:attribute name="packid" type="xs:string" use="required"/>
+        <xs:attribute name="conditionid" type="xs:string" use="required"/>
+        <xs:attribute name="optional" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    Whether an optional pack installation is allowed if condition is not met,
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <!--                                                                                                        -->
@@ -121,11 +144,11 @@
     <!-- Dynamic variables                                                                                      -->
     <!--                                                                                                        -->
     <xs:complexType name="dynamicVariableType">
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="value" minOccurs="0" maxOccurs="1"/>
             <xs:element name="filters" type="dynamicVariableFiltersType" minOccurs="0"/>
             <xs:element name="arg" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:boolean" name="checkonce" use="optional" default="false"/>
         <xs:attribute type="xs:string" name="condition" use="optional"/>
@@ -137,6 +160,7 @@
         <xs:attribute type="xs:string" name="file" use="optional"/>
         <xs:attribute type="xs:string" name="section" use="optional"/>
         <xs:attribute type="xs:string" name="key" use="optional"/>
+        <xs:attribute type="xs:boolean" name="escape" use="optional" default="true"/>
         <!-- configuration file in zip/jar file -->
         <xs:attribute type="xs:string" name="zipfile" use="optional"/>
         <xs:attribute type="xs:string" name="jarfile" use="optional"/>
@@ -165,12 +189,12 @@
     </xs:complexType>
 
     <xs:complexType name="dynamicVariableFiltersType">
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="regex" type="dynamicVariableRegexFilterType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="location" type="dynamicVariableLocationFilterType"
                         minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="case" type="dynamicVariableCaseFilterType" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="dynamicVariableRegexFilterType">
@@ -178,8 +202,8 @@
         <xs:attribute type="xs:string" name="select" use="optional"/>
         <xs:attribute type="xs:string" name="replace" use="optional"/>
         <xs:attribute type="xs:string" name="defaultvalue" use="optional"/>
-        <xs:attribute type="xs:boolean" name="global" use="optional"/>
-        <xs:attribute type="xs:boolean" name="casesensitive" use="optional"/>
+        <xs:attribute type="xs:boolean" name="global" use="optional" default="false"/>
+        <xs:attribute type="xs:boolean" name="casesensitive" use="optional" default="true"/>
     </xs:complexType>
 
     <xs:complexType name="dynamicVariableLocationFilterType">

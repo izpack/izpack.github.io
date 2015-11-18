@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <!--
   ~ IzPack - Copyright 2001-2012 Julien Ponge, All Rights Reserved.
   ~
@@ -112,6 +112,12 @@
             </xs:simpleType>
         </xs:attribute>
         <xs:attribute name="loglevel" default="info">
+            <xs:annotation>
+                <xs:documentation>
+                    The Ant log priority level the action should use when logging.
+                    This will be handed out to Ant and is the threshold which must be reached before Ant logs a message.
+                </xs:documentation>
+            </xs:annotation>
             <xs:simpleType>
                 <xs:restriction base="xs:NMTOKEN">
                     <xs:enumeration value="error"/>
@@ -122,11 +128,49 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
-        <xs:attribute name="logfile" type="xs:string"/>
-        <xs:attribute name="logfile_append" type="xs:boolean" default="false"/>
+        <xs:attribute name="severity" default="error">
+            <xs:annotation>
+                <xs:documentation>
+                    The severity of this action in case of errors.
+                    This tells the installer how to deal with an Ant build failure, e. g. which types of user dialogs
+                    should pop up with the given message.
+                </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:NMTOKEN">
+                    <xs:enumeration value="information"/>
+                    <xs:enumeration value="question"/>
+                    <xs:enumeration value="warning"/>
+                    <xs:enumeration value="error"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="logfile" type="xs:string" use="optional"/>
+        <xs:attribute name="logfile_append" type="xs:boolean" use="optional" default="false"/>
         <xs:attribute name="messageid" type="xs:string"/>
-        <xs:attribute name="buildfile" type="xs:string"/>
-        <xs:attribute name="buildresource" type="xs:string"/>
+        <xs:attribute name="buildfile" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    The Ant buildfile that must be preinstalled before.
+                    Cannot be just together with "buildresource".
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="buildresource" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    The Ant build resource that must be declared with this name in the resources section.
+                    Cannot be just together with "buildfile".
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="dir" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    The base directory for the called Ant build.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
     </xs:complexType>
 
