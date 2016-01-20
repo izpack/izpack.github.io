@@ -26,10 +26,10 @@
 
     <xs:element name="compilation">
         <xs:complexType>
-            <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
                 <xs:element name="global" type="globalType"/>
                 <xs:element name="jobs" type="jobsType"/>
-            </xs:sequence>
+            </xs:choice>
             <xs:attribute name="version" type="xs:string" fixed="5.0"/>
         </xs:complexType>
     </xs:element>
@@ -58,10 +58,10 @@
     </xs:complexType>
 
     <xs:complexType name="jobsType">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element name="classpath" type="classpathType" minOccurs="0"/>
             <xs:element name="job" type="jobType" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="classpathType">
@@ -71,7 +71,7 @@
 
     <xs:complexType name="jobType">
         <xs:choice>
-            <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
                 <xs:element name="packdependency" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:attribute name="name" type="xs:string" use="required"/>
@@ -90,7 +90,7 @@
                         </xs:complexType>
                     </xs:element>
                 </xs:choice>
-            </xs:sequence>
+            </xs:choice>
         </xs:choice>
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>

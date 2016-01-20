@@ -32,23 +32,23 @@
 
     <xs:element name="processing">
         <xs:complexType>
-            <xs:sequence>
+            <xs:choice maxOccurs="unbounded">
                 <xs:element name="logfiledir" type="xs:string" minOccurs="0"/>
                 <xs:element name="job" type="jobType" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="onFail" type="onFailType" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="onSuccess" type="onSuccessType" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
+            </xs:choice>
             <xs:attribute name="version" type="xs:string" fixed="5.0"/>
         </xs:complexType>
     </xs:element>
 
     <xs:complexType name="jobType">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element name="executeForPack" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="os" type="types:osType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="executefile" type="executeFileType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="executeclass" type="executeClassType" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
         <xs:attribute name="catch" type="xs:boolean" use="optional" default="false"/>
@@ -56,7 +56,7 @@
     </xs:complexType>
 
     <xs:complexType name="executeFileType">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element name="arg" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="env" minOccurs="0" maxOccurs="unbounded">
                 <xs:simpleType>
@@ -65,7 +65,7 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="workingDir" type="xs:string" use="optional"/>
     </xs:complexType>
