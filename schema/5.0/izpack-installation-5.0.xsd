@@ -489,15 +489,190 @@
         <xs:attribute name="includes" type="xs:string" use="required"/>
     </xs:complexType>
 
+
     <!--                                                                                                        -->
     <!-- File sets                                                                                              -->
     <!--                                                                                                        -->
+    <xs:complexType name="containsSelectorType">
+        <xs:attribute name="text" type="xs:string" use="required"/>
+        <xs:attribute name="casesensitive" type="xs:boolean" use="optional"/>
+        <xs:attribute name="ignorewhitespace" type="xs:boolean" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="containsregexpSelectorType">
+        <xs:attribute name="expression" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="dateSelectorType">
+        <xs:attribute name="datetime" type="xs:string" use="optional"/>
+        <xs:attribute name="millis" type="xs:integer" use="optional"/>
+        <xs:attribute name="when" use="optional" default="equal">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="before"/>
+                    <xs:enumeration value="after"/>
+                    <xs:enumeration value="equal"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="granularity" type="xs:integer" use="optional" default="0"/>
+        <xs:attribute name="pattern" type="xs:string" use="optional"/>
+        <xs:attribute name="checkdirs" type="xs:boolean" use="optional" default="false"/>
+    </xs:complexType>
+    <xs:complexType name="dependSelectorType">
+        <xs:attribute name="targetdir" type="xs:string" use="required"/>
+        <xs:attribute name="granularity" type="xs:integer" use="optional" default="0"/>
+    </xs:complexType>
+    <xs:complexType name="depthSelectorType">
+        <xs:attribute name="min" type="xs:integer" use="optional"/>
+        <xs:attribute name="max" type="xs:integer" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="differentSelectorType">
+        <xs:attribute name="targetdir" type="xs:string" use="required"/>
+        <xs:attribute name="ignoreFileTimes" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="ignoreContents" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="granularity" type="xs:integer" use="optional" default="0"/>
+    </xs:complexType>
+    <xs:complexType name="filenameSelectorType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="casesensitive" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="negate" type="xs:boolean" use="optional" default="false"/>
+    </xs:complexType>
+    <xs:complexType name="presentSelectorType">
+        <xs:attribute name="targetdir" type="xs:string" use="required"/>
+        <xs:attribute name="present" use="optional" default="both">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="srconly"/>
+                    <xs:enumeration value="both"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="sizeSelectorType">
+        <xs:attribute name="value" type="xs:integer" use="required"/>
+        <xs:attribute name="units" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="K"/>
+                    <xs:enumeration value="k"/>
+                    <xs:enumeration value="kilo"/>
+                    <xs:enumeration value="KILO"/>
+                    <xs:enumeration value="Ki"/>
+                    <xs:enumeration value="KI"/>
+                    <xs:enumeration value="ki"/>
+                    <xs:enumeration value="kibi"/>
+                    <xs:enumeration value="KIBI"/>
+                    <xs:enumeration value="M"/>
+                    <xs:enumeration value="m"/>
+                    <xs:enumeration value="mega"/>
+                    <xs:enumeration value="MEGA"/>
+                    <xs:enumeration value="Mi"/>
+                    <xs:enumeration value="MI"/>
+                    <xs:enumeration value="mi"/>
+                    <xs:enumeration value="mebi"/>
+                    <xs:enumeration value="MEBI"/>
+                    <xs:enumeration value="G"/>
+                    <xs:enumeration value="g"/>
+                    <xs:enumeration value="giga"/>
+                    <xs:enumeration value="GIGA"/>
+                    <xs:enumeration value="Gi"/>
+                    <xs:enumeration value="GI"/>
+                    <xs:enumeration value="gi"/>
+                    <xs:enumeration value="gibi"/>
+                    <xs:enumeration value="GIBI"/>
+                    <xs:enumeration value="T"/>
+                    <xs:enumeration value="t"/>
+                    <xs:enumeration value="tera"/>
+                    <xs:enumeration value="TERA"/>
+                    <xs:enumeration value="Ti"/>
+                    <xs:enumeration value="TI"/>
+                    <xs:enumeration value="ti"/>
+                    <xs:enumeration value="tebi"/>
+                    <xs:enumeration value="TEBI"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="when" use="optional" default="less">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="less"/>
+                    <xs:enumeration value="more"/>
+                    <xs:enumeration value="equal"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+    <xs:complexType name="typeSelectorType">
+        <xs:attribute name="type" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="file"/>
+                    <xs:enumeration value="dir"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="fileSetSelectorType">
+        <xs:choice>
+            <!-- Selectors -->
+            <xs:element name="contains" type="containsSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="containsregexp" type="containsregexpSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="date" type="dateSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="depend" type="dependSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="depth" type="depthSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="different" type="differentSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="filename" type="filenameSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="present" type="presentSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="size" type="sizeSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="type" type="typeSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="fileSetContainerSelectorType">
+        <xs:choice>
+            <!-- Selector containers - may be recursively defined -->
+            <xs:element name="and" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="majority" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="none" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="not" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="or" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- Selectors - is the leaf of a selector container recursion -->
+            <xs:element name="contains" type="containsSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="containsregexp" type="containsregexpSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="date" type="dateSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="depend" type="dependSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="depth" type="depthSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="different" type="differentSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="filename" type="filenameSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="present" type="presentSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="size" type="sizeSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="type" type="typeSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+    </xs:complexType>
+
     <xs:complexType name="fileSetTypeDisk">
         <xs:choice maxOccurs="unbounded">
             <xs:element name="include" type="types:includeExcludeType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="exclude" type="types:includeExcludeType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="additionaldata" type="additionalDataType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="os" type="types:osType" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- Selector containers -->
+            <xs:element name="and" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="majority" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="none" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="not" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="or" type="fileSetContainerSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <!-- Selectors -->
+            <xs:element name="contains" type="containsSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="containsregexp" type="containsregexpSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="date" type="dateSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="depend" type="dependSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="depth" type="depthSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="different" type="differentSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="filename" type="filenameSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="present" type="presentSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="size" type="sizeSelectorType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="type" type="typeSelectorType" minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
         <xs:attribute name="dir" type="xs:string" use="required"/>
         <xs:attribute name="includes" type="xs:string" use="optional"/>
@@ -508,6 +683,7 @@
         <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
     </xs:complexType>
+
 
     <xs:complexType name="fileSetTypePack">
         <xs:choice maxOccurs="unbounded">
