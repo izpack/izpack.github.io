@@ -90,7 +90,9 @@
             <xs:element name="summarylogfilepath" type="xs:string" minOccurs="0"/>
             <xs:element name="uninstaller" type="uninstallerType" minOccurs="0"/>
             <xs:element name="writeinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0"/>
+            <xs:element name="readinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0"/>
             <xs:element name="rebootaction" type="rebootActionType" minOccurs="0"/>
+            <xs:element name="webdir" type="xs:anyURI" minOccurs="0"/>
         </xs:all>
     </xs:complexType>
 
@@ -472,16 +474,22 @@
         </xs:choice>
         <xs:attribute name="id" type="xs:string"/>
         <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="packImgId" type="xs:string" use="optional"/>
         <xs:attribute name="required" type="types:yesNoTrueFalseType"/>
         <xs:attribute name="hidden" type="xs:boolean" default="false"/>
         <xs:attribute name="preselected" type="types:yesNoTrueFalseType" use="optional"/>
         <xs:attribute name="loose" type="xs:boolean" use="optional"/>
+        <xs:attribute name="uninstall" type="types:yesNoTrueFalseType" use="optional"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
         <xs:attribute name="installGroups" type="xs:string" use="optional"/>
+        <xs:attribute name="excludeGroup" type="xs:string" use="optional"/>
+        <xs:attribute name="parent" type="xs:string" use="optional"/>
+        <xs:attribute name="group" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="refpackType">
         <xs:attribute name="file" type="xs:string" use="required"/>
+        <xs:attribute name="selfcontained" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="refpackSetType">
@@ -678,10 +686,14 @@
         <xs:attribute name="includes" type="xs:string" use="optional"/>
         <xs:attribute name="excludes" type="xs:string" use="optional"/>
         <xs:attribute name="targetdir" type="xs:string" use="optional" default="${INSTALL_PATH}"/>
-        <xs:attribute name="override" type="overrideType" use="optional" default="false"/>
+        <xs:attribute name="override" type="overrideType" use="optional" default="update"/>
         <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
         <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
+        <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
+        <xs:attribute name="casesensitive" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="defaultexcludes" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="followsymlinks" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
 
 
@@ -703,13 +715,15 @@
         </xs:choice>
         <xs:attribute name="src" type="xs:string" use="required"/>
         <xs:attribute name="targetdir" type="xs:string" use="required"/>
-        <xs:attribute name="override" type="overrideType" use="optional" default="false"/>
+        <xs:attribute name="override" type="overrideType" use="optional" default="update"/>
         <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
         <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
         <xs:attribute name="unpack" type="xs:boolean" use="optional" default="false"/>
         <xs:attribute name="casesensitive" type="xs:boolean" use="optional" default="true"/>
         <xs:attribute name="defaultexcludes" type="xs:boolean" use="optional" default="true"/>
         <xs:attribute name="followsymlinks" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
+        <xs:attribute name="condition" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="singleFileType">
@@ -720,10 +734,12 @@
         </xs:choice>
         <xs:attribute name="src" type="xs:string" use="required"/>
         <xs:attribute name="target" type="xs:string" use="required"/>
-        <xs:attribute name="override" type="overrideType" use="optional" default="false"/>
+        <xs:attribute name="override" type="overrideType" use="optional" default="update"/>
         <xs:attribute name="overrideRenameTo" type="xs:string" use="optional"/>
         <xs:attribute name="blockable" type="blockableType" use="optional" default="none"/>
         <xs:attribute name="unpack" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
+        <xs:attribute name="condition" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="parsableType">
@@ -735,6 +751,7 @@
         <xs:attribute name="type" type="substitutionType" use="optional" default="plain"/>
         <xs:attribute name="encoding" type="xs:string" use="optional"/>
         <xs:attribute name="condition" type="xs:string" use="optional"/>
+        <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="executableType">
@@ -782,7 +799,8 @@
     				<xs:enumeration value="ignore" />
     			</xs:restriction>
         	</xs:simpleType>
-	    </xs:attribute>    
+	    </xs:attribute>
+        <xs:attribute name="os" type="types:osFamilyAttributeType" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="updateCheckType">
@@ -864,6 +882,5 @@
             <xs:enumeration value="xml"/>
         </xs:restriction>
     </xs:simpleType>
-
 
 </xs:schema>
