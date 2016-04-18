@@ -10,11 +10,6 @@ title: "Developers: Hack on IzPack!"
   </h1>
 </div>
 
-<div class="alert alert-success">
-  <h3>IzPack is an opensource project that values meritocracy.</h3>
-  <span>Code speaks louder than endless discussions!</span>
-</div>
-
 <div class="alert alert-error">
   <h3>Do not attach patches to JIRA issues.</h3>
   <span>Attach a link to a pull request on our GitHub repository instead!</span>
