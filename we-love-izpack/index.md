@@ -51,6 +51,13 @@ This initiative promotes those who use and/or contribute to IzPack. We use the f
   <h1>They use IzPack</h1>
 </div>
 
+[![LogicalDOC](/img-lovers/LogicalDocTransp326.png)](http://www.logicaldoc.com/)
+
+> "We adopted izPack for the installation of LogicalDOC - Document Management System  because we found it the best packaging tool to create professional installers for Java applications. We appreciate the platform independency that allows us to compile once and install our software in Windows, Linux and Mac systems.
+>Another really nice feature is the console mode installer, which is a perfect for a server-based project such as our." **-- Marco Meschieri, LogicalDOC**
+
+<hr/>
+
 [![SpringSource Tool Suite](/img-lovers/springsource.png)](http://www.springsource.com/developer/sts)
 
 > "We are using IzPack to create cross-platform installers for our SpringSource Tool Suite. IzPack has proven to provide the flexibility and extensibility that we need for creating installers that can run natively on our target platforms. By using IzPack we could provide our users a very simple and intuitive installation procedure that gets them up and running within minutes with no manual installation steps. Thanks to the IzPack project for this nice piece of open source software." **-- Christian Dupuis, SpringSource, a division of VMware**
