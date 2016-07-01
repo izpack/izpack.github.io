@@ -82,18 +82,22 @@
             <xs:element name="appsubpath" type="xs:string" minOccurs="0"/>
             <xs:element name="authors" type="authorsType" minOccurs="0"/>
             <xs:element name="url" type="xs:string" minOccurs="0"/>
-            <xs:element name="javaversion" type="xs:string" minOccurs="0"/>
+            <xs:element name="javaversion" type="javaVersionType" minOccurs="0"/>
             <xs:element name="requiresjdk" type="xs:string" minOccurs="0"/>
             <xs:element name="pack200" minOccurs="0"/>
             <xs:element name="tempdir" type="tempDirType" minOccurs="0" />
             <xs:element name="run-privileged" type="runPrivilegedType" minOccurs="0"/>
             <xs:element name="summarylogfilepath" type="xs:string" minOccurs="0"/>
             <xs:element name="uninstaller" type="uninstallerType" minOccurs="0"/>
-            <xs:element name="writeinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0"/>
-            <xs:element name="readinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0"/>
+            <xs:element name="writeinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0" default="true"/>
+            <xs:element name="readinstallationinformation" type="types:yesNoTrueFalseType" minOccurs="0" default="true"/>
             <xs:element name="rebootaction" type="rebootActionType" minOccurs="0"/>
             <xs:element name="webdir" type="xs:anyURI" minOccurs="0"/>
         </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="javaVersionType" mixed="true">
+        <xs:attribute type="types:yesNoTrueFalseType" name="strict" use="optional" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="authorsType">
@@ -176,7 +180,7 @@
         <xs:sequence>
             <xs:element name="installerrequirement" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
-                    <xs:attribute name="status" use="required">
+                    <xs:attribute name="severity" use="required">
                         <xs:simpleType>
                             <xs:restriction base="xs:string">
                                 <xs:enumeration value="warning"/>
@@ -415,6 +419,7 @@
             </xs:element>
         </xs:choice>
         <xs:attribute type="xs:string" name="classname" use="optional"/>
+        <xs:attribute type="xs:string" name="jar" use="optional"/>
         <xs:attribute type="xs:string" name="id" use="optional"/>
         <xs:attribute type="xs:string" name="encoding" use="optional"/>
         <xs:attribute type="xs:string" name="condition" use="optional"/>
@@ -449,6 +454,11 @@
     <xs:complexType name="packType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element name="description" type="xs:string" maxOccurs="1"/>
+            <xs:element name="depends" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="packname" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="onSelect" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
                     <xs:attribute name="name" type="xs:string" use="required"/>

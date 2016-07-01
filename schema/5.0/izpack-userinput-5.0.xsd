@@ -136,9 +136,37 @@
                         <xs:element name="choice" type="choiceSpecType" minOccurs="0" maxOccurs="unbounded"/>
                         <xs:element name="col" type="columnFieldColSpecType" minOccurs="0" maxOccurs="unbounded"/>
                         <xs:element name="processor" type="processorFieldColSpecType" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:element name="run" type="buttonFieldSpecRunType" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:choice>
-                    <xs:attribute name="id" type="xs:string" use="optional"/>
-                    <xs:attribute name="false" type="xs:string" use="optional"/>
+                    <xs:attribute name="id" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>ID of the label translation.</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="txt" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>Default text when no label translation can be found.</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="false" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>Used by "check" fields as value when unchecked</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="true" type="xs:string" use="optional">
+                        <xs:annotation>
+                            <xs:documentation>Used by "check" fields as value when checked</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="successMsg" type="xs:string" use="optional" default="">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Used by "button" fields:
+                                ID of the translation or text of the success message if the action or validator
+                                executed without issue.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
                     <xs:attribute name="filename" type="xs:string" use="optional">
                         <xs:annotation>
                             <xs:documentation>Used by "search" fields</xs:documentation>
@@ -256,8 +284,6 @@
                             </xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
-                    <xs:attribute name="true" type="xs:string" use="optional"/>
-                    <xs:attribute name="txt" type="xs:string" use="optional"/>
                 </xs:complexType>
             </xs:element>
             <xs:element name="os" minOccurs="0" maxOccurs="unbounded">
@@ -427,6 +453,40 @@
             <xs:annotation>
                 <xs:documentation>
                     The class implementing the field processor.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="buttonFieldSpecRunType">
+        <xs:sequence minOccurs="0">
+            <xs:element name="msg" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:attribute name="name" type="xs:string" use="required">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Indicate the key to be used to obtain the given text from the your cusom action or
+                                validator.
+                                Common names may include 'warn', 'error', 'info', this will become more apparent if
+                                default button actions are implemented.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="id" type="xs:string" use="required">
+                        <xs:annotation>
+                            <xs:documentation>
+                                The translation or text you want to pass to your custom button action class.
+                                Attempts to retrieve text from the appropriate CustomLangPack file.
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="class" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    The class to be run when the button is clicked.
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
