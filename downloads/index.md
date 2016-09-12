@@ -17,7 +17,7 @@ We encourage you to migrate to the latest release **IzPack 5.0.10**.
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
-    $ java -jar izpack-dist-5.0.9-installer.jar
+    $ java -jar izpack-dist-5.0.10-installer.jar
 
 If you are interested in the source code then please have a look at the [instructions for obtaining it from Git](/developers/).
 
