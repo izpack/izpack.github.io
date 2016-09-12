@@ -11,6 +11,13 @@ This initiative promotes those who use and/or contribute to IzPack. We use the f
   <h1>They contribute to IzPack</h1>
 </div>
 
+[![LogicalDOC](/img-lovers/LogicalDocTransp326.png)](http://www.logicaldoc.com/)
+
+> "We adopted izPack for the installation of LogicalDOC - Document Management System  because we found it the best packaging tool to create professional installers for Java applications. We appreciate the platform independency that allows us to compile once and install our software in Windows, Linux and Mac systems.
+>Another really nice feature is the console mode installer, which is a perfect for a server-based project such as our." **-- Marco Meschieri, LogicalDOC**
+
+<hr/>
+
 [![Silverpeas](/img-lovers/silverpeas.png)](http://www.silverpeas.com/)
 
 > "Silverpeas, Open source Xnet portal 
@@ -50,13 +57,6 @@ This initiative promotes those who use and/or contribute to IzPack. We use the f
 <div class="page-header">
   <h1>They use IzPack</h1>
 </div>
-
-[![LogicalDOC](/img-lovers/LogicalDocTransp326.png)](http://www.logicaldoc.com/)
-
-> "We adopted izPack for the installation of LogicalDOC - Document Management System  because we found it the best packaging tool to create professional installers for Java applications. We appreciate the platform independency that allows us to compile once and install our software in Windows, Linux and Mac systems.
->Another really nice feature is the console mode installer, which is a perfect for a server-based project such as our." **-- Marco Meschieri, LogicalDOC**
-
-<hr/>
 
 [![SpringSource Tool Suite](/img-lovers/springsource.png)](http://www.springsource.com/developer/sts)
 
