@@ -10,10 +10,10 @@ title: "Download IzPack"
 ## Direct installer download
 
 The current legacy release is **IzPack 4.3.5**.
-We encourage you to migrate to the latest release **IzPack 5.0.9**.
+We encourage you to migrate to the latest release **IzPack 5.0.10**.
 
-* [Download the installer for IzPack 5.0.9](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.0.9/izpack-dist-5.0.9.jar)
-* [Download the standalone compiler for IzPack 4.3.5](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/)
+* [Download the installer for IzPack 5.0.10](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.0.10/izpack-dist-5.0.10.jar)
+* [Download the standalone compiler for IzPack (legacy version) 4.3.5](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
@@ -36,7 +36,7 @@ For IzPack 5.x:
     <dependency>
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-maven-plugin</artifactId>
-        <version>5.0.9</version>
+        <version>5.0.10</version>
     </dependency>
 
 [See the new IzPack Maven plugin documentation](https://izpack.atlassian.net/wiki/display/IZPACK/IzPack+Maven+Plugin+Reference).
