@@ -74,18 +74,9 @@ PackJacket is not affiliated with the IzPack project, and is released under the 
 
 ## Native launchers
 
-We developed a simple Windows native launcher that can check for the presence of a Java Runtime, and install it if need be:
+IzPack 4 came along with a simple Windows native launcher that could check for the presence of a Java Runtime, and install it if need be:
 
-* [Version 2.2, based on Qt](http://dist.codehaus.org/izpack/native-launcher/izpack-launcher-2.2.zip)
-* [Version 1.3, based on wxWidgets](http://dist.codehaus.org/izpack/native-launcher/izpack-launcher-1.3.zip)
+This launcher is currently not supported in IzPack 5 due to a missing maintainer for this feature.
+If you like to take care about this just join us!
 
 You may alternatively look at the independent [JSmooth](http://jsmooth.sourceforge.net/) and [Launch4J](http://launch4j.sourceforge.net/) opensource projects. Lots of users have had positive experiences mixing them with IzPack based installers!
-
-## Showcases
-
-We have a few showcase that we designed in the past:
-
-* [Installer for GlassFish v2.1.1 b31g](http://dist.codehaus.org/izpack/showcases/glassfish-install-v2.1.1-b31g.jar)
-* [Installer for GlassFish v3 Prelude](http://dist.codehaus.org/izpack/showcases/glassfish-v3-prelude-install.jar)
-
-The source code for building those installers is [available from our old Subversion repository](http://svn.codehaus.org/izpack-svn/izpack-showcases/).
