@@ -74,9 +74,7 @@ PackJacket is not affiliated with the IzPack project, and is released under the 
 
 ## Native launchers
 
-IzPack 4 came along with a simple Windows native launcher that could check for the presence of a Java Runtime, and install it if need be:
-
-This launcher is currently not supported in IzPack 5 due to a missing maintainer for this feature.
+IzPack 4 came along with a simple Windows native launcher that could check for the presence of a Java Runtime, and install it if need be. This launcher is currently not supported in IzPack 5 due to a missing maintainer for this feature.
 If you like to take care about this just join us!
 
 You may alternatively look at the independent [JSmooth](http://jsmooth.sourceforge.net/) and [Launch4J](http://launch4j.sourceforge.net/) opensource projects. Lots of users have had positive experiences mixing them with IzPack based installers!
