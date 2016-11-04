@@ -78,7 +78,7 @@ This initiative promotes those who use and/or contribute to IzPack. We use the f
 
 [![Terracotta](/img-lovers/terracotta.jpg)](http://www.terracotta.org/)
 
-> Terracotta uses IzPack, and we are waiting for their words which should arrive shortly.
+> Terracotta uses IzPack.
 
 <hr/>
 
