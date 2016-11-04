@@ -10,14 +10,14 @@ title: "Download IzPack"
 ## Direct installer download
 
 The current legacy release is **IzPack 4.3.5**.
-We encourage you to migrate to the latest release **IzPack 5.0.9**.
+We encourage you to migrate to the latest release **IzPack 5.0.10**.
 
-* [Download the installer for IzPack 5.0.9](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.0.9/izpack-dist-5.0.9.jar)
-* [Download the standalone compiler for IzPack 4.3.5](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/)
+* [Download the installer for IzPack 5.0.10](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.0.10/izpack-dist-5.0.10.jar)
+* [Download the standalone compiler for IzPack (legacy version) 4.3.5](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
-    $ java -jar izpack-dist-5.0.9-installer.jar
+    $ java -jar izpack-dist-5.0.10-installer.jar
 
 If you are interested in the source code then please have a look at the [instructions for obtaining it from Git](/developers/).
 
@@ -36,7 +36,7 @@ For IzPack 5.x:
     <dependency>
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-maven-plugin</artifactId>
-        <version>5.0.9</version>
+        <version>5.0.10</version>
     </dependency>
 
 [See the new IzPack Maven plugin documentation](https://izpack.atlassian.net/wiki/display/IZPACK/IzPack+Maven+Plugin+Reference).
@@ -74,18 +74,7 @@ PackJacket is not affiliated with the IzPack project, and is released under the 
 
 ## Native launchers
 
-We developed a simple Windows native launcher that can check for the presence of a Java Runtime, and install it if need be:
-
-* [Version 2.2, based on Qt](http://dist.codehaus.org/izpack/native-launcher/izpack-launcher-2.2.zip)
-* [Version 1.3, based on wxWidgets](http://dist.codehaus.org/izpack/native-launcher/izpack-launcher-1.3.zip)
+IzPack 4 came along with a simple Windows native launcher that could check for the presence of a Java Runtime, and install it if need be. This launcher is currently not supported in IzPack 5 due to a missing maintainer for this feature.
+If you like to take care about this just join us!
 
 You may alternatively look at the independent [JSmooth](http://jsmooth.sourceforge.net/) and [Launch4J](http://launch4j.sourceforge.net/) opensource projects. Lots of users have had positive experiences mixing them with IzPack based installers!
-
-## Showcases
-
-We have a few showcase that we designed in the past:
-
-* [Installer for GlassFish v2.1.1 b31g](http://dist.codehaus.org/izpack/showcases/glassfish-install-v2.1.1-b31g.jar)
-* [Installer for GlassFish v3 Prelude](http://dist.codehaus.org/izpack/showcases/glassfish-v3-prelude-install.jar)
-
-The source code for building those installers is [available from our old Subversion repository](http://svn.codehaus.org/izpack-svn/izpack-showcases/).
