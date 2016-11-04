@@ -88,9 +88,9 @@ This initiative promotes those who use and/or contribute to IzPack. We use the f
 
 <hr/>
 
-[![Griffon](http://dist.codehaus.org/griffon/media/griffon.png)](http://griffon.codehaus.org/)
+[![Griffon](/img-lovers/griffon.png)](http://griffon-framework.org/)
 
-> "We chose IzPack because of its track record across the years in delivering platform independent installers for Java based tools and applications. Setting it up was a breeze (there's good documentation and plenty of examples out there) and now our build happily churns out an installer whenever we feel like having one. IzPack is not only used to deliver binary and source packages of the Griffon framework but also to build installers for any Griffon application if the [Installer plugin](http://griffon.codehaus.org/installer+plugin) is available. **Griffon &lt;3 IzPack.**" **-- Andres Almiray, Griffon**
+> "We chose IzPack because of its track record across the years in delivering platform independent installers for Java based tools and applications. Setting it up was a breeze (there's good documentation and plenty of examples out there) and now our build happily churns out an installer whenever we feel like having one. IzPack is not only used to deliver binary and source packages of the Griffon framework but also to build installers for any Griffon application if the [Installer plugin](https://github.com/griffon/griffon-installer-plugin) is available. **-- Andres Almiray, Griffon**
 
 <hr/>
 
