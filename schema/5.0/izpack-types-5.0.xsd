@@ -184,7 +184,6 @@
         <xs:attribute type="xs:boolean" name="ignorefailure" use="optional" default="true"/>
         <!-- Windows registry -->
         <xs:attribute type="xs:string" name="regkey" use="optional"/>
-        <xs:attribute type="xs:string" name="regroot" use="optional"/>
         <xs:attribute type="xs:string" name="regvalue" use="optional"/>
         <!-- Command execution -->
         <xs:attribute type="xs:string" name="executable" use="optional"/>
@@ -256,5 +255,49 @@
             <xs:pattern value="([\p{L}_$][\p{L}\p{N}_$]*\.)*[\p{L}_$][\p{L}\p{N}_$]*"/>
         </xs:restriction>
     </xs:simpleType>
+
+
+    <!--                                                                                                        -->
+    <!--Logging                                                                                                 -->
+    <!--                                                                                                        -->
+
+    <xs:simpleType name="loggingLevelType">
+        <xs:annotation>
+            <xs:documentation>
+                Specifies the java.util.logging default level for the handler.
+                See https://docs.oracle.com/javase/6/docs/api/java/util/logging/Level.html for more information.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="OFF"/>
+            <xs:enumeration value="SEVERE"/>
+            <xs:enumeration value="WARNING"/>
+            <xs:enumeration value="INFO"/>
+            <xs:enumeration value="CONFIG"/>
+            <xs:enumeration value="FINE"/>
+            <xs:enumeration value="FINER"/>
+            <xs:enumeration value="FINEST"/>
+            <xs:enumeration value="ALL"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="configurationSectionType" abstract="true">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="configuration" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <!-- <xs:element name="param" type="nameValueType" minOccurs="0" maxOccurs="unbounded"/> -->
+                        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element maxOccurs="unbounded" name="param">
+                <xs:complexType>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                    <xs:attribute name="value" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
 
 </xs:schema>
