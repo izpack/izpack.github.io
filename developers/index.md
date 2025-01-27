@@ -4,13 +4,13 @@ title: "Developers: Hack on IzPack!"
 ---
 
 <div class="page-header">
-  <h1>
-    Developers: Hack on IzPack!
-    <small>We love bug fixes, improvements and new features!</small>
-  </h1>
+  <h1>Developers: Hack on IzPack!</h1>
+  We love bug fixes, improvements and new features!
 </div>
 
-<div class="alert alert-error">
+<hr>
+
+<div class="alert alert-danger" role="alert">
   <h3>Do not attach patches to JIRA issues.</h3>
   <span>Attach a link to a pull request on our GitHub repository instead!</span>
 </div>
@@ -53,15 +53,4 @@ The barrier to entry is probably lower than you may expect, however keep in mind
 4. a fellow organization member must approve the pull-request,
 5. if nobody reacts to your pull request within 3 days then you can merge yourself,
 6. when reviewing an external contribution, do not forget to ask the contributor to edit the wiki documentation if you approve it.
-
-## Fun facts by Ohloh
-
-<div class="row">
-  <div class="span4">
-    <script type="text/javascript" src="http://www.ohloh.net/p/5148/widgets/project_factoids_stats.js"> </script>
-  </div>
-  <div class="span4">
-    <script type="text/javascript" src="http://www.ohloh.net/p/5148/widgets/project_languages.js"> </script>
-  </div>
-</div>
 
