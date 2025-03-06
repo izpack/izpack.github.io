@@ -11,8 +11,7 @@ title: "Download IzPack"
 
 The current release **IzPack 5.2.4**.
 
-* [Download the installer for IzPack 5.2.4](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.2.4/izpack-dist-5.2.4.jar)
-* [Download the standalone compiler for IzPack (legacy version) 4.3.5](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/)
+* [Download the installer for IzPack 5.2.4](https://repo1.maven.org/maven2/org/codehaus/izpack/izpack-dist/5.2.4/izpack-dist-5.2.4-installer.jar)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
