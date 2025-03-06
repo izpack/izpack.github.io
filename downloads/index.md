@@ -9,39 +9,28 @@ title: "Download IzPack"
 
 ## Direct installer download
 
-The current legacy release is **IzPack 4.3.5**.
-We encourage you to migrate to the latest release **IzPack 5.2.3**.
+The current release **IzPack 5.2.4**.
 
-* [Download the installer for IzPack 5.2.3](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.2.3/izpack-dist-5.2.3.jar)
+* [Download the installer for IzPack 5.2.4](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-dist/5.2.4/izpack-dist-5.2.4.jar)
 * [Download the standalone compiler for IzPack (legacy version) 4.3.5](https://oss.sonatype.org/content/repositories/releases/org/codehaus/izpack/izpack-standalone-compiler/4.3.5/)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
-    $ java -jar izpack-dist-5.2.3-installer.jar
+    $ java -jar izpack-dist-5.2.4-installer.jar
 
 If you are interested in the source code then please have a look at the [instructions for obtaining it from Git](/developers/).
 
 ## Maven users
 
-For IzPack 4.3.5:
-
-    <dependency>
-        <groupId>org.codehaus.izpack</groupId>
-        <artifactId>izpack-standalone-compiler</artifactId>
-        <version>4.3.5</version>
-    </dependency>
-
-For IzPack 5.2.3:
+For IzPack 5.2.4:
 
     <dependency>
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-maven-plugin</artifactId>
-        <version>5.2.3</version>
+        <version>5.2.4</version>
     </dependency>
 
 [See the new IzPack Maven plugin documentation](https://izpack.atlassian.net/wiki/display/IZPACK/IzPack+Maven+Plugin+Reference).
-
-If you are migrating from IzPack 4 to IzPack 5, do not forget to [read our migration notes](https://izpack.atlassian.net/wiki/display/IZPACK/Upgrading+Existing+Installers+from+IzPack+4.x+to+5.0).
 
 ## Gradle users
 
@@ -78,3 +67,7 @@ IzPack 4 came along with a simple Windows native launcher that could check for t
 If you like to take care about this just join us!
 
 You may alternatively look at the independent [JSmooth](http://jsmooth.sourceforge.net/) and [Launch4J](http://launch4j.sourceforge.net/) opensource projects. Lots of users have had positive experiences mixing them with IzPack based installers!
+
+## Migrate from IzPack 4.x
+
+If you are migrating from IzPack 4 to IzPack 5, do not forget to [read our migration notes](https://izpack.atlassian.net/wiki/display/IZPACK/Upgrading+Existing+Installers+from+IzPack+4.x+to+5.0).
