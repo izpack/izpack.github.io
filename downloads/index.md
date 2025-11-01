@@ -49,7 +49,7 @@ Niklaus Giger maintains a plug-in for [Apache BuildrR](http://buildr.apache.org/
 ## Graphical user interfaces
 
 <h3>DCP Setup Maker</h3>
-[DCP Setup Maker](http://www.devcompack.com/setupmaker/) is an opensource project, powered by IzPack and developed by SAID EL IMAM Said,
+[DCP Setup Maker](https://github.com/DevComPack/setupmaker) is an opensource project, powered by IzPack and developed by SAID EL IMAM Said,
 that generates java installers easily for a set of files, without the need of coding knowledge.
 It automatically writes the xml code, and compiles it for you.
 
