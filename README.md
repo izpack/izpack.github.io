@@ -1,3 +1,3 @@
 # IzPack website
 
-Source code for the [IzPack public website](https://izpack.github.io/).
+Source code for the [IzPack public website](https://izpack.org/).
