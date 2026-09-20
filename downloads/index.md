@@ -9,24 +9,24 @@ title: "Download IzPack"
 
 ## Direct installer download
 
-The current release **IzPack 5.2.6**.
+The current release **IzPack 5.2.7**.
 
-* [Download the installer for IzPack 5.2.6](https://repo1.maven.org/maven2/org/codehaus/izpack/izpack-dist/5.2.6/izpack-dist-5.2.6-installer.jar)
+* [Download the installer for IzPack 5.2.7](https://repo1.maven.org/maven2/org/codehaus/izpack/izpack-dist/5.2.7/izpack-dist-5.2.7-installer.jar)
 
 Launching an IzPack-based installer is easy. On most operating systems, a double-click on the Jar file icon will do. Otherwise, you may need to launch it from a shell command:
 
-    $ java -jar izpack-dist-5.2.6-installer.jar
+    $ java -jar izpack-dist-5.2.7-installer.jar
 
 If you are interested in the source code then please have a look at the [instructions for obtaining it from Git](/developers/).
 
 ## Maven users
 
-For IzPack 5.2.6:
+For IzPack 5.2.7:
 
     <dependency>
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-maven-plugin</artifactId>
-        <version>5.2.6</version>
+        <version>5.2.7</version>
     </dependency>
 
 [See the new IzPack Maven plugin documentation](https://izpack.atlassian.net/wiki/display/IZPACK/IzPack+Maven+Plugin+Reference).
